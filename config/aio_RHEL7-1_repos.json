@@ -1,0 +1,20 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops-rhel-7-1",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "RHEL-7.1-Server-x86_64-latest",
+            "metadata": {
+                "myvar": "ci-ops-rhel-7-1",
+                "message": "Hello World"
+            },
+            "repos": [
+                {
+                    "name": "rhel7-extras",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng/latest-EXTRAS-7-RHEL-7/compose/Server/x86_64/os/"
+                }
+            ]
+        }
+   ]
+}

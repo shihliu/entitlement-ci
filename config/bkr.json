@@ -1,0 +1,35 @@
+{
+    "resources": [
+        {
+            "metadata": {
+                "username": "someuser",
+                "key": "somekey.pem"
+            },
+            "recipesets": [
+                {
+                    "distro": "RHEL-6.5",
+                    "arch": "X86_64",
+                    "keyvalue": ["DISKSPACE>=20000"],
+                    "variant": "Server",
+                    "hostrequire": ["arch=X86_64", "memory>=1000"],
+                    "bkr_data": {
+                        "role": "Server",
+                        "name": "AppServer"
+                    }
+                },
+                {
+                    "distro": "RHEL-6.4",
+                    "arch": "X86_64",
+                    "keyvalue": ["DISKSPACE>=20000"],
+                    "variant": "Workstation",
+                    "hostrequire": ["arch=X86_64", "memory>=2000"],
+                    "bkr_data": {
+                        "role": "Client",
+                        "name": "AppClient"
+                    }
+                }
+            ],
+            "job_group": "ci-ops-central"
+        }
+   ]
+}

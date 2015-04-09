@@ -1,0 +1,40 @@
+{
+  "resources": [
+    {
+        "recipesets": [
+            {
+                "distro": "RHEL5.11-Server-20140827.0",
+                "arch": "X86_64",
+                "hostrequire": ["arch=X86_64"],
+                "bkr_data": {
+                    "role": "Client",
+                    "name": "AppServer"
+                }
+            },
+            {
+                "family": "RedHatEnterpriseLinux7",
+                "tag": ["RTT_ACCEPTED"],
+                "arch": "X86_64",
+                "variant": "Server",
+                "hostrequire": ["arch=X86_64"],
+                "bkr_data": {
+                    "role": "Server1",
+                    "name": "AppServer1"
+                }
+            },
+            {
+                "family": "RedHatEnterpriseLinux7",
+                "tag": ["RTT_ACCEPTED"],
+                "arch": "X86_64",
+                "variant": "Server",
+                "hostrequire": ["arch=X86_64"],
+                "bkr_data": {
+                    "role": "Server2",
+                    "name": "AppServer2"
+                }
+            }
+        ],
+        "job_group": "ci-ops-central"
+    }
+  ]
+}

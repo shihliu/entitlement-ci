@@ -1,0 +1,35 @@
+{
+    "resources": [
+        {
+            "count": "1",
+            "metadata": {
+                "username": "someuser",
+                "key": "somekey.pem"
+            },
+            "recipesets": [
+                {
+                    "distro": "RHEL-6.5",
+                    "arch": "X86_64",
+                    "keyvalue": ["DISKSPACE>=20000"],
+                    "variant": "Server",
+                    "hostrequire": ["arch=X86_64", "memory>=1000"],
+                    "bkr_data": {
+                        "role": "Server",
+                        "name": "AppServer"
+                    }
+                }
+            ],
+            "job_group": "ci-ops-central"
+        },
+        {
+            "name": "openstack-1",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "rhel-6.5_jeos",
+            "metadata": {
+                "username": "rht",
+                "key": "rhkey.pem"
+            }
+        }
+   ]
+}

@@ -1,0 +1,40 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops",
+            "flavor": "m1.large",
+            "count": "1",
+            "image": "rhel-6.5_jeos"
+        }
+    ],
+    "sites": [
+        {
+            "site": "qeos",
+            "project": "central-ci-queue-test",
+            "username": "ci-ops-central",
+            "password": "changeme",
+            "keypair": "ci-ops-central",
+            "networks": ["central-ci-queue-test"],
+            "region": "",
+            "foreman_url": "https://foreman.rhev-ci-vms.eng.rdu2.redhat.com",
+            "foreman_username": "ci-automation",
+            "foreman_password": "qum5net",
+            "foreman_version": "1.5",
+            "os_mapping_foreman": {
+                        "RedHat-6": {
+                            "ptable": "Kickstart default",
+                            "media": "RHEL Server TLV mirror"
+                        },
+                        "fedora": {
+                            "ptable": "Fedora17",
+                            "media": "Fedora"
+                        },
+                        "RedHat-7": {
+                            "ptable": "Fedora 16+ / GRUB2",
+                            "media": "RHEL-7-rel-eng-latest"
+                        }
+            }
+        }
+    ]
+}
+

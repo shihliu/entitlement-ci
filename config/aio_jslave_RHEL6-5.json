@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops-jslave_rhel-6-5",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "RHEL-6.5-Server-x86_64-released",
+            "metadata": {
+                "myvar": "ci-ops-rhel-6-5",
+                "message": "Hello World"
+            }
+        }
+   ]
+}

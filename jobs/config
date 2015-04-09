@@ -1,0 +1,4 @@
+[jenkins]
+user=
+password=
+url=http://entitlement-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/

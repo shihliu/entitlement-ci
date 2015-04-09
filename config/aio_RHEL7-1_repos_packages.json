@@ -1,0 +1,45 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops-rhel-7-1",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "RHEL-7.1-Server-x86_64-latest",
+            "metadata": {
+                "myvar": "ci-ops-rhel-7-1",
+                "message": "Hello World"
+            },
+            "repos": [
+                {
+                    "name": "brew-rhpkg",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng/brew/rhel/$releasever/"
+                },
+                {
+                    "name": "epel7",
+                    "mirrorlist": "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
+                },
+                {
+                    "name": "rhel7-latest",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng/latest-RHEL-7/compose/Server/x86_64/os/"
+                },
+                {
+                    "name": "rhel7-optional",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng//latest-RHEL-7/compose/Server-optional/x86_64/os/"
+                },
+                {
+                    "name": "rhel7-extras",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng/latest-EXTRAS-7-RHEL-7/compose/Server/x86_64/os/"
+                },
+                {
+                    "name": "RHOS-5.0",
+                    "baseurl": "http://download.lab.bos.redhat.com/rel-eng/OpenStack/5.0-RHEL-7/latest/RH7-RHOS-5.0/$basearch/os/"
+                }
+            ],
+            "packages": [
+                {
+                    "yum":    "rhpkg git wget curl rpm-build yum-utils glibc-static golang device-mapper-devel btrfs-progs-devel sqlite-devel rpmdevtools python-tools python2-devel"
+                }
+            ]
+        }
+   ]
+}

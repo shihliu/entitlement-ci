@@ -1,0 +1,10 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops-jslave",
+            "count": "1",
+            "flavor": "m1.large",
+            "image": "rhel-6.5_jeos"
+        }
+   ]
+}

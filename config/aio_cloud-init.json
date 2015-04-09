@@ -1,0 +1,18 @@
+{
+    "resources": [
+        {
+            "name": "ci-ops-central",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "rhel-6.5_jeos",
+            "user-data-files": [
+                "ci-ops-projex/cloud-init/cloud-config-runcmds.txt",
+                "ci-ops-projex/cloud-init/cloud-shell-motd.txt"
+            ],
+            "metadata": {
+                "myvar": "ci-ops-central",
+                "message": "Hello World"
+            }
+        }
+   ]
+}
