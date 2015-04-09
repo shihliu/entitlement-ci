@@ -1,4 +1,4 @@
 [jenkins]
 user=
 password=
-url=https://entitlement-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/
+url=https://10.8.63.61/
