@@ -90,7 +90,7 @@
             echo "Pinging Test Resources"
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
-            pushd $WORKSPACE/ci-ops-projex/tests
+            pushd $WORKSPACE/entitlement-ci/tests/rhsm/rhsm_level_1/
             nosetests --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
