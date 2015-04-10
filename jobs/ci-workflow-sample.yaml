@@ -13,7 +13,7 @@
     builders:
         - shell: |
             #!/bin/bash
-            export JENKINS_MASTER_URL=https://10.8.63.61
+
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
             if [ "$JSLAVENAME" != "master" ]
