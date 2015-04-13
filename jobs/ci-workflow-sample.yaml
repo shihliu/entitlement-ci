@@ -110,25 +110,26 @@
     node: master
     builders:
         - shell: |
-            #!/bin/bash
-
-            export JSLAVETEARDOWN={jslaveteardown}
-            # Teardown Jenkins Slave
-            $WORKSPACE/ci-ops-central/bootstrap/teardown_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --name=$LABEL
-
-            TR_STATUS=$?
-            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
-
-            if [ "$JSLAVETEARDOWN" == "True" ]
-            then
-              $WORKSPACE/ci-ops-central/bootstrap/teardown_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-              --topology=ci-ops-central/project/config/aio_jslave --jslavename=$JSLAVENAME \
-              --jslaveusername={jslaveusername} --jslavepassword={jslavepassword} --jslaveip=$JSLAVEIP --jslaveteardown
-
-              TR_STATUS=$?
-              if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
-            fi
+#here I do not want to teardown anything
+#            #!/bin/bash
+#
+#            export JSLAVETEARDOWN={jslaveteardown}
+#            # Teardown Jenkins Slave
+#            $WORKSPACE/ci-ops-central/bootstrap/teardown_resources.sh --site=$SITE --project_defaults={project_defaults} \
+#            --topology={topology_path}/{topology} --name=$LABEL
+#
+#            TR_STATUS=$?
+#            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+#
+#            if [ "$JSLAVETEARDOWN" == "True" ]
+#            then
+#              $WORKSPACE/ci-ops-central/bootstrap/teardown_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+#              --topology=ci-ops-central/project/config/aio_jslave --jslavename=$JSLAVENAME \
+#              --jslaveusername={jslaveusername} --jslavepassword={jslavepassword} --jslaveip=$JSLAVEIP --jslaveteardown
+#
+#              TR_STATUS=$?
+#              if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+#            fi
 
 - job-group:
     name: ci-workflow-provision-runtest-teardown
