@@ -2,7 +2,7 @@
 Run command in remote machine with paramiko
 '''
 import sys, re
-import pexpect
+# import pexpect
 from utils import logger
 
 try:
