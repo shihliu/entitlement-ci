@@ -160,7 +160,3 @@ def get_build_tree(product_name):
         # logger.error("Unknown product name : %s " % product_name)
         build_url = "Unknown"
     return build_url
-
-
-# FILTER_TYPE = {'include': "Include",
-#                'exclude': "Exclude"}

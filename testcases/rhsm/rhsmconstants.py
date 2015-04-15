@@ -1,6 +1,4 @@
 from utils import *
-from utils.configs import Configs
-from utils.constants import RHSM_CONF
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
@@ -58,6 +56,7 @@ class RHSMConstants(object):
             }
 
     server = ""
+    paramdict = {}
     confs = None
     __instance = None
     samhostip = None
@@ -72,32 +71,17 @@ class RHSMConstants(object):
         if(self.__initialized): return
         self.__initialized = True
 
-        # check whether running in beaker
-        self.server = self.get_delivered_param("RUN_SERVER")
-        if self.server == "":
-            # Run by rhsm config file
-            self.confs = Configs(RHSM_CONF)
-            self.server = self.confs._confs["server"]
-            if self.server == "sam":
-                self.samhostip = self.confs._confs["samhostip"]
-                self.samhostname = self.confs._confs["samhostname"]
-                self.configure_sam_host(self.samhostname, self.samhostip)
-            elif self.server == "stage":
-                stage_name = self.confs._confs["stagename"]
-                self.configure_stage_host(stage_name)
-            elif self.server == "candlepin":
-                pass
-        else:
-            if self.server == "sam":
-                # Run by delivered param
-                self.samhostip = self.get_delivered_param("SAM_IP")
-                self.samhostname = self.get_delivered_param("SAM_HOSTNAME")
-                self.configure_sam_host(self.samhostname, self.samhostip)
-            elif self.server == "stage":
-                stage_name = self.get_delivered_param("STAGE_NAME")
-                self.configure_stage_host(stage_name)
-            elif self.server == "candlepin":
-                pass
+        self.server = get_exported_param("RUN_SERVER")
+        if self.server == "sam":
+            # Run by delivered param
+            self.samhostip = get_exported_param("SAM_IP")
+            self.samhostname = get_exported_param("SAM_HOSTNAME")
+            self.configure_sam_host(self.samhostname, self.samhostip)
+        elif self.server == "stage":
+            stage_name = self.get_delivered_param("STAGE_NAME")
+            self.configure_stage_host(stage_name)
+        elif self.server == "candlepin":
+            pass
 
     def configure_sam_host(self, samhostname, samhostip):
         ''' configure the host machine for sam '''
@@ -159,13 +143,3 @@ class RHSMConstants(object):
             logger.info("It's successful to get system serials.")
         else:
             logger.info("It's failed to get system serials.")
-
-    def get_delivered_param(self, param_name):
-        cmd = "echo $%s" % param_name
-        ret, output = Command().run(cmd)
-        output = output.strip("\n").strip(" ")
-        if ret == 0:
-            logger.info("Succeeded to get parameter %s=%s" % (param_name, output))
-            return output
-        else:
-            raise FailException("Failed to get parameter %s" % param_name)

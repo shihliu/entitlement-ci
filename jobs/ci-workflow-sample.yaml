@@ -90,8 +90,16 @@
             echo "Pinging Test Resources"
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
+            
+            export REMOTE_IP=EXISTING_NODES
+            export REMOTE_USER=root
+            export REMOTE_PASSWD=redhat
+            export RUN_SERVER=sam
+            export SAM_IP=10.66.129.134
+            export SAM_HOSTNAME=samserv.redhat.com
+            
             pushd $WORKSPACE/entitlement-ci/tests/rhsm/rhsm_level_1/
-            nosetests --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:

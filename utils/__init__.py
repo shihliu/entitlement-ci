@@ -1,9 +1,11 @@
 import re
 import os
 import sys
+import shutil
 import logging
 import unittest
 from utils.constants import *
+from utils.exception.failexception import FailException
 
 def get_log_file():
     """
@@ -31,20 +33,5 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
-def get_runtime_log_file(file_name):
-    """
-    Returns correct path to log file
-    """
-    path_name = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, "runtime/result/default/"))
-    if not os.path.exists(path_name):
-        os.makedirs(path_name)
-    runtime_file = os.path.join(path_name, file_name)
-    if os.path.exists(runtime_file):
-        os.remove(runtime_file)
-    return os.path.join(path_name, file_name)
-
-# create runtime file handler
-runtime_fh = logging.FileHandler("%s" % get_runtime_log_file("runtime.log"))
-runtime_fh.setLevel(logging.DEBUG)
-runtime_fh.setFormatter(formatter)
-logger.addHandler(runtime_fh)
+def get_exported_param(param_name):
+    return os.getenv(param_name)

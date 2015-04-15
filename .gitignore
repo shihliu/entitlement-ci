@@ -7,3 +7,6 @@
 #ignore eclipse workspace
 .project
 .pydevproject
+
+#ignore log file
+entitlement.log

@@ -108,28 +108,3 @@ class RemoteSH(object):
                 except socket.timeout:
                     logger.debug("SSH channel timeout exceeded ...")
                     return -1, "SSH channel timeout exceeded ..."
-
-    @classmethod
-    def run_pexpect(self, cmd, remote_ip, username, password):
-            """ Remote exec function via pexpect """
-            user_hostname = "%s@%s" % (username, remote_ip)
-            child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
-            while True:
-                    index = child.expect(['(yes\/no)', 'password:', pexpect.EOF, pexpect.TIMEOUT])
-                    if index == 0:
-                            child.sendline("yes")
-                    elif index == 1:
-                            child.sendline(password)
-                    elif index == 2:
-                            child.close()
-                            return child.exitstatus, child.before
-                    elif index == 3:
-                            child.close()
-
-if __name__ == "__main__":
-#     exit_code, result = RemoteSH.run_pexpect("ifconfig", "10.66.129.77", "root", "gaoshang")
-#     print exit_code, result
-    print RemoteSH.run_paramiko("sleep 10", "10.66.129.77", "root", "gaoshang", 20)
-#     RemoteSH.remote_run("ifconfig", "10.66.129.77", "root", "gaoshang")
-#     RemoteSH.remote_put("10.66.128.12", "root", "redhat", "/root/openrc.sh", "/root/openrc.sh")
-    pass
