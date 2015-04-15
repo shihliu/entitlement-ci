@@ -91,7 +91,7 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
             
-            export REMOTE_IP=EXISTING_NODES
+            export REMOTE_IP=$EXISTING_NODES
             export REMOTE_USER=root
             export REMOTE_PASSWD=redhat
             export RUN_SERVER=sam
