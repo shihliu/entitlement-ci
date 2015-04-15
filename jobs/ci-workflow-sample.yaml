@@ -98,7 +98,7 @@
             export SAM_IP=10.66.129.134
             export SAM_HOSTNAME=samserv.redhat.com
             
-            pushd $WORKSPACE/entitlement-ci/tests/rhsm/rhsm_level_1/
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
             nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
