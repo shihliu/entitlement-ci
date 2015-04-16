@@ -17,5 +17,5 @@ class Command(object):
         if self.remote_ip == None:
             ret, output = LocalSH.local_run(cmd, timeout, comments)
         else:
-            ret, output = RemoteSH.remote_run(cmd, self.remote_ip, self.username, self.password, timeout)
+            ret, output = RemoteSH.remote_run(cmd, self.remote_ip, self.username, self.password, timeout, comments)
         return ret, output
