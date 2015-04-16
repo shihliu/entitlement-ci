@@ -5,7 +5,6 @@ import shutil
 import logging
 import unittest
 from utils.constants import *
-from utils.exception.failexception import FailException
 
 def get_log_file():
     """
