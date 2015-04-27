@@ -50,7 +50,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: '{project}-{topology}-2-runtest'
+          - project: 'ci-{project}-{topology}-2-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -64,7 +64,7 @@
 
 
 - job-template:
-    name: '{project}-{topology}-2-runtest'
+    name: 'ci-{project}-{topology}-2-runtest'
     defaults: ci-workflow-runtest
     node: '{jslavename}'
     builders:
@@ -143,7 +143,7 @@
     name: ci-workflow-provision-runtest-teardown
     jobs:
       - 'ci-{project}-{topology}-1-provision'
-      - '{project}-{topology}-2-runtest'
+      - 'ci-{project}-{topology}-2-runtest'
       - 'ci-{project}-{topology}-3-teardown'
 
 - project:
