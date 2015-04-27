@@ -1,0 +1,104 @@
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/ci-ops-central'
+            branches:
+                - origin/master
+            basedir: ci-ops-central
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/job-runner'
+            branches:
+                - origin/master
+            basedir: job-runner
+        - git:
+            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+
+- defaults:
+    name: virt-who-runtest
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+        - default-virt-who-build-timeout-wrapper
+
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
+
+- wrapper:
+    name: default-virt-who-build-timeout-wrapper
+    wrappers:
+        - timeout:
+            timeout-var: 'BUILD_TIMEOUT'
+            fail: true
+            elastic-percentage: 150
+            elastic-default-timeout: 90
+            type: elastic
+
+- publisher:
+    name: default-virt-who-publishers
+    publishers:
+          - email-ext:
+              recipients: $DEFAULT_RECIPIENTS
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              unstable: true
+              first-failure: true
+              not-built: true
+              aborted: true
+              regression: true
+              failure: true
+              improvement: true
+              still-failing: true
+              success: true
+              fixed: true
+              still-unstable: true
+              pre-build: true
+              matrix-trigger: only-configurations
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-virt-who-runtest-publishers
+    publishers:
+           - xunit:
+               thresholdmode: 'number'
+               thresholds:
+                 - failed:
+                       unstable: 0
+                       unstablenew: 0
+                       failure: 0
+                       failurenew: 0
+                 - skipped:
+                       unstable: 0
+                       unstablenew: 0
+                       failure: 0
+                       failurenew: 0
+               types:
+                 - junit:
+                     pattern: '*.xml'
+                     deleteoutput: false

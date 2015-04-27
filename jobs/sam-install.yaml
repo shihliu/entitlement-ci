@@ -1,0 +1,152 @@
+- job-template:
+    name: '{project}-{topology}-1-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+
+            # Provision Test Resources
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+
+            TR_STATUS=$?
+
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: '{project}-{topology}-2-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+          - project: '{project}-{topology}-3-teardown'
+            current-parameters: true
+            condition: 'UNSTABLE_OR_WORSE'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+
+- job-template:
+    name: '{project}-{topology}-2-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: '{project}-{topology}-1-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+
+        - shell: |
+            #!/bin/bash
+
+            export TOPOLOGY={topology}
+            {testparams}
+
+            echo "TOPOLOGY: {topology}"
+
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+
+            echo "Jenkins machine info we are running on"
+            ifconfig
+
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+            
+            export REMOTE_IP=$EXISTING_NODES
+            export REMOTE_USER=root
+            export REMOTE_PASSWD=redhat
+            export RUN_SERVER=sam
+            export SAM_IP=10.66.129.134
+            export SAM_HOSTNAME=samserv.redhat.com
+            
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
+
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - trigger-parameterized-builds:
+          - project: '{project}-{topology}-3-teardown'
+            current-parameters: true
+      - default-virt-who-publishers
+
+- job-template:
+    name: '{project}-{topology}-3-teardown'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #here I do not want to teardown anything
+            #!/bin/bash
+
+- job-group:
+    name: sam-install-provision-runtest-teardown
+    jobs:
+      - '{project}-{topology}-1-provision'
+      - '{project}-{topology}-2-runtest'
+      - '{project}-{topology}-3-teardown'
+
+- project:
+    name: sam-install-jobs
+    project:
+     - sam-install
+    project_defaults:
+     - entitlement-ci/config/project_defaults
+    topology_path:
+     - entitlement-ci/config
+    topology:
+     - bkr_sam_install
+    ssh_keyfile:
+     - entitlement-ci/config/keys/ent-key
+    tests_path:
+     - entitlement-ci/tests
+    testparams:
+     - echo "I am a test parameter"
+    jobs:
+      - sam-install-provision-runtest-teardown
+    jslavename:
+     - jslave-sam-install
+    jslave_execs:
+     - 10
+    jslaveimage:
+     - rhel-6.5_jeos
+    jslaveflavor:
+     - m1.large
+    jslaveusername:
+     - root
+    jslavepassword:
+     - redhat
+    jslaveteardown:
+     - True
