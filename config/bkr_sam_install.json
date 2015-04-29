@@ -2,6 +2,10 @@
     "resources": [
         {
             "count": "1",
+            "metadata": {
+                "username": "jenkins/entitlement-jenkins.rhev-ci-vms.eng.rdu2.redhat.com ",
+                "key": "jenkins.keytab-entitlement-jenkins.rhev-ci-vms.eng.rdu2.redhat.com"
+            },
             "job_group": "Entitlement-QA",
 
             "recipesets": [
