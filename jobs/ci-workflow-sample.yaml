@@ -165,7 +165,7 @@
     jobs:
       - ci-workflow-provision-runtest-teardown
     jslavename:
-     - jslave-entitlement-ci
+     - jslave-entitlement-ci-slave
     jslave_execs:
      - 10
     jslaveimage:
