@@ -163,7 +163,7 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - ci-workflow-provision-runtest-teardown
+     - ci-workflow-provision-runtest-teardown
     jslavename:
      - jslave-entitlement-ci-slave
     jslave_execs:

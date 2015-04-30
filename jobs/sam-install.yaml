@@ -86,31 +86,10 @@
             export REMOTE_IP=$EXISTING_NODES
             export REMOTE_USER=root
             export REMOTE_PASSWD=xxoo2014
-            
-#        if [ "$REBOOTCOUNT" -eq 0 ] ; then
-            rlRun "setenforce 0" 0 "Set selinux"
-            rlRun "sed -i -e 's/SELINUX=.*/SELINUX=permissive/g' /etc/sysconfig/selinux" 0 "Change selinux configure: permissive"
-            rlRun "service iptables stop" 0 "Stop iptables service"
-            rlRun "subscription-manager register --username=qa@redhat.com --password=uBLybd5JSmkRHebA --auto-attach" 0 "Auto subscribe"
-            rlRun "cat > /etc/yum.repos.d/sam.repo <<EOF
-[sam]
-name=sam
-baseurl=http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-$VERSION-RHEL-6/compose/SAM/x86_64/os/
-enabled=1
-gpgcheck=0
-EOF" 0 "Add SAM latest repo"
-            rlRun "yum install -y katello-headpin-all" 0 "Install katello-headpin-all"
-#            rhts-reboot
-#        fi
-#Failed to start katello service, will check later
-#        rlRun "katello-configure --deployment=sam --user-pass=admin" 0 "Deploy SAM"
-    rlPhaseEnd
 
-    rlPhaseStartTest
-        rlRun "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/sam_install_manifest.zip -P /root/" 0 "Wget manifest from data server"
-#        rlRun "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip" 0 "Import entitlement team related manifest"
-#        rlLogInfo "$(rpm -q katello katello-cli candlepin katello-configure katello-cli-common katello-common subscription-manager python-rhsm)"
-    rlPhaseEnd
+            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
     publishers:
       - archive:
