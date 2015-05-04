@@ -1,0 +1,10 @@
+{
+    "resources": [
+        {
+            "name": "ent-jslave",
+            "count": "1",
+            "flavor": "m1.medium",
+            "image": "aio_jslave.json"
+        }
+   ]
+}

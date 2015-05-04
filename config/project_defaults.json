@@ -4,7 +4,7 @@
             "name": "ci-ops",
             "flavor": "m1.large",
             "count": "1",
-            "image": "rhel-6.5_jeos"
+            "image": "RHEL-6.6-Server-x86_64-released"
         }
     ],
     "sites": [
