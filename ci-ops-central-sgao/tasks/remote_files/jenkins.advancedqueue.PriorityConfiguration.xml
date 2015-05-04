@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jenkins.advancedqueue.PriorityConfiguration plugin="PrioritySorter">
+  <jobGroups class="linked-list">
+    <jenkins.advancedqueue.JobGroup>
+      <id>0</id>
+      <priority>1</priority>
+      <description>Teardown Jobs</description>
+      <view>All</view>
+      <runExclusive>false</runExclusive>
+      <useJobFilter>true</useJobFilter>
+      <jobPattern>.*teardown.*</jobPattern>
+      <usePriorityStrategies>false</usePriorityStrategies>
+      <priorityStrategies/>
+    </jenkins.advancedqueue.JobGroup>
+    <jenkins.advancedqueue.JobGroup>
+      <id>1</id>
+      <priority>-1</priority>
+      <description>Allows all jobs to use BuildPriority parameter</description>
+      <view>All</view>
+      <runExclusive>false</runExclusive>
+      <useJobFilter>false</useJobFilter>
+      <jobPattern>.*</jobPattern>
+      <usePriorityStrategies>true</usePriorityStrategies>
+      <priorityStrategies>
+        <jenkins.advancedqueue.JobGroup_-PriorityStrategyHolder>
+          <id>0</id>
+          <priorityStrategy class="jenkins.advancedqueue.priority.strategy.BuildParameterStrategy">
+            <parameterName>BuildPriority</parameterName>
+          </priorityStrategy>
+        </jenkins.advancedqueue.JobGroup_-PriorityStrategyHolder>
+      </priorityStrategies>
+    </jenkins.advancedqueue.JobGroup>
+  </jobGroups>
+</jenkins.advancedqueue.PriorityConfiguration>
+

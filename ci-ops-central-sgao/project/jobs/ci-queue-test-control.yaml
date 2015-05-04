@@ -1,0 +1,168 @@
+- publisher:
+    name: default-ci-queue-test-publishers
+    publishers:
+          - email-ext:
+              recipients: $DEFAULT_RECIPIENTS
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              unstable: true
+              first-failure: true
+              not-built: true
+              aborted: true
+              regression: true
+              failure: true
+              improvement: true
+              still-failing: true
+              success: true
+              fixed: true
+              still-unstable: true
+              pre-build: true
+              matrix-trigger: only-configurations
+              send-to:
+                - requester
+                - recipients
+
+
+- job-template:
+    name: 'ci-queue-{project}'
+    defaults: ci-queue-provision
+    concurrent: false
+    node: master
+    parameters:
+        - choice:
+            name: SITE
+            choices:
+              - qeos
+              - os1
+            description: |
+              Site where to provision resources
+    triggers:
+        - timed: "H H * * *"
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults}  \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=queue-test
+
+            TR_STATUS=$?
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+    publishers:
+      - conditional-publisher:
+          - condition-kind: always
+            action:
+              - archive:
+                  artifacts: '*.txt, *.json'
+                  allow-empty: 'true'
+          - condition-kind: current-status
+            condition-worst: SUCCESS
+            condition-best: SUCCESS
+            action:
+                - postbuildscript:
+                    script-only-if-succeeded: false
+                    script-only-if-failed: false
+                    builders:
+                        - trigger-builds:
+                            - project: 'queue-{project}-{topology}-1-provision'
+                              block: true
+                              current-parameters: true
+                              predefined-parameters: |
+                                  QUEUE_TEST_RESOURCE=$LABEL
+                              property-file: $WORKSPACE/RESOURCES.txt
+                              property-file-fail-on-missing: false
+          - condition-kind: current-status
+            condition-worst: SUCCESS
+            condition-best: SUCCESS
+            action:
+                - groovy-postbuild: |
+                    import hudson.model.*
+
+                    def thr = Thread.currentThread()
+                    def build = thr?.executable
+                    def envVarsMap = build.parent.builds[0].properties.get("envVars")
+                    def jobUrl = ""
+
+                    if(envVarsMap.containsKey('JENKINS_HOME')) {{
+                        jenkinsHome = envVarsMap['JENKINS_HOME']
+                    }}
+
+                    if(envVarsMap.containsKey('LAST_TRIGGERED_JOB_NAME')) {{
+                        trigJobName = envVarsMap['LAST_TRIGGERED_JOB_NAME']
+                    }}
+
+                    trigBuildNumKey = "TRIGGERED_BUILD_NUMBER_" + trigJobName
+
+                    if(envVarsMap.containsKey(trigBuildNumKey)) {{
+                        trigBuildNum = envVarsMap[trigBuildNumKey]
+                    }}
+
+                    manager.listener.logger.println("Checking status of triggered builds...")
+
+                    File resultFile = new File(jenkinsHome + "/jobs/queue-test-aio_RHEL6-5-1-provision/builds/" + trigBuildNum + "/triggeredBuildResult")
+                    if ( resultFile.exists() ) {{
+                        String fileContents = resultFile.text.trim()
+
+                        if ( fileContents.equalsIgnoreCase(hudson.model.Result.SUCCESS.toString()) ) {{
+                            manager.buildSuccess()
+                        }} else if ( fileContents.equalsIgnoreCase(hudson.model.Result.UNSTABLE.toString()) ) {{
+                            manager.buildUnstable()
+                        }} else {{
+                            manager.buildFailure()
+                        }}
+                    }} else {{
+                        manager.listener.logger.println("Triggered build result file not found.")
+                        manager.buildFailure()
+                    }}
+
+                    manager.listener.logger.println("Current Build Result set to: " + manager.build.result)
+
+          - condition-kind: current-status
+            condition-worst: FAILURE
+            condition-best: UNSTABLE
+            action:
+              - postbuildscript:
+                  script-only-if-succeeded: false
+                  script-only-if-failed: false
+                  builders:
+                      - shell: |
+                          #!/bin/bash
+
+                          # Teardown queue test resource
+                          $WORKSPACE/ci-ops-central/bootstrap/teardown_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                          --topology={topology_path}/{topology} --name=$LABEL
+
+                          TR_STATUS=$?
+                          if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+
+      - default-ci-queue-test-publishers
+
+
+- job-group:
+    name: queue-test-control
+    jobs:
+      - 'ci-queue-{project}'
+
+- project:
+    name: queue-test-control
+    project:
+     - test
+    project_defaults:
+     - ci-ops-projex/config/project_defaults_queue
+    topology_path:
+     - ci-ops-projex/config
+    topology:
+     - aio_RHEL6-5
+    ssh_keyfile:
+     - ci-ops-projex/config/keys/ci-ops-central
+    tests_path:
+     - ci-ops-projex/tests
+    jobs:
+      - queue-test-control

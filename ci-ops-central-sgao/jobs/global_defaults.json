@@ -1,0 +1,27 @@
+{
+    "flavor": {
+        "sizes": {
+            "tiny": "m1.tiny",
+            "small": "m1.small",
+            "medium": "m1.medium",
+            "large": "m1.large",
+            "xlarge": "m1.xlarge"
+        },
+        "default": "medium"
+    },
+    "endpoint": {
+        "endpoints": {
+            "qeos": "http://qeos.lab.eng.rdu2.redhat.com:5000/v2.0/",
+            "os1": "http://control.os1.phx2.redhat.com:5000/v2.0/"
+        },
+        "default": "qeos"
+    },
+    "image": {
+        "images": {
+            "fedora19": "fedora-19_jeos",
+            "rhel6": "rhel-6.4_jeos",
+            "rhel7": "rhel-7_jeos"
+        },
+        "default": "rhel6"
+    }
+}

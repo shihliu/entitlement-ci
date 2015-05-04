@@ -1,0 +1,341 @@
+- job:
+    name: jenkins_job_builder_projex
+    node: master
+    description: |
+        This job builds the other jobs from the definitions in the
+        ci-ops-projex/jobs repository and directory.
+    parameters:
+        - bool:
+            name: FORCE_UPDATE
+            default: false
+            description: "Indicates if jobs should be forcefully updated."
+    logrotate:
+        daysToKeep: 30
+        numToKeep: -1
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+    scm:
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/ci-ops-projex'
+            branches:
+                - origin/master
+            basedir: ci-ops-projex
+    wrappers:
+      - default-service-jobs-wrapper
+    builders:
+        - shell: |
+            supported_jjb_ver="1.0.0"
+            supported_py_jenkins_ver="0.4.2"
+
+            # workaround for https://issues.jenkins-ci.org/browse/JENKINS-16225
+            JENKINS_URL=${JENKINS_URL:-"http://localhost/"}
+
+            OPTS=''
+
+            if [ "$FORCE_UPDATE" == "true" ]; then
+                OPTS="$OPTS --ignore-cache"
+            fi
+
+            pushd $WORKSPACE/ci-ops-projex
+            # place some cherry picks here to test them, but don't be surprised
+            # that the line disappears from here after you run this job
+            popd
+
+            cat > $WORKSPACE/ci-ops-projex/jobs/config << EOF
+            [jenkins]
+            user=$JOB_BUILDER_USER
+            password=$JOB_BUILDER_PASS
+            url=$JENKINS_URL
+            EOF
+
+            # verify JJB is at supported version
+            jjb_ver=`pip show jenkins-job-builder | grep Version | cut -d ' ' -f 2`
+
+            if [[ $jjb_ver < $supported_jjb_ver ]]; then
+                echo "jenkins-job-builder must be at version $supported_jjb_ver."
+                exit 1
+            fi
+
+            # verify python-jenkins is at supported version
+            py_jenkins_ver=`pip show python-jenkins | grep Version | cut -d ' ' -f 2`
+
+            if [[ $py_jenkins_ver < $supported_py_jenkins_ver ]]; then
+                echo "python-jenkins must be at version $supported_py_jenkins_ver."
+                exit 1
+            fi
+
+            # verify jenkins python module is not installed (causes issues with libraries)
+            jenkins_ver=`pip show jenkins | grep Version | cut -d ' ' -f 2`
+
+            if [ -n "$jenkins_ver" ]; then
+                echo "jenkins python module must not be installed"
+                exit 1
+            fi
+
+            jenkins-jobs --conf $WORKSPACE/ci-ops-projex/jobs/config $OPTS update $WORKSPACE/ci-ops-projex/jobs
+
+            # clean up config file
+            rm -f $WORKSPACE/ci-ops-projex/jobs/config
+
+- job:
+    name: jenkins_job_builder_central
+    node: master
+    description: |
+        This job builds the other jobs from the definitions in the
+        ci-ops-central/project/jobs repository and directory.
+    parameters:
+        - bool:
+            name: FORCE_UPDATE
+            default: false
+            description: "Indicates if jobs should be forcefully updated."
+    logrotate:
+        daysToKeep: 30
+        numToKeep: -1
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+    scm:
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/ci-ops-central'
+            branches:
+                - origin/master
+            basedir: ci-ops-central
+    wrappers:
+        - default-service-jobs-wrapper
+    builders:
+        - shell: |
+            supported_jjb_ver="1.0.0"
+            supported_py_jenkins_ver="0.4.2"
+
+            # workaround for https://issues.jenkins-ci.org/browse/JENKINS-16225
+            JENKINS_URL=${JENKINS_URL:-"http://localhost/"}
+
+            OPTS=''
+
+            if [ "$FORCE_UPDATE" == "true" ]; then
+                OPTS="$OPTS --ignore-cache"
+            fi
+
+            pushd $WORKSPACE/ci-ops-central
+            # place some cherry picks here to test them, but don't be surprised
+            # that the line disappears from here after you run this job
+            popd
+
+            cat > $WORKSPACE/ci-ops-central/project/jobs/config << EOF
+            [jenkins]
+            user=$JOB_BUILDER_USER
+            password=$JOB_BUILDER_PASS
+            url=$JENKINS_URL
+            EOF
+
+            # verify JJB is at supported version
+            jjb_ver=`pip show jenkins-job-builder | grep Version | cut -d ' ' -f 2`
+
+            if [[ $jjb_ver < $supported_jjb_ver ]]; then
+                echo "jenkins-job-builder must be at version $supported_jjb_ver."
+                exit 1
+            fi
+
+            # verify python-jenkins is at supported version
+            py_jenkins_ver=`pip show python-jenkins | grep Version | cut -d ' ' -f 2`
+
+            if [[ $py_jenkins_ver < $supported_py_jenkins_ver ]]; then
+                echo "python-jenkins must be at version $supported_py_jenkins_ver."
+                exit 1
+            fi
+
+            # verify jenkins python module is not installed (causes issues with libraries)
+            jenkins_ver=`pip show jenkins | grep Version | cut -d ' ' -f 2`
+
+            if [ -n "$jenkins_ver" ]; then
+                echo "jenkins python module must not be installed"
+                exit 1
+            fi
+
+            jenkins-jobs --conf $WORKSPACE/ci-ops-central/project/jobs/config $OPTS update $WORKSPACE/ci-ops-central/project/jobs
+
+            # clean up config file
+            rm -f $WORKSPACE/ci-ops-central/project/jobs/config
+
+- job:
+    name: manage_jobs
+    node: master
+    description: |
+        <h2>Perform actions over jobs in a view.</h2>
+        <p>You can also filter them according to a regex. Enable/disable, build (and more) your jobs by one shot.</p>
+        <p>This is a simplified version of Jenkins CLI. More info about how to use it directly is available at</p>
+        <pre>http://your-jenkins-url.com/cli</pre>
+    logrotate:
+        daysToKeep: 30
+        numToKeep: -1
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+    parameters:
+        - string:
+            name: CMD
+            default: build {job}
+            description: |
+                Include {job} as the placeholder for the job names. It will be replaced by the specific job on the run.
+                <h1>delete-job</h1>
+                <pre>Deletes a job.
+                NAME                        : Name of the job to delete
+                </pre>
+                <h1>list-changes</h1>
+                <pre>
+                Dumps the changelog for the specified build(s).
+                NAME                        : Name of the job to build
+                RANGE                       : Range of the build records to list. 'N-M', 'N,M', or 'N'
+                -format [XML | CSV | PLAIN] : Controls how the output from this command is printed.
+                </pre>
+                <h1>get-job</h1>
+                <pre>
+                Dumps the job definition XML to stdout
+                JOB                 : Name of the job
+                </pre>
+                <h1>disable-job</h1>
+                <pre>
+                Disables a job
+                NAME                : Job name
+                </pre>
+                <h1>copy-job</h1>
+                <pre>
+                Copies a job.
+                SRC                 : Name of the job to copy
+                DST                 : Name of the new job to be created.
+                </pre>
+                <h1>build</h1>
+                <pre>
+                Starts a build, and optionally waits for a completion.
+                Aside from general scripting use, this command can be
+                used to invoke another job from within a build of one job.
+                With the -s option, this command changes the exit code based on
+                the outcome of the build (exit code 0 indicates a success.)
+                With the -c option, a build will only run if there has been
+                an SCM change
+                JOB                 : Name of the job to build
+                -c                  : Check for SCM changes before starting the build, and if
+                                    there's no change, exit without doing a build
+                -p                  : Specify the build parameters in the key=value format.
+                -r VAL              : Number of times to retry reading of the output log if it
+                                    does not exists on first attempt. Defaults to 0. Use
+                                    with -v.
+                -s                  : Wait until the completion/abortion of the command
+                -v                  : Prints out the console output of the build. Use with -s
+                -w                  : Wait until the start of the command
+                </pre>
+                <h1>delete-builds</h1>
+                <pre>
+                Delete build records of a specified job, possibly in a bulk.
+                JOB                 : Name of the job to build
+                RANGE               : Range of the build records to delete. 'N-M', 'N,M', or 'N'
+                </pre>
+                <h1>enable-job</h1>
+                <pre>
+                Enables a job
+                NAME                : Job name
+                </pre>
+        - string:
+            name: VIEWS
+            default: All
+            description: |
+                list of views, space separated. please avoid to running 'build' command with view=All because it would cause loop. the 'manage_jobs' is member of 'All' as well.
+        - string:
+            name: REGEX
+            description: |
+                filter jobs from views according to regular expression, can be blank for all
+        - bool:
+            name: DRY_RUN
+            default: true
+            description: |
+                doesn't execute command, just show which jobs will be affected
+    scm:
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/ci-ops-central'
+            branches:
+                - origin/master
+            basedir: ci-ops-central
+        - git:
+            url: 'git://gerrit.eng.lab.tlv.redhat.com/ci-dev-tools'
+            branches:
+                - origin/master
+            basedir: ci-dev-tools
+    wrappers:
+        - default-service-jobs-wrapper
+    builders:
+        - shell: |
+            JENKINS_URL=${JENKINS_URL:-"http://localhost/"}
+
+            MANAGE_JOBS=$WORKSPACE/ci-ops-central/jenkins/tools/manage_jobs.py
+            OPTS=''
+
+            OPTS="$OPTS -r $REGEX"
+
+            if [ "$DRY_RUN" == "true" ]; then
+              OPTS="$OPTS --dry"
+            fi
+
+            for v in $VIEWS; do
+              OPTS="$OPTS -v $v"
+            done
+
+            if [ "$JOB_BUILDER_USER" != "" ]; then
+              OPTS="$OPTS -u $JOB_BUILDER_USER -p $JOB_BUILDER_PASS"
+            fi
+
+            export PYTHONPATH=$PYTHONPATH:$WORKSPACE/ci-dev-tools/jenkins/jenkins_cli
+            python $MANAGE_JOBS --debug --jenkins $JENKINS_URL $OPTS "$CMD"
+
+- wrapper:
+    name: default-service-jobs-wrapper
+    wrappers:
+      - inject-passwords:
+          global: true
+      - mask-passwords
+
+- job-template:
+    name: 'stack-janitor-{site}'
+    defaults: taskrunner
+    disabled: true
+    description: |
+        Managed by Jenkins Job Builder.
+        <strong>Do not edit via web</strong>.<br />
+        <br />
+        Checks for VMs and floating IPs lost by our jobs.
+    node: master
+    logrotate:
+        daysToKeep: 10
+        numToKeep: -1
+        artifactDaysToKeep: -1
+        artifactNumToKeep: -1
+    parameters:
+        - string:
+            name: JANITOR_TARGET
+            default: cleanup
+            description: TaskRunner target config file and task name
+    builders:
+        - shell: |
+            echo "====================="
+
+            $WORKSPACE/ci-ops-central/bootstrap/run_janitor.sh --site={site} \
+            --project_defaults={project_defaults} \
+            --janitor_target=$JANITOR_TARGET
+
+            TR_STATUS=$?
+            if [ "$TR_STATUS" != 0 ]
+            then
+                echo "ERROR: Running OpenStack Janitor\nSTATUS: $TR_STATUS"
+                exit 1
+            fi
+    triggers:
+        - timed: "H H/3 * * *"
+    publishers:
+        - default-service-jobs-publishers
+
+- project:
+    name: janitor-jobs
+    project_defaults:
+        - ci-ops-projex/config/project_defaults
+    site:
+        - qeos
+    jobs:
+        - 'stack-janitor-{site}'
+

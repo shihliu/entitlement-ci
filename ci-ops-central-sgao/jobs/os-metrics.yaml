@@ -1,0 +1,42 @@
+- job:
+    name: ci-ops-openstack-metrics
+    node: master
+    description: |
+        This job gathers usage statistics for OpenStack tenants.
+            Requires global parameters: OS_AUTH_URL and OS_TENANT_NAME
+            Requires global passwords: OS_USERNAME and OS_PASSWORD
+    parameters:
+        - string:
+            name: CSV_FILE
+            default: /jenkins-results/rhs-qe-jenkins/.backups/ci-ops-openstack-metrics.csv
+            description: Location where usage statistics are stored in CSV format
+        - string:
+            name: TENANT
+            description: Tenant to target for usage statistics (no value = all tenants)
+    scm:
+        - git:
+            url: 'http://git.app.eng.bos.redhat.com/git/ci-ops-central.git'
+            branches:
+                - "*/master"
+            basedir: ci-ops-central
+            skip-tag: true
+            wipe-workspace: false
+    triggers:
+        - timed: "H */8 * * *"
+    wrappers:
+        - inject-passwords:
+            global: true
+        - mask-passwords
+    builders:
+        - shell: |
+            echo "Gathering OpenStack usage statistics..."
+
+            if [ "$TENANT" = "" ]
+            then
+                $WORKSPACE/ci-ops-central/utils/current-usage.py --csv-file $CSV_FILE
+            else
+                $WORKSPACE/ci-ops-central/utils/current-usage.py --tenant $TENANT --csv-file $CSV_FILE
+            fi
+
+            echo "Completed gathering OpenStack usage statistics."
+            echo "Usage statistics written to $CSV_FILE."

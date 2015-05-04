@@ -1,0 +1,23 @@
+#cloud-config-enable-root-resize-rtpt
+disable_root: 0
+ssh_pwauth: 1
+
+users:
+  - name: root
+    lock-passwd: false
+    inactive: false
+    system: false
+
+# Resize the root in the background. This saves some time
+# when resizing small image to large image, but it also
+# creates a danger of "No space left on the device."
+
+# WORKAROUND: https://bugs.launchpad.net/cloud-init/+bug/1080985
+# resize_rootfs: noblock
+resize_rootfs: false
+runcmd:
+  - |
+    ROOT_DEV=`mount | sed -n 's/^\(\S\+\)\W\+on\W\/\W\+.*/\1/p'`
+    echo "Detected root dev: $ROOT_DEV."
+    resize2fs "$ROOT_DEV" 2>&1 > /var/log/resize.log &
+    touch /cloud_inited

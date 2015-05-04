@@ -1,0 +1,26 @@
+{
+    "resources": [
+        {
+            "count": "2",
+            "metadata": {
+                "username": "fedora",
+                "key": "fedora20.pem"
+            },
+            "distro": "RHEL-6.5",
+            "arches": ["X86_64", "X86_64"],
+            "keyvalue": ["MEMORY>1000", "DISKSPACE>20000"],
+            "hostrequire": ["arch=X86_64"],
+            "job_group": "ci-ops-central"
+        },
+        {
+            "name": "openstack-1",
+            "count": "2",
+            "flavor": "m1.medium",
+            "image": "rhel-6.5_jeos",
+            "metadata": {
+                "username": "fedora",
+                "key": "fedora20.pem"
+            }
+        }
+   ]
+}

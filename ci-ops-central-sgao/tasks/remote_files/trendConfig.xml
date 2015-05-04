@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hudson.plugins.sectioned__view.SectionedView plugin="sectioned-view@1.18">
+  <name>Result Trends (per job)</name>
+  <filterExecutors>false</filterExecutors>
+  <filterQueue>false</filterQueue>
+  <properties class="hudson.model.View$PropertyList"/>
+  <sections>
+    <hudson.plugins.sectioned__view.ListViewSection>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+      </jobNames>
+      <jobFilters/>
+      <name>Jobs</name>
+      <includeRegex>.*</includeRegex>
+      <width>FULL</width>
+      <alignment>CENTER</alignment>
+      <columns>
+        <hudson.views.StatusColumn/>
+        <hudson.views.WeatherColumn/>
+        <hudson.views.JobColumn/>
+        <hudson.views.LastSuccessColumn/>
+        <hudson.views.LastFailureColumn/>
+        <hudson.views.LastDurationColumn/>
+        <jenkins.plugins.extracolumns.TestResultColumn plugin="extra-columns@1.14">
+          <testResultFormat>1</testResultFormat>
+        </jenkins.plugins.extracolumns.TestResultColumn>
+      </columns>
+    </hudson.plugins.sectioned__view.ListViewSection>
+    <hudson.plugins.sectioned__view.TestResultViewSection>
+      <jobNames>
+        <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../hudson.plugins.sectioned__view.ListViewSection/jobNames/comparator"/>
+      </jobNames>
+      <jobFilters/>
+      <name>Test Result Trends (per job)</name>
+      <includeRegex>.*</includeRegex>
+      <width>FULL</width>
+      <alignment>CENTER</alignment>
+    </hudson.plugins.sectioned__view.TestResultViewSection>
+  </sections>
+</hudson.plugins.sectioned__view.SectionedView>

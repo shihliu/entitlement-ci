@@ -1,0 +1,5 @@
+- name: ans_info_in_file_ex
+  hosts: '{{ hosts | default("testsystems") }}'
+  tasks:
+    - name: put information in a file for ci-ops
+      shell: echo "ci-ops was here" > /tmp/ans-ci-ops-msg

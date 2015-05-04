@@ -1,0 +1,24 @@
+<div>
+  <p>In-line set of properties for use on export.</p>
+  <p>Note that spaces in property names must be escaped with a backslash.</p>
+  <p>The following properties are pre-defined for Polarion:</p>
+  <ul>
+    <li>polarion.project
+        <p>The name of the Polarion project. If not specified the name is taken from the testsuite name in the XUnit file.</p>
+    <li>polarion.run
+        <p>The name of the Polarion run. If not specified the name is generated using the format '&lt;project&gt; yyyy-MM-dd hh-mm-ss'.</p>
+        <p>If a run with the specified name already exist, results are added to that run. Otherwise a new run is created.</p>
+    <li>polarion.template
+        <p>The template name used to create the run. If not specified it defaults to 'Empty'.</p>
+  </ul>
+  <p>Here are some sample properties that set the project name and map test case names in XUnit file to the Polarion test case id:
+    <pre>
+polarion.project=PluginTest
+Login\ User\ Should\ Pass=PLUG-2723
+Login\ User\ With\ Invalid\ Credentials\ Should\ Fail=PLUG-2724
+Login\ User\ With\ Missing\ Username\ Should\ Fail=PLUG-2725
+Login\ User\ With\ Missing\ Password\ Should\ Fail=PLUG-2726
+Login\ test\ that\ was\ skipped=PLUG-2727
+    </pre>
+  <p>
+</div>

@@ -1,0 +1,237 @@
+- defaults:
+    name: gate-job
+    description: |
+        Managed by Jenkins Job Builder.
+        <strong>Do not edit via web</strong>.<br />
+        <br />
+    node: master
+    concurrent: true
+    logrotate:
+        daysToKeep: 40
+        numToKeep: 200
+        artifactDaysToKeep: 14
+        artifactNumToKeep: -1
+    parameters:
+        - string:
+            name: GERRIT_REFSPEC
+            default: refs/heads/master
+        - string:
+            name: GERRIT_BRANCH
+            default: origin/master
+        - choice:
+            name: SITE
+            choices:
+              - qeos
+              - os1
+            description: Tests env variables
+        - string:
+            name: TOPOLOGIES
+            default: aio,aio_jslave,aio_jmaster
+            description: Tests env variables
+        - string:
+            name: PLUGINS
+            default: plugins_all
+            description: Tests plugins for creation of Jenkins Master
+    wrappers:
+        - ansicolor
+        - timestamps
+    builders:
+        - shell: |
+            rm -f logs/*
+            rm -rf tmp_jobs
+
+            if [[ -d ci-ops-central ]]; then
+                pushd ci-ops-central
+                git reset --hard # clean possible failed merges etc
+                git checkout master
+                git pull
+                popd
+            else
+                git clone https://code.engineering.redhat.com/gerrit/ci-ops-central
+            fi
+
+            if [[ -d ci-ops-projex ]]; then
+                pushd ci-ops-projex
+                git reset --hard # clean possible failed merges etc
+                git checkout master
+                git pull
+                popd
+            else
+                git clone https://code.engineering.redhat.com/gerrit/ci-ops-projex
+            fi
+
+            if [[ -d job-runner ]]; then
+                pushd job-runner
+                git reset --hard # clean possible failed merges etc
+                git checkout master
+                git pull
+                popd
+            else
+                git clone https://code.engineering.redhat.com/gerrit/job-runner
+            fi
+
+            set +x
+
+            alias listCommits='git log -10 --no-merges --pretty=format:"| %Cblue%s%Creset%n| %Cgreen%h%Creset at %ai by %Cgreen%ae%Creset%n|"'
+
+            # generate yamls before the change
+            CIOPSJ=ci-ops-projex
+            TMP="$(pwd)/tmp_jobs"
+            XMLS="$TMP/xmls"
+            mkdir -p "$XMLS"
+
+            jenkins-jobs --conf $CIOPSJ/jobs/config test -o $XMLS $CIOPSJ/jobs
+            ls -1 $XMLS/ > $TMP/before
+
+
+            # merge the change from gerrit
+            GERRIT_PROJECT="${GERRIT_PROJECT:-${JOB_NAME#gate-}}"
+            pushd "$GERRIT_PROJECT"
+
+            echo "==== Cleaning branches with old changes ===="
+            git branch -D thechange || true
+            git branch -D mergedchange || true
+
+            echo "==== Fetching the change ===="
+            # store the checked-out refspec in a branch
+            git fetch https://code.engineering.redhat.com/gerrit/${GERRIT_PROJECT} $GERRIT_REFSPEC
+            git checkout -b thechange FETCH_HEAD
+            git branch -a
+            git log -2
+
+            echo "==== Merging to master ===="
+            git checkout -b mergedchange origin/master
+            if ! git merge --commit -m 'Merge the gated change' thechange; then
+                echo -e "\033[01;31m===> This change has to be rebased!\033[00m"
+                echo ""
+                exit 1
+            fi
+            echo " - merge to master OK"
+            git branch -a
+            git log -2
+            echo ""
+
+            popd
+
+            # flake8 and pep8 check of Python code
+            if [[ -d ci-ops-central ]]; then
+                echo "==== Checking code compliance with PEP8/flake8 ===="
+                pushd ci-ops-central
+                find -name \*.py | grep -v 'doc' | xargs -i flake8 {} --show-source --show-pep8
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: FLAKE8 and PEP8 CHECK FAILED\nSTATUS: $TR_STATUS"; exit 1; fi
+                popd
+            fi
+
+            # list changes
+            echo "======================"
+            echo "ci-ops-central changes"
+            echo "======================"
+            cd ci-ops-central
+            listCommits
+
+            echo "======================"
+            echo "ci-ops-projex changes"
+            echo "====================="
+            cd ../ci-ops-projex
+            listCommits
+
+            echo "====================="
+
+            #echo "Diff between yaml defined jobs:"
+            pushd $WORKSPACE
+            rm -f $XMLS/*
+            jenkins-jobs --conf $CIOPSJ/jobs/config test -o $XMLS $CIOPSJ/jobs
+            ls -1 $XMLS/ > $TMP/after
+
+            diff=$(which colordiff diff 2>/dev/null|head -n1)
+            $diff --suppress-common-lines $TMP/before $TMP/after \
+                && echo "No new or removed jobs" || true
+
+            set -x
+
+            export PYTHONPATH="$PYTHONPATH:$WORKSPACE/job-runner"
+
+            ci-ops-central/bootstrap/ci-ops-tests.sh
+
+            TR_STATUS=$?
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+
+- job:
+    defaults: gate-job
+    name: 'gate-ci-ops-central'
+    parameters:
+    - string:
+        name: GERRIT_REFSPEC
+        default: refs/heads/master
+    - string:
+        name: GERRIT_BRANCH
+        default: origin/master
+    - choice:
+        name: SITE
+        choices:
+          - qeos
+          - os1
+        description: Tests env variables
+    - string:
+        name: TOPOLOGIES
+        default: 2comp,aio_jslave,aio_jmaster,aio_ansible,bkr1_and_os1
+        description: Topologies to test
+    - string:
+        name: PLUGINS
+        default: plugins_all
+        description: Tests plugins for creation of Jenkins Master
+    triggers:
+        - gerrit:
+            trigger-on-patchset-uploaded-event: true
+            trigger-on-draft-published-event: true
+            trigger-on-change-restored-event: true
+            failure-message: Auto-verification FAILED!
+            successful-message: Auto-verification succeeded!
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci-ops-central'
+                  branch-compare-type: 'PLAIN'
+                  branch-pattern: 'master'
+
+- job:
+    defaults: gate-job
+    name: 'gate-ci-ops-projex'
+    parameters:
+    - string:
+        name: GERRIT_REFSPEC
+        default: refs/heads/master
+    - string:
+        name: GERRIT_BRANCH
+        default: origin/master
+    - choice:
+        name: SITE
+        choices:
+          - qeos
+          - os1
+        description: Tests env variables
+    - string:
+        name: TOPOLOGIES
+        default: 2comp,bkr1_and_os1
+        description: Topologies to test
+    - string:
+        name: PLUGINS
+        default: plugins_all
+        description: Tests plugins for creation of Jenkins Master
+    triggers:
+        - gerrit:
+            trigger-on-patchset-uploaded-event: true
+            trigger-on-draft-published-event: true
+            trigger-on-change-restored-event: true
+            failure-message: Auto-verification FAILED!
+            successful-message: Auto-verification succeded!
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci-ops-projex'
+                  branch-compare-type: 'PLAIN'
+                  branch-pattern: 'master'

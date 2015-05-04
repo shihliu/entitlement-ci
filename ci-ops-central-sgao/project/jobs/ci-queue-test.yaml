@@ -1,0 +1,242 @@
+- job-template:
+    name: 'queue-{project}-{topology}-1-provision'
+    defaults: ci-queue-provision
+    concurrent: true
+    node: master
+    parameters:
+        - choice:
+            name: SITE
+            choices:
+              - qeos
+              - os1
+            description: |
+              Site where to provision resources
+        - string:
+            name: QUEUE_TEST_RESOURCE
+            description: |
+              Holds name of test resource provisioned to simulate quota failure
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+
+            # Provision Test Resources
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+
+            TR_STATUS=$?
+
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+    publishers:
+      - conditional-publisher:
+          - condition-kind: always
+            action:
+              - archive:
+                  artifacts: '*.txt, *.json'
+                  allow-empty: 'true'
+          - condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            action:
+              - trigger-parameterized-builds:
+                - project: 'queue-{project}-{topology}-2-runtest'
+                  current-parameters: true
+                  condition: 'SUCCESS'
+                  property-file: $WORKSPACE/RESOURCES.txt
+                  fail-on-missing: true
+                - project: 'queue-{project}-{topology}-3-teardown'
+                  current-parameters: true
+                  condition: 'UNSTABLE'
+                  property-file: $WORKSPACE/RESOURCES.txt
+                  fail-on-missing: true
+          - condition-kind: current-status
+            condition-worst: FAILURE
+            condition-best: FAILURE
+            action:
+              - postbuildscript:
+                  script-only-if-succeeded: false
+                  script-only-if-failed: true
+                  builders:
+                      - conditional-step:
+                          condition-kind: file-exists
+                          condition-filename: jobs/$JOB_NAME/builds/$BUILD_NUMBER/quotaFailure
+                          condition-basedir: jenkins-home
+                          on-evaluation-failure: dont-run
+                          steps:
+                              - shell: |
+                                  #!/bin/bash
+
+                                  if [ "$QUEUE_TEST_RESOURCE" != "" ]
+                                  then
+                                      # Teardown queue test resource
+                                      $WORKSPACE/ci-ops-central/bootstrap/teardown_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                                      --topology={topology_path}/{topology} --name=$QUEUE_TEST_RESOURCE
+
+                                      TR_STATUS=$?
+                                      if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+                                  fi
+
+                              - trigger-builds:
+                                  - project: 'queue-{project}-{topology}-1-provision'
+                                    block: true
+                                    current-parameters: true
+                                    predefined-parameters: |
+                                        BuildPriority=1
+                                        QUEUE_TEST_RESOURCE=""
+                                    property-file: $WORKSPACE/RESOURCES.txt
+                                    property-file-fail-on-missing: false
+                              - shell: |
+                                  #!/bin/bash
+
+                                  jobName=`echo $LAST_TRIGGERED_JOB_NAME | sed s/-/_/g`
+
+                                  buildNumVarName="TRIGGERED_BUILD_NUMBER_$jobName"
+                                  buildNum=${{!buildNumVarName}}
+
+                                  buildResultVarName="TRIGGERED_BUILD_RESULT_${{jobName}}_RUN_${{buildNum}}"
+                                  buildResult=${{!buildResultVarName}}
+
+                                  echo $buildResult > $JENKINS_HOME/jobs/$JOB_NAME/builds/$BUILD_NUMBER/triggeredBuildResult
+
+
+                      - conditional-step:
+                          condition-kind: shell
+                          condition-command: |
+                              #!/bin/bash
+
+                              [ -f "$JENKINS_HOME/jobs/$JOB_NAME/builds/$BUILD_NUMBER/quotaFailure" ] && exit 1 || exit 0
+                          on-evaluation-failure: dont-run
+                          steps:
+                              - trigger-builds:
+                                  - project: 'queue-{project}-{topology}-3-teardown'
+                                    current-parameters: true
+                                    property-file: $WORKSPACE/RESOURCES.txt
+                                    property-file-fail-on-missing: true
+
+
+- job-template:
+    name: 'queue-{project}-{topology}-2-runtest'
+    defaults: ci-ops-projex-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'queue-{project}-{topology}-1-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+
+        - shell: |
+            #!/bin/bash
+
+            export TOPOLOGY={topology}
+            {testparams}
+
+            echo "TOPOLOGY: {topology}"
+
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+
+            echo "Jenkins machine info we are running on"
+            ifconfig
+
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'queue-{project}-{topology}-3-teardown'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: false
+
+- job-template:
+    name: 'queue-{project}-{topology}-3-teardown'
+    defaults: ci-queue-provision
+    concurrent: true
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+
+            export JSLAVETEARDOWN={jslaveteardown}
+            # Teardown Jenkins Slave
+            $WORKSPACE/ci-ops-central/bootstrap/teardown_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --name=$LABEL
+
+            TR_STATUS=$?
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+
+            if [ "$JSLAVETEARDOWN" == "True" ]
+            then
+              $WORKSPACE/ci-ops-central/bootstrap/teardown_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+              --topology=ci-ops-central/project/config/aio_jslave --jslavename=$JSLAVENAME \
+              --jslaveusername={jslaveusername} --jslavepassword={jslavepassword} --jslaveip=$JSLAVEIP --jslaveteardown
+
+              TR_STATUS=$?
+              if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Teardown\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+
+
+- job-group:
+    name: queue-test-provision-runtest-teardown
+    jobs:
+      - 'queue-{project}-{topology}-1-provision'
+      - 'queue-{project}-{topology}-2-runtest'
+      - 'queue-{project}-{topology}-3-teardown'
+
+- project:
+    name: queue-test-jobs
+    project:
+     - test
+    project_defaults:
+     - ci-ops-projex/config/project_defaults_queue
+    topology_path:
+     - ci-ops-projex/config
+    topology:
+     - aio_RHEL6-5
+    ssh_keyfile:
+     - ci-ops-projex/config/keys/ci-ops-central
+    tests_path:
+     - ci-ops-projex/tests
+    testparams:
+     - echo "I am a test parameter"
+    jobs:
+      - queue-test-provision-runtest-teardown
+    jslavename:
+     - jslave-queue-slave
+    jslave_execs:
+     - 10
+    jslaveimage:
+     - rhel-6.5_jeos
+    jslaveflavor:
+     - m1.large
+    jslaveusername:
+     - root
+    jslavepassword:
+     - 123456
+    jslaveteardown:
+     - True

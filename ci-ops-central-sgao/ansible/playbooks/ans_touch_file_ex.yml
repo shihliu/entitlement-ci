@@ -1,0 +1,5 @@
+- name: ans_touch_file_ex
+  hosts: '{{ hosts | default("testsystems") }}'
+  tasks:
+    - name: touch a file
+      shell: touch /tmp/ci-ops-was-here
