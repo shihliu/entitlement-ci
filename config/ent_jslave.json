@@ -4,7 +4,7 @@
             "name": "ent-jslave",
             "count": "1",
             "flavor": "m1.medium",
-            "image": "aio_jslave.json"
+            "image": "RHEL-6.6-Server-x86_64-released"
         }
    ]
 }
