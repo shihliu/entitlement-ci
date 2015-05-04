@@ -1,4 +1,0 @@
-/root/ci-message-hub/onboard.log {
-    compress
-    rotate 120
-}
