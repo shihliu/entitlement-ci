@@ -81,6 +81,3 @@ class SAM_Install_Base(unittest.TestCase):
         # self.remote_put(sam_manifest, "/root/%s" % manifest_name)
         cmd = "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/sam_install_manifest.zip -P /root/"
         self.run(cmd)
-
-if __name__ == "__main__":
-    unittest.main()

@@ -9,6 +9,7 @@ class Command(object):
     password = get_exported_param("REMOTE_PASSWD")
     def __init__(self, remote_ip=None, username=None, password=None):
         if remote_ip != "" and remote_ip != None:
+            logger.info("command run in: %s" % remote_ip)
             self.remote_ip = remote_ip
             self.username = username
             self.password = password
