@@ -35,7 +35,6 @@
             basedir: entitlement-ci
     wrappers:
         - default-virt-who-wrappers
-        - default-virt-who-build-timeout-wrapper
 
 - wrapper:
     name: default-virt-who-wrappers
