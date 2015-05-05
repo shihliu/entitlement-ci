@@ -83,7 +83,8 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            export REMOTE_IP=$EXISTING_NODES
+            beaker_ip = `ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2 {print $2}'`
+            export REMOTE_IP=$beaker_ip
             export REMOTE_USER=root
             export REMOTE_PASSWD=xxoo2014
 
