@@ -98,7 +98,7 @@
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
-      - default-ci-workflow-runtest-publishers
+      - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
           - project: 'ci-{project}-{topology}-3-teardown'
             current-parameters: true
