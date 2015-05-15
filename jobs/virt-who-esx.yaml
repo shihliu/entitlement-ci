@@ -52,7 +52,7 @@
             condition: 'UNSTABLE_OR_WORSE'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-ci-workflow-publishers
+      - default-virt-who-publishers
 
 
 - job-template:
@@ -102,7 +102,7 @@
       - trigger-parameterized-builds:
           - project: 'ci-{project}-{topology}-3-teardown'
             current-parameters: true
-      - default-ci-workflow-publishers
+      - default-virt-who-publishers
 
 - job-group:
     name: virt-who-esx-provision-runtest
