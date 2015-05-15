@@ -41,14 +41,9 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: '{project}-{topology}-2-runtest'
+          - project: 'virt-who-kvm-runtest'
             current-parameters: true
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
-          - project: 'ci-{project}-{topology}-3-teardown'
-            current-parameters: true
-            condition: 'UNSTABLE_OR_WORSE'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
       - default-virt-who-publishers
@@ -60,7 +55,7 @@
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'ci-{project}-{topology}-1-provision'
+            project: 'virt-who-kvm-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -90,7 +85,7 @@
             export SAM_HOSTNAME=samserv.redhat.com
             
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
-            nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:
@@ -98,9 +93,6 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'ci-{project}-{topology}-3-teardown'
-            current-parameters: true
       - default-virt-who-publishers
 
 - job-group:

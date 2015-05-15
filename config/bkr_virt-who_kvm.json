@@ -8,21 +8,21 @@
                     "arch": "X86_64",
                     "keyvalue": ["DISKSPACE>=20000"],
                     "variant": "Server",
-                    "hostrequire": ["arch=X86_64", "memory>=1000"],
+                    "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
-                        "role": "Server",
-                        "name": "AppServer"
+                        "role": "Master",
+                        "name": "MasterMachine"
                     }
                 },
                 {
                     "distro": "RHEL-6.4",
                     "arch": "X86_64",
                     "keyvalue": ["DISKSPACE>=20000"],
-                    "variant": "Workstation",
+                    "variant": "Server",
                     "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
-                        "role": "Client",
-                        "name": "AppClient"
+                        "role": "Slave",
+                        "name": "SlaveMachine"
                     }
                 }
             ]
