@@ -1,5 +1,5 @@
 - job-template:
-    name: 'virt-who-kvm-provision'
+    name: 'virt-who-esx-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -56,7 +56,7 @@
 
 
 - job-template:
-    name: 'virt-who-kvm-runtest'
+    name: 'virt-who-esx-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
@@ -105,21 +105,21 @@
       - default-ci-workflow-publishers
 
 - job-group:
-    name: virt-who-kvm-provision-runtest
+    name: virt-who-esx-provision-runtest
     jobs:
-      - 'virt-who-kvm-provision'
-      - 'virt-who-kvm-runtest'
+      - 'virt-who-esx-provision'
+      - 'virt-who-esx-runtest'
 
 - project:
-    name: virt-who-kvm-jobs
+    name: virt-who-esx-jobs
     project:
-     - virt-who-kvm
+     - virt-who-esx
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_virt-who_kvm
+     - bkr_virt-who_esx
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -127,9 +127,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - virt-who-kvm-provision-runtest
+      - virt-who-esx-provision-runtest
     jslavename:
-     - jslave-virt-who-kvm-slave
+     - jslave-virt-who-esx-slave
     jslave_execs:
      - 10
     jslaveimage:
