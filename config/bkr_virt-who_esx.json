@@ -4,14 +4,14 @@
             "job_group": "Entitlement-QA",
             "recipesets": [
                 {
-                    "distro": "RHEL-6.5",
+                    "distro": "RHEL-6.7-20150506.0",
                     "arch": "X86_64",
                     "keyvalue": ["DISKSPACE>=20000"],
                     "variant": "Server",
                     "hostrequire": ["arch=X86_64", "memory>=1000"],
                     "bkr_data": {
-                        "role": "Server",
-                        "name": "AppServer"
+                        "role": "ESX-virt-who",
+                        "name": "ESX-virt-who-Machine"
                     }
                 }
             ]

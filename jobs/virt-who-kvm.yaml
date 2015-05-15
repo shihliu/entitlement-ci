@@ -48,7 +48,6 @@
             fail-on-missing: true
       - default-virt-who-publishers
 
-
 - job-template:
     name: 'virt-who-kvm-runtest'
     defaults: virt-who-runtest
