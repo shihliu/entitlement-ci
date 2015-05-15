@@ -54,6 +54,9 @@
             fail-on-missing: true
       - default-virt-who-publishers
 
+    triggers:
+      - default-pollurl:
+        url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
 
 - job-template:
     name: '{project}-{topology}-2-runtest'
