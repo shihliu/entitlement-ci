@@ -101,13 +101,3 @@
                  - junit:
                      pattern: '*.xml'
                      deleteoutput: false
-
-- trigger:
-    name: default-pollurl
-    triggers:
-        - pollurl:
-            cron: 'H/9 * * * *'
-            urls:
-                - url: '{url}'
-                  check-content:
-                      - simple: true
