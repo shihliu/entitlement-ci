@@ -14,7 +14,7 @@ class VIRTWHOBase(unittest.TestCase):
             commander = Command(targetmachine_ip, username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
         else:
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
-        return self.commander.run(cmd, timeout, cmddesc)
+        return commander.run(cmd, timeout, cmddesc)
 
     def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
         if targetmachine_ip == "":
