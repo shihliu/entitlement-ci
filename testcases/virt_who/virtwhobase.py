@@ -68,7 +68,7 @@ class VIRTWHOBase(unittest.TestCase):
         if not self.sub_isregistered():
             self.configure_host(SAM_HOSTNAME, SAM_IP)
             self.sub_register(SAM_USER, SAM_PASS)
-        guest_name = "ESX_6.5_Server_x86_64"
+        guest_name = VIRTWHOConstants.get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
         self.wget_images(VIRTWHOConstants.get_constant("esx_guest_url"), guest_name, ESX_HOST)
         self.esx_add_guest(guest_name, ESX_HOST)
@@ -113,9 +113,9 @@ class VIRTWHOBase(unittest.TestCase):
             cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
             ret, output = self.runcmd(logger, cmd, "configure /etc/hosts", targetmachine_ip)
             if ret == 0:
-                logger.info("Succeeded to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_HG_info(targetmachine_ip)))
+                logger.info("Succeeded to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             else:
-                raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_HG_info(targetmachine_ip)))
+                raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
             cmd = "rpm -qa | grep candlepin-cert-consumer"
             ret, output = self.runcmd(logger, cmd, "check whether candlepin-cert-consumer-%s-1.0-1.noarch exist" % samhostname, targetmachine_ip)
@@ -138,11 +138,63 @@ class VIRTWHOBase(unittest.TestCase):
             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
             ret, output = self.runcmd(logger, cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
             if ret == 0:
-                logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
+                logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
             else:
-                raise FailException("Failed to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
+                raise FailException("Failed to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Failed to configure the host")
+
+    def sub_listavailpools(self, productid, targetmachine_ip="", showlog=True):
+        ''' list available pools.'''
+        cmd = "subscription-manager list --available"
+        ret, output = self.runcmd(cmd, "run 'subscription-manager list --available'", targetmachine_ip, showlogger=showlog)
+        if ret == 0:
+            if "No Available subscription pools to list" not in output:
+                if productid in output:
+                    logger.info("Succeeded to run 'subscription-manager list --available' %s." % self.get_hg_info(targetmachine_ip))
+                    pool_list = self.__parse_avail_pools(logger, output)
+                    return pool_list
+                else:
+                    raise FailException("Failed to run 'subscription-manager list --available' %s - Not the right available pools are listed!" % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to run 'subscription-manager list --available' %s - There is no Available subscription pools to list!" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to run 'subscription-manager list --available' %s." % self.get_hg_info(targetmachine_ip))
+
+    def __parse_listavailable_output(self, output):
+        datalines = output.splitlines()
+        data_list = []
+        # split output into segmentations for each pool
+        data_segs = []
+        segs = []
+        tmpline = ""
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
+                tmpline = line
+            elif line and ":" not in line:
+                tmpline = tmpline + ' ' + line.strip()
+            elif line and ":" in line:
+                segs.append(tmpline)
+                tmpline = line
+            if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line) or ("SystemType:" in line):
+                segs.append(tmpline)
+                data_segs.append(segs)
+                segs = []
+        for seg in data_segs:
+            data_dict = {}
+            for item in seg:
+                keyitem = item.split(":")[0].replace(' ', '')
+                valueitem = item.split(":")[1].strip()
+                data_dict[keyitem] = valueitem
+            data_list.append(data_dict)
+        return data_list
+
+    def check_type_virtual(self, pool_dict):
+        if "MachineType" in pool_dict.keys():
+            TypeName = "MachineType"
+        elif "SystemType" in pool_dict.keys():
+            TypeName = "SystemType"
+        return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
     #========================================================
     #     ESX Functions
@@ -211,8 +263,8 @@ class VIRTWHOBase(unittest.TestCase):
             if "AlreadyExists" in output:
                 logger.info("Guest '%s' already exist in ESX host" % guest_name)
             else:
-                logger.error("Failed to add guest '%s' to ESX host" % guest_name)
-                self.SET_RESULT(1)
+                raise FailException("Failed to add guest '%s' to ESX host" % guest_name)
+    
 
     def esx_service_restart(self, destination_ip):
         ''' restart esx service '''
@@ -261,8 +313,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to remove guest '%s' from vCenter" % guest_name)
 #         else:
-#             logger.error("Failed to remove guest '%s' from vCenter" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove guest '%s' from vCenter" % guest_name)
+# 
 # 
 #     def esx_destroy_guest(self, guest_name, esx_host):
 #         ''' destroy guest from '''
@@ -274,8 +326,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to destroy guest '%s'" % guest_name)
 #         else:
-#             logger.error("Failed to destroy guest '%s'" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to destroy guest '%s'" % guest_name)
+# 
 # 
 #     def esx_check_host_exist(self, esx_host, vCenter, vCenter_user, vCenter_pass):
 #         ''' check whether esx host exist in vCenter '''
@@ -283,7 +335,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         cmd = "vmware-cmd -H %s -U %s -P %s --vihost %s -l" % (vCenter, vCenter_user, vCenter_pass, esx_host)
 #         ret, output = self.runcmd(cmd, "check whether esx host:%s exist in vCenter" % esx_host, vmware_cmd_ip)
 #         if "Host not found" in output:
-#             logger.error("esx host:%s not exist in vCenter" % esx_host)
+#             raise FailException("esx host:%s not exist in vCenter" % esx_host)
 #             return False
 #         else:
 #             logger.info("esx host:%s exist in vCenter" % esx_host)
@@ -292,18 +344,17 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_remove_all_guests(self, guest_name, destination_ip):
 #         return
 # 
-#     def esx_start_guest(self, guest_name):
-#         ''' start guest in esx host '''
-#         esx_host_ip = ee.esx_host_ip
-#         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to start guest '%s' in ESX host" % guest_name)
-#         else:
-#             logger.error("Failed to start guest '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
-#         ''' check whethre guest can be accessed by ip '''
-#         self.esx_check_ip_accessable(guest_name, esx_host_ip, accessable=True)
+    def esx_start_guest(self, guest_name):
+        ''' start guest in esx host '''
+        esx_host_ip = VIRTWHOConstants.get_constant("ESX_HOST")
+        cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
+        ret, output = self.runcmd_byuser(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
+        if ret == 0:
+            logger.info("Succeeded to start guest '%s' in ESX host" % guest_name)
+        else:
+            raise FailException("Failed to start guest '%s' in ESX host" % guest_name)
+        ''' check whethre guest can be accessed by ip '''
+        self.esx_check_ip_accessable(guest_name, esx_host_ip, accessable=True)
 
     def esx_stop_guest(self, guest_name, destination_ip):
         ''' stop guest in esx host '''
@@ -323,8 +374,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             logger.info("Succeeded to suspend guest '%s' in ESX host" % guest_name)
         else:
-            logger.error("Failed to suspend guest '%s' in ESX host" % guest_name)
-            self.SET_RESULT(1)
+            raise FailException("Failed to suspend guest '%s' in ESX host" % guest_name)
+
         ''' check whethre guest can not be accessed by ip '''
         self.esx_check_ip_accessable(guest_name, destination_ip, accessable=False)
 
@@ -336,8 +387,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             logger.info("Succeeded to resume guest '%s' in ESX host" % guest_name)
         else:
-            logger.error("Failed to resume guest '%s' in ESX host" % guest_name)
-            self.SET_RESULT(1)
+            raise FailException("Failed to resume guest '%s' in ESX host" % guest_name)
+
         ''' check whethre guest can be accessed by ip '''
         self.esx_check_ip_accessable(guest_name, destination_ip, accessable=True)
 
@@ -349,10 +400,10 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             logger.info("Succeeded to get guest mac address '%s' in ESX host" % guest_name)
         else:
-            logger.error("Failed to get guest mac address '%s' in ESX host" % guest_name)
-            self.SET_RESULT(1)
+            raise FailException("Failed to get guest mac address '%s' in ESX host" % guest_name)
+
         return macAddress
-    
+
     def esx_get_guest_ip(self, guest_name, destination_ip):
         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
@@ -360,10 +411,12 @@ class VIRTWHOBase(unittest.TestCase):
         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
+            if ipAddress == None or ipAddress == "":
+                raise FailException("Faild to get guest %s ip." % guest_name)
+            else:
+                return ipAddress
         else:
-            logger.error("Failed to get guest ip address '%s' in ESX host" % ipAddress)
-            self.SET_RESULT(1)
-        return ipAddress
+            raise FailException("Failed to get guest ip address '%s' in ESX host" % ipAddress)
 
     def esx_check_ip_accessable(self, guest_name, destination_ip, accessable):
         cycle_count = 0
@@ -397,8 +450,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             logger.info("Succeeded to get guest uuid '%s' in ESX host" % guest_name)
         else:
-            logger.error("Failed to get guest uuid '%s' in ESX host" % guest_name)
-            self.SET_RESULT(1)
+            raise FailException("Failed to get guest uuid '%s' in ESX host" % guest_name)
+
         return uuid
 
     def esx_get_host_uuid(self, destination_ip):
@@ -409,8 +462,7 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             logger.info("Succeeded to get host uuid '%s' in ESX host" % uuid)
         else:
-            logger.error("Failed to get host uuid '%s' in ESX host" % uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to get host uuid '%s' in ESX host" % uuid)
         return uuid
 
     def esx_check_uuid(self, guestname, destination_ip, guestuuid="Default", uuidexists=True, rhsmlogpath='/var/log/rhsm'):
@@ -434,8 +486,8 @@ class VIRTWHOBase(unittest.TestCase):
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
-                logger.error("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-                self.SET_RESULT(1)
+                raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+    
             # check guest uuid in log_uuid_list
             if uuidexists:
                 if guestname == "":
@@ -448,8 +500,8 @@ class VIRTWHOBase(unittest.TestCase):
                 else:
                     return not guestuuid in log_uuid_list
         else:
-            logger.error("Failed to get uuids in rhsm.log")
-            self.SET_RESULT(1)
+            raise FailException("Failed to get uuids in rhsm.log")
+
 
     def esx_check_uuid_exist_in_rhsm_log(self, uuid, destination_ip=""):
         ''' esx_check_uuid_exist_in_rhsm_log '''
@@ -470,13 +522,13 @@ class VIRTWHOBase(unittest.TestCase):
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
-                logger.error("Failed to get guest uuid.list from rhsm.log")
-                self.SET_RESULT(1)
+                raise FailException("Failed to get guest uuid.list from rhsm.log")
+    
             # check guest uuid in log_uuid_list
             return uuid in log_uuid_list
         else:
-            logger.error("Failed to get uuids in rhsm.log")
-            self.SET_RESULT(1)
+            raise FailException("Failed to get uuids in rhsm.log")
+
 
     def get_uuid_list_in_rhsm_log(self, destination_ip=""):
         ''' esx_check_uuid_exist_in_rhsm_log '''
@@ -496,12 +548,12 @@ class VIRTWHOBase(unittest.TestCase):
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
-                logger.error("Failed to get guest uuid.list from rhsm.log")
-                self.SET_RESULT(1)
+                raise FailException("Failed to get guest uuid.list from rhsm.log")
+    
             return log_uuid_list
         else:
-            logger.error("Failed to get uuid list in rhsm.log")
-            self.SET_RESULT(1)
+            raise FailException("Failed to get uuid list in rhsm.log")
+
 
     def esx_check_host_in_samserv(self, esx_uuid, destination_ip):
         ''' check esx host exist in sam server '''
@@ -511,8 +563,8 @@ class VIRTWHOBase(unittest.TestCase):
         # if ret == 0 and output.find(esx_uuid) >= 0:
             logger.info("Succeeded to check esx host %s exist in sam server" % esx_uuid)
         else:
-            logger.error("Failed to check esx host %s exist in sam server" % esx_uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to check esx host %s exist in sam server" % esx_uuid)
+
 
     def esx_remove_host_in_samserv(self, esx_uuid, destination_ip):
         ''' remove esx host in sam server '''
@@ -521,8 +573,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to remove esx host %s in sam server" % esx_uuid)
         else:
-            logger.error("Failed to remove esx host %s in sam server" % esx_uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to remove esx host %s in sam server" % esx_uuid)
+
 
     def esx_remove_deletion_record_in_samserv(self, esx_uuid, destination_ip):
         ''' remove deletion record in sam server '''
@@ -531,8 +583,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to remove deletion record %s in sam server" % esx_uuid)
         else:
-            logger.error("Failed to remove deletion record %s in sam server" % esx_uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to remove deletion record %s in sam server" % esx_uuid)
+
 
     def esx_subscribe_host_in_samserv(self, esx_uuid, poolid, destination_ip):
         ''' subscribe host in sam server '''
@@ -541,8 +593,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to subscribe host %s in sam server" % esx_uuid)
         else:
-            logger.error("Failed to subscribe host %s in sam server" % esx_uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to subscribe host %s in sam server" % esx_uuid)
+
 
     def esx_unsubscribe_all_host_in_samserv(self, esx_uuid, destination_ip):
         ''' unsubscribe host in sam server '''
@@ -551,8 +603,8 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to unsubscribe host %s in sam server" % esx_uuid)
         else:
-            logger.error("Failed to unsubscribe host %s in sam server" % esx_uuid)
-            self.SET_RESULT(1)
+            raise FailException("Failed to unsubscribe host %s in sam server" % esx_uuid)
+
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
@@ -571,8 +623,8 @@ class VIRTWHOBase(unittest.TestCase):
                 poolid = availpoollist[rindex]["PoolId"]
             return poolid
         else:
-            logger.error("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
-            self.SET_RESULT(1)
+            raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
+
 # 
 #     # ========================================================
 #     #       1. Keyword Functions
@@ -731,50 +783,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         currentversion = version + platform
 #         return currentversion
 # 
-#     def sub_listavailpools(self, productid):
-#         cmd = "subscription-manager list --available"
-#         (ret, output) = Command().run(cmd)
-#         if ret == 0:
-#             if "no available subscription pools to list" not in output.lower():
-#                 if productid in output:
-#                     logger.info("The right available pools are listed successfully.")
-#                     pool_list = self.__parse_listavailable_output(output)
-#                     return pool_list
-#                 else:
-#                     raise FailException("Not the right available pools are listed!")
-#             else:
-#                 logger.info("There is no Available subscription pools to list!")
-#                 return None
-#         else:
-#             raise FailException("Test Failed - Failed to list available pools.")
-# 
-#     def __parse_listavailable_output(self, output):
-#         datalines = output.splitlines()
-#         data_list = []
-#         # split output into segmentations for each pool
-#         data_segs = []
-#         segs = []
-#         tmpline = ""
-#         for line in datalines:
-#             if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
-#                 tmpline = line
-#             elif line and ":" not in line:
-#                 tmpline = tmpline + ' ' + line.strip()
-#             elif line and ":" in line:
-#                 segs.append(tmpline)
-#                 tmpline = line
-#             if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line) or ("SystemType:" in line):
-#                 segs.append(tmpline)
-#                 data_segs.append(segs)
-#                 segs = []
-#         for seg in data_segs:
-#             data_dict = {}
-#             for item in seg:
-#                 keyitem = item.split(":")[0].replace(' ', '')
-#                 valueitem = item.split(":")[1].strip()
-#                 data_dict[keyitem] = valueitem
-#             data_list.append(data_dict)
-#         return data_list
+
 # 
 #     def get_subscription_serialnumlist(self):
 #         cmd = "ls /etc/pki/entitlement/ | grep -v key.pem"
@@ -1027,7 +1036,7 @@ class VIRTWHOBase(unittest.TestCase):
 # #                             if (ret == 0):
 # #                                     logger.info("It is success to write %s to /etc/yum.conf" % input_proxy_eng)
 # #                             else:
-# #                                     logger.error("It is failed to write %s to /etc/yum.conf" % input_proxy_eng)
+# #                                     raise FailException("It is failed to write %s to /etc/yum.conf" % input_proxy_eng)
 # #                                     return False
 # # 
 # #     def write_proxy_to_rhsm_conf(self, params, env):
@@ -1047,7 +1056,7 @@ class VIRTWHOBase(unittest.TestCase):
 # #         if (ret == 0):
 # #                 logger.info("It is success to set proxy_hostname to /etc/rhsm/rhsm.conf")
 # #         else:
-# #                 logger.error("It is failed to set proxy_hostname to /etc/rhsm/rhsm.conf")
+# #                 raise FailException("It is failed to set proxy_hostname to /etc/rhsm/rhsm.conf")
 # #                 return False
 # # 
 # #         cmd = "sed -i 's/proxy_port =/proxy_port = 3128/' /etc/rhsm/rhsm.conf"
@@ -1055,7 +1064,7 @@ class VIRTWHOBase(unittest.TestCase):
 # #         if (ret == 0):
 # #                 logger.info("It is success to set proxy_port to /etc/rhsm/rhsm.conf")
 # #         else:
-# #                 logger.error("It is failed to set proxy_port to /etc/rhsm/rhsm.conf")
+# #                 raise FailException("It is failed to set proxy_port to /etc/rhsm/rhsm.conf")
 # #                 return False
 # #     
 # #     def is_file(self, file_path):
@@ -1224,9 +1233,9 @@ class VIRTWHOBase(unittest.TestCase):
 # #                     if 'stopped' in output or 'Stopped' in output:
 # #                             logger.info("It's successful to stop rhsmcertd service.")
 # #                     else:
-# #                         logger.error("Failed to stop rhsmcertd service.")
+# #                         raise FailException("Failed to stop rhsmcertd service.")
 # #             else:
-# #                 logger.error("Failed to stop rhsmcertd service.")
+# #                 raise FailException("Failed to stop rhsmcertd service.")
 # # 
 # #     # ========================================================
 # #     #       3. 'SAM Server' Test Common Functions
@@ -1686,7 +1695,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         for line in output.stdout.readlines():
 #             return line
 # 
-#     def get_HG_info(self, targetmachine_ip):
+#     def get_hg_info(self, targetmachine_ip):
 #         if targetmachine_ip == "":
 #             host_guest_info = "in host machine"
 #         else:
@@ -1697,8 +1706,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         mac = utils().get_dom_mac_addr(guest_name)
 #         guestip = utils().mac_to_ip(mac)
 #         if guestip == None:
-#             logger.error("Failed to get guest IP.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get guest IP.")
+# 
 #         else:
 #             logger.info("Succeeded to get guest IP: %s" % guestip)
 #             return guestip
@@ -1737,20 +1746,20 @@ class VIRTWHOBase(unittest.TestCase):
 #         cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
 #         ret, output = self.runcmd(logger, cmd, "register system", targetmachine_ip)
 #         if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
-#             logger.info("Succeeded to register system %s" % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to register system %s" % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to register system %s" % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to register system %s" % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def sub_isregistered(self, logger, targetmachine_ip=""):
 #         ''' Check whether the machine is registered. '''
 #         cmd = "subscription-manager identity"
 #         ret, output = self.runcmd(logger, cmd, "check whether the machine is registered", targetmachine_ip)
 #         if ret == 0:
-#             logger.info("System %s is registered." % self.get_HG_info(targetmachine_ip))
+#             logger.info("System %s is registered." % self.get_hg_info(targetmachine_ip))
 #             return True
 #         else: 
-#             logger.info("System %s is not registered." % self.get_HG_info(targetmachine_ip))
+#             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
 #             return False
 # 
 #     def sub_unregister(self, logger, targetmachine_ip=""):
@@ -1763,32 +1772,15 @@ class VIRTWHOBase(unittest.TestCase):
 #             # In order to avoid bug995292 in the RHEL5.11
 #             #if ret == 0 and ("System has been un-registered" in output or "System has been unregistered" in output):
 #             if ret == 0 :
-#                 logger.info("Succeeded to unregister %s." % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
 #             else:
-#                 logger.error("Failed to unregister %s." % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
 #             logger.info("The machine is not registered to server now, no need to do unregister.")
 # 
-#     def sub_listavailpools(self, logger, productid, targetmachine_ip="", showlog=True):
-#         ''' List available pools.'''
-#         cmd = "subscription-manager list --available"
-#         ret, output = self.runcmd(logger, cmd, "run 'subscription-manager list --available'", targetmachine_ip, showlogger=showlog)
-#         if ret == 0:
-#             if "No Available subscription pools to list" not in output:
-#                 if productid in output:
-#                     logger.info("Succeeded to run 'subscription-manager list --available' %s." % self.get_HG_info(targetmachine_ip))
-#                     pool_list = self.__parse_avail_pools(logger, output)
-#                     return pool_list
-#                 else:
-#                     logger.error("Failed to run 'subscription-manager list --available' %s - Not the right available pools are listed!" % self.get_HG_info(targetmachine_ip))
-#                     self.SET_RESULT(1)
-#             else:
-#                 logger.error("Failed to run 'subscription-manager list --available' %s - There is no Available subscription pools to list!" % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
-#         else:
-#             logger.error("Failed to run 'subscription-manager list --available' %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+
+# 
 # 
 #     def sub_datacenter_listavailpools(self, logger, subscription_name, targetmachine_ip="", showlog=True):
 #         ''' List available pools.'''
@@ -1797,18 +1789,18 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             if "No Available subscription pools to list" not in output:
 #                 if subscription_name in output:
-#                     logger.info("Succeeded to list the right available pools %s." % self.get_HG_info(targetmachine_ip))
+#                     logger.info("Succeeded to list the right available pools %s." % self.get_hg_info(targetmachine_ip))
 #                     pool_list = self.__parse_avail_pools(logger, output)
 #                     return pool_list
 #                 else:
-#                     logger.error("Failed to list available pools %s - Not the right available pools are listed!" % self.get_HG_info(targetmachine_ip))
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to list available pools %s - Not the right available pools are listed!" % self.get_hg_info(targetmachine_ip))
+#         
 #             else:
-#                 logger.error("Failed to list available pools %s - There is no Available subscription pools to list!" % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to list available pools %s - There is no Available subscription pools to list!" % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to list available pools %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to list available pools %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def __parse_avail_pools(self, logger, output):
 #         datalines = output.splitlines()
@@ -1855,13 +1847,13 @@ class VIRTWHOBase(unittest.TestCase):
 #         ret, output = self.runcmd(logger, cmd, "subscribe by --pool", targetmachine_ip)
 #         if ret == 0:
 #             if "Successfully " in output:
-#                 logger.info("Succeeded to subscribe to a pool %s." % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
 #             else:
-#                 logger.error("Failed to show correct information after subscribing %s." % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to show correct information after subscribing %s." % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to subscribe to a pool %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def sub_subscribe_instance_pool(self, logger, poolid, targetmachine_ip=""):
 #         ''' Subscribe to an instance pool. '''
@@ -1869,13 +1861,13 @@ class VIRTWHOBase(unittest.TestCase):
 #         ret, output = self.runcmd(logger, cmd, "subscribe an instance pool", targetmachine_ip)
 #         if ret == 0:
 #             if "Successfully " in output:
-#                 logger.info("Succeeded to subscribe an instance pool %s." % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to subscribe an instance pool %s." % self.get_hg_info(targetmachine_ip))
 #             else:
-#                 logger.error("Failed to subscribe an instance pool %s." % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to subscribe an instance pool %s." % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to subscribe an instance pool %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe an instance pool %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def sub_subscribetopool_of_product(self, logger, productid, targetmachine_ip=""):
 #         ''' Subscribe to the pool of the product: productid. '''
@@ -1890,16 +1882,16 @@ class VIRTWHOBase(unittest.TestCase):
 #                     rindex = index
 #                     break
 #             if rindex == -1:
-#                 logger.error("Failed to show find the bonus pool")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to show find the bonus pool")
+#     
 #             if "PoolID" in availpoollist[index]:
 #                 poolid = availpoollist[rindex]["PoolID"]
 #             else:
 #                 poolid = availpoollist[rindex]["PoolId"]
 #             self.sub_subscribetopool(logger, poolid, targetmachine_ip)
 #         else:
-#             logger.error("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % productid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % productid)
+# 
 # 
 #     def sub_subscribe_to_bonus_pool(self, logger, productid, guest_ip=""):
 #         ''' Subscribe the registered guest to the corresponding bonus pool of the product: productid. '''
@@ -1916,16 +1908,16 @@ class VIRTWHOBase(unittest.TestCase):
 #                     rindex = index
 #                     break
 #             if rindex == -1:
-#                 logger.error("Failed to show find the bonus pool")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to show find the bonus pool")
+#     
 #             if "PoolID" in availpoollistguest[index]:
 #                 gpoolid = availpoollistguest[rindex]["PoolID"]
 #             else:
 #                 gpoolid = availpoollistguest[rindex]["PoolId"]
 #             self.sub_subscribetopool(logger, gpoolid, guest_ip)
 #         else:
-#             logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % productid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % productid)
+# 
 # 
 #     def subscribe_datacenter_bonus_pool(self, logger, subscription_name, guest_ip=""):
 #         ''' Subscribe the registered guest to the corresponding bonus pool of the product: productid. '''
@@ -1941,8 +1933,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 gpoolid = availpoollistguest[rindex]["PoolId"]
 #             self.sub_subscribetopool(logger, gpoolid, guest_ip)
 #         else:
-#             logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % subscription_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % subscription_name)
+# 
 # 
 #     def subscribe_instance_pool(self, logger, SKU_id, guest_ip=""):
 #         ''' subscribe_instance_pool '''
@@ -1958,8 +1950,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 gpoolid = availpoollistguest[rindex]["PoolId"]
 #             self.sub_subscribe_instance_pool(logger, gpoolid, guest_ip)
 #         else:
-#             logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
+# 
 # 
 #     def get_pool_by_SKU(self, logger, SKU_id, guest_ip=""):
 #         ''' get_pool_by_SKU '''
@@ -1975,8 +1967,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 gpoolid = availpoollistguest[rindex]["PoolId"]
 #             return gpoolid
 #         else:
-#             logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
+# 
 # 
 #     def get_SKU_attribute(self, logger, SKU_id, attribute_key, guest_ip=""):
 #         availpoollistguest = self.sub_listavailpools(logger, SKU_id, guest_ip)
@@ -1989,8 +1981,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 attribute_value = availpoollistguest[rindex][attribute_key]
 #             return attribute_value
 #         else:
-#             logger.error("Failed to list available subscriptions" % SKU_id)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to list available subscriptions" % SKU_id)
+# 
 # 
 #     def sub_autosubscribe(self, logger, autosubprod, targetmachine_ip=""):
 #         cmd = "subscription-manager subscribe --auto"
@@ -1999,9 +1991,9 @@ class VIRTWHOBase(unittest.TestCase):
 #             if (autosubprod in output) and ("Subscribed" in output) and ("Not Subscribed" not in output):
 #                 logger.info("It's successful to auto-subscribe.")
 #             else:
-#                 logger.error("Test Failed - Failed to auto-subscribe correct product.")
+#                 raise FailException("Test Failed - Failed to auto-subscribe correct product.")
 #         else:
-#             logger.error("Test Failed - Failed to auto-subscribe.")
+#             raise FailException("Test Failed - Failed to auto-subscribe.")
 # 
 #     def auto_subscribe(self, logger, targetmachine_ip=""):
 #         cmd = "subscription-manager subscribe --auto"
@@ -2010,9 +2002,9 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ("Subscribed" in output) and ("Not Subscribed" not in output):
 #                 logger.info("It's successful to auto-subscribe.")
 #             else:
-#                 logger.error("Test Failed - Failed to auto-subscribe correct product.")
+#                 raise FailException("Test Failed - Failed to auto-subscribe correct product.")
 #         else:
-#             logger.error("Test Failed - Failed to auto-subscribe.")
+#             raise FailException("Test Failed - Failed to auto-subscribe.")
 # 
 #     def get_type_name(self, pool_dict):
 #         if "MachineType" in pool_dict.keys():
@@ -2022,14 +2014,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         # print "TypeName = %s" % TypeName
 #         return TypeName
 #     
-#     def check_type_virtual(self, pool_dict):
-#         if "MachineType" in pool_dict.keys():
-#             TypeName = "MachineType"
-#         elif "SystemType" in pool_dict.keys():
-#             TypeName = "SystemType"
-#         # print "TypeName = %s" % TypeName
-#         # print pool_dict[TypeName] == "Virtual"
-#         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
+
 # 
 #     def sub_unsubscribe(self, logger, targetmachine_ip=""):
 #         ''' Unsubscribe from all entitlements. '''
@@ -2041,12 +2026,12 @@ class VIRTWHOBase(unittest.TestCase):
 #             ret1, output1 = self.runcmd(logger, cmd, "check whether key.pem exist", targetmachine_ip)
 # 
 #             if ret1 == 0 :
-#                 logger.error("Failed to unsubscribe all entitlements %s." % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to unsubscribe all entitlements %s." % self.get_hg_info(targetmachine_ip))
+#     
 #             else:
-#                 logger.info("Succeeded to unsubscribe all entitlements %s." % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to unsubscribe all entitlements %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to unsubscribe %s." % self.get_HG_info(targetmachine_ip))
+#             raise FailException("Failed to unsubscribe %s." % self.get_hg_info(targetmachine_ip))
 # 
 #     def sub_listconsumed(self, logger, productname, targetmachine_ip="", productexists=True):
 #         ''' List consumed entitlements. '''
@@ -2056,32 +2041,32 @@ class VIRTWHOBase(unittest.TestCase):
 #             if productexists:
 #                 if "No Consumed subscription pools to list" not in output:
 #                     if productname in output:
-#                         logger.info("Succeeded to list the right consumed subscription %s." % self.get_HG_info(targetmachine_ip))
+#                         logger.info("Succeeded to list the right consumed subscription %s." % self.get_hg_info(targetmachine_ip))
 #                     else:
-#                         logger.error("Failed to list consumed subscription %s - Not the right consumed subscription is listed!" % self.get_HG_info(targetmachine_ip))
-#                         self.SET_RESULT(1)
+#                         raise FailException("Failed to list consumed subscription %s - Not the right consumed subscription is listed!" % self.get_hg_info(targetmachine_ip))
+#             
 #                 else:
-#                     logger.error("Failed to list consumed subscription %s - There is no consumed subscription to list!")
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to list consumed subscription %s - There is no consumed subscription to list!")
+#         
 #             else:
 #                 if productname not in output:
-#                     logger.info("Succeeded to check entitlements %s - the product '%s' is not subscribed now." % (self.get_HG_info(targetmachine_ip), productname))
+#                     logger.info("Succeeded to check entitlements %s - the product '%s' is not subscribed now." % (self.get_hg_info(targetmachine_ip), productname))
 #                 else:
-#                     logger.error("Failed to check entitlements %s - the product '%s' is still subscribed now." % (self.get_HG_info(targetmachine_ip), productname))
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to check entitlements %s - the product '%s' is still subscribed now." % (self.get_hg_info(targetmachine_ip), productname))
+#         
 #         else:
-#             logger.error("Failed to list consumed subscriptions.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to list consumed subscriptions.")
+# 
 # 
 #     def sub_refresh(self, logger, targetmachine_ip=""):
 #         ''' Refresh all local data. '''
 #         cmd = "subscription-manager refresh; sleep 10"
 #         ret, output = self.runcmd(logger, cmd, "subscription fresh", targetmachine_ip)
 #         if ret == 0 and "All local data refreshed" in output:
-#             logger.info("Succeeded to refresh all local data %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to refresh all local data %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to refresh all local data %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to refresh all local data %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     # ========================================================
 #     #     2. 'Virt-Who' Test Common Functions
@@ -2162,10 +2147,10 @@ class VIRTWHOBase(unittest.TestCase):
 #             cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
 #             ret, output = self.runcmd(logger, cmd, "configure /etc/hosts", targetmachine_ip)
 #             if ret == 0:
-#                 logger.info("Succeeded to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_HG_info(targetmachine_ip)))
+#                 logger.info("Succeeded to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
 #             else:
-#                 logger.error("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_HG_info(targetmachine_ip)))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
+#     
 #             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
 #             cmd = "rpm -qa | grep candlepin-cert-consumer"
 #             ret, output = self.runcmd(logger, cmd, "check whether candlepin-cert-consumer-%s-1.0-1.noarch exist" % samhostname, targetmachine_ip)
@@ -2176,27 +2161,27 @@ class VIRTWHOBase(unittest.TestCase):
 #                 if ret == 0:
 #                      logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
 #                 else:
-#                     logger.error("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
+#         
 #             cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
 #             ret, output = self.runcmd(logger, cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
 #             if ret == 0:
 #                 logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
 #             else:
-#                 logger.error("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+#     
 #         elif samhostname == "subscription.rhn.stage.redhat.com":
 #             # configure /etc/rhsm/rhsm.conf to stage candlepin
 #             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
 #             ret, output = self.runcmd(logger, cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
 #             if ret == 0:
-#                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
 #             else:
-#                 logger.error("Failed to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to configure the host")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to configure the host")
+# 
 # 
 #     def configure_stage_host(self, logger, serverhostname, targetmachine_ip=""):
 #         ''' configure the host machine. '''
@@ -2205,13 +2190,13 @@ class VIRTWHOBase(unittest.TestCase):
 #             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % serverhostname
 #             ret, output = self.runcmd(logger, cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
 #             if ret == 0:
-#                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
+#                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
 #             else:
-#                 logger.error("Failed to configure rhsm.conf for stage in %s" % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to configure stage host")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to configure stage host")
+# 
 # 
 # # Can't pass in RHEL5.11, will research later
 # #    def vw_restart_virtwho(self, logger, targetmachine_ip=""):
@@ -2222,8 +2207,8 @@ class VIRTWHOBase(unittest.TestCase):
 # #            if ret == 0:
 # #                logger.info("Succeeded to restart virt-who service by systemctl.")
 # #            else:
-# #                logger.error("Failed to restart virt-who service by systemctl.")
-# #                self.SET_RESULT(1)
+# #                raise FailException("Failed to restart virt-who service by systemctl.")
+# #    
 # #        else:
 # #            if targetmachine_ip == "":
 # #                subprocess.call("service virt-who restart; sleep 10", shell=True)
@@ -2233,8 +2218,8 @@ class VIRTWHOBase(unittest.TestCase):
 # #                if ret == 0:
 # #                    logger.info("Succeeded to restart virt-who service.")
 # #                else:
-# #                    logger.error("Failed to restart virt-who service.")
-# #                    self.SET_RESULT(1)
+# #                    raise FailException("Failed to restart virt-who service.")
+# #        
 # 
 #     def vw_restart_virtwho(self, logger, targetmachine_ip=""):
 #         ''' Restart the virt-who service. '''
@@ -2246,8 +2231,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to restart virt-who service.")
 #             else:
-#                 logger.error("Failed to restart virt-who service.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to restart virt-who service.")
+#     
 # 
 #     def vw_stop_virtwho(self, logger, targetmachine_ip=""):
 #         ''' Stop virt-who service. '''
@@ -2256,8 +2241,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to stop virt-who service.")
 #         else:
-#             logger.error("Failed to stop virt-who service.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to stop virt-who service.")
+# 
 #                 
 #     def vw_check_virtwho_status(self, logger, targetmachine_ip=""):
 #         ''' Check the virt-who status. '''
@@ -2267,15 +2252,15 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0 and "running" in output:
 #                 logger.info("Succeeded to check virt-who is running.")
 #             else:
-#                 logger.error("Failed to check virt-who is running.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to check virt-who is running.")
+#     
 #         else:
 #             if ret == 0 and "running" in output:
 #                 logger.info("Succeeded to check virt-who is running.")
-#                 self.SET_RESULT(0)
+#     
 #             else:
-#                 logger.error("Failed to check virt-who is running.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to check virt-who is running.")
+#     
 # 
 #     def vw_check_libvirtd_status(self, logger, targetmachine_ip=""):
 #         ''' Check the libvirtd status. '''
@@ -2285,15 +2270,15 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0 and "running" in output:
 #                 logger.info("Succeeded to check libvirtd is running.")
 #             else:
-#                 logger.error("Failed to check libvirtd is running.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to check libvirtd is running.")
+#     
 #         else:
 #             if ret == 0 and "running" in output:
 #                 logger.info("Succeeded to check libvirtd is running.")
-#                 self.SET_RESULT(0)
+#     
 #             else:
-#                 logger.error("Failed to check libvirtd is running.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to check libvirtd is running.")
+#     
 # 
 #     def vw_restart_libvirtd(self, logger, targetmachine_ip=""):
 #         ''' Restart the libvirtd service on host: service libvirtd restart. '''
@@ -2303,14 +2288,14 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to restart libvirtd service.")
 #             else:
-#                 logger.error("Failed to restart libvirtd service.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to restart libvirtd service.")
+#     
 #         else:
 #             if ret == 0 and "OK" in output:
 #                 logger.info("Succeeded to restart libvirtd service.")
 #             else:
-#                 logger.error("Failed to restart libvirtd service.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to restart libvirtd service.")
+#     
 #                 
 #     def vw_restart_vdsm(self, logger, targetmachine_ip=""):
 #         ''' Restart the libvirtd service on host: service libvirtd restart. '''
@@ -2319,8 +2304,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and "OK" in output:
 #             logger.info("Succeeded to restart vdsm service.")
 #         else:
-#             logger.error("Failed to restart vdsm service.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart vdsm service.")
+# 
 # 
 #     def vw_get_uuid(self, logger, guestname):
 #         ''' get the guest uuid. '''
@@ -2346,8 +2331,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 log_uuid_list = output.split('Sending list of uuids: ')[1]
 #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
 #             else:
-#                 logger.error("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+#     
 # #             # for kvm send uuid list changes
 # #             temp_list = []
 # #             for item in log_uuid_list:
@@ -2366,8 +2351,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 else:
 #                     return not (guestuuid in log_uuid_list)
 #         else:
-#             logger.error("Failed to get uuids in rhsm.log")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get uuids in rhsm.log")
+# 
 # 
 #     def vw_check_attr(self, logger, params, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
 #         ''' check if the guest attributions is correctly monitored by virt-who. '''
@@ -2384,8 +2369,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 log_uuid_list = output.split('Sending list of uuids: ')[1]
 #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
 #             else:
-#                 logger.error("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+#     
 #             loglist = eval(log_uuid_list)
 #             for item in loglist:
 #                 if item['guestId'] == guestuuid:
@@ -2401,11 +2386,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("successed to check guest %s attribute" % guestname)
 #                 return True
 #             else:
-#                 logger.error("Failed to check guest %s attribute" % guestname)
+#                 raise FailException("Failed to check guest %s attribute" % guestname)
 #                 return False
 #         else:
-#             logger.error("Failed to get uuids in rhsm.log")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get uuids in rhsm.log")
+# 
 # 
 #     def check_virtpid(self, logger, checkpid, checknum, targetmachine_ip=""):
 #         cmd = "ls /proc/%s/task/ | wc -l" %checkpid
@@ -2413,8 +2398,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and int(output) == checknum:
 #             logger.info("Succeeded to check the virt-who thread.")
 #         else:
-#             logger.error("Failed to check the virt-who thread.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to check the virt-who thread.")
+# 
 #                 
 #     def sub_check_bonus(self, logger, productid, targetmachine_ip=""):
 #         # List available pools of guest
@@ -2426,10 +2411,10 @@ class VIRTWHOBase(unittest.TestCase):
 #                     logger.info("Succeeded to list bonus pool of product %s" % ee.productname_guest) 
 #                     bonus_pool_check = 0
 #             if bonus_pool_check == 1:
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("Failed to get available pool list from guest.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get available pool list from guest.")
+# 
 # 
 #     def check_bonus_existance(self, logger, SKU_id, targetmachine_ip="", existance=True):
 #         new_available_poollist = self.sub_listavailpools(logger, SKU_id, targetmachine_ip)
@@ -2447,10 +2432,10 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("Unexpected to list bonus pool of product %s" % SKU_id) 
 #                         bonus_pool_check = 1
 #             if bonus_pool_check == 1:
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("Failed to get available pool list from guest.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get available pool list from guest.")
+# 
 # 
 #     def check_datacenter_bonus_existance(self, logger, subscription_name, targetmachine_ip="", existance=True):
 #         new_available_poollist = self.sub_datacenter_listavailpools(logger, subscription_name, targetmachine_ip)
@@ -2465,13 +2450,13 @@ class VIRTWHOBase(unittest.TestCase):
 #                 bonus_pool_check = 0
 #                 for item in range(0, len(new_available_poollist)):
 #                     if new_available_poollist[item]["SubscriptionName"] == subscription_name and self.check_type_virtual(new_available_poollist[item]):
-#                         logger.error("Unexpected to list bonus pool of product %s" % subscription_name) 
+#                         raise FailException("Unexpected to list bonus pool of product %s" % subscription_name) 
 #                         bonus_pool_check = 1
 #             if bonus_pool_check == 1:
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("Failed to get available pool list from guest.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get available pool list from guest.")
+# 
 # 
 #     def check_bonus_attribute(self, logger, subscription_name, attribute_key, attribute_value, targetmachine_ip=""):
 #         new_available_poollist = self.sub_datacenter_listavailpools(logger, subscription_name, targetmachine_ip)
@@ -2486,46 +2471,46 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("Succeeded to check_bonus_attribute %s is: %s" % (attribute_key, attribute_value))
 #                         check_result = 0
 #             if check_result == 1:
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("Failed to get available pool list from guest.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get available pool list from guest.")
+# 
 # 
 #     def setup_custom_facts(self, logger, facts_key, facts_value, targetmachine_ip=""):
 #         ''' setup_custom_facts '''
 #         cmd = "echo '{\"" + facts_key + "\":\"" + facts_value + "\"}' > /etc/rhsm/facts/custom.facts"
 #         ret, output = self.runcmd(logger, cmd, "create custom.facts", targetmachine_ip)
 #         if ret == 0 :
-#             logger.info("Succeeded to create custom.facts %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to create custom.facts %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #         cmd = "subscription-manager facts --update"
 #         ret, output = self.runcmd(logger, cmd, "update subscription facts", targetmachine_ip)
 #         if ret == 0 and "Successfully updated the system facts" in output:
-#             logger.info("Succeeded to update subscription facts %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to update subscription facts %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def restore_facts(self, logger, targetmachine_ip=""):
 #         ''' setup_custom_facts '''
 #         cmd = "rm -f /etc/rhsm/facts/custom.facts"
 #         ret, output = self.runcmd(logger, cmd, "remove custom.facts", targetmachine_ip)
 #         if ret == 0 :
-#             logger.info("Succeeded to remove custom.facts %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to remove custom.facts %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #         cmd = "subscription-manager facts --update"
 #         ret, output = self.runcmd(logger, cmd, "update subscription facts", targetmachine_ip)
 #         if ret == 0 and "Successfully updated the system facts" in output:
-#             logger.info("Succeeded to update subscription facts %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to update subscription facts %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def vw_define_all_guests(self, logger, testtype, params, targetmachine_ip=""):
 #         if testtype == "kvm":
@@ -2555,7 +2540,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             if define.define(params) == 0:
 #                 logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
 #             else:
-#                 logger.error("Failed to define the guest '%s' in host machine.\n" % guestname)
+#                 raise FailException("Failed to define the guest '%s' in host machine.\n" % guestname)
 #             ret, output = self.runcmd(logger, cmd, "list all guest", targetmachine_ip)
 # 
 #     def vw_force_define_guest(self, logger, params, guestname, targetmachine_ip=""):
@@ -2570,7 +2555,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             if define.define(params) == 0:
 #                 logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
 #             else:
-#                 logger.error("Failed to define the guest '%s' in host machine.\n" % guestname)
+#                 raise FailException("Failed to define the guest '%s' in host machine.\n" % guestname)
 #             ret, output = self.runcmd(logger, cmd, "list all guest", targetmachine_ip)
 # 
 #     def set_guestpath_guesttype(self, guestname, params):
@@ -2595,12 +2580,12 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to start the guest '%s' in host machine." % guestname)
 #                 time.sleep(20)
 #             else:
-#                 logger.error("Failed to start the guest '%s' in host machine." % guestname)
+#                 raise FailException("Failed to start the guest '%s' in host machine." % guestname)
 #                 self.vw_destroy_guest(logger, params, guestname)
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do start." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do start." % guestname)
+# 
 # 
 #     def vw_pause_guest(self, logger, params, guestname):
 #         ''' Pause a guest in host machine. '''
@@ -2611,12 +2596,12 @@ class VIRTWHOBase(unittest.TestCase):
 #             if suspend.suspend(params) == 0:
 #                 logger.info("Succeeded to pause the guest '%s' in host machine." % guestname)
 #             else:
-#                 logger.error("Failed to pause the guest '%s' in host machine." % guestname)
+#                 raise FailException("Failed to pause the guest '%s' in host machine." % guestname)
 #                 self.vw_destroy_guest(logger, params, guestname)
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do pause." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do pause." % guestname)
+# 
 # 
 #     def vw_resume_guest(self, logger, params, guestname):
 #         ''' Resume a guest in host machine. '''
@@ -2627,12 +2612,12 @@ class VIRTWHOBase(unittest.TestCase):
 #             if resume.resume(params) == 0:
 #                 logger.info("Succeeded to resume the guest '%s' in host machine." % guestname)
 #             else:
-#                 logger.error("Failed to resume the guest '%s' in host machine." % guestname)
+#                 raise FailException("Failed to resume the guest '%s' in host machine." % guestname)
 #                 self.vw_destroy_guest(logger, params, guestname)
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do resume." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do resume." % guestname)
+# 
 # 
 #     def vw_shutdown_guest(self, logger, params, guestname):
 #         ''' Shutdown a guest in host machine. '''
@@ -2645,10 +2630,10 @@ class VIRTWHOBase(unittest.TestCase):
 #             else:
 #                 logger.info("shutdown guest is failed, try to do destroy to the guest '%s'" % guestname)
 #                 self.vw_destroy_guest(logger, params, guestname)
-#                 self.SET_RESULT(1)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do shutdown." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do shutdown." % guestname)
+# 
 # 
 #     def vw_destroy_guest(self, logger, params, guestname):
 #         ''' Destory a guest in host machine. '''
@@ -2660,11 +2645,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to destroy the guest '%s' in host machine." % guestname)
 #                 ret, output = self.runcmd(logger, cmd, "list all guest after destory guest %s." % guestname)
 #             else:
-#                 logger.error("Failed to destroy the guest '%s' in host machine." % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to destroy the guest '%s' in host machine." % guestname)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do destroy." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do destroy." % guestname)
+# 
 # 
 #     def vw_undefine_guest(self, logger, params, guestname):
 #         ''' Undefine a guest in host machine. '''
@@ -2676,11 +2661,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to undefine the guest '%s' in host machine." % guestname)
 #                 ret, output = self.runcmd(logger, cmd, "list all guest after undefine guest.")
 #             else:
-#                 logger.error("Failed to undefine the guest '%s' in host machine." % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to undefine the guest '%s' in host machine." % guestname)
+#     
 #         else:
-#             logger.error("Failed to undefine the guest '%s' which is not defined in host machine." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to undefine the guest '%s' which is not defined in host machine." % guestname)
+# 
 # 
 #     def vw_undefine_all_guests(self, logger, params):
 #         ''' Undefine all guests in host machine. '''
@@ -2710,12 +2695,12 @@ class VIRTWHOBase(unittest.TestCase):
 # #                         if self.vw_destroy_guest(logger, params, guestname):
 # #                             src.close()
 # #                             logger.info("close local hypervisor connection")
-# #                             logger.error("Failed to destroy the guest '%s' when try to undefine all the guests." % guestname)
+# #                             raise FailException("Failed to destroy the guest '%s' when try to undefine all the guests." % guestname)
 # #             
 # #                     if self.vw_undefine_guest(logger, params, guestname):
 # #                         src.close()
 # #                         logger.info("close local hypervisor connection")
-# #                         self.SET_RESULT(1)
+# #             
 # #                 else:
 # #                     logger.info("The guest '%s' is not in test scope so not handled when try to undefine all the guests." % guestname)
 # #
@@ -2753,11 +2738,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to migrate the guest '%s'." % guestname)
 #                 ret, output = self.runcmd(logger, cmd, "list all guest after migrate guest %s" % guestname)
 #             else:
-#                 logger.error("Failed to migrate the guest '%s'." % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to migrate the guest '%s'." % guestname)
+#     
 #         else:
-#             logger.error("The guest '%s' is not in host machine, can not do migrate." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("The guest '%s' is not in host machine, can not do migrate." % guestname)
+# 
 #         self.vw_undefine_guest(logger, params, guestname)
 # 
 #     def vw_migrate_guest_by_cmd(self, logger, guestname, migratetargetmachine_ip, targetmachine_ip=""):
@@ -2768,8 +2753,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to migrate the guest '%s'." % guestname)
 #         else:
-#             logger.error("Failed to migrate the guest '%s'." % guestname)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to migrate the guest '%s'." % guestname)
+# 
 # 
 #     def vw_undefine_guest_by_cmd(self, logger, guestname, targetmachine_ip=""):
 #         ''' Undefine a guest in host machine. '''
@@ -2778,8 +2763,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if "Domain %s has been undefined" % guestname in output:
 #             logger.info("Succeeded to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
 #         else:
-#             logger.error("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
+# 
 #     #========================================================
 #     #     3. Common Setup Functions
 #     #========================================================
@@ -2791,8 +2776,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to setting cpu socket.")
 #         else:
-#             logger.error("Failed to setting cpu socket.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to setting cpu socket.")
+# 
 # 
 #     def copy_images(self, logger, testtype, mount_point, image_machine_imagepath, imagepath):
 #         ''' copy the images from the image source machine. '''
@@ -2809,7 +2794,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to mount images machine %s." % mount_point)
 #         else:
-#             logger.error("Failed to mount images machine %s." % mount_point)
+#             raise FailException("Failed to mount images machine %s." % mount_point)
 # 
 #         logger.info("Begin to copy guest images...")
 # 
@@ -2820,8 +2805,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to copy guest images to host machine.")
 #         else:
-#             logger.error("Failed to copy guest images to host machine.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to copy guest images to host machine.")
+# 
 # 
 #         if os.path.ismount(tmpimagepath):
 #             cmd = "umount -f %s" % (tmpimagepath)
@@ -2829,7 +2814,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to unmount images machine %s." % mount_point)
 #             else:
-#                 logger.error("Failed to unmount images machine %s." % mount_point)
+#                 raise FailException("Failed to unmount images machine %s." % mount_point)
 # 
 #         os.removedirs(tmpimagepath)
 #         logger.info("Removed the dir '%s'." % tmpimagepath)
@@ -2843,15 +2828,15 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add '%s *(rw,no_root_squash)' to /etc/exports file." % nfs_dir)
 #         else:
-#             logger.error("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % nfs_dir)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % nfs_dir)
+# 
 #         cmd = "service nfs restart; sleep 10"
 #         ret, output = self.runcmd(logger, cmd, "restarting nfs service", targetmachine_ip)
 #         if ret == 0 :
 #             logger.info("Succeeded to restart service nfs.")
 #         else:
-#             logger.error("Failed to restart service nfs.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart service nfs.")
+# 
 #         cmd = "rpc.mountd"
 #         ret, output = self.runcmd(logger, cmd, "rpc.mountd", targetmachine_ip)
 #         cmd = "showmount -e 127.0.0.1"
@@ -2859,8 +2844,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and (nfs_dir in output):
 #             logger.info("Succeeded to export dir '%s' as nfs." % nfs_dir)
 #         else:
-#             logger.error("Failed to export dir '%s' as nfs." % nfs_dir)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to export dir '%s' as nfs." % nfs_dir)
+# 
 # 
 #     def mount_images_in_sourcemachine(self, logger, imagenfspath, imagepath):
 #         ''' mount the images of the image source machine in the source machine. '''
@@ -2873,8 +2858,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0 or "/home/ENT_TEST_MEDIUM/images is busy or already mounted" in output:
 #                 logger.info("Succeeded to create imagepath in the source machine.")
 #             else:
-#                 logger.error("Failed to create imagepath in the source machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to create imagepath in the source machine.")
+#     
 # 
 #         # mount image path of source machine into just created image path in target machine
 #         sourcemachine_ip = utils().get_ip_address("switch")
@@ -2883,8 +2868,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 or "is busy or already mounted" in output:
 #             logger.info("Succeeded to mount nfs images in host machine.")
 #         else:
-#             logger.error("Failed to mount nfs images in host machine.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to mount nfs images in host machine.")
+# 
 # 
 #     def update_vw_configure(self, logger, background=1, debug=1, targetmachine_ip=""):
 #         ''' update virt-who configure file /etc/sysconfig/virt-who. '''
@@ -2895,8 +2880,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to update virt-who configure file.")
 #         else:
-#             logger.error("Failed to update virt-who configure file.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to update virt-who configure file.")
+# 
 # 
 #     def update_esx_vw_configure(self, logger, esx_owner, esx_env, esx_server, esx_username, esx_password, background=1, debug=1):
 #         ''' update virt-who configure file /etc/sysconfig/virt-who. '''
@@ -2906,8 +2891,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to update virt-who configure file.")
 #         else:
-#             logger.error("Failed to update virt-who configure file.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to update virt-who configure file.")
+# 
 # 
 #     def __parse_avail_hosts(self, logger, output):
 #         datalines = output.splitlines()
@@ -2951,18 +2936,18 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             if "name" in output:
 #                 if id in output:
-#                     logger.info("Succeeded to list the hosts %s." % self.get_HG_info(targetmachine_ip))
+#                     logger.info("Succeeded to list the hosts %s." % self.get_hg_info(targetmachine_ip))
 #                     pool_list = self.__parse_avail_hosts(logger, output)
 #                     return pool_list
 #                 else:
-#                     logger.error("Failed to list the hosts %s." % self.get_HG_info(targetmachine_ip))
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to list the hosts %s." % self.get_hg_info(targetmachine_ip))
+#         
 #             else:
-#                 logger.error("Failed to list the hosts %s. - There is no hosts to list!" % self.get_HG_info(targetmachine_ip))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to list the hosts %s. - There is no hosts to list!" % self.get_hg_info(targetmachine_ip))
+#     
 #         else:
-#             logger.error("Failed to list hosts %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to list hosts %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def kvm_wget_xml_file(self, logger, targetmachine_ip=""):
 #         ''' wget xml for define guest: virsh define kvm_auto_guest.xml.'''
@@ -2971,8 +2956,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to wget xml img file")
 #         else:
-#             logger.error("Failed to wget xml img file")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to wget xml img file")
+# 
 # 
 #     def kvm_create_dummy_guest(self, logger, guest_name, destination_ip=""):
 #         ''' create dummy guest in kvm '''
@@ -2981,15 +2966,15 @@ class VIRTWHOBase(unittest.TestCase):
 #         # if ret == 0:
 #         #     logger.info("Succeeded to set kvm auto guest name %s" % guest_name)
 #         # else:
-#         #     logger.error("Failed to set kvm auto guest name %s" % guest_name)
+#         #     raise FailException("Failed to set kvm auto guest name %s" % guest_name)
 #         #     self.SET_RESULT(1)
 #         cmd = "virsh define /tmp/kvm_auto_guest.xml"
 #         ret, output = self.runcmd(logger, cmd, "define kvm auto guest: %s" % guest_name, destination_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to define kvm auto guest: %s" % guest_name)
 #         else:
-#             logger.error("Failed to define kvm auto guest: %s" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to define kvm auto guest: %s" % guest_name)
+# 
 # 
 #     def kvm_get_guest_uuid(self, logger, guest_name, destination_ip=""):
 #         ''' kvm_get_guest_uuid '''
@@ -2999,8 +2984,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to get kvm auto guest uuid: %s" % guest_name)
 #             return output.strip()
 #         else:
-#             logger.error("Failed to get kvm auto guest uuid: %s" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get kvm auto guest uuid: %s" % guest_name)
+# 
 # 
 #     def kvm_remove_guest(self, logger, guest_name, destination_ip=""):
 #         ''' kvm_remove_guest '''
@@ -3011,8 +2996,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to remove kvm auto guest: %s" % guest_name)
 #             return output.strip()
 #         else:
-#             logger.error("Failed to remove kvm auto guest: %s" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove kvm auto guest: %s" % guest_name)
+# 
 # 
 #     #========================================================
 #     #     4. Migration Functions
@@ -3028,8 +3013,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to create imagepath in the target machine.")
 #             else:
-#                 logger.error("Failed to create imagepath in the target machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to create imagepath in the target machine.")
+#     
 #         # mount image path of source machine into just created image path in target machine
 #         sourcemachine_ip = utils().get_ip_address("switch")
 #         cmd = "mount %s:%s %s" % (sourcemachine_ip, imagenfspath, imagepath)
@@ -3037,8 +3022,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 or "is busy or already mounted" in output:
 #             logger.info("Succeeded to mount images in the target machine.")
 #         else:
-#             logger.error("Failed to mount images in the target machine.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to mount images in the target machine.")
+# 
 # 
 #     def mount_rhsmlog_of_targetmachine(self, logger, targetmachine_ip, rhsmlog_for_targetmachine):
 #         ''' mount the rhsm log of the target machine into source machine. '''
@@ -3054,8 +3039,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to create rhsmlog nfs dir.")
 #             else:
-#                 logger.error("Failed to create rhsmlog nfs dir.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to create rhsmlog nfs dir.")
+#     
 #         self.export_dir_as_nfs(logger, "/var/log/rhsm", targetmachine_ip)
 #         if os.path.ismount(rhsmlog_for_targetmachine):
 #             logger.info("The rhsm log of target machine has already been mounted in '%s'." % rhsmlog_for_targetmachine)
@@ -3066,8 +3051,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to mount the rhsm log dir of target machine.")
 #             else:
-#                 logger.error("Failed to mount the rhsm log dir of target machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to mount the rhsm log dir of target machine.")
+#     
 # 
 #     def update_hosts_file(self, logger, targetmachine_ip, targetmachine_hostname):
 #         ''' update /etc/hosts file with the host name/ip and migration destination host name/ip. '''
@@ -3078,8 +3063,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add %s %s to /etc/hosts of source machine." % (targetmachine_ip, targetmachine_hostname))
 #         else:
-#             logger.error("Failed to add %s %s to /etc/hosts of source machine." % (targetmachine_ip, targetmachine_hostname))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add %s %s to /etc/hosts of source machine." % (targetmachine_ip, targetmachine_hostname))
+# 
 #         # (2)add source machine hostip and hostname in /etc/hosts of target machine
 #         sourcemachine_ip = utils().get_ip_address("switch")
 #         sourcemachine_hostname = utils().get_local_hostname()
@@ -3088,8 +3073,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add hostip %s and hostname %s in /etc/hosts of target machine." % (sourcemachine_ip, sourcemachine_hostname))
 #         else:
-#             logger.error("Failed to add hostip %s and hostname %s in /etc/hosts of target machine." % (sourcemachine_ip, sourcemachine_hostname))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add hostip %s and hostname %s in /etc/hosts of target machine." % (sourcemachine_ip, sourcemachine_hostname))
+# 
 # 
 #     def stop_firewall(self, logger, targetmachine_ip=""):
 #         ''' Stop iptables service and setenforce as 0. '''
@@ -3101,8 +3086,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ("Firewall is stopped" in output) or ("Firewall is not running" in output) or ("Active: inactive" in output):
 #             logger.info("Succeeded to stop iptables service.")
 #         else:
-#             logger.error("Failed to stop iptables service.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to stop iptables service.")
+# 
 #         # setenforce as 0
 #         cmd = "setenforce 0"
 #         ret, output = self.runcmd(logger, cmd, "Set setenforce 0", targetmachine_ip)
@@ -3111,8 +3096,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and "Permissive" in output:
 #             logger.info("Succeeded to setenforce as 0.")
 #         else:
-#             logger.error("Failed to setenforce as 0.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to setenforce as 0.")
+# 
 # 
 #     def update_xen_configure(self, logger, targetmachine_ip=""):
 #         ''' update xen configuration file /etc/xen/xend-config.sxp for migration to 
@@ -3132,8 +3117,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         logger.info(" [result ] of updating xen configuration file /etc/xen/xend-config.sxp: %s" % str(ret))
 #         logger.info(" [output ] of updating xen configuration file /etc/xen/xend-config.sxp: \n%s" % str(output))
 #         if ret:
-#             logger.error("Failed to updating xen configuration file /etc/xen/xend-config.sxp.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to updating xen configuration file /etc/xen/xend-config.sxp.")
+# 
 #         else:
 #             logger.info("Succeeded to updating xen configuration file /etc/xen/xend-config.sxp.")
 #             
@@ -3148,8 +3133,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         logger.info(" [result ] of restart xend service: %s" % str(ret))
 #         logger.info(" [output ] of restart xend service: \n%s" % str(output))
 #         if ret:
-#             logger.error("Failed to restart xend service.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart xend service.")
+# 
 #         else:
 #             logger.info("Succeeded to restart xend service.")
 #             return 0
@@ -3164,8 +3149,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to unmount the image path in source machine.")
 #             else:
-#                 logger.error("Failed to unmount the image path in source machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to unmount the image path in source machine.")
+#     
 #         else:
 #             logger.info("The image path dir is not mounted in source machine.")
 # 
@@ -3179,8 +3164,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to unmount the image path in target machine.")
 #             else:
-#                 logger.error("Failed to unmount the image path in target machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to unmount the image path in target machine.")
+#     
 #         else:
 #             logger.info("The image path dir is not mounted in target machine.")
 # 
@@ -3196,8 +3181,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 os.removedirs(rhsmlog_for_targetmachine)
 #                 logger.info("Removed the dir '%s'." % rhsmlog_for_targetmachine)
 #             else:
-#                 logger.error("Failed to unmount the rhsm log dir of target machine.")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to unmount the rhsm log dir of target machine.")
+#     
 # 
 #     #========================================================
 #     #     4. ESX Functions
@@ -3214,8 +3199,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if "AlreadyExists" in output:
 #                 logger.info("Guest '%s' already exist in ESX host" % guest_name)
 #             else:
-#                 logger.error("Failed to add guest '%s' to ESX host" % guest_name)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to add guest '%s' to ESX host" % guest_name)
+#     
 # 
 #     def esx_create_dummy_guest(self, logger, guest_name, destination_ip):
 #         ''' create dummy guest in esx '''
@@ -3229,8 +3214,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             if "AlreadyExists" in output:
 #                 logger.info("Guest '%s' already exist in ESX host" % guest_name)
 #             else:
-#                 logger.error("Failed to add guest '%s' to ESX host" % guest_name)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to add guest '%s' to ESX host" % guest_name)
+#     
 # 
 #     def esx_service_restart(self, logger, destination_ip):
 #         ''' restart esx service '''
@@ -3239,21 +3224,11 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to restart hostd and vpxa service")
 #         else:
-#             logger.error("Failed to restart hostd and vpxa service")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart hostd and vpxa service")
+# 
 #         time.sleep(120)
 # 
-#     def esx_start_guest_first(self, logger, guest_name, destination_ip):
-#         ''' start guest in esx host '''
-#         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "start guest '%s' in ESX" % guest_name, destination_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to first start guest '%s' in ESX host" % guest_name)
-#         else:
-#             logger.info("Failed to first start guest '%s' in ESX host" % guest_name)
-#         ''' Do not check whethre guest can be accessed by ip, since there's an error, need to restart esx service '''
-#         # self.esx_check_ip_accessable(logger, guest_name, destination_ip, accessable=True)
-# 
+
 #     def esx_check_system_reboot(self, logger, target_ip):
 #         time.sleep(120)
 #         cycle_count = 0
@@ -3280,8 +3255,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to remove guest '%s' from vCenter" % guest_name)
 #         else:
-#             logger.error("Failed to remove guest '%s' from vCenter" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove guest '%s' from vCenter" % guest_name)
+# 
 # 
 #     def esx_destroy_guest(self, logger, guest_name, esx_host):
 #         ''' destroy guest from '''
@@ -3293,8 +3268,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to destroy guest '%s'" % guest_name)
 #         else:
-#             logger.error("Failed to destroy guest '%s'" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to destroy guest '%s'" % guest_name)
+# 
 # 
 #     def esx_check_host_exist(self, logger, esx_host, vCenter, vCenter_user, vCenter_pass):
 #         ''' check whether esx host exist in vCenter '''
@@ -3302,7 +3277,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         cmd = "vmware-cmd -H %s -U %s -P %s --vihost %s -l" % (vCenter, vCenter_user, vCenter_pass, esx_host)
 #         ret, output = self.runcmd(logger, cmd, "check whether esx host:%s exist in vCenter" % esx_host, vmware_cmd_ip)
 #         if "Host not found" in output:
-#             logger.error("esx host:%s not exist in vCenter" % esx_host)
+#             raise FailException("esx host:%s not exist in vCenter" % esx_host)
 #             return False
 #         else:
 #             logger.info("esx host:%s exist in vCenter" % esx_host)
@@ -3311,18 +3286,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_remove_all_guests(self, logger, guest_name, destination_ip):
 #         return
 # 
-#     def esx_start_guest(self, logger, guest_name):
-#         ''' start guest in esx host '''
-#         esx_host_ip = ee.esx_host_ip
-#         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to start guest '%s' in ESX host" % guest_name)
-#         else:
-#             logger.error("Failed to start guest '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
-#         ''' check whethre guest can be accessed by ip '''
-#         self.esx_check_ip_accessable(logger, guest_name, esx_host_ip, accessable=True)
+
 # 
 #     def esx_stop_guest(self, logger, guest_name, destination_ip):
 #         ''' stop guest in esx host '''
@@ -3331,8 +3295,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to stop guest '%s' in ESX host" % guest_name)
 #         else:
-#             logger.error("Failed to stop guest '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to stop guest '%s' in ESX host" % guest_name)
+# 
 #         ''' check whethre guest can not be accessed by ip '''
 #         self.esx_check_ip_accessable(logger, guest_name, destination_ip, accessable=False)
 # 
@@ -3343,8 +3307,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to suspend guest '%s' in ESX host" % guest_name)
 #         else:
-#             logger.error("Failed to suspend guest '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to suspend guest '%s' in ESX host" % guest_name)
+# 
 #         ''' check whethre guest can not be accessed by ip '''
 #         self.esx_check_ip_accessable(logger, guest_name, destination_ip, accessable=False)
 # 
@@ -3356,8 +3320,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to resume guest '%s' in ESX host" % guest_name)
 #         else:
-#             logger.error("Failed to resume guest '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to resume guest '%s' in ESX host" % guest_name)
+# 
 #         ''' check whethre guest can be accessed by ip '''
 #         self.esx_check_ip_accessable(logger, guest_name, destination_ip, accessable=True)
 # 
@@ -3369,8 +3333,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to get guest mac address '%s' in ESX host" % guest_name)
 #         else:
-#             logger.error("Failed to get guest mac address '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get guest mac address '%s' in ESX host" % guest_name)
+# 
 #         return macAddress
 #     
 #     def esx_get_guest_ip(self, logger, guest_name, destination_ip):
@@ -3381,8 +3345,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
 #         else:
-#             logger.error("Failed to get guest ip address '%s' in ESX host" % ipAddress)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get guest ip address '%s' in ESX host" % ipAddress)
+# 
 #         return ipAddress
 # 
 #     def esx_check_ip_accessable(self, logger, guest_name, destination_ip, accessable):
@@ -3417,8 +3381,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to get guest uuid '%s' in ESX host" % guest_name)
 #         else:
-#             logger.error("Failed to get guest uuid '%s' in ESX host" % guest_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get guest uuid '%s' in ESX host" % guest_name)
+# 
 #         return uuid
 # 
 #     def esx_get_host_uuid(self, logger, destination_ip):
@@ -3429,8 +3393,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to get host uuid '%s' in ESX host" % uuid)
 #         else:
-#             logger.error("Failed to get host uuid '%s' in ESX host" % uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get host uuid '%s' in ESX host" % uuid)
+# 
 #         return uuid
 # 
 #     def esx_check_uuid(self, logger, guestname, destination_ip, guestuuid="Default", uuidexists=True, rhsmlogpath='/var/log/rhsm'):
@@ -3454,8 +3418,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
 #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
 #             else:
-#                 logger.error("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+#     
 #             # check guest uuid in log_uuid_list
 #             if uuidexists:
 #                 if guestname == "":
@@ -3468,8 +3432,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 else:
 #                     return not guestuuid in log_uuid_list
 #         else:
-#             logger.error("Failed to get uuids in rhsm.log")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get uuids in rhsm.log")
+# 
 # 
 #     def esx_check_uuid_exist_in_rhsm_log(self, logger, uuid, destination_ip=""):
 #         ''' esx_check_uuid_exist_in_rhsm_log '''
@@ -3490,13 +3454,13 @@ class VIRTWHOBase(unittest.TestCase):
 #                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
 #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
 #             else:
-#                 logger.error("Failed to get guest uuid.list from rhsm.log")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get guest uuid.list from rhsm.log")
+#     
 #             # check guest uuid in log_uuid_list
 #             return uuid in log_uuid_list
 #         else:
-#             logger.error("Failed to get uuids in rhsm.log")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get uuids in rhsm.log")
+# 
 # 
 #     def get_uuid_list_in_rhsm_log(self, logger, destination_ip=""):
 #         ''' esx_check_uuid_exist_in_rhsm_log '''
@@ -3516,12 +3480,12 @@ class VIRTWHOBase(unittest.TestCase):
 #                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
 #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
 #             else:
-#                 logger.error("Failed to get guest uuid.list from rhsm.log")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get guest uuid.list from rhsm.log")
+#     
 #             return log_uuid_list
 #         else:
-#             logger.error("Failed to get uuid list in rhsm.log")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get uuid list in rhsm.log")
+# 
 # 
 #     def esx_check_host_in_samserv(self, logger, esx_uuid, destination_ip):
 #         ''' check esx host exist in sam server '''
@@ -3531,8 +3495,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         # if ret == 0 and output.find(esx_uuid) >= 0:
 #             logger.info("Succeeded to check esx host %s exist in sam server" % esx_uuid)
 #         else:
-#             logger.error("Failed to check esx host %s exist in sam server" % esx_uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to check esx host %s exist in sam server" % esx_uuid)
+# 
 # 
 #     def esx_remove_host_in_samserv(self, logger, esx_uuid, destination_ip):
 #         ''' remove esx host in sam server '''
@@ -3541,8 +3505,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and esx_uuid in output:
 #             logger.info("Succeeded to remove esx host %s in sam server" % esx_uuid)
 #         else:
-#             logger.error("Failed to remove esx host %s in sam server" % esx_uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove esx host %s in sam server" % esx_uuid)
+# 
 # 
 #     def esx_remove_deletion_record_in_samserv(self, logger, esx_uuid, destination_ip):
 #         ''' remove deletion record in sam server '''
@@ -3551,8 +3515,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and esx_uuid in output:
 #             logger.info("Succeeded to remove deletion record %s in sam server" % esx_uuid)
 #         else:
-#             logger.error("Failed to remove deletion record %s in sam server" % esx_uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to remove deletion record %s in sam server" % esx_uuid)
+# 
 # 
 #     def esx_subscribe_host_in_samserv(self, logger, esx_uuid, poolid, destination_ip):
 #         ''' subscribe host in sam server '''
@@ -3561,8 +3525,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and esx_uuid in output:
 #             logger.info("Succeeded to subscribe host %s in sam server" % esx_uuid)
 #         else:
-#             logger.error("Failed to subscribe host %s in sam server" % esx_uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe host %s in sam server" % esx_uuid)
+# 
 # 
 #     def esx_unsubscribe_all_host_in_samserv(self, logger, esx_uuid, destination_ip):
 #         ''' unsubscribe host in sam server '''
@@ -3571,8 +3535,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and esx_uuid in output:
 #             logger.info("Succeeded to unsubscribe host %s in sam server" % esx_uuid)
 #         else:
-#             logger.error("Failed to unsubscribe host %s in sam server" % esx_uuid)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to unsubscribe host %s in sam server" % esx_uuid)
+# 
 # 
 #     def get_poolid_by_SKU(self, logger, sku, targetmachine_ip=""):
 #         ''' get_poolid_by_SKU '''
@@ -3591,8 +3555,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 poolid = availpoollist[rindex]["PoolId"]
 #             return poolid
 #         else:
-#             logger.error("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
+# 
 # 
 #     #========================================================
 #     #     5. Rhevm Functions
@@ -3602,10 +3566,10 @@ class VIRTWHOBase(unittest.TestCase):
 #         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (rhevmmachine_ip, rhevmmachine_ip, rhevmmachine_name)
 #         ret, output = self.runcmd(logger, cmd, "add rhevm name and ip to /etc/hosts", targetmachine_ip)
 #         if ret == 0:
-#             logger.info("Succeeded to add rhevm hostip %s and rhevm hostname %s %s." % (rhevmmachine_ip, rhevmmachine_name, self.get_HG_info(targetmachine_ip)))
+#             logger.info("Succeeded to add rhevm hostip %s and rhevm hostname %s %s." % (rhevmmachine_ip, rhevmmachine_name, self.get_hg_info(targetmachine_ip)))
 #         else:
-#             logger.error("Failed to add rhevm hostip %s and rhevm hostname %s %s" % (rhevmmachine_ip, rhevmmachine_name, self.get_HG_info(targetmachine_ip)))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add rhevm hostip %s and rhevm hostname %s %s" % (rhevmmachine_ip, rhevmmachine_name, self.get_hg_info(targetmachine_ip)))
+# 
 # 
 #     def configure_host_bridge(self, logger, rhevmmachine_name, rhevmmachine_ip, targetmachine_ip=""):
 #         eth0_addr = '/etc/sysconfig/network-scripts/ifcfg-eth0'
@@ -3620,30 +3584,30 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to configure eth0 bridge name to rhevm")
 #             else:
-#                 logger.error("Failed to configure eth0 bridge name to rhevm")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to configure eth0 bridge name to rhevm")
+#     
 #             cmd = "sed -i '/^DEVICE/d' %s ; echo 'DEVICE=rhevm' >> %s" % (br0_addr, br0_addr)
 #             ret, output = self.runcmd(logger, cmd, "configure br0 drive name to rhevm", targetmachine_ip)
 #             if ret == 0:
 #                 logger.info("Succeeded to configure br0 drive name to rhevm")
 #             else:
-#                 logger.error("Failed to configure br0 drive name to rhevm")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to configure br0 drive name to rhevm")
+#     
 #             cmd = "init 6"
 #             ret, output = self.runcmd(logger, cmd, "reboot system", targetmachine_ip)
 #             if ret == 0:
 #                 logger.info("Start to reboot system %s, please wait for a moment!" % targetmachine_ip)
 #             else:
-#                 logger.error("Failed to reboot system %s, please wait for a moment!" % targetmachine_ip)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to reboot system %s, please wait for a moment!" % targetmachine_ip)
+#     
 #             self.ping_host(logger, targetmachine_ip)
 #             cmd = "ifconfig rhevm"
 #             ret, output = self.runcmd(logger, cmd, "Check bridge rhevm exist", targetmachine_ip)
 #             if ret == 0 :
 #                 logger.info("Succesfully to configured bridge rhevm on %s" % targetmachine_ip)
 #             else:
-#                 logger.error("Failed to configured bridge rhevm on %s" % targetmachine_ip)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to configured bridge rhevm on %s" % targetmachine_ip)
+#     
 # 
 #     def ping_host(self, logger, ip, timeout=600):
 #         """Ping some host,return True on success or False on Failure,timeout should be greater or equal to 10"""
@@ -3660,8 +3624,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                     break
 #                 logger.info("left %s s to reboot %s" % (timeout, ip))
 #             else:
-#                 logger.error("ping time out")
-#                 self.SET_RESULT(1)
+#                 raise FailException("ping time out")
+#     
 # 
 #     def get_rhevm_repo_file(self, logger, targetmachine_ip=""):
 #         ''' wget rhevm repo file and add to rhel host '''
@@ -3670,8 +3634,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to wget rhevm repo file and add to rhel host")
 #         else:
-#             logger.error("Failed to wget rhevm repo file and add to rhel host")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to wget rhevm repo file and add to rhel host")
+# 
 # 
 #     def install_host_vdsm(self, logger, rhevmmachine_name, rhevmmachine_ip, targetmachine_ip=""):
 #         '''install VDSM'''
@@ -3688,8 +3652,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 elif ret == 0 and "already installed" in output:
 #                     logger.info("vdsm has been installed.")
 #                 else:
-#                     logger.error("Failed to install vdsm")
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to install vdsm")
+#         
 # 
 #     def install_virtV2V(self, logger, rhevmmachine_name, rhevmmachine_ip, targetmachine_ip=""):
 #         '''install virt-V2V'''
@@ -3705,8 +3669,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                 if ret == 0 and "Complete!" in output:
 #                     logger.info("Succeeded to install virt-V2V.")
 #                 else:
-#                     logger.error("Failed to install virt-V2V")
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to install virt-V2V")
+#         
 # 
 #     def rhevm_update_vw_configure(self, logger, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1, targetmachine_ip=""):
 #         ''' update virt-who configure file /etc/sysconfig/virt-who. '''
@@ -3715,8 +3679,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to update virt-who configure file.")
 #         else:
-#             logger.error("Failed to update virt-who configure file.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to update virt-who configure file.")
+# 
 # 
 #     # Get the machine's hostname
 #     def get_hostname(self, logger, targetmachine_ip=""):
@@ -3727,8 +3691,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to get the machine's hostname %s." % hostname) 
 #             return hostname
 #         else:
-#             logger.error("Failed to get the machine's hostname.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get the machine's hostname.")
+# 
 # 
 #     def rhevm_add_dns_to_host(self, logger, DNSserver_ip, targetmachine_ip=""):
 #         ''' add dns server to /etc/resolv.conf. '''
@@ -3737,8 +3701,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add_dns_to_host in /etc/resolve.conf.")
 #         else:
-#             logger.error("Failed to add_dns_to_host in /etc/resolve.conf.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add_dns_to_host in /etc/resolve.conf.")
+# 
 # 
 #     def add_dns_to_host(self, logger, DNSserver_ip, targetmachine_ip=""):
 #         ''' add dns server to /etc/resolv.conf. '''
@@ -3747,16 +3711,16 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add_dns_to_host in /etc/resolve.conf.")
 #         else:
-#             logger.error("Failed to add_dns_to_host in /etc/resolve.conf.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add_dns_to_host in /etc/resolve.conf.")
+# 
 #         # make /etc/resolv.conf can not be changed 
 #         cmd = "chattr +i /etc/resolv.conf"
 #         ret, output = self.runcmd(logger, cmd, "Fix /etc/resolv.conf.", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to fix /etc/resolve.conf.")
 #         else:
-#             logger.error("Failed to fix /etc/resolve.conf.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to fix /etc/resolve.conf.")
+# 
 # 
 #     # Convert the ip address's last two bits
 #     def get_conv_ip(self, logger, sourceip, targetmachine_ip=""):
@@ -3782,23 +3746,23 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add host's ip %s to DNS server." % host_ip)
 #         else:
-#             logger.error("Failed to add host's ip %s to DNS server." % host_ip)
-#             self.SET_RESULT(1) 
+#             raise FailException("Failed to add host's ip %s to DNS server." % host_ip)
+#  
 #         cmd = "sed -i '/%s/d' %s; sed -i '$ a\%s\tIN\tA\t%s' %s" % (conv_host_name, revert_addr, conv_host_name, host_ip, revert_addr) 
 #         ret, output = self.runcmd_indns(logger, cmd, "Add host name %s to named.redhat.com" % host_name, targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to add host's name %s to DNS server." % host_name)
 #         else:
-#             logger.error("Failed to add host's name %s to DNS server." % host_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add host's name %s to DNS server." % host_name)
+# 
 #         # restart dns service
 #         cmd = "service named restart"
 #         ret, output = self.runcmd_indns(logger, cmd, "service named restart", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to restart dns service.")
 #         else:
-#             logger.error("Failed to restart dns service.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart dns service.")
+# 
 # 
 #     # configure dns server
 #     def config_yum(self, logger, proxy_ip, targetmachine_ip):
@@ -3808,8 +3772,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add proxy to /etc/yum.conf.")
 #         else:
-#             logger.error("Failed to add proxy to /etc/yum.conf.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add proxy to /etc/yum.conf.")
+# 
 # 
 #     # configure rhsm.conf to candlepin server
 #     def conf_rhsm_candlepin(self, logger, targetmachine_ip):
@@ -3819,8 +3783,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to configure candlepin server.")
 #         else:
-#             logger.error("Failed to Configure candlepin server.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to Configure candlepin server.")
+# 
 # 
 #     # configure rhsm.conf to sam server
 #     def conf_rhsm_sam(self, logger, targetmachine_ip):
@@ -3830,8 +3794,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to configure SAM server.")
 #         else:
-#             logger.error("Failed to Configure SAM server.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to Configure SAM server.")
+# 
 # 
 #     # Configure NFS server
 #     def config_nfsserver(self, logger, exportdir, targetmachine_ip=""):
@@ -3843,15 +3807,15 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to delete content in the exportdir.")
 #             else:
-#                 logger.error("Failed to delete content in the exportdir.")
-#                 self.SET_RESULT(1)            
+#                 raise FailException("Failed to delete content in the exportdir.")
+#                 
 #         cmd = "mkdir -p %s" % (exportdir)
 #         ret, output = self.runcmd(logger, cmd, "create image path in the NFS Server", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to create imagepath in the source machine.")
 #         else:
-#             logger.error("Failed to create imagepath in the source machine.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to create imagepath in the source machine.")
+# 
 #         ''' export a dir as nfs '''
 #         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (exportdir.replace('/', '\/'), exportdir)
 #         # logger.info(cmd)
@@ -3859,15 +3823,15 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to add '%s *(rw,no_root_squash)' to /etc/exports file." % exportdir)
 #         else:
-#             logger.error("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % exportdir)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % exportdir)
+# 
 #         cmd = "service nfs restart; sleep 10"
 #         ret, output = self.runcmd(logger, cmd, "restarting nfs service", targetmachine_ip)
 #         if ret == 0 :
 #             logger.info("Succeeded to restart service nfs.")
 #         else:
-#             logger.error("Failed to restart service nfs.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to restart service nfs.")
+# 
 #         cmd = "rpc.mountd"
 #         ret, output = self.runcmd(logger, cmd, "rpc.mountd", targetmachine_ip)
 #         cmd = "showmount -e 127.0.0.1"
@@ -3875,8 +3839,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0 and (exportdir in output):
 #             logger.info("Succeeded to export dir '%s' as nfs." % exportdir)
 #         else:
-#             logger.error("Failed to export dir '%s' as nfs." % exportdir)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to export dir '%s' as nfs." % exportdir)
+# 
 # 
 #     # Configure rhevm-hell, auto connect
 #     def config_rhevm_shell(self, logger, rhevmserv_ip):
@@ -3885,8 +3849,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to config_rhevm_shell in /root/.rhevmshellrc.")
 #         else:
-#             logger.error("Failed to config_rhevm_shell in /root/.rhevmshellrc.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to config_rhevm_shell in /root/.rhevmshellrc.")
+# 
 # 
 #     # Enter rhevm-shell mode
 #     def enter_rhevm_shell(self, logger, targetmachine_ip):
@@ -3895,8 +3859,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to connect to rhevm-shell.")
 #         else:
-#             logger.error("Failed to connect to rhevm-shell.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to connect to rhevm-shell.")
+# 
 # 
 #     # Add host to rhevm
 #     def rhevm_add_host(self, logger, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
@@ -3918,8 +3882,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
 #                 time.sleep(10)
 #                 if runtime > 120:
-#                     logger.error("%s status has problem,status is %s." % (rhevm_host_name, status))
-#                     self.SET_RESULT(1)
+#                     raise FailException("%s status has problem,status is %s." % (rhevm_host_name, status))
+#         
 # 
 #     # Get host_id in the rhevm
 #     def get_hostid_rhevm(self, logger, hostname, targetmachine_ip=""):
@@ -3942,11 +3906,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                 hostid = pool_dict[hostname]
 #                 return hostid
 #             else:
-#                 logger.error("Failed to get the %s's hostid." % hostname)
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get the %s's hostid." % hostname)
+#     
 #         else:
-#             logger.error("Failed to list hosts on rhevm.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to list hosts on rhevm.")
+# 
 # 
 #     # parse rhevm-shell result to dict
 #     def get_key_rhevm(self, logger, output, non_key_value, key_value, find_value, targetmachine_ip=""):
@@ -3982,11 +3946,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                     logger.info("Succeeded to get the %s's %s." % (find_value, non_key_value))
 #                     return findout_value
 #             else:
-#                 logger.error("Failed to get the %s's %s" % (find_value, non_key_value))
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
+#     
 #         else:
-#             logger.error("Failed to run rhevm-shell cmd.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to run rhevm-shell cmd.")
+# 
 # 
 #     # parse rhevm-result to dict
 #     def rhevm_info_dict(self, logger, output, targetmachine_ip=""):
@@ -4001,8 +3965,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                     rhevm_info_dict[key] = value
 #             return rhevm_info_dict
 #         else:
-#             logger.error("Failed to get output in rhevm-result file.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get output in rhevm-result file.")
+# 
 # 
 #     # check rhevm-shell running in rhevm server finished
 #     def check_rhevm_shell_finished(self, logger, rhevm_ip=""):
@@ -4015,7 +3979,7 @@ class VIRTWHOBase(unittest.TestCase):
 #                 time.sleep(10)
 #                 return True
 #             elif timout > 60:
-#                 logger.error("Time out, running rhevm-shell command in server failed.")
+#                 raise FailException("Time out, running rhevm-shell command in server failed.")
 #                 break
 #             else:
 #                 logger.info("sleep 10 in check_rhevm_shell_finished.")
@@ -4040,7 +4004,7 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to remove %s" % status_value)
 #                 return True
 #             elif timout > 60:
-#                 logger.error("Time out, running rhevm-shell command in server failed.")
+#                 raise FailException("Time out, running rhevm-shell command in server failed.")
 #                 return False
 #             else:
 #                 logger.info("sleep 10 in wait_for_status.")
@@ -4054,22 +4018,22 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to clean storage nfs folder: %s" % export_dir)
 #         else:
-#             logger.error("Failed to clean storage nfs folder: %s" % export_dir)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to clean storage nfs folder: %s" % export_dir)
+# 
 #         cmd = "add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"" % (storage_name, hostname, domaintype, storage_format, NFS_server, export_dir)
 #         ret, output = self.runcmd_rhevm(logger, cmd, "Add storagedomain in rhevm.", rhevm_host_ip)
 #         if self.wait_for_status(logger, "list storagedomains --show-all; exit", "status-state", "unattached", rhevm_host_ip):
 #             logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
 #         else:
-#             logger.error("Failed to add storagedomains %s in rhevm." % storage_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
+# 
 #         cmd = "add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"" % (storage_name, hostname, domaintype, storage_format, NFS_server, export_dir)
 #         ret, output = self.runcmd_rhevm(logger, cmd, "Add storagedomain in rhevm.", rhevm_host_ip)
 #         if self.wait_for_status(logger, "list storagedomains --show-all; exit", "status-state", "NotExist", rhevm_host_ip):
 #             logger.info("Succeeded to maintenance storagedomains %s in rhevm." % storage_name)
 #         else:
-#             logger.error("Failed to maintenance storagedomains %s in rhevm." % storage_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to maintenance storagedomains %s in rhevm." % storage_name)
+# 
 # 
 #     # activate storagedomain in rhevm
 #     def activate_storagedomain(self, logger, storage_name, rhevm_host_ip): 
@@ -4078,8 +4042,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if self.wait_for_status(logger, "list storagedomains --show-all; exit", "status-state", "NotExist", rhevm_host_ip):
 #             logger.info("Succeeded to activate storagedomains %s in rhevm." % storage_name)
 #         else:
-#             logger.error("Failed to activate storagedomains %s in rhevm." % storage_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
+# 
 # 
 #     # convert_guest_to_nfs with v2v tool
 #     def convert_guest_to_nfs(self, logger, NFS_server, NFS_export_dir, vm_hostname):
@@ -4088,16 +4052,16 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
 #         else:
-#             logger.error("Failed to convert_guest_to_nfs with v2v tool")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to convert_guest_to_nfs with v2v tool")
+# 
 #         # convert the second guest
 #         cmd = "virt-v2v -i libvirt -ic qemu:///system -o rhev -os %s:%s --network rhevm %s -on \"Sec_%s\"" % (NFS_server, NFS_export_dir, vm_hostname, vm_hostname)
 #         ret, output = self.runcmd(logger, cmd, "convert_guest_to_nfs with v2v tool")
 #         if ret == 0:
 #             logger.info("Succeeded to convert the second guest to nfs with v2v tool")
 #         else:
-#             logger.error("Failed to convert the second guest to nfs with v2v tool")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to convert the second guest to nfs with v2v tool")
+# 
 # 
 #     # create_storage_pool
 #     def create_storage_pool(self, logger):
@@ -4107,8 +4071,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         if ret == 0:
 #             logger.info("Succeeded to wget autotest_pool.xml")
 #         else:
-#             logger.error("Failed to wget autotest_pool.xml")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to wget autotest_pool.xml")
+# 
 #         # check whether pool exist, if yes, destroy it
 #         cmd = "virsh pool-list"
 #         ret, output = self.runcmd(logger, cmd, "check whether autotest_pool exist")
@@ -4119,16 +4083,16 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0 and "autotest_pool destroyed" in output:
 #                 logger.info("Succeeded to destroy autotest_pool")
 #             else:
-#                 logger.error("Failed to destroy autotest_pool")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to destroy autotest_pool")
+#     
 # 
 #         cmd = "virsh pool-create /tmp/autotest_pool.xml"
 #         ret, output = self.runcmd(logger, cmd, "import vm to rhevm.")
 #         if ret == 0 and "autotest_pool created" in output:
 #             logger.info("Succeeded to create autotest_pool.")
 #         else:
-#             logger.error("Failed to create autotest_pool.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to create autotest_pool.")
+# 
 # 
 #     # import guest to rhevm
 #     def import_vm_to_rhevm(self, logger, guest_name, nfs_dir_for_storage, nfs_dir_for_export, rhevm_host_ip):
@@ -4151,8 +4115,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (guest_name, status))
 #                 time.sleep(10)
 #                 if runtime > 120:
-#                     logger.error("%s status has problem,status is %s." % (guest_name, status))
-#                     self.SET_RESULT(1)
+#                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
+#         
 # 
 #     # import the second guest to rhevm
 #     def import_sec_vm_to_rhevm(self, logger, guest_name, nfs_dir_for_storage, nfs_dir_for_export, rhevm_host_ip):
@@ -4175,8 +4139,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (guest_name, status))
 #                 time.sleep(10)
 #                 if runtime > 120:
-#                     logger.error("%s status has problem,status is %s." % (guest_name, status))
-#                     self.SET_RESULT(1)
+#                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
+#         
 # 
 #     # Migrate VM on RHEVM
 #     def rhevm_migrate_guest(self, logger, vm_name, host_name, host_ip, targetmachine_ip):
@@ -4185,13 +4149,13 @@ class VIRTWHOBase(unittest.TestCase):
 #         if self.wait_for_status(logger, "list vms --show-all; exit", "status-state", "up", targetmachine_ip):
 #             logger.info("Succeeded to start up vm %s." % vm_name)
 #         else:
-#             logger.error("Failed to start up vm %s." % vm_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to start up vm %s." % vm_name)
+# 
 #         if self.wait_for_status(logger, "list vms --show-all; exit", "display-address", host_ip, targetmachine_ip):
 #             logger.info("Succeeded to migrate vm %s to host %s in rhevm." % (vm_name, host_name))
 #         else:
-#             logger.error("Failed to migrate vm %s to host %s in rhevm." % (vm_name, host_name))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to migrate vm %s to host %s in rhevm." % (vm_name, host_name))
+# 
 # 
 # # Remove VM on RHEVM
 #     def rhevm_remove_vm(self, logger, vm_name, targetmachine_ip):
@@ -4207,11 +4171,11 @@ class VIRTWHOBase(unittest.TestCase):
 #                     logger.info("Succeeded to remove vm %s" % vm_name)
 #                     break
 #                 elif timout > 60:
-#                     logger.error("Time out, running rhevm-shell command in server failed.")
+#                     raise FailException("Time out, running rhevm-shell command in server failed.")
 #                     return False
 #                 else:
-#                     logger.error("Failed to remove vm %s" % vm_name)
-#                     self.SET_RESULT(1)
+#                     raise FailException("Failed to remove vm %s" % vm_name)
+#         
 # 
 # # Add new VM on RHEVM
 #     def rhevm_add_vm(self, logger, vm_name, targetmachine_ip):
@@ -4234,14 +4198,14 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("hosts status-state is %s" % status)
 #                     time.sleep(10)
 #                     if runtime > 120:
-#                         logger.error("%s status has problem,status is %s." % (vm_name, status))
-#                         self.SET_RESULT(1)
+#                         raise FailException("%s status has problem,status is %s." % (vm_name, status))
+#             
 #                 else:
-#                     logger.error("Failed to list VM %s." % vm_name)
-#                     self.SET_RESULT(1) 
+#                     raise FailException("Failed to list VM %s." % vm_name)
+#          
 #         else:
-#             logger.error("Failed to add new VM")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to add new VM")
+# 
 # 
 # 
 # # Get guestip
@@ -4256,10 +4220,10 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("vm %s ipaddress is %s" % (vm_name, guestip))
 #                 return (guestip, hostuuid)
 #             else:
-#                 logger.error("Failed to gest the vm %s ipaddress" % vm_name)
+#                 raise FailException("Failed to gest the vm %s ipaddress" % vm_name)
 #         else:
-#             logger.error("Failed to list VM %s." % vm_name)
-#             self.SET_RESULT(1) 
+#             raise FailException("Failed to list VM %s." % vm_name)
+#  
 # 
 # # Start VM on RHEVM
 #     def rhevm_start_vm(self, logger, rhevm_vm_name, targetmachine_ip):
@@ -4282,14 +4246,14 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
 #                     time.sleep(10)
 #                     if runtime > 100:
-#                         logger.error("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-#                         self.SET_RESULT(1)
+#                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+#             
 #                 else:
-#                     logger.error("Failed to list vm %s" % rhevm_vm_name)
-#                     self.SET_RESULT(1) 
+#                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
+#          
 #         else:
-#             logger.error("Failed to start vm %s on rhevm" % rhevm_vm_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to start vm %s on rhevm" % rhevm_vm_name)
+# 
 # 
 # # Stop VM on RHEVM
 #     def rhevm_stop_vm(self, logger, rhevm_vm_name, targetmachine_ip):
@@ -4311,14 +4275,14 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
 #                     time.sleep(10)
 #                     if runtime > 120:
-#                         logger.error("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-#                         self.SET_RESULT(1)
+#                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+#             
 #                 else:
-#                     logger.error("Failed to list vm %s" % rhevm_vm_name)
-#                     self.SET_RESULT(1) 
+#                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
+#          
 #         else:
-#             logger.error("Failed to stop vm %s on rhevm" % rhevm_vm_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
+# 
 # 
 # # Suspend VM on RHEVM
 #     def rhevm_suspend_vm(self, logger, rhevm_vm_name, targetmachine_ip):
@@ -4340,14 +4304,14 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
 #                     time.sleep(10)
 #                     if runtime > 120:
-#                         logger.error("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-#                         self.SET_RESULT(1)
+#                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+#             
 #                 else:
-#                     logger.error("Failed to list vm %s" % rhevm_vm_name)
-#                     self.SET_RESULT(1) 
+#                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
+#          
 #         else:
-#             logger.error("Failed to suspend vm %s on rhevm" % rhevm_vm_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to suspend vm %s on rhevm" % rhevm_vm_name)
+# 
 # 
 # # Shutdown VM on RHEVM
 #     def rhevm_shutdown_vm(self, logger, rhevm_vm_name, targetmachine_ip):
@@ -4369,14 +4333,14 @@ class VIRTWHOBase(unittest.TestCase):
 #                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
 #                     time.sleep(10)
 #                     if runtime > 120:
-#                         logger.error("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-#                         self.SET_RESULT(1)
+#                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+#             
 #                 else:
-#                     logger.error("Failed to list vm %s" % rhevm_vm_name)
-#                     self.SET_RESULT(1) 
+#                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
+#          
 #         else:
-#             logger.error("Failed to shutdown vm %s on rhevm" % rhevm_vm_name)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to shutdown vm %s on rhevm" % rhevm_vm_name)
+# 
 # 
 #     def get_vm_uuid_on_rhevm(self, logger, vm_hostname, targetmachine_ip):
 #         cmd = "list vms --show-all; exit"
@@ -4410,8 +4374,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("%s's ip address is %s" % (host_uuid, host_ip))
 #             return host_ip
 #         else:
-#             logger.error("Guest failed to auto associate host.")
-#             self.SET_RESULT(1)
+#             raise FailException("Guest failed to auto associate host.")
+# 
 # 
 # # Check the host and guest uuid in rhsm.log
 #     def rhevm_vw_check_uuid(self, logger, hostuuid, rhevm_mode, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
@@ -4441,8 +4405,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                                 logger.info("host and guest uuid associate correct, host has %s guest" % guestnum)
 #                                 return (guestnum, ulst)
 #                         else:
-#                             logger.error("host hasn't find out in the log")
-#                             self.SET_RESULT(1)
+#                             raise FailException("host hasn't find out in the log")
+#                 
 #                     else:
 #                         khrightloc = log_uuid_list.find("[", hostloc, -1)
 #                         khleftloc = log_uuid_list.find("]", hostloc, -1)
@@ -4455,8 +4419,8 @@ class VIRTWHOBase(unittest.TestCase):
 #                             logger.info("vdsm mode, there are %s hosts" % guestnum)
 #                             return (guestnum, ulst)
 #             else:
-#                 logger.error("log file has problem, please check it !")
-#                 self.SET_RESULT(1)
+#                 raise FailException("log file has problem, please check it !")
+#     
 #                 
 # # Get host num in the rhsm.log file.
 #     def get_hostnum_rhsmlog(self, logger, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
@@ -4475,7 +4439,7 @@ class VIRTWHOBase(unittest.TestCase):
 #                     logger.info("Succeeded to get the host number, Total host is %s" % hostnum)
 #                     return hostnum
 #                 else:
-#                     logger.error("Succeeded to get the host number")
+#                     raise FailException("Succeeded to get the host number")
 #                     
 # 
 # # Get guest uuid in the rhsm.log file.
@@ -4487,8 +4451,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             guestuuid = output.split("['")[1].split("']")[0].strip()
 #             return guestuuid
 #         else:
-#             logger.error("Failed to get guestuuid in rhsm.log.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get guestuuid in rhsm.log.")
+# 
 # 
 # # Get host uuid in the rhsm.log file.
 #     def get_hostid_rhsmlog(self, logger, hostname, targetmachine_ip=""):
@@ -4499,8 +4463,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             hostuuid = output.split("{'")[1].split("':")[0].strip()
 #             return hostuuid
 #         else:
-#             logger.error("Failed to get hostuuid in rhsm.log.")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get hostuuid in rhsm.log.")
+# 
 # 
 #     def get_hostid(self, logger, hostname, targetmachine_ip=""):
 #         ''' Get the hostid. '''
@@ -4514,8 +4478,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to get the %s's hostid." % hostname)
 #             return hostid
 #         else:
-#             logger.error("Failed to get the %s's hostid." % hostname)
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to get the %s's hostid." % hostname)
+# 
 # 
 #     def rhevm_define_guest(self, logger, targetmachine_ip=""):
 #         ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
@@ -4529,22 +4493,22 @@ class VIRTWHOBase(unittest.TestCase):
 #             if ret == 0:
 #                 logger.info("Succeeded to wget kvm img file")
 #             else:
-#                 logger.error("Failed to wget kvm img file")
-#                 self.SET_RESULT(1)
+#                 raise FailException("Failed to wget kvm img file")
+#     
 #         cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
 #         ret, output = self.runcmd(logger, cmd, "wget kvm xml file", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to wget xml img file")
 #         else:
-#             logger.error("Failed to wget xml img file")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to wget xml img file")
+# 
 #         cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
 #         ret, output = self.runcmd(logger, cmd, "define kvm guest", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to define kvm guest")
 #         else:
-#             logger.error("Failed to define kvm guest")
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to define kvm guest")
+# 
 #             
 # # Get the host/guest association in the SAM.
 #     def Rhevm_check_guestinfo_in_host_samserv(self, logger, uuid, non_key_value, key_value, find_value, targetmachine_ip=""):
@@ -4567,7 +4531,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to get host %s uuid %s " % (targetmachine_ip, uuid))
 #             return uuid
 #         else :
-#             logger.error("Failed to get host %s uuid " % (targetmachine_ip))
+#             raise FailException("Failed to get host %s uuid " % (targetmachine_ip))
 # 
 #     # Check the consumed subscription after auto-assigned to another hosts
 #     def rhevm_check_consumed_auto_assgin(self, logger, targetmachine_ip):
@@ -4575,28 +4539,28 @@ class VIRTWHOBase(unittest.TestCase):
 #         cmd = "subscription-manager refresh"
 #         ret, output = self.runcmd(logger, cmd, "subscription-manager refresh", targetmachine_ip)
 #         if ret == 0 or "All local data removed" in output:
-#             logger.info("Succeeded to refresh all data on the system %s" % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to refresh all data on the system %s" % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to refresh all data on the system %s" % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to refresh all data on the system %s" % self.get_hg_info(targetmachine_ip))
+# 
 #         ''' List consumed entitlements. '''
 #         cmd = "subscription-manager list --consumed"
 #         ret, output = self.runcmd(logger, cmd, "list consumed subscriptions", targetmachine_ip)
 #         if ret == 0 and ("No Consumed" in output or "No consumed" in output):
-#             logger.info("Succeeded to check no consumed subscription %s." % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to check no consumed subscription %s." % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to check no consumed subscription %s." % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to check no consumed subscription %s." % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     def sub_clean(self, logger, targetmachine_ip=""):
 #         ''' Clean all local data. '''
 #         cmd = "subscription-manager clean"
 #         ret, output = self.runcmd(logger, cmd, "subscription-manager clean", targetmachine_ip)
 #         if ret == 0 or "All local data removed" in output:
-#             logger.info("Succeeded to clean all data on the system %s" % self.get_HG_info(targetmachine_ip))
+#             logger.info("Succeeded to clean all data on the system %s" % self.get_hg_info(targetmachine_ip))
 #         else:
-#             logger.error("Failed to clean all data on the system %s" % self.get_HG_info(targetmachine_ip))
-#             self.SET_RESULT(1)
+#             raise FailException("Failed to clean all data on the system %s" % self.get_hg_info(targetmachine_ip))
+# 
 # 
 #     # Clean rhevm env in the rhevm machine.
 #     def rhevm_clean_env(self, logger, targetmachine_ip=""):

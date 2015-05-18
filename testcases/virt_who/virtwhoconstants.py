@@ -12,12 +12,24 @@ class VIRTWHOConstants(object):
                     "SAM_PASS":"admin",
                     
                     "ESX_HOST":"10.66.128.10",
+                    "ESX_GUEST_NAME":"ESX_6.5_Server_x86_64",
+
                     "VIRTWHO_ESX_OWNER" : "ACME_Corporation",
                     "VIRTWHO_ESX_ENV" : "Library",
                     "VIRTWHO_ESX_SERVER" : "10.66.78.27",
                     "VIRTWHO_ESX_USERNAME" : "administrator@vsphere.local",
                     "VIRTWHO_ESX_PASSWORD" : "qwer1234P!",
-                     
+
+
+                    # limited subscription
+                    "productid_guest" : "RH0604852",
+                    "productname_guest" : "Red Hat Enterprise Linux Server for HPC Compute Node",
+                    "guestlimit" : "1",
+                    # unlimited subscription
+                    "productid_unlimited_guest" : "SYS0395",
+                    "productname_unlimited_guest" : "Red Hat Employee Subscription",
+                    "guestlimit_unlimited_guest" : "Unlimited",
+
                     }
 #     image_machine_imagepath = "ENT_TEST_MEDIUM/images"
 #     # Note: make sure all the guest names are different with each other.
@@ -91,19 +103,19 @@ class VIRTWHOConstants(object):
 #         else:
 #             raise FailException("Failed to configure rhsm.conf for stage")
 # 
-#     def get_constant(self, name):
-#         if self.server == "sam":
-#             if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
-#                 return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
-#             else:
-#                 if self.get_os_serials() == "6":
-#                     return self.sam_cons6[name]
-#                 elif self.get_os_serials() == "7":
-#                     return self.sam_cons7[name]
-#         elif self.server == "stage":
-#             return self.stage_cons[name]
-#         elif self.server == "candlepin":
-#             return self.candlepin_cons[name]
+    def get_constant(self, name):
+        if self.server == "sam":
+            if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
+                return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
+            else:
+                if self.get_os_serials() == "6":
+                    return self.sam_cons6[name]
+                elif self.get_os_serials() == "7":
+                    return self.sam_cons7[name]
+        elif self.server == "stage":
+            return self.stage_cons[name]
+        elif self.server == "candlepin":
+            return self.candlepin_cons[name]
 # 
 #     def get_os_serials(self):
 #         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
