@@ -1,5 +1,5 @@
 from utils import *
-import time, random, commands, pexpect
+import time, random, commands
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
@@ -16,36 +16,40 @@ class VIRTWHOBase(unittest.TestCase):
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
         return commander.run(cmd, timeout, cmddesc)
 
-    def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
-        if targetmachine_ip == "":
-            (ret, output) = commands.getstatusoutput(cmd)
-        else:
-            (ret, output) = self.remote_esx_pexpect(targetmachine_ip, username, password, cmd)
-        if cmddesc != "":
-            cmddesc = " of " + cmddesc
-        if showlogger:
-            logger.info(" [command]%s: %s" % (cmddesc, cmd))
-            logger.info(" [result ]%s: %s" % (cmddesc, str(ret)))
-            logger.info(" [output ]%s: %s \n" % (cmddesc, output))
-        return ret, output
+    def runcmd_esx(self, cmd, cmddesc=None, timeout=None, targetmachine_ip=None):
+        commander = Command(targetmachine_ip, "root", "qwe123P")
+        return commander.run(cmd, timeout, cmddesc)
 
-    def remote_esx_pexpect(self, hostname, username, password, cmd):
-        """ Remote exec function via pexpect """
-        user_hostname = "%s@%s" % (username, hostname)
-        child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=1800, maxread=2000, logfile=None)
-        while True:
-            index = child.expect(['(yes\/no)', 'Password:', pexpect.EOF, pexpect.TIMEOUT])
-            if index == 0:
-                child.sendline("yes")
-            elif index == 1:
-                child.sendline(password)
-            elif index == 2:
-                child.close()
-                return child.exitstatus, child.before
-            elif index == 3:
-                child.close()
-                return 1, ""
-        return 0
+#     def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
+#         if targetmachine_ip == "":
+#             (ret, output) = commands.getstatusoutput(cmd)
+#         else:
+#             (ret, output) = self.remote_esx_pexpect(targetmachine_ip, username, password, cmd)
+#         if cmddesc != "":
+#             cmddesc = " of " + cmddesc
+#         if showlogger:
+#             logger.info(" [command]%s: %s" % (cmddesc, cmd))
+#             logger.info(" [result ]%s: %s" % (cmddesc, str(ret)))
+#             logger.info(" [output ]%s: %s \n" % (cmddesc, output))
+#         return ret, output
+# 
+#     def remote_esx_pexpect(self, hostname, username, password, cmd):
+#         """ Remote exec function via pexpect """
+#         user_hostname = "%s@%s" % (username, hostname)
+#         child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=1800, maxread=2000, logfile=None)
+#         while True:
+#             index = child.expect(['(yes\/no)', 'Password:', pexpect.EOF, pexpect.TIMEOUT])
+#             if index == 0:
+#                 child.sendline("yes")
+#             elif index == 1:
+#                 child.sendline(password)
+#             elif index == 2:
+#                 child.close()
+#                 return child.exitstatus, child.before
+#             elif index == 3:
+#                 child.close()
+#                 return 1, ""
+#         return 0
 
     def sys_setup(self):
         # system setup for virt-who testing
@@ -212,11 +216,11 @@ class VIRTWHOBase(unittest.TestCase):
         ''' wget guest images '''
         # check whether guest has already been downloaded, if yes, unregister it from ESX and delete it from local
         cmd = "[ -d /vmfs/volumes/datastore*/%s ] ; echo $?" % guest_name
-        ret, output = self.runcmd_byuser(cmd, "check whether guest %s has been installed" % guest_name, destination_ip)
+        ret, output = self.runcmd_esx(cmd, "check whether guest %s has been installed" % guest_name, destination_ip)
         if output == 0:
             logger.info("guest '%s' has been installed, remove it and re-install it next" % guest_name)
             cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-            ret, output = self.runcmd_byuser(logger, cmd, "remove guests %s" % guest_name, destination_ip)
+            ret, output = self.runcmd_esx(cmd, "remove guests %s" % guest_name, destination_ip)
             if ret == 0:
                 logger.info("Succeeded to remove the guest '%s'." % guest_name)
             else:
@@ -224,14 +228,14 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             logger.info("guest '%s' has not been installed yet, will install it next." % guest_name)
         cmd = "wget -P /vmfs/volumes/datastore* %s%s.tar.gz" % (wget_url, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "wget guests", destination_ip)
+        ret, output = self.runcmd_esx(cmd, "wget guests", destination_ip)
         if ret == 0:
             logger.info("Succeeded to wget the guest '%s'." % guest_name)
         else:
             raise FailException("Failed to wget the guest '%s'." % guest_name)
         # uncompress guest and remove .gz file
         cmd = "tar -zxvf /vmfs/volumes/datastore*/%s.tar.gz -C /vmfs/volumes/datastore*/ && rm -f /vmfs/volumes/datastore*/%s.tar.gz" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "uncompress guest", destination_ip)
+        ret, output = self.runcmd_esx(cmd, "uncompress guest", destination_ip)
         if ret == 0:
             logger.info("Succeeded to uncompress guest '%s'." % guest_name)
         else:
@@ -249,7 +253,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_add_guest(self, guest_name, destination_ip):
         ''' add guest to esx host '''
         cmd = "vim-cmd solo/register /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             # need to wait 30 s for add sucess
             time.sleep(60)
@@ -263,7 +267,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_create_dummy_guest(self, guest_name, destination_ip):
         ''' create dummy guest in esx '''
         cmd = "vim-cmd vmsvc/createdummyvm %s /vmfs/volumes/datastore*/" % guest_name
-        ret, output = self.runcmd_byuser(cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             # need to wait 30 s for add sucess
             time.sleep(60)
@@ -278,7 +282,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_service_restart(self, destination_ip):
         ''' restart esx service '''
         cmd = "/etc/init.d/hostd restart; /etc/init.d/vpxa restart"
-        ret, output = self.runcmd_byuser(cmd, "restart hostd and vpxa service", destination_ip)
+        ret, output = self.runcmd_esx(cmd, "restart hostd and vpxa service", destination_ip)
         if ret == 0:
             logger.info("Succeeded to restart hostd and vpxa service")
         else:
@@ -288,7 +292,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_start_guest_first(self, guest_name, destination_ip):
         ''' start guest in esx host '''
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "start guest '%s' in ESX" % guest_name, destination_ip)
+        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip)
         if ret == 0:
             logger.info("Succeeded to first start guest '%s' in ESX host" % guest_name)
         else:
@@ -304,7 +308,7 @@ class VIRTWHOBase(unittest.TestCase):
             max_cycle = 60
             cycle_count = cycle_count + 1
             cmd = "ping -c 5 %s" % target_ip
-            ret, output = self.runcmd_byuser(cmd, "ping system ip")
+            ret, output = self.runcmd_esx(cmd, "ping system ip")
             if ret == 0 and "5 received" in output:
                 logger.info("Succeeded to ping system ip")
                 break
@@ -331,7 +335,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         # vmware_cmd_ip = ee.vmware_cmd_ip
 #         # cmd = "vim-cmd vmsvc/destroy /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
 #         cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-#         ret, output = self.runcmd_byuser(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
+#         ret, output = self.runcmd_esx(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
 #         if ret == 0:
 #             logger.info("Succeeded to destroy guest '%s'" % guest_name)
 #         else:
@@ -357,7 +361,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' start guest in esx host '''
         esx_host_ip = VIRTWHOConstants.get_constant("ESX_HOST")
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
+        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
         if ret == 0:
             logger.info("Succeeded to start guest '%s' in ESX host" % guest_name)
         else:
@@ -368,7 +372,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_stop_guest(self, guest_name, destination_ip):
         ''' stop guest in esx host '''
         cmd = "vim-cmd vmsvc/power.off /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "stop guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "stop guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             logger.info("Succeeded to stop guest '%s' in ESX host" % guest_name)
         else:
@@ -379,7 +383,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_pause_guest(self, guest_name, destination_ip):
         ''' suspend guest in esx host '''
         cmd = "vim-cmd vmsvc/power.suspend /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "suspend guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "suspend guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             logger.info("Succeeded to suspend guest '%s' in ESX host" % guest_name)
         else:
@@ -392,7 +396,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' resume guest in esx host '''
         # cmd = "vim-cmd vmsvc/power.suspendResume /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "resume guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "resume guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             logger.info("Succeeded to resume guest '%s' in ESX host" % guest_name)
         else:
@@ -404,7 +408,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_get_guest_mac(self, guest_name, destination_ip):
         ''' get guest mac address in esx host '''
         cmd = "vim-cmd vmsvc/device.getdevices /vmfs/volumes/datastore*/%s/%s.vmx | grep 'macAddress'" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "get guest mac address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "get guest mac address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         macAddress = output.split("=")[1].strip().strip(',').strip('"')
         if ret == 0:
             logger.info("Succeeded to get guest mac address '%s' in ESX host" % guest_name)
@@ -416,7 +420,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_get_guest_ip(self, guest_name, destination_ip):
         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
+        ret, output = self.runcmd_esx(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
@@ -454,7 +458,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_get_guest_uuid(self, guest_name, destination_ip):
         ''' get guest uuid in esx host '''
         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'uuid'" % (guest_name, guest_name)
-        ret, output = self.runcmd_byuser(cmd, "get guest uuid '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "get guest uuid '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         uuid = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Succeeded to get guest uuid '%s' in ESX host" % guest_name)
@@ -466,7 +470,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_get_host_uuid(self, destination_ip):
         ''' get host uuid in esx host '''
         cmd = "vim-cmd hostsvc/hostsummary | grep 'uuid'"
-        ret, output = self.runcmd_byuser(cmd, "get host uuid in ESX '%s'" % destination_ip, destination_ip)
+        ret, output = self.runcmd_esx(cmd, "get host uuid in ESX '%s'" % destination_ip, destination_ip)
         uuid = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Succeeded to get host uuid '%s' in ESX host" % uuid)
@@ -1646,7 +1650,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info(" [output ]%s: %s \n" % (cmddesc, output))
 #         return ret, output
 # 
-#     def runcmd_byuser(self, logger, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
+#     def runcmd_esx(self, logger, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
 #         if targetmachine_ip == "":
 #             (ret, output) = commands.getstatusoutput(cmd)
 #         else:
@@ -3199,7 +3203,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_add_guest(self, logger, guest_name, destination_ip):
 #         ''' add guest to esx host '''
 #         cmd = "vim-cmd solo/register /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         if ret == 0:
 #             # need to wait 30 s for add sucess
 #             time.sleep(60)
@@ -3214,7 +3218,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_create_dummy_guest(self, logger, guest_name, destination_ip):
 #         ''' create dummy guest in esx '''
 #         cmd = "vim-cmd vmsvc/createdummyvm %s /vmfs/volumes/datastore*/" % guest_name
-#         ret, output = self.runcmd_byuser(logger, cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         if ret == 0:
 #             # need to wait 30 s for add sucess
 #             time.sleep(60)
@@ -3229,7 +3233,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_service_restart(self, logger, destination_ip):
 #         ''' restart esx service '''
 #         cmd = "/etc/init.d/hostd restart; /etc/init.d/vpxa restart"
-#         ret, output = self.runcmd_byuser(logger, cmd, "restart hostd and vpxa service", destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "restart hostd and vpxa service", destination_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to restart hostd and vpxa service")
 #         else:
@@ -3246,7 +3250,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             max_cycle = 60
 #             cycle_count = cycle_count + 1
 #             cmd = "ping -c 5 %s" % target_ip
-#             ret, output = self.runcmd_byuser(logger, cmd, "ping system ip")
+#             ret, output = self.runcmd_esx(logger, cmd, "ping system ip")
 #             if ret == 0 and "5 received" in output:
 #                 logger.info("Succeeded to ping system ip")
 #                 break
@@ -3273,7 +3277,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         # vmware_cmd_ip = ee.vmware_cmd_ip
 #         # cmd = "vim-cmd vmsvc/destroy /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
 #         cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-#         ret, output = self.runcmd_byuser(logger, cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
+#         ret, output = self.runcmd_esx(logger, cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
 #         if ret == 0:
 #             logger.info("Succeeded to destroy guest '%s'" % guest_name)
 #         else:
@@ -3300,7 +3304,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_stop_guest(self, logger, guest_name, destination_ip):
 #         ''' stop guest in esx host '''
 #         cmd = "vim-cmd vmsvc/power.off /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "stop guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "stop guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to stop guest '%s' in ESX host" % guest_name)
 #         else:
@@ -3312,7 +3316,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_pause_guest(self, logger, guest_name, destination_ip):
 #         ''' suspend guest in esx host '''
 #         cmd = "vim-cmd vmsvc/power.suspend /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "suspend guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "suspend guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to suspend guest '%s' in ESX host" % guest_name)
 #         else:
@@ -3325,7 +3329,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         ''' resume guest in esx host '''
 #         # cmd = "vim-cmd vmsvc/power.suspendResume /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
 #         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "resume guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "resume guest '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to resume guest '%s' in ESX host" % guest_name)
 #         else:
@@ -3337,7 +3341,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_get_guest_mac(self, logger, guest_name, destination_ip):
 #         ''' get guest mac address in esx host '''
 #         cmd = "vim-cmd vmsvc/device.getdevices /vmfs/volumes/datastore*/%s/%s.vmx | grep 'macAddress'" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "get guest mac address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "get guest mac address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         macAddress = output.split("=")[1].strip().strip(',').strip('"')
 #         if ret == 0:
 #             logger.info("Succeeded to get guest mac address '%s' in ESX host" % guest_name)
@@ -3349,7 +3353,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_get_guest_ip(self, logger, guest_name, destination_ip):
 #         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
 #         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
+#         ret, output = self.runcmd_esx(logger, cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
 #         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
 #         if ret == 0:
 #             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
@@ -3385,7 +3389,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_get_guest_uuid(self, logger, guest_name, destination_ip):
 #         ''' get guest uuid in esx host '''
 #         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'uuid'" % (guest_name, guest_name)
-#         ret, output = self.runcmd_byuser(logger, cmd, "get guest uuid '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "get guest uuid '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
 #         uuid = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
 #         if ret == 0:
 #             logger.info("Succeeded to get guest uuid '%s' in ESX host" % guest_name)
@@ -3397,7 +3401,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     def esx_get_host_uuid(self, logger, destination_ip):
 #         ''' get host uuid in esx host '''
 #         cmd = "vim-cmd hostsvc/hostsummary | grep 'uuid'"
-#         ret, output = self.runcmd_byuser(logger, cmd, "get host uuid in ESX '%s'" % destination_ip, destination_ip)
+#         ret, output = self.runcmd_esx(logger, cmd, "get host uuid in ESX '%s'" % destination_ip, destination_ip)
 #         uuid = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
 #         if ret == 0:
 #             logger.info("Succeeded to get host uuid '%s' in ESX host" % uuid)
