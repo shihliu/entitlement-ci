@@ -4,6 +4,7 @@ from utils.tools.shell.localsh import LocalSH
 from utils.exception.failexception import FailException
 
 class Command(object):
+    remote_ip = username = password = ""
     def __init__(self, remote_ip=None, username=None, password=None):
         if remote_ip != "" and remote_ip != None:
             logger.info("command run in: %s" % remote_ip)
