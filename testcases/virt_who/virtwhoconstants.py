@@ -53,18 +53,6 @@ class VIRTWHOConstants(object):
         if(self.__initialized): return
         self.__initialized = True
 
-        self.server = get_exported_param("RUN_SERVER")
-        if self.server == "sam":
-            # Run by delivered param
-            self.samhostip = get_exported_param("SAM_IP")
-            self.samhostname = get_exported_param("SAM_HOSTNAME")
-            self.configure_sam_host(self.samhostname, self.samhostip)
-        elif self.server == "stage":
-            stage_name = self.get_delivered_param("STAGE_NAME")
-            self.configure_stage_host(stage_name)
-        elif self.server == "candlepin":
-            pass
-
 #     def configure_sam_host(self, samhostname, samhostip):
 #         ''' configure the host machine for sam '''
 #         if samhostname != None and samhostip != None:
@@ -104,18 +92,7 @@ class VIRTWHOConstants(object):
 #             raise FailException("Failed to configure rhsm.conf for stage")
 # 
     def get_constant(self, name):
-        if self.server == "sam":
-            if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
-                return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
-            else:
-                if self.get_os_serials() == "6":
-                    return self.sam_cons6[name]
-                elif self.get_os_serials() == "7":
-                    return self.sam_cons7[name]
-        elif self.server == "stage":
-            return self.stage_cons[name]
-        elif self.server == "candlepin":
-            return self.candlepin_cons[name]
+        return self.virt_who_cons[name]
 # 
 #     def get_os_serials(self):
 #         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
