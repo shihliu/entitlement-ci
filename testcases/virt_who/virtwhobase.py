@@ -16,7 +16,7 @@ class VIRTWHOBase(unittest.TestCase):
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
         return self.commander.run(cmd, timeout, cmddesc)
 
-    def runcmd_byuser(self, logger, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
+    def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
         if targetmachine_ip == "":
             (ret, output) = commands.getstatusoutput(cmd)
         else:
@@ -46,6 +46,15 @@ class VIRTWHOBase(unittest.TestCase):
                 child.close()
                 return 1, ""
         return 0
+
+    def sys_setup(self):
+        # system setup for virt-who testing
+        cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing.")
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")

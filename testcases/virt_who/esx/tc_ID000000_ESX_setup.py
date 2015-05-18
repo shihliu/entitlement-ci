@@ -8,6 +8,7 @@ class tc_ID000000_ESX_setup(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            self.sys_setup()
             self.esx_setup()
             self.assert_(True, case_name)
         except Exception, e:
