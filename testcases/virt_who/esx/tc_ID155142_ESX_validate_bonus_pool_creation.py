@@ -8,14 +8,14 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            samhostip = get_exported_param("SAM_IP")
-            guest_name = VIRTWHOConstants.get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants.get_constant("ESX_HOST")
             SAM_IP = get_exported_param("SAM_IP")
             SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
             SAM_USER = VIRTWHOConstants.get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants.get_constant("SAM_PASS")
-            
+
+            guest_name = VIRTWHOConstants.get_constant("ESX_GUEST_NAME")
+            destination_ip = VIRTWHOConstants.get_constant("ESX_HOST")
+
             test_sku = VIRTWHOConstants.get_constant("productid_guest")
             bonus_quantity = VIRTWHOConstants.get_constant("guestlimit")
             sku_name = VIRTWHOConstants.get_constant("productname_guest")
@@ -31,7 +31,7 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
             # check only physical subscription in guest
             
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , samhostip)
+            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SAM_IP)
             
             # list available pools of guest, check related bonus pool generated.
             new_available_poollist = self.sub_listavailpools(test_sku, guestip)
@@ -53,7 +53,7 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, samhostip)
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
