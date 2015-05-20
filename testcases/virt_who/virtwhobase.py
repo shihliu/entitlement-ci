@@ -127,6 +127,19 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to register system %s" % self.get_hg_info(targetmachine_ip))
 
+    def sub_unregister(self, targetmachine_ip=""):
+        ''' Unregister the machine. '''
+        if self.sub_isregistered(targetmachine_ip):
+            # need to sleep before destroy guest or else register error happens 
+            cmd = "subscription-manager unregister"
+            ret, output = self.runcmd(cmd, "unregister system", targetmachine_ip)
+            if ret == 0 :
+                logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            logger.info("The machine is not registered to server now, no need to do unregister.")
+
     def get_hg_info(self, targetmachine_ip):
         if targetmachine_ip == "":
             host_guest_info = "in host machine"
@@ -720,20 +733,8 @@ class VIRTWHOBase(unittest.TestCase):
 #         else:
 #             raise FailException("Test Failed - Failed to register.")
 # 
-#     def sub_unregister(self):
-#         if self.sub_isregistered():
-#             cmd = "subscription-manager unregister"
-#             (ret, output) = self.runcmd(cmd, "unregister")
-#             if ret == 0:
-#                 if ("System has been unregistered." in output) or ("System has been un-registered." in output):
-#                     logger.info("It's successful to unregister.")
-#                 else:
-#                     raise FailException("Test Failed - The information shown after unregistered is not correct.")
-#             else:
-#                 raise FailException("Test Failed - Failed to unregister.")
-#         else:
-#             self.sub_clean_local_data()
-#             logger.info("The system is not registered to server now.")
+
+
 # 
 #     def sub_clean_local_data(self):
 #         cmd = "subscription-manager clean"
@@ -1807,22 +1808,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
 #             return False
 # 
-#     def sub_unregister(self, targetmachine_ip=""):
-#         ''' Unregister the machine. '''
-#         if self.sub_isregistered(targetmachine_ip):
-#             # need to sleep before destroy guest or else register error happens 
-#             cmd = "subscription-manager unregister; sleep 20"
-#             ret, output = self.runcmd(cmd, "unregister system", targetmachine_ip)
-# 
-#             # In order to avoid bug995292 in the RHEL5.11
-#             #if ret == 0 and ("System has been un-registered" in output or "System has been unregistered" in output):
-#             if ret == 0 :
-#                 logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
-#             else:
-#                 raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
-#     
-#         else:
-#             logger.info("The machine is not registered to server now, no need to do unregister.")
+
 # 
 
 # 
