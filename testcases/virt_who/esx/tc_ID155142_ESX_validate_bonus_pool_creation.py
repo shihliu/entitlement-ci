@@ -23,7 +23,7 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
             host_uuid = self.esx_get_host_uuid(destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
-            # Register guest to SAM
+            # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
