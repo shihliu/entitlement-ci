@@ -43,15 +43,15 @@ class VIRTWHOConstants(object):
 #     vmware_cmd_ip = "10.66.79.88"
 #     data_store_name = "datastore*"
 
-    def __new__(cls):
-        if cls.__instance is None:
-            cls.__instance = super(VIRTWHOConstants, cls).__new__(cls)
-            cls.__instance.__initialized = False
-        return cls.__instance
-
-    def __init__(self):
-        if(self.__initialized): return
-        self.__initialized = True
+#     def __new__(cls):
+#         if cls.__instance is None:
+#             cls.__instance = super(VIRTWHOConstants, cls).__new__(cls)
+#             cls.__instance.__initialized = False
+#         return cls.__instance
+# 
+#     def __init__(self):
+#         if(self.__initialized): return
+#         self.__initialized = True
 
 #     def configure_sam_host(self, samhostname, samhostip):
 #         ''' configure the host machine for sam '''
