@@ -9,14 +9,14 @@ class VIRTWHOBase(unittest.TestCase):
     #       Basic Functions
     # ========================================================
 
-    def runcmd(self, cmd, cmddesc, targetmachine_ip=None, timeout=None):
+    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
         if targetmachine_ip != None and targetmachine_ip != "":
             commander = Command(targetmachine_ip, username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
         else:
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
         return commander.run(cmd, timeout, cmddesc)
 
-    def runcmd_esx(self, cmd, cmddesc, targetmachine_ip=None, timeout=None):
+    def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
         commander = Command(targetmachine_ip, "root", "qwe123P")
         return commander.run(cmd, timeout, cmddesc)
 
