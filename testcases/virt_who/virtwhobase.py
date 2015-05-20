@@ -20,10 +20,10 @@ class VIRTWHOBase(unittest.TestCase):
         return commander.run(cmd, timeout, cmddesc)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
-        self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout)
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout)
 
     def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
-        self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout)
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout)
 
 #     def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
 #         if targetmachine_ip == "":
@@ -479,7 +479,6 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to get guest uuid '%s' in ESX host" % guest_name)
         else:
             raise FailException("Failed to get guest uuid '%s' in ESX host" % guest_name)
-
         return uuid
 
     def esx_get_host_uuid(self, destination_ip):
