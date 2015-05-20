@@ -65,16 +65,16 @@ class VIRTWHOBase(unittest.TestCase):
         SAM_IP = get_exported_param("SAM_IP")
         SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
 
-        SAM_USER = VIRTWHOConstants.get_constant("SAM_USER")
-        SAM_PASS = VIRTWHOConstants.get_constant("SAM_PASS")
+        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
+        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-        ESX_HOST = VIRTWHOConstants.get_constant("ESX_HOST")
+        ESX_HOST = VIRTWHOConstants().get_constant("ESX_HOST")
 
-        VIRTWHO_ESX_OWNER = VIRTWHOConstants.get_constant("VIRTWHO_ESX_OWNER")
-        VIRTWHO_ESX_ENV = VIRTWHOConstants.get_constant("VIRTWHO_ESX_ENV")
-        VIRTWHO_ESX_SERVER = VIRTWHOConstants.get_constant("VIRTWHO_ESX_SERVER")
-        VIRTWHO_ESX_USERNAME = VIRTWHOConstants.get_constant("VIRTWHO_ESX_USERNAME")
-        VIRTWHO_ESX_PASSWORD = VIRTWHOConstants.get_constant("VIRTWHO_ESX_PASSWORD")
+        VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
+        VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
+        VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
+        VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
+        VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
         # update virt-who configure file
         self.update_esx_vw_configure(VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
         # restart virt-who service
@@ -82,9 +82,9 @@ class VIRTWHOBase(unittest.TestCase):
         if not self.sub_isregistered():
             self.configure_host(SAM_HOSTNAME, SAM_IP)
             self.sub_register(SAM_USER, SAM_PASS)
-        guest_name = VIRTWHOConstants.get_constant("ESX_GUEST_NAME")
+        guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
-        self.wget_images(VIRTWHOConstants.get_constant("esx_guest_url"), guest_name, ESX_HOST)
+        self.wget_images(VIRTWHOConstants().get_constant("esx_guest_url"), guest_name, ESX_HOST)
         self.esx_add_guest(guest_name, ESX_HOST)
         self.esx_start_guest_first(guest_name, ESX_HOST)
         self.esx_service_restart(ESX_HOST)
@@ -360,7 +360,7 @@ class VIRTWHOBase(unittest.TestCase):
 # 
     def esx_start_guest(self, guest_name):
         ''' start guest in esx host '''
-        esx_host_ip = VIRTWHOConstants.get_constant("ESX_HOST")
+        esx_host_ip = VIRTWHOConstants().get_constant("ESX_HOST")
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
         ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
         if ret == 0:

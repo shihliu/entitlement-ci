@@ -10,15 +10,15 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
         try:
             SAM_IP = get_exported_param("SAM_IP")
             SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
-            SAM_USER = VIRTWHOConstants.get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants.get_constant("SAM_PASS")
+            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
+            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-            guest_name = VIRTWHOConstants.get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants.get_constant("ESX_HOST")
+            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
+            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
 
-            test_sku = VIRTWHOConstants.get_constant("productid_guest")
-            bonus_quantity = VIRTWHOConstants.get_constant("guestlimit")
-            sku_name = VIRTWHOConstants.get_constant("productname_guest")
+            test_sku = VIRTWHOConstants().get_constant("productid_guest")
+            bonus_quantity = VIRTWHOConstants().get_constant("guestlimit")
+            sku_name = VIRTWHOConstants().get_constant("productname_guest")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
             self.esx_start_guest(guest_name)
