@@ -228,28 +228,28 @@ class VIRTWHOBase(unittest.TestCase):
         cmd = "[ -d /vmfs/volumes/datastore*/%s ] ; echo $?" % guest_name
         ret, output = self.runcmd_esx(cmd, "check whether guest %s has been installed" % guest_name, destination_ip)
         if output == 0:
-            logger.info("guest '%s' has been installed, remove it and re-install it next" % guest_name)
-            cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-            ret, output = self.runcmd_esx(cmd, "remove guests %s" % guest_name, destination_ip)
-            if ret == 0:
-                logger.info("Succeeded to remove the guest '%s'." % guest_name)
-            else:
-                raise FailException("Failed to remove the guest '%s'." % guest_name)
+            logger.info("guest '%s' has already been installed, will not install it." % guest_name)
+#             cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
+#             ret, output = self.runcmd_esx(cmd, "remove guests %s" % guest_name, destination_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to remove the guest '%s'." % guest_name)
+#             else:
+#                 raise FailException("Failed to remove the guest '%s'." % guest_name)
         else:
             logger.info("guest '%s' has not been installed yet, will install it next." % guest_name)
-        cmd = "wget -P /vmfs/volumes/datastore* %s%s.tar.gz" % (wget_url, guest_name)
-        ret, output = self.runcmd_esx(cmd, "wget guests", destination_ip)
-        if ret == 0:
-            logger.info("Succeeded to wget the guest '%s'." % guest_name)
-        else:
-            raise FailException("Failed to wget the guest '%s'." % guest_name)
-        # uncompress guest and remove .gz file
-        cmd = "tar -zxvf /vmfs/volumes/datastore*/%s.tar.gz -C /vmfs/volumes/datastore*/ && rm -f /vmfs/volumes/datastore*/%s.tar.gz" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "uncompress guest", destination_ip)
-        if ret == 0:
-            logger.info("Succeeded to uncompress guest '%s'." % guest_name)
-        else:
-            raise FailException("Failed to uncompress guest '%s'." % guest_name)
+            cmd = "wget -P /vmfs/volumes/datastore* %s%s.tar.gz" % (wget_url, guest_name)
+            ret, output = self.runcmd_esx(cmd, "wget guests", destination_ip)
+            if ret == 0:
+                logger.info("Succeeded to wget the guest '%s'." % guest_name)
+            else:
+                raise FailException("Failed to wget the guest '%s'." % guest_name)
+            # uncompress guest and remove .gz file
+            cmd = "tar -zxvf /vmfs/volumes/datastore*/%s.tar.gz -C /vmfs/volumes/datastore*/ && rm -f /vmfs/volumes/datastore*/%s.tar.gz" % (guest_name, guest_name)
+            ret, output = self.runcmd_esx(cmd, "uncompress guest", destination_ip)
+            if ret == 0:
+                logger.info("Succeeded to uncompress guest '%s'." % guest_name)
+            else:
+                raise FailException("Failed to uncompress guest '%s'." % guest_name)
 
     def update_esx_vw_configure(self, esx_owner, esx_env, esx_server, esx_username, esx_password, background=1, debug=1):
         ''' update virt-who configure file /etc/sysconfig/virt-who. '''
@@ -302,7 +302,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_start_guest_first(self, guest_name, destination_ip):
         ''' start guest in esx host '''
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip)
+        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip, timeout="120")
         if ret == 0:
             logger.info("Succeeded to first start guest '%s' in ESX host" % guest_name)
         else:
