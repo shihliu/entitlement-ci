@@ -302,7 +302,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_start_guest_first(self, guest_name, destination_ip):
         ''' start guest in esx host '''
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip, timeout="120")
+        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip, timeout=120)
         if ret == 0:
             logger.info("Succeeded to first start guest '%s' in ESX host" % guest_name)
         else:
