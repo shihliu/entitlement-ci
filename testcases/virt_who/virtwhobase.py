@@ -257,6 +257,70 @@ class VIRTWHOBase(unittest.TestCase):
             data_list.append(data_dict)
         return data_list
 
+    def sub_subscribe_to_bonus_pool(self, productid, guest_ip=""):
+        ''' subscribe the registered guest to the corresponding bonus pool of the product: productid. '''
+        availpoollistguest = self.sub_listavailpools(productid, guest_ip)
+        if availpoollistguest != None:
+            rindex = -1
+            for index in range(0, len(availpoollistguest)):
+                if("SKU" in availpoollistguest[index] and availpoollistguest[index]["SKU"] == productid and self.check_type_virtual(availpoollistguest[index])):
+                    rindex = index
+                    break
+                elif("ProductId" in availpoollistguest[index] and availpoollistguest[index]["ProductId"] == productid and self.check_type_virtual(availpoollistguest[index])):
+                    rindex = index
+                    break
+            if rindex == -1:
+                raise FailException("Failed to show find the bonus pool")
+            if "PoolID" in availpoollistguest[index]:
+                gpoolid = availpoollistguest[rindex]["PoolID"]
+            else:
+                gpoolid = availpoollistguest[rindex]["PoolId"]
+            self.sub_subscribetopool(gpoolid, guest_ip)
+        else:
+            raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % productid)
+
+    def sub_subscribetopool(self, poolid, targetmachine_ip=""):
+        ''' subscribe to a pool. '''
+        cmd = "subscription-manager subscribe --pool=%s" % (poolid)
+        ret, output = self.runcmd(cmd, "subscribe by --pool", targetmachine_ip)
+        if ret == 0:
+            if "Successfully " in output:
+                logger.info("Succeeded to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to show correct information after subscribing %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+
+    def sub_listconsumed(self, productname, targetmachine_ip="", productexists=True):
+        ''' list consumed entitlements. '''
+        cmd = "subscription-manager list --consumed"
+        ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
+        if ret == 0:
+            if productexists:
+                if "No Consumed subscription pools to list" not in output:
+                    if productname in output:
+                        logger.info("Succeeded to list the right consumed subscription %s." % self.get_hg_info(targetmachine_ip))
+                    else:
+                        raise FailException("Failed to list consumed subscription %s - Not the right consumed subscription is listed!" % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Failed to list consumed subscription %s - There is no consumed subscription to list!")
+            else:
+                if productname not in output:
+                    logger.info("Succeeded to check entitlements %s - the product '%s' is not subscribed now." % (self.get_hg_info(targetmachine_ip), productname))
+                else:
+                    raise FailException("Failed to check entitlements %s - the product '%s' is still subscribed now." % (self.get_hg_info(targetmachine_ip), productname))
+        else:
+            raise FailException("Failed to list consumed subscriptions.")
+
+    def sub_refresh(self, targetmachine_ip=""):
+        ''' refresh all local data. '''
+        cmd = "subscription-manager refresh; sleep 10"
+        ret, output = self.runcmd(cmd, "subscription fresh", targetmachine_ip)
+        if ret == 0 and "All local data refreshed" in output:
+            logger.info("Succeeded to refresh all local data %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to refresh all local data %s." % self.get_hg_info(targetmachine_ip))
+
     def check_type_virtual(self, pool_dict):
         if "MachineType" in pool_dict.keys():
             TypeName = "MachineType"
