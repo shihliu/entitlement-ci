@@ -9,7 +9,7 @@ class VIRTWHOBase(unittest.TestCase):
     #       Basic Functions
     # ========================================================
 
-    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None):
+    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         if targetmachine_ip != None and targetmachine_ip != "":
             if targetmachine_user != None and targetmachine_user != "":
                 commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
@@ -17,13 +17,13 @@ class VIRTWHOBase(unittest.TestCase):
                 commander = Command(targetmachine_ip, "root", "redhat")
         else:
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
-        return commander.run(cmd, timeout, cmddesc)
+        return commander.run(cmd, timeout, cmddesc, comments=showlogger)
 
-    def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout)
+    def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout, showlogger)
 
-    def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout)
+    def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
 #     def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
 #         if targetmachine_ip == "":
