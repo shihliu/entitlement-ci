@@ -430,7 +430,7 @@ class VIRTWHOBase(unittest.TestCase):
     def esx_get_guest_ip(self, guest_name, destination_ip):
         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
+        ret, output = self.runcmd_esx(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
@@ -3351,17 +3351,6 @@ class VIRTWHOBase(unittest.TestCase):
 # 
 #         return macAddress
 #     
-#     def esx_get_guest_ip(self, guest_name, destination_ip):
-#         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
-#         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
-#         ret, output = self.runcmd_esx(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip, showlogger=False)
-#         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
-#         if ret == 0:
-#             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
-#         else:
-#             raise FailException("Failed to get guest ip address '%s' in ESX host" % ipAddress)
-# 
-#         return ipAddress
 # 
 #     def esx_check_ip_accessable(self, guest_name, destination_ip, accessable):
 #         cycle_count = 0
@@ -4495,19 +4484,6 @@ class VIRTWHOBase(unittest.TestCase):
 #             raise FailException("Failed to get the %s's hostid." % hostname)
 # 
 # 
-#     def rhevm_define_guest(self, targetmachine_ip=""):
-#         ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
-#         cmd = "test -d /tmp/rhevm_guest/ && echo presence || echo absence"
-#         ret, output = self.runcmd(cmd, "check whether guest exist")
-#         if "presence" in output:
-#             logger.info("guest has already exist")
-#         else:
-#             cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
-#             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
-#             if ret == 0:
-#                 logger.info("Succeeded to wget kvm img file")
-#             else:
-#                 raise FailException("Failed to wget kvm img file")
 #     
 #         cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
 #         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
