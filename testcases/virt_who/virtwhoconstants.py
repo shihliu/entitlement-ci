@@ -38,9 +38,6 @@ class VIRTWHOConstants(object):
 #     imagepath_kvm = "/home/ENT_TEST_MEDIUM/images/kvm"
 #     imagepath_xen_pv = "/home/ENT_TEST_MEDIUM/images/xen/xen-pv"
 #     imagepath_xen_fv = "/home/ENT_TEST_MEDIUM/images/xen/xen-fv"
-#     # used for ESX automation
-#     esx_host_ip = "10.66.128.163"
-#     vmware_cmd_ip = "10.66.79.88"
-#     data_store_name = "datastore*"
+
     def get_constant(self, name):
         return self.virt_who_cons[name]

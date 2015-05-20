@@ -25,37 +25,6 @@ class VIRTWHOBase(unittest.TestCase):
     def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
-#     def runcmd_byuser(self, cmd, cmddesc="", targetmachine_ip="", username="root", password="qwe123P", showlogger=True):
-#         if targetmachine_ip == "":
-#             (ret, output) = commands.getstatusoutput(cmd)
-#         else:
-#             (ret, output) = self.remote_esx_pexpect(targetmachine_ip, username, password, cmd)
-#         if cmddesc != "":
-#             cmddesc = " of " + cmddesc
-#         if showlogger:
-#             logger.info(" [command]%s: %s" % (cmddesc, cmd))
-#             logger.info(" [result ]%s: %s" % (cmddesc, str(ret)))
-#             logger.info(" [output ]%s: %s \n" % (cmddesc, output))
-#         return ret, output
-# 
-#     def remote_esx_pexpect(self, hostname, username, password, cmd):
-#         """ Remote exec function via pexpect """
-#         user_hostname = "%s@%s" % (username, hostname)
-#         child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=1800, maxread=2000, logfile=None)
-#         while True:
-#             index = child.expect(['(yes\/no)', 'Password:', pexpect.EOF, pexpect.TIMEOUT])
-#             if index == 0:
-#                 child.sendline("yes")
-#             elif index == 1:
-#                 child.sendline(password)
-#             elif index == 2:
-#                 child.close()
-#                 return child.exitstatus, child.before
-#             elif index == 3:
-#                 child.close()
-#                 return 1, ""
-#         return 0
-
     def sys_setup(self):
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
@@ -338,12 +307,6 @@ class VIRTWHOBase(unittest.TestCase):
         ret, output = self.runcmd_esx(cmd, "check whether guest %s has been installed" % guest_name, destination_ip)
         if ret == 0:
             logger.info("guest '%s' has already been installed, continue..." % guest_name)
-#             cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-#             ret, output = self.runcmd_esx(cmd, "remove guests %s" % guest_name, destination_ip)
-#             if ret == 0:
-#                 logger.info("Succeeded to remove the guest '%s'." % guest_name)
-#             else:
-#                 raise FailException("Failed to remove the guest '%s'." % guest_name)
         else:
             logger.info("guest '%s' has not been installed yet, will install it next." % guest_name)
             cmd = "wget -P /vmfs/volumes/datastore* %s%s.tar.gz" % (wget_url, guest_name)
@@ -437,15 +400,14 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 time.sleep(10)
 
-#     def esx_remove_guest(self, guest_name, esx_host, vCenter, vCenter_user, vCenter_pass):
-#         ''' remove guest from esx vCenter '''
-#         vmware_cmd_ip = ee.vmware_cmd_ip
-#         cmd = "vmware-cmd -H %s -U %s -P %s --vihost %s -s unregister /vmfs/volumes/datastore*/%s/%s.vmx" % (vCenter, vCenter_user, vCenter_pass, esx_host, guest_name, guest_name)
-#         ret, output = self.runcmd(cmd, "remove guest '%s' from vCenter" % guest_name, vmware_cmd_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to remove guest '%s' from vCenter" % guest_name)
-#         else:
-#             raise FailException("Failed to remove guest '%s' from vCenter" % guest_name)
+    def esx_remove_guest(self, guest_name, esx_host):
+        ''' remove guest from esx '''
+        cmd = "vim-cmd vmsvc/unregister /vmfs/volumes/vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
+        ret, output = self.runcmd(cmd, "remove guest '%s' from ESX" % guest_name)
+        if ret == 0:
+            logger.info("Succeeded to remove guest '%s' from ESX" % guest_name)
+        else:
+            raise FailException("Failed to remove guest '%s' from ESX" % guest_name)
 # 
 # 
 #     def esx_destroy_guest(self, guest_name, esx_host):
