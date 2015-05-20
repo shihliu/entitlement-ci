@@ -225,10 +225,10 @@ class VIRTWHOBase(unittest.TestCase):
     def wget_images(self, wget_url, guest_name, destination_ip):
         ''' wget guest images '''
         # check whether guest has already been downloaded, if yes, unregister it from ESX and delete it from local
-        cmd = "[ -d /vmfs/volumes/datastore*/%s ] ; echo $?" % guest_name
+        cmd = "[ -d /vmfs/volumes/datastore*/%s ]" % guest_name
         ret, output = self.runcmd_esx(cmd, "check whether guest %s has been installed" % guest_name, destination_ip)
-        if output.strip() == 0:
-            logger.info("guest '%s' has already been installed, will not install it." % guest_name)
+        if ret == 0:
+            logger.info("guest '%s' has already been installed, continue..." % guest_name)
 #             cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
 #             ret, output = self.runcmd_esx(cmd, "remove guests %s" % guest_name, destination_ip)
 #             if ret == 0:
