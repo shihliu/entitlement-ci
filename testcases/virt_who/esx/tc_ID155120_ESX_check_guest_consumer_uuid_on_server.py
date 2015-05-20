@@ -29,7 +29,7 @@ class tc_ID155120_ESX_check_guest_consumer_uuid_on_server(VIRTWHOBase):
             ret, output = self.runcmd(cmd, "get host consumer uuid")
             hostuuid = output.split("{")[1].split(":")[0].strip()
             cmd = "subscription-manager identity | grep identity"
-            ret, output = self.runcmd(logger, cmd, "get guest subscription-manager identity", guestip)
+            ret, output = self.runcmd(cmd, "get guest subscription-manager identity", guestip)
             guestuuid = output.split(':')[1].strip()
             # check whether guest is included in host info
             cmd = "curl -u admin:admin -k https://%s/sam/api/consumers/%s" % (SAM_IP, hostuuid)
