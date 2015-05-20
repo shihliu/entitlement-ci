@@ -62,6 +62,7 @@
 
         - shell: |
             #!/bin/bash
+            set -x
 
             export TOPOLOGY={topology}
             {testparams}
