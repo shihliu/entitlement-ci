@@ -17,7 +17,7 @@ class VIRTWHOBase(unittest.TestCase):
                 commander = Command(targetmachine_ip, "root", "redhat")
         else:
             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
-        return commander.run(cmd, timeout, cmddesc, comments=showlogger)
+        return commander.run(cmd, timeout, cmddesc)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout, showlogger)
