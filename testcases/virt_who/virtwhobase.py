@@ -400,10 +400,10 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 time.sleep(10)
 
-    def esx_remove_guest(self, guest_name, esx_host):
+    def esx_remove_guest(self, guest_name, destination_ip):
         ''' remove guest from esx '''
         cmd = "vim-cmd vmsvc/unregister /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd(cmd, "remove guest '%s' from ESX" % guest_name)
+        ret, output = self.runcmd(cmd, "remove guest '%s' from ESX" % guest_name, destination_ip)
         if ret == 0:
             logger.info("Succeeded to remove guest '%s' from ESX" % guest_name)
         else:
