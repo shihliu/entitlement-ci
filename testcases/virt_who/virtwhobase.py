@@ -113,6 +113,15 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
             return False
 
+    def sub_register(self, username, password, targetmachine_ip=""):
+        ''' register the machine. '''
+        cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
+        ret, output = self.runcmd(cmd, "register system", targetmachine_ip)
+        if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
+            logger.info("Succeeded to register system %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to register system %s" % self.get_hg_info(targetmachine_ip))
+
     def get_hg_info(self, targetmachine_ip):
         if targetmachine_ip == "":
             host_guest_info = "in host machine"
@@ -1753,16 +1762,7 @@ class VIRTWHOBase(unittest.TestCase):
 #     #     1. 'RHSM' Test Common Functions
 #     # ========================================================
 # 
-#     def sub_register(self, username, password, targetmachine_ip=""):
-#         ''' Register the machine. '''
-#         # cmd = "subscription-manager clean"
-#         # ret, output = self.runcmd(cmd, "subscription-manager clean", targetmachine_ip)
-#         cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
-#         ret, output = self.runcmd(cmd, "register system", targetmachine_ip)
-#         if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
-#             logger.info("Succeeded to register system %s" % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Failed to register system %s" % self.get_hg_info(targetmachine_ip))
+
 # 
 # 
 #     def sub_isregistered(self, targetmachine_ip=""):
