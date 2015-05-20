@@ -50,7 +50,7 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            if guestip and guestip != None and guestip != "":
+            if guestip in dir() and guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
             self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
