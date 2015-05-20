@@ -189,6 +189,33 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to run 'subscription-manager list --available' %s." % self.get_hg_info(targetmachine_ip))
 
+    def __parse_avail_pools(self, output):
+        datalines = output.splitlines()
+        pool_list = []
+        data_segs = []
+        segs = []
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName:" in line) or ("Subscription Name:" in line):
+                segs.append(line)
+            elif segs:
+                # change this section for more than 1 lines without ":" exist
+                if ":" in line:
+                    segs.append(line)
+                else:
+                    segs[-1] = segs[-1] + " " + line.strip()
+            if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line):
+                data_segs.append(segs)
+                segs = []
+        # parse detail information for each pool
+        for seg in data_segs:
+            pool_dict = {}
+            for item in seg:
+                keyitem = item.split(":")[0].replace(" ", "")
+                valueitem = item.split(":")[1].strip()
+                pool_dict[keyitem] = valueitem
+            pool_list.append(pool_dict)
+        return pool_list
+
     def __parse_listavailable_output(self, output):
         datalines = output.splitlines()
         data_list = []
@@ -1820,44 +1847,7 @@ class VIRTWHOBase(unittest.TestCase):
 #             raise FailException("Failed to list available pools %s." % self.get_hg_info(targetmachine_ip))
 # 
 # 
-#     def __parse_avail_pools(self, output):
-#         datalines = output.splitlines()
-#         pool_list = []
-#         data_segs = []
-#         segs = []
-#         for line in datalines:
-#             if ("Product Name:" in line) or ("ProductName:" in line) or ("Subscription Name:" in line):
-#                 segs.append(line)
-#             elif segs:
-#                 # change this section for more than 1 lines without ":" exist
-#                 if ":" in line:
-#                     segs.append(line)
-#                 else:
-#                     segs[-1] = segs[-1] + " " + line.strip()
-#             if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line):
-#                 data_segs.append(segs)
-#                 segs = []
-# 
-# #         #This fuction failed when more than 1 lines without ":" exist
-# #         # handle item with multi rows
-# #         for seg in data_segs:
-# #             length = len(seg)
-# #             for index in range(0, length):
-# #                 if ":" not in seg[index]:
-# #                     seg[index - 1] = seg[index - 1] + " " + seg[index].strip()
-# #             for item in seg:
-# #                 if ":" not in item:
-# #                     seg.remove(item)
-# 
-#         # parse detail information for each pool
-#         for seg in data_segs:
-#             pool_dict = {}
-#             for item in seg:
-#                 keyitem = item.split(":")[0].replace(" ", "")
-#                 valueitem = item.split(":")[1].strip()
-#                 pool_dict[keyitem] = valueitem
-#             pool_list.append(pool_dict)
-#         return pool_list
+
 # 
 #     def sub_subscribetopool(self, poolid, targetmachine_ip=""):
 #         ''' Subscribe to a pool. '''
