@@ -584,8 +584,8 @@ class VIRTWHOBase(unittest.TestCase):
         if guestname != "" and guestuuid == "Default":
             guestuuid = self.esx_get_guest_uuid(guestname, destination_ip)
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.vw_restart_virtwho(logger)
-        self.vw_restart_virtwho(logger)
+        self.vw_restart_virtwho()
+        self.vw_restart_virtwho()
         cmd = "tail -1 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
@@ -617,8 +617,8 @@ class VIRTWHOBase(unittest.TestCase):
 
     def esx_check_uuid_exist_in_rhsm_log(self, uuid, destination_ip=""):
         ''' esx_check_uuid_exist_in_rhsm_log '''
-        self.vw_restart_virtwho(logger)
-        self.vw_restart_virtwho(logger)
+        self.vw_restart_virtwho()
+        self.vw_restart_virtwho()
         time.sleep(10)
         cmd = "tail -1 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
@@ -642,7 +642,7 @@ class VIRTWHOBase(unittest.TestCase):
 
     def get_uuid_list_in_rhsm_log(self, destination_ip=""):
         ''' esx_check_uuid_exist_in_rhsm_log '''
-        self.vw_restart_virtwho(logger)
+        self.vw_restart_virtwho()
         time.sleep(20)
         cmd = "tail -1 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
