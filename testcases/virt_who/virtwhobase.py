@@ -408,19 +408,15 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to remove guest '%s' from ESX" % guest_name)
         else:
             raise FailException("Failed to remove guest '%s' from ESX" % guest_name)
-# 
-# 
-#     def esx_destroy_guest(self, guest_name, esx_host):
-#         ''' destroy guest from '''
-#         # esx_host_ip = ee.esx_host_ip
-#         # vmware_cmd_ip = ee.vmware_cmd_ip
-#         # cmd = "vim-cmd vmsvc/destroy /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-#         cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-#         ret, output = self.runcmd_esx(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
-#         if ret == 0:
-#             logger.info("Succeeded to destroy guest '%s'" % guest_name)
-#         else:
-#             raise FailException("Failed to destroy guest '%s'" % guest_name)
+
+    def esx_destroy_guest(self, guest_name, esx_host):
+        ''' destroy guest from esx'''
+        cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
+        ret, output = self.runcmd_esx(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
+        if ret == 0:
+            logger.info("Succeeded to destroy guest '%s'" % guest_name)
+        else:
+            raise FailException("Failed to destroy guest '%s'" % guest_name)
 # 
 # 
 #     def esx_check_host_exist(self, esx_host, vCenter, vCenter_user, vCenter_pass):
