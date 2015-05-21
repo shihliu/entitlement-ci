@@ -38,11 +38,11 @@ class VIRTWHOBase(unittest.TestCase):
     def kvm_sys_setup(self, targetmachine_ip=""):
         # system setup for virt-who testing
         cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
         if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing.")
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
