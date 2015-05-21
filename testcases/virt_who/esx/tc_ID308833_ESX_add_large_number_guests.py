@@ -16,7 +16,7 @@ class tc_ID308833_ESX_add_large_number_guests(VIRTWHOBase):
 
             # add 100 guests in vCenter
             for i in range(0, guest_total):
-                self.esx_create_dummy_guest(logger, guest_name + "_" + str(i), destination_ip)
+                self.esx_create_dummy_guest(guest_name + "_" + str(i), destination_ip)
                 guest_uuid = self.esx_get_guest_uuid(guest_name + "_" + str(i), destination_ip)
                 guest_uuid_list.append(guest_uuid)
             # check all guest uuid is in rhsm.log
