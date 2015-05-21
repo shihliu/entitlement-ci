@@ -1,9 +1,4 @@
-import re
-import os
-import sys
-import shutil
-import logging
-import unittest
+import re, os, sys, shutil, logging, time, unittest
 from utils.constants import *
 
 def get_log_file():

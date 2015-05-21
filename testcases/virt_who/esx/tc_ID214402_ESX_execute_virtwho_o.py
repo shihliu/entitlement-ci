@@ -1,29 +1,32 @@
-import commands, os, traceback
-from repos.entitlement.ent_utils import ent_utils as eu
-from repos.entitlement.ent_env import ent_env as ee
+from utils import *
+from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
+from utils.exception.failexception import FailException
 
-def tc_ID214402_ESX_execute_virtwho_o(params):
-	""" Execute virt-who -o in a registered host, verify virtwho -o can work"""
-	try:
-		try:
-			logger = params['logger']
-			eu().RESET_RESULT()
-			logger.info("=============== Begin of Running Test Case: %s ===============" % __name__[str.rindex(__name__, ".") + 1:])
-			# (1)stop virt-who service
-			eu().vw_stop_virtwho(logger)
-			# run cmd virt-who with o and d option in the host
-			cmd = "virt-who -o -d"
-			(ret, output) = eu().runcmd(logger, cmd, "executing virt-who with one-shot mode")
-			if ret == 0 and "DEBUG" in output and "ERROR" not in output:
-				logger.info("Succeeded to execute virt-who with one-shot mode.")
-				eu().SET_RESULT(0)
-			else:
-				logger.error("Failed to execute virt-who with one-shot mode.")
-				eu().SET_RESULT(1)
-		except Exception, e:
-			logger.error("Test Failed due to error happened: " + str(e))
-			logger.error(traceback.format_exc())
-			eu().SET_RESULT(1)
-	finally:
-		logger.info("=============== End of Running Test Case: %s ===============" % __name__[str.rindex(__name__, ".") + 1:])
-		return eu().TEST_RESULT()
+class tc_ID214402_ESX_execute_virtwho_o(VIRTWHOBase):
+    def test_run(self):
+        case_name = self.__class__.__name__
+        logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        try:
+            # (1)stop virt-who service
+            self.vw_stop_virtwho()
+            # (2)Execute virt-who in the one-shot mode.
+            cmd = "virt-who -o -d"
+            ret, output = self.runcmd(cmd, "executing virt-who with one-shot mode")
+            if ret == 0 :
+                # check the status of virt-who
+                cmd = "ps -ef | grep virt-who"
+                ret, output = self.runcmd(cmd, "check the process of virt-who with one-shot mode")
+                if ret == 0 and "DEBUG" in output and "ERROR" not in output:
+                    logger.info("Succeeded to execute virt-who with one-shot mode.")
+                    self.assert_(True, case_name)
+                else:
+                    raise FailException("Failed to execute virt-who with one-shot mode.")
+        except Exception, e:
+            logger.error("Test Failed - ERROR Message:" + str(e))
+            self.assert_(False, case_name)
+        finally:
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+
+if __name__ == "__main__":
+    unittest.main()

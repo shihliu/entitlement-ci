@@ -69,12 +69,21 @@ class VIRTWHOBase(unittest.TestCase):
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
-        cmd = "service virt-who restart; sleep 10"
+        cmd = "service virt-who restart"
         ret, output = self.runcmd(cmd, "restart virt-who", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to restart virt-who service.")
         else:
             raise FailException("Test Failed - Failed to restart virt-who service.")
+
+    def vw_stop_virtwho(self, targetmachine_ip=""):
+        ''' stop virt-who service. '''
+        cmd = "service virt-who stop"
+        ret, output = self.runcmd(logger, cmd, "stop virt-who", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to stop virt-who service.")
+        else:
+            raise FailException("Failed to stop virt-who service.")
 
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
