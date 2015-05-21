@@ -35,6 +35,15 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
+    def kvm_sys_setup(self, targetmachine_ip=""):
+        # system setup for virt-who testing
+        cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing.")
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
         SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
@@ -66,6 +75,9 @@ class VIRTWHOBase(unittest.TestCase):
         self.vw_restart_virtwho()
 #         else:
 #             raise FailException("ESX host:'%s' has not been added to vCenter yet, add it manually first!" % ESX_HOST)
+
+    def kvm_setup(self):
+        pass
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
@@ -305,6 +317,10 @@ class VIRTWHOBase(unittest.TestCase):
         elif "SystemType" in pool_dict.keys():
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
+
+    #========================================================
+    #     KVM Functions
+    #========================================================
 
     #========================================================
     #     ESX Functions
