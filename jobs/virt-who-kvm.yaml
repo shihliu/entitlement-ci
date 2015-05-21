@@ -55,7 +55,7 @@
     builders:
         - copyartifact:
             project: 'virt-who-kvm-provision'
-            filter: '*.txt, *.json'
+            filter: '/root/project_defaults.json*.txt, *.json'
             target: $WORKSPACE
 
         - shell: |
