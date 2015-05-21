@@ -26,15 +26,15 @@ class tc_ID308833_ESX_add_large_number_guests(VIRTWHOBase):
                     self.assert_(False, case_name)
                 else:
                     logger.info("UUID of guest:%s exist in rhsm.log" % (guest_name + "_" + str(i)))
-            # remove the 100 guests added in vCenter
-            for i in range(0, guest_total):
-                self.esx_remove_guest(guest_name + "_" + str(i), destination_ip)
-                self.esx_destroy_guest(guest_name + "_" + str(i), destination_ip)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            # remove the 100 guests added in vCenter
+            for i in range(0, guest_total):
+                self.esx_remove_guest(guest_name + "_" + str(i), destination_ip)
+                self.esx_destroy_guest(guest_name + "_" + str(i), destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
