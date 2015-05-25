@@ -1,5 +1,5 @@
 - job-template:
-    name: '{project}-provision'
+    name: 'sam-local-install-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -24,7 +24,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: '{project}-runtest'
+          - project: 'sam-local-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -32,12 +32,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: '{project}-runtest'
+    name: 'sam-local-install-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: '{project}-provision'
+            project: 'sam-local-install-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -79,8 +79,8 @@
 - job-group:
     name: sam-install-provision-runtest
     jobs:
-      - '{project}-provision'
-      - '{project}-runtest'
+      - 'sam-local-install-provision'
+      - 'sam-local-install-runtest'
 
 - project:
     name: sam-local-install-jobs

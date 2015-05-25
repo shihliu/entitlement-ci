@@ -1,5 +1,5 @@
 - job-template:
-    name: '{project}-provision'
+    name: 'sam-install-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -21,7 +21,7 @@
 
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install
 
             TR_STATUS=$?
 
@@ -42,7 +42,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: '{project}-runtest'
+          - project: 'sam-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -50,12 +50,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: '{project}-runtest'
+    name: 'sam-install-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: '{project}-provision'
+            project: 'sam-install-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -108,8 +108,8 @@
 - job-group:
     name: sam-install-provision-runtest
     jobs:
-      - '{project}-provision'
-      - '{project}-runtest'
+      - 'sam-install-provision'
+      - 'sam-install-runtest'
 
 - project:
     name: sam-install-jobs
