@@ -128,7 +128,7 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - sam-install-provision-runtest-teardown
+      - sam-install-provision-runtest
     jslavename:
      - jslave-sam-install-slave
     jslave_execs:
