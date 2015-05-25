@@ -90,7 +90,7 @@
             export SAM_HOSTNAME=samserv.redhat.com
             
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
-            nosetests tc_ID000000_KVM_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests tc_ID000000_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:

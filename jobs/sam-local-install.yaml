@@ -19,24 +19,6 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
-            # Provision Test Resources
-            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
-
-            TR_STATUS=$?
-
-            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
-            if [ -e "$files" ]
-            then
-                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
-            fi
-
-            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-
-
-        - inject:
-            properties-file: $WORKSPACE/RESOURCES.txt
-
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
@@ -92,17 +74,6 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
@@ -112,25 +83,25 @@
       - '{project}-runtest'
 
 - project:
-    name: sam-install-jobs
+    name: sam-local-install-jobs
     project:
-     - sam-install
+     - sam-local-install
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - 
     ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
+     - 
     tests_path:
      - entitlement-ci/tests
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - sam-install-provision-runtest-teardown
+      - sam-local-install-provision-runtest
     jslavename:
-     - jslave-sam-install-slave
+     - jslave-sam-local-install-slave
     jslave_execs:
      - 10
     jslaveimage:
