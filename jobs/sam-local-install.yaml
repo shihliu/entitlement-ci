@@ -77,7 +77,7 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: sam-install-provision-runtest
+    name: sam-local-install-provision-runtest
     jobs:
       - 'sam-local-install-provision'
       - 'sam-local-install-runtest'
