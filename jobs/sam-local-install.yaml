@@ -99,7 +99,7 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - sam-local-install-provision-runtest
+     - sam-local-install-provision-runtest
     jslavename:
      - jslave-sam-local-install-slave
     jslave_execs:
