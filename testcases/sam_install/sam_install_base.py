@@ -23,22 +23,46 @@ class SAM_Install_Base(unittest.TestCase):
 
     def __stop_iptables(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "service iptables stop"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "service iptables stop", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to run service iptables stop.")
+        else:
+            raise FailException("Test Failed - Failed to run service iptables stop.")
         cmd = "chkconfig iptables off"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "chkconfig iptables off", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to run chkconfig iptables off.")
+        else:
+            raise FailException("Test Failed - Failed to run chkconfig iptables off.")
         cmd = "service iptables save"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "service iptables save", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to run service iptables save.")
+        else:
+            raise FailException("Test Failed - Failed to run service iptables save.")
 
     def __set_selinux(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "setenforce 0"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "setenforce 0", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to run setenforce 0.")
+        else:
+            raise FailException("Test Failed - Failed to run setenforce 0.")
         cmd = "sed -i -e 's/SELINUX=.*/SELINUX=%s/g' /etc/sysconfig/selinux" % ("permissive")
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "set /etc/sysconfig/selinux", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to set /etc/sysconfig/selinux.")
+        else:
+            raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
 
     def __auto_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
 #         too slow for local install, add rhel repo instead
         cmd = "subscription-manager register --username=qa@redhat.com --password=uBLybd5JSmkRHebA --auto-attach"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "auto attach", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to auto attach.")
+        else:
+            raise FailException("Test Failed - Failed to auto attach.")
 #         cmd = ('cat <<EOF > /etc/yum.repos.d/myrhel.repo\n'
 #             '[rhel]\n'
 #             'name=rhel\n'
@@ -63,24 +87,44 @@ class SAM_Install_Base(unittest.TestCase):
             'gpgcheck=0\n'
             'EOF' % sam_compose
             )
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "add sam repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to add sam repo.")
+        else:
+            raise FailException("Test Failed - Failed to add sam repo.")
 
     def __install_katello(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "yum install -y katello-headpin-all"
         # cmd = "yum install -y git"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd, timeout=7200)
+        ret, output = self.runcmd(cmd, "yum install -y katello-headpin-all", server_ip, server_user, server_passwd, timeout=7200)
+        if ret == 0:
+            logger.info("Succeeded to run yum install -y katello-headpin-all.")
+        else:
+            raise FailException("Test Failed - Failed to run yum install -y katello-headpin-all.")
 
     def __deploy_sam(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "katello-configure --deployment=sam --user-pass=admin"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd, timeout=1800)
+        ret, output = self.runcmd(cmd, "katello-configure", server_ip, server_user, server_passwd, timeout=1800)
+        if ret == 0:
+            logger.info("Succeeded to run katello-configure --deployment=sam --user-pass=admin.")
+        else:
+            raise FailException("Test Failed - Failed to run katello-configure --deployment=sam --user-pass=admin.")
 
     def __import_manifest(self, server_ip=None, server_user=None, server_passwd=None):
         # only support remote run
         self.__upload_manifest()
         cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "import menifest", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to import menifest.")
+        else:
+            raise FailException("Test Failed - Failed to import menifest.")
 
     def __upload_manifest(self, server_ip=None, server_user=None, server_passwd=None):
         # self.remote_put(sam_manifest, "/root/%s" % manifest_name)
         cmd = "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/sam_install_manifest.zip -P /root/"
-        self.runcmd(cmd, "", server_ip, server_user, server_passwd)
+        ret, output = self.runcmd(cmd, "wget manifest to /root/", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to wget manifest to /root/.")
+        else:
+            raise FailException("Test Failed - Failed to wget manifest to /root/.")

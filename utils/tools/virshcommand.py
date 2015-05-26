@@ -19,17 +19,29 @@ class VirshCommand(Command):
 
     def start_vm(self, guest_name):
         cmd = "virsh start %s" % (guest_name)
-        self.run(cmd, timeout=None)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to start guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to start guest %s." % guest_name)
         return self.__check_vm_available(guest_name)
 
     def shutdown_vm(self, guest_name):
         cmd = "virsh shutdown %s" % (guest_name)
-        self.run(cmd, timeout=None)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to shutdown guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to shutdown guest %s." % guest_name)
         time.sleep(180)
 
     def clone_vm(self, guest_name, cloned_guest_name):
         cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s.img" % (guest_name, cloned_guest_name, cloned_guest_name)
-        self.run(cmd, timeout=None)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to clone guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to clone guest %s." % guest_name)
 
     def __unattended_install(self, guest_name, guest_compose):
         '''
@@ -55,7 +67,11 @@ class VirshCommand(Command):
                % (guest_name, guest_name, guest_compose))
 #         from utils.tools.shell.remotesh import RemoteSH
 #         RemoteSH.run_pexpect(cmd, self.remote_ip, "root", "redhat")
-        self.run(cmd, timeout=600)
+        ret, output = self.run(cmd, timeout=600)
+        if ret == 0:
+            logger.info("Succeeded to unattended_install guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to unattended_install guest %s." % guest_name)
         time.sleep(120)
 
     def __check_vm_available(self, guest_name, timeout=600):
@@ -75,11 +91,12 @@ class VirshCommand(Command):
         Return mac address on SUCCESS or None on FAILURE
         """
         cmd = "virsh dumpxml " + domname + " | grep 'mac address' | awk -F'=' '{print $2}' | tr -d \"[\'/>]\""
-        (ret, out) = self.run(cmd)
+        ret, output = self.run(cmd)
         if ret == 0:
-            return out.strip("\n").strip(" ")
+            logger.info("Succeeded to get mac address of domain %s." % domname)
+            return output.strip("\n").strip(" ")
         else:
-            return None
+            raise FailException("Test Failed - Failed to get mac address of domain %s." % domname)
 
     def __mac_to_ip(self, mac):
         """
@@ -89,18 +106,34 @@ class VirshCommand(Command):
         if not mac:
             raise FailException("Failed to get guest mac ...")
         generate_ipget_cmd = "wget http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ | chmod 777 /root/ipget.sh"
-        self.run(generate_ipget_cmd)
+        ret, output = self.run(generate_ipget_cmd)
+        if ret == 0:
+            logger.info("Succeeded to wget ipget.sh to /root/.")
+        else:
+            raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
         cmd = "sh /root/ipget.sh %s" % mac
-        (ret, out) = self.run(cmd)
-        return out.strip("\n").strip(" ")
+        ret, output = self.run(cmd)
+        if ret == 0:
+            logger.info("Succeeded to get ip address.")
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get ip address.")
 
     def __create_img(self, img_name, path="/home/auto-imgs/", size=20):
         cmd = "qemu-img create -f raw %s%s.img %sG" % (path, img_name, size)
-        self.run(cmd, timeout=None)
- 
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to create image %s." % img_name)
+        else:
+            raise FailException("Test Failed - Failed to create image %s." % img_name)
+
     def __create_storage(self, path="/home/auto-imgs/"):
         cmd = "mkdir -p %s" % path
-        self.run(cmd, timeout=None)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to create storage")
+        else:
+            raise FailException("Test Failed - Failed to create storage")
 
 if __name__ == "__main__":
     virsh_command = VirshCommand()
