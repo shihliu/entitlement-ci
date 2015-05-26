@@ -93,7 +93,7 @@
     topology:
      - 
     ssh_keyfile:
-     - 
+     - entitlement-ci/config/keys/ent-key
     tests_path:
      - entitlement-ci/tests
     testparams:
