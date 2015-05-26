@@ -4,7 +4,7 @@ from utils.exception.failexception import FailException
 
 class SAM_Install_Base(unittest.TestCase):
 
-    commander = Command()
+    commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
 
 #     def run(self, cmd, cmddesc=None, timeout=None):
 #         return self.self.commander.run(cmd, timeout, cmddesc)
