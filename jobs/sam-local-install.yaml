@@ -19,6 +19,20 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
+            TR_STATUS=$?
+
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
