@@ -59,7 +59,7 @@ class SAM_Install_Base(unittest.TestCase):
     def __set_hosts_file(self, server_ip=None, server_user=None, server_passwd=None):
         if server_ip != None and server_ip != "":
             cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (server_ip, server_ip, "samserv.redhat.com")
-            ret, output = self.run(cmd, "set /etc/hosts", server_ip, server_user, server_passwd)
+            ret, output = self.runcmd(cmd, "set /etc/hosts", server_ip, server_user, server_passwd)
             if ret == 0:
                 logger.info("Succeeded to set /etc/hosts file.")
             else:
