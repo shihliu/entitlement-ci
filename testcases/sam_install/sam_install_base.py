@@ -123,7 +123,7 @@ class SAM_Install_Base(unittest.TestCase):
 
     def __import_manifest(self, server_ip=None, server_user=None, server_passwd=None):
         # only support remote run
-        self.__upload_manifest()
+        self.__upload_manifest(server_ip, server_user, server_passwd)
         cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip"
         ret, output = self.runcmd(cmd, "import menifest", server_ip, server_user, server_passwd)
         if ret == 0:
