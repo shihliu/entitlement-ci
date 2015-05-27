@@ -15,6 +15,7 @@ class SAM_Install_Base(unittest.TestCase):
     def install_sam(self, compose, server_ip=None, server_user=None, server_passwd=None):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
+        self.__set_hosts_file(server_ip, server_user, server_passwd)
         self.__auto_subscribe(server_ip, server_user, server_passwd)
         self.__add_sam_repo(compose, server_ip, server_user, server_passwd)
         self.__install_katello(server_ip, server_user, server_passwd)
@@ -54,6 +55,15 @@ class SAM_Install_Base(unittest.TestCase):
             logger.info("Succeeded to set /etc/sysconfig/selinux.")
         else:
             raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
+
+    def __set_hosts_file(self, server_ip=None, server_user=None, server_passwd=None):
+        if server_ip != None and server_ip != "":
+            cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (server_ip, server_ip, "samserv.redhat.com")
+            ret, output = self.run(cmd)
+        if ret == 0:
+            logger.info("Succeeded to set /etc/hosts file.")
+        else:
+            raise FailException("Test Failed - Failed to set /etc/hosts file.")
 
     def __auto_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
 #         too slow for local install, add rhel repo instead
