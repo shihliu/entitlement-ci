@@ -7,15 +7,15 @@ class Command(object):
     remote_ip = username = password = ""
     def __init__(self, remote_ip=None, username=None, password=None):
         if remote_ip != "" and remote_ip != None:
-            logger.info("command run in: %s" % remote_ip)
             self.remote_ip = remote_ip
             self.username = username
             self.password = password
+            logger.info("command run in: %s" % self.remote_ip)
         else:
-            logger.info("command run in: %s" % remote_ip)
             self.remote_ip = get_exported_param("REMOTE_IP")
             self.username = get_exported_param("REMOTE_USER")
             self.password = get_exported_param("REMOTE_PASSWD")
+            logger.info("command run in: %s" % self.remote_ip)
 
     def run(self, cmd, timeout=None, comments=True):
         if self.remote_ip == None:
