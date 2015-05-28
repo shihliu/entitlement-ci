@@ -7,10 +7,16 @@ class RHSMBase(unittest.TestCase):
     # ========================================================
     #       0. Basic Functions
     # ========================================================
-    commander = Command()
 
-    def runcmd(self, cmd, cmddesc=None, timeout=None):
-        return self.commander.run(cmd, timeout, cmddesc)
+    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None):
+        if targetmachine_ip != None and targetmachine_ip != "":
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "redhat")
+        else:
+            commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
+        return commander.run(cmd, timeout, cmddesc)
 
 #     def runcmd_remote(self, remoteIP, username, password, cmd):
 #         """ Remote exec function via pexpect """
