@@ -5,7 +5,7 @@
     builders:
         - copyartifact:
             project: 'sam-install-runtest'
-            filter: '*.txt, *.json'
+            filter: 'SAMSERVER.txt'
             target: $WORKSPACE
         - shell: |
             #!/bin/bash
