@@ -2,6 +2,9 @@
     name: 'sam-install-provision'
     defaults: virt-who-provision
     node: master
+    triggers:
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
     builders:
         - shell: |
             #!/bin/bash
@@ -86,7 +89,8 @@
             nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo SAMSERVER=$beaker_ip >> $WORKSPACE/SAMSERVER.txt
+            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SAMSERVER.txt
