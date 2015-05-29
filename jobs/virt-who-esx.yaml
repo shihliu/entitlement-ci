@@ -3,6 +3,11 @@
     defaults: virt-who-provision
     node: master
     builders:
+        - copyartifact:
+            project: 'sam-install-runtest'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+
         - shell: |
             #!/bin/bash
 
