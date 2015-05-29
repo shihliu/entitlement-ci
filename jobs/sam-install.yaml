@@ -90,7 +90,7 @@
             popd
 
             echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SAMSERVER.txt
