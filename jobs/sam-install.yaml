@@ -9,6 +9,8 @@
         - shell: |
             #!/bin/bash
 
+            kinit -k -t $KEYTAB $PRINCIPAL
+
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
             if [ "$JSLAVENAME" != "master" ]
@@ -107,6 +109,11 @@
             property-file: $WORKSPACE/SAMSERVER.txt
             fail-on-missing: true
           - project: 'virt-who-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-level-1-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SAMSERVER.txt

@@ -3,8 +3,14 @@
     defaults: virt-who-provision
     node: master
     builders:
+        - copyartifact:
+            project: 'sam-install-runtest'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
         - shell: |
             #!/bin/bash
+
+            kinit -k -t $KEYTAB $PRINCIPAL
 
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
@@ -33,6 +39,7 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
+            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
 
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -84,8 +91,8 @@
             export REMOTE_USER=root
             export REMOTE_PASSWD=xxoo2014
             export RUN_SERVER=sam
-            export SAM_IP=10.66.129.134
-            export SAM_HOSTNAME=samserv.redhat.com
+            export SAM_IP=$SAM_IP
+            export SAM_HOSTNAME=$SAM_HOSTNAME
             
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
             nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml

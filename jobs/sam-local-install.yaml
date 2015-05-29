@@ -6,6 +6,8 @@
         - shell: |
             #!/bin/bash
 
+            kinit -k -t $KEYTAB $PRINCIPAL
+
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
             if [ "$JSLAVENAME" != "master" ]

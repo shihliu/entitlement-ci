@@ -2,13 +2,15 @@
     name: 'virt-who-kvm-provision'
     defaults: virt-who-provision
     node: master
+    builders:
         - copyartifact:
             project: 'sam-install-runtest'
             filter: '*.txt, *.json'
             target: $WORKSPACE
-    builders:
         - shell: |
             #!/bin/bash
+
+            kinit -k -t $KEYTAB $PRINCIPAL
 
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
