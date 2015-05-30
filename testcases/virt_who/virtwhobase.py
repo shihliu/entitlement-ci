@@ -3,7 +3,7 @@ import time, random, commands
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
-# from utils.libvirtAPI.domain import define
+from utils.libvirtAPI.domain import define
 # from utils.libvirtAPI.domain import undefine
 # from utils.libvirtAPI.domain import suspend
 # from utils.libvirtAPI.domain import resume
@@ -477,6 +477,9 @@ class VIRTWHOBase(unittest.TestCase):
         ret, output = self.runcmd(cmd, "list all guest", targetmachine_ip)
         if not guestname + " " in output:
             self.params["guestname"] = guestname
+            self.params["target_machine"] = get_exported_param("REMOTE_IP")
+            self.params['username'] = "root"
+            self.params['password'] = "xxoo2014"
             self.params["fullimagepath"] = os.path.join(VIRTWHOConstants().get_constant("nfs_image_path"), guestname)
 #             if define.define(self.params) == 0:
 #                 logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
