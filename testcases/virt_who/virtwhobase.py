@@ -414,7 +414,7 @@ class VIRTWHOBase(unittest.TestCase):
 
         logger.info("Begin to copy guest images...")
 
-        cmd = "cp -rf %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/"), image_path)
+        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/"), image_path)
         ret, output = self.runcmd(cmd, "copy all kvm images")
 #         if ret == 0:
 #             logger.info("Succeeded to copy guest images to host machine.")
@@ -427,8 +427,6 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to umount %s." % (image_mount_path))
         else:
             raise FailException("Failed to umount %s." % (image_mount_path))
-
-        logger.info("Begin to copy guest images...")
 
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
