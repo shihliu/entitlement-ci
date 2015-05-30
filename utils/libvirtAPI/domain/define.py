@@ -29,16 +29,16 @@ import commands
 import string
 from utils.libvirtAPI.Python import pexpect
 
-def append_path(path):
-    """Append root path of package"""
-    if path in sys.path:
-        pass
-    else:
-        sys.path.append(path)
-
-pwd = os.getcwd()
-result = re.search('(.*)libvirt-test-API', pwd)
-append_path(result.group(0))
+# def append_path(path):
+#     """Append root path of package"""
+#     if path in sys.path:
+#         pass
+#     else:
+#         sys.path.append(path)
+# 
+# pwd = os.getcwd()
+# result = re.search('(.*)libvirt-test-API', pwd)
+# append_path(result.group(0))
 
 from utils.libvirtAPI.lib import connectAPI
 from utils.libvirtAPI.lib import domainAPI
