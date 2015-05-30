@@ -74,7 +74,7 @@ class RemoteSH(object):
 #             logger.info("Return Code : %s" % retcode)
 #             logger.info("Output : \n%s" % stdout.read())
             ssh.close()
-            return retcode, stdout.read()
+            return retcode, stdout.read() and stderr.read()
         else:
             import time, socket
             from select import select
