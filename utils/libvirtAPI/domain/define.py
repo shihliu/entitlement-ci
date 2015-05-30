@@ -27,7 +27,7 @@ import re
 import sys
 import commands
 import string
-import pexpect
+from utils.libvirtAPI.Python import pexpect
 
 def append_path(path):
     """Append root path of package"""
