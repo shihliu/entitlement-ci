@@ -3,8 +3,11 @@
     defaults: virt-who-provision
     node: master
     triggers:
-      - default-pollurl:
-        url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+      - pollurl:
+          url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+          cron: 'H/9 * * * *'
+          check-content:
+            - simple: true
     builders:
         - shell: |
             #!/bin/bash
