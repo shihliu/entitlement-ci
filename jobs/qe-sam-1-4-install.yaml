@@ -4,10 +4,11 @@
     node: master
     triggers:
       - pollurl:
-          url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
           cron: 'H/9 * * * *'
-          check-content:
-            - simple: true
+          urls:
+            - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+              check-content:
+                - simple: true
     builders:
         - shell: |
             #!/bin/bash
