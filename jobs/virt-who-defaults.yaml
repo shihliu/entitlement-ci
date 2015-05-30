@@ -42,6 +42,15 @@
         - ansicolor
         - workspace-cleanup
         - timestamps
+    trigger:
+      name: default-pollurl
+      triggers:
+        - pollurl:
+            cron: 'H/9 * * * *'
+            urls:
+              - url: '{url}'
+                  check-content:
+                    - simple: true
 
 - wrapper:
     name: default-virt-who-build-timeout-wrapper

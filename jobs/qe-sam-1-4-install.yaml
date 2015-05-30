@@ -126,16 +126,6 @@
       - 'qe-sam-1-4-install-provision'
       - 'qe-sam-1-4-install-runtest'
 
-- trigger:
-    name: default-pollurl
-    triggers:
-        - pollurl:
-            cron: 'H/9 * * * *'
-            urls:
-                - url: '{url}'
-                  check-content:
-                      - simple: true
-
 - project:
     name: qe-sam-1-4-install-jobs
     project:
