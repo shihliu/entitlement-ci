@@ -1,5 +1,5 @@
 - job-template:
-    name: 'qe-sam-1-4-install-provision'
+    name: 'qe-sam-1-4-local-install-provision'
     defaults: virt-who-provision
     node: master
     triggers:
@@ -28,10 +28,6 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
-            # Provision Test Resources
-            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=qe-sam-1-4-install
-
             TR_STATUS=$?
 
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
@@ -42,6 +38,7 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
+
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -50,7 +47,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'qe-sam-1-4-install-runtest'
+          - project: 'qe-sam-1-4-local-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -58,12 +55,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'qe-sam-1-4-install-runtest'
+    name: 'qe-sam-1-4-local-install-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'qe-sam-1-4-install-provision'
+            project: 'qe-sam-1-4-local-install-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -83,63 +80,41 @@
             ifconfig
 
             echo "Pinging Test Resources"
-            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            local_sam_server=10.66.144.13
+            echo $local_sam_server | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip
+            export REMOTE_IP=$local_sam_server
             export REMOTE_USER=root
-            export REMOTE_PASSWD=xxoo2014
+            export REMOTE_PASSWD=gaoshang
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests sam_local_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
-
-            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
-
-        - inject:
-            properties-file: $WORKSPACE/SAMSERVER.txt
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'rhsm-level-1-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: qe-sam-1-4-install-provision-runtest
+    name: qe-sam-1-4-local-install-provision-runtest
     jobs:
-      - 'qe-sam-1-4-install-provision'
-      - 'qe-sam-1-4-install-runtest'
+      - 'qe-sam-1-4-local-install-provision'
+      - 'qe-sam-1-4-local-install-runtest'
 
 - project:
-    name: qe-sam-1-4-install-jobs
+    name: qe-sam-1-4-local-install-jobs
     project:
-     - qe-sam-1-4-install
+     - qe-sam-1-4-local-install
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - 
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -147,9 +122,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - qe-sam-1-4-install-provision-runtest
+     - qe-sam-1-4-local-install-provision-runtest
     jslavename:
-     - jslave-qe-sam-1-4-install-slave
+     - jslave-qe-sam-1-4-local-install-slave
     jslave_execs:
      - 10
     jslaveimage:

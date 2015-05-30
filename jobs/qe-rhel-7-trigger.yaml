@@ -1,7 +1,14 @@
 - job-template:
-    name: 'sam-local-install-provision'
+    name: 'qe-rhel-7-trigger-provision'
     defaults: virt-who-provision
     node: master
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
+              check-content:
+                - simple: true
     builders:
         - shell: |
             #!/bin/bash
@@ -21,6 +28,10 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
+            # Provision Test Resources
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=qe-rhel-7-trigger
+
             TR_STATUS=$?
 
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
@@ -31,7 +42,6 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
-
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -40,7 +50,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'sam-local-install-runtest'
+          - project: 'qe-rhel-7-trigger-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -48,12 +58,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'sam-local-install-runtest'
+    name: 'qe-rhel-7-trigger-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'sam-local-install-provision'
+            project: 'qe-rhel-7-trigger-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -73,41 +83,63 @@
             ifconfig
 
             echo "Pinging Test Resources"
-            local_sam_server=10.66.144.13
-            echo $local_sam_server | xargs -i -d , ping -c 15 {{}}
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            export REMOTE_IP=$local_sam_server
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
             export REMOTE_USER=root
-            export REMOTE_PASSWD=gaoshang
+            export REMOTE_PASSWD=xxoo2014
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_local_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
+
+            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+
+        - inject:
+            properties-file: $WORKSPACE/SAMSERVER.txt
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
+      - trigger-parameterized-builds:
+          - project: 'virt-who-esx-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'virt-who-kvm-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-level-1-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: sam-local-install-provision-runtest
+    name: qe-rhel-7-trigger-provision-runtest
     jobs:
-      - 'sam-local-install-provision'
-      - 'sam-local-install-runtest'
+      - 'qe-rhel-7-trigger-provision'
+      - 'qe-rhel-7-trigger-runtest'
 
 - project:
-    name: sam-local-install-jobs
+    name: qe-rhel-7-trigger-jobs
     project:
-     - sam-local-install
+     - qe-rhel-7-trigger
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - 
+     - bkr_sam_install
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -115,9 +147,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-     - sam-local-install-provision-runtest
+      - qe-rhel-7-trigger-provision-runtest
     jslavename:
-     - jslave-sam-local-install-slave
+     - jslave-qe-rhel-7-trigger-slave
     jslave_execs:
      - 10
     jslaveimage:
