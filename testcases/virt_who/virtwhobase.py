@@ -3,14 +3,14 @@ import time, random, commands
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
-from utils.libvirtAPI.domain import define
-from utils.libvirtAPI.domain import undefine
-from utils.libvirtAPI.domain import suspend
-from utils.libvirtAPI.domain import resume
-from utils.libvirtAPI.domain import shutdown
-from utils.libvirtAPI.domain import start
-from utils.libvirtAPI.domain import destroy
-from utils.libvirtAPI.domain import migrate
+# from utils.libvirtAPI.domain import define
+# from utils.libvirtAPI.domain import undefine
+# from utils.libvirtAPI.domain import suspend
+# from utils.libvirtAPI.domain import resume
+# from utils.libvirtAPI.domain import shutdown
+# from utils.libvirtAPI.domain import start
+# from utils.libvirtAPI.domain import destroy
+# from utils.libvirtAPI.domain import migrate
 
 class VIRTWHOBase(unittest.TestCase):
     # ========================================================
