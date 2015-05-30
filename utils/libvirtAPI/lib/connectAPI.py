@@ -25,18 +25,18 @@ import re
 
 import libvirt
 
-def append_path(path):
-    """Append root path of package"""
-    if path in sys.path:
-        pass
-    else:
-        sys.path.append(path)
+# def append_path(path):
+#     """Append root path of package"""
+#     if path in sys.path:
+#         pass
+#     else:
+#         sys.path.append(path)
+# 
+# pwd = os.getcwd()
+# result = re.search('(.*)libvirt-test-API', pwd)
+# append_path(result.group(0))
 
-pwd = os.getcwd()
-result = re.search('(.*)libvirt-test-API', pwd)
-append_path(result.group(0))
-
-import exception
+from utils.libvirtAPI import exception
 
 class ConnectAPI(object):
     def __init__(self):

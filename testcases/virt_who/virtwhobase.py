@@ -478,10 +478,10 @@ class VIRTWHOBase(unittest.TestCase):
         if not guestname + " " in output:
             self.params["guestname"] = guestname
             self.params["fullimagepath"] = os.path.join(VIRTWHOConstants().get_constant("nfs_image_path"), guestname)
-            if define.define(self.params) == 0:
-                logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
-            else:
-                raise FailException("Failed to define the guest '%s' in host machine.\n" % guestname)
+#             if define.define(self.params) == 0:
+#                 logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
+#             else:
+#                 raise FailException("Failed to define the guest '%s' in host machine.\n" % guestname)
             ret, output = self.runcmd(cmd, "list all guest", targetmachine_ip)
 
     #========================================================
