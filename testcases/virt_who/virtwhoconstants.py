@@ -6,9 +6,9 @@ class VIRTWHOConstants(object):
     virt_who_cons = {
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
-                    "local_image_path" : "/root/images/",
-                    "nfs_image_path" : "/root/images_nfs/",
-                    "local_mount_point" : "/tmp/images_mnt/",
+                    "local_image_path" : "/root/images",
+                    "nfs_image_path" : "/root/images_nfs",
+                    "local_mount_point" : "/tmp/images_mnt",
 
                     "esx_guest_url" : "http://10.66.100.116/projects/sam-virtwho/esx_guest/",
 
