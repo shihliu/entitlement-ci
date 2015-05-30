@@ -17,6 +17,90 @@ class VirshCommand(Command):
         self.clone_vm("AUTO-RHEL6.6-Server-GA", guest_name)
         return self.start_vm(guest_name), "root", "redhat"
 
+    def define_vm(self, guest_name, guest_path):
+        self.define_xml_gen(guest_name, guest_path)
+        cmd = "virsh define /root/%s.xml" % (guest_name)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to define guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to define guest %s." % guest_name)
+        self.list_vm()
+
+    def define_xml_gen(self, guest_name, guest_path):
+        cmd = ("cat > /root/%s.xml <<EOF"
+                "<domain type='kvm'>"
+                "  <name>%s</name>"
+                "  <uuid>e29811e2-cbba-7f38-ec26-9e71d427ac7e</uuid>"
+                "  <memory unit='KiB'>1048576</memory>"
+                "  <currentMemory unit='KiB'>1048576</currentMemory>"
+                "  <vcpu placement='static'>1</vcpu>"
+                "  <os>"
+                "    <type arch='x86_64' machine='rhel6.3.0'>hvm</type>"
+                "    <boot dev='hd'/>"
+                "  </os>"
+                "  <features>"
+                "    <acpi/>"
+                "    <apic/>"
+                "    <pae/>"
+                "  </features>"
+                "  <clock offset='utc'/>"
+                "  <on_poweroff>destroy</on_poweroff>"
+                "  <on_reboot>restart</on_reboot>"
+                "  <on_crash>restart</on_crash>"
+                "  <devices>"
+                "    <emulator>/usr/libexec/qemu-kvm</emulator>"
+                "    <disk type='file' device='disk'>"
+                "      <driver name='qemu' type='raw' cache='none'/>"
+                "      <source file='%s>"
+                "      <target dev='vda' bus='virtio'/>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>"
+                "    </disk>"
+                "    <controller type='usb' index='0'>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x2'/>"
+                "    </controller>"
+                "    <interface type='network'>"
+                "      <mac address='52:54:00:32:97:d1'/>"
+                "      <source network='default'/>"
+                "      <model type='virtio'/>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>"
+                "    </interface>"
+                "    <serial type='pty'>"
+                "      <target port='0'/>"
+                "    </serial>"
+                "    <console type='pty'>"
+                "      <target type='serial' port='0'/>"
+                "    </console>"
+                "    <input type='tablet' bus='usb'/>"
+                "    <input type='mouse' bus='ps2'/>"
+                "    <graphics type='vnc' port='-1' autoport='yes'/>"
+                "    <sound model='ich6'>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>"
+                "    </sound>"
+                "    <video>"
+                "      <model type='cirrus' vram='9216' heads='1'/>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>"
+                "    </video>"
+                "    <memballoon model='virtio'>"
+                "      <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>"
+                "    </memballoon>"
+                "  </devices>"
+                "</domain>"
+                "EOF") % (guest_name, guest_path)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to generate virsh define xml in /root/%s.xml " % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to generate virsh define xml in /root/%s.xml " % guest_name)
+
+    def list_vm(self):
+        cmd = "virsh list --all"
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0:
+            logger.info("Succeeded to list all curent guest ")
+        else:
+            raise FailException("Test Failed - Failed to list all curent guest ")
+
     def start_vm(self, guest_name):
         cmd = "virsh start %s" % (guest_name)
         ret, output = self.run(cmd, timeout=None)

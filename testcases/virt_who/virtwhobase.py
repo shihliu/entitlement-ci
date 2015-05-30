@@ -3,20 +3,12 @@ import time, random, commands
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
-from utils.libvirtAPI.domain import define
-# from utils.libvirtAPI.domain import undefine
-# from utils.libvirtAPI.domain import suspend
-# from utils.libvirtAPI.domain import resume
-# from utils.libvirtAPI.domain import shutdown
-# from utils.libvirtAPI.domain import start
-# from utils.libvirtAPI.domain import destroy
-# from utils.libvirtAPI.domain import migrate
+from utils.tools.virshcommand import VirshCommand
 
 class VIRTWHOBase(unittest.TestCase):
     # ========================================================
     #       Basic Functions
     # ========================================================
-    params = {"guesttype": "kvm", "ifacetype":"bridge", "source":"switch"}
 
     def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         if targetmachine_ip != None and targetmachine_ip != "":
@@ -460,7 +452,7 @@ class VIRTWHOBase(unittest.TestCase):
     def vw_define_all_guests(self, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path):
-            self.vw_define_guest(guestname)
+            VirshCommand().define_vm(guestname, os.path.join(guest_path, guestname))
 
     def get_all_guests_list(self, guest_path, targetmachine_ip=""):
         cmd = "ls %s" % guest_path
@@ -471,21 +463,6 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to get all guest list in %s." % guest_path)
 
-    def vw_define_guest(self, guestname, targetmachine_ip=""):
-        ''' Define a guest in host machine. '''
-        cmd = "virsh list --all"
-        ret, output = self.runcmd(cmd, "list all guest", targetmachine_ip)
-        if not guestname + " " in output:
-            self.params["guestname"] = guestname
-            self.params["target_machine"] = get_exported_param("REMOTE_IP")
-            self.params['username'] = "root"
-            self.params['password'] = "xxoo2014"
-            self.params["fullimagepath"] = os.path.join(VIRTWHOConstants().get_constant("nfs_image_path"), guestname)
-#             if define.define(self.params) == 0:
-#                 logger.info("Succeeded to define the guest '%s' in host machine.\n" % guestname)
-#             else:
-#                 raise FailException("Failed to define the guest '%s' in host machine.\n" % guestname)
-            ret, output = self.runcmd(cmd, "list all guest", targetmachine_ip)
 
     #========================================================
     #     ESX Functions
