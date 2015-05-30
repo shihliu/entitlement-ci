@@ -414,7 +414,7 @@ class VIRTWHOBase(unittest.TestCase):
 
         logger.info("Begin to copy guest images...")
 
-        cmd = "cp -rf %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/"), image_path)
+        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/"), image_path)
         ret, output = self.runcmd(cmd, "copy all kvm images")
         if ret == 0:
             logger.info("Succeeded to copy guest images to host machine.")
