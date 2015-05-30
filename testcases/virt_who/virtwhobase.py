@@ -37,12 +37,19 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_sys_setup(self, targetmachine_ip=""):
         # system setup for virt-who testing
-        cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
+        # cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "service libvirtd start"
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        if ret == 0:
+            logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
@@ -77,7 +84,62 @@ class VIRTWHOBase(unittest.TestCase):
 #             raise FailException("ESX host:'%s' has not been added to vCenter yet, add it manually first!" % ESX_HOST)
 
     def kvm_setup(self):
-        pass
+        SAM_IP = get_exported_param("SAM_IP")
+        SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
+
+        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
+        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+
+        # configure and register the host
+        if not self.sub_isregistered():
+            self.configure_host(SAM_HOSTNAME, SAM_IP)
+            self.sub_register(SAM_USER, SAM_PASS)
+        # update virt-who configure file
+        self.update_vw_configure()
+        # restart virt-who service
+        self.vw_restart_virtwho()
+        # mount all needed guests
+        self.mount_images()
+        # add guests in host machine.
+        self.vw_define_all_guests()
+
+
+# (9)set up env for migration if needed
+# if params.has_key("targetmachine_ip") and params.has_key("targetmachine_hostname"):
+# logger.info("-------- Begin to set up env for migration -------- ")
+# targetmachine_ip = params["targetmachine_ip"]
+# targetmachine_hostname = params["targetmachine_hostname"]
+# # 1)mount image path in target machine
+# eu().mount_images_in_targetmachine( targetmachine_ip, ee.imagenfspath, ee.imagepath)
+# # 2)mount the rhsm log of the target machine into source machine.
+# eu().mount_rhsmlog_of_targetmachine( targetmachine_ip, ee.rhsmlog_for_targetmachine)
+# # 3)update /etc/hosts file
+# eu().update_hosts_file( targetmachine_ip, targetmachine_hostname)
+# # 4)set cpu socket
+# eu().set_cpu_socket( targetmachine_ip=targetmachine_ip)
+# # 5)stop firewall of two host machines for migration
+# eu().stop_firewall(logger)
+# eu().stop_firewall( targetmachine_ip)
+# # 6)update xen configuration file /etc/xen/xend-config.sxp of two host machines for migration to 
+# # make sure contain necessary config options, and then restart service xend.
+# if testtype == "xen":
+# eu().update_xen_configure(logger)
+# eu().update_xen_configure( targetmachine_ip)
+# # 7)configure and register the host
+# if not eu().sub_isregistered( targetmachine_ip):
+# eu().configure_host( params.get("samhostname"), params.get("samhostip"), targetmachine_ip)
+# username = eu().get_env(logger)["username"]
+# password = eu().get_env(logger)["password"]
+# eu().sub_register( username, password, targetmachine_ip)
+# # disable autopool on remote host
+# eu().sub_autopool( "disable", targetmachine_ip)
+# # 8)update virt-who configure file
+# eu().update_vw_configure( targetmachine_ip=targetmachine_ip)
+# # 9)restart virt-who service in target machine
+# eu().vw_restart_virtwho( targetmachine_ip)
+# logger.info("-------- End to set up env for migration -------- ")
+# else:
+# logger.info("There is no target machine ip/hostname provided, so does not setup env for migration.")
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
@@ -91,7 +153,7 @@ class VIRTWHOBase(unittest.TestCase):
     def vw_stop_virtwho(self, targetmachine_ip=""):
         ''' stop virt-who service. '''
         cmd = "service virt-who stop"
-        ret, output = self.runcmd(logger, cmd, "stop virt-who", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "stop virt-who", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to stop virt-who service.")
         else:
@@ -155,7 +217,7 @@ class VIRTWHOBase(unittest.TestCase):
                 cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
                 ret, output = self.runcmd(cmd, "remove candlepin-cert-consumer-%s-1.0-1.noarch to re-register system to SAM" % samhostname, targetmachine_ip)
                 if ret == 0:
-                     logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
+                    logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
                 else:
                     raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
             cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
@@ -321,6 +383,84 @@ class VIRTWHOBase(unittest.TestCase):
     #========================================================
     #     KVM Functions
     #========================================================
+    def update_vw_configure(self, background=1, debug=1, targetmachine_ip=""):
+        ''' update virt-who configure file /etc/sysconfig/virt-who. '''
+        cmd = "sed -i -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' /etc/sysconfig/virt-who" % (debug)
+        ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update virt-who configure file.")
+        else:
+            raise FailException("Failed to update virt-who configure file.")
+
+    def mount_images(self):
+        ''' mount the images prepared '''
+        image_server = VIRTWHOConstants().get_constant("beaker_image_server")
+        image_path = VIRTWHOConstants().get_constant("local_image_path")
+        image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        image_mount_path = VIRTWHOConstants().get_constant("local_mount_point")
+        cmd = "mkdir %s" % image_mount_path
+        self.runcmd(cmd, "create local images mount point")
+        cmd = "mkdir %s" % image_path
+        self.runcmd(cmd, "create local images directory")
+        cmd = "mkdir %s" % image_nfs_path
+        self.runcmd(cmd, "create local nfs images directory")
+        cmd = "mount -r %s %s" % (image_server, image_path)
+        ret, output = self.runcmd(cmd, "mount images in host")
+        if ret == 0:
+            logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
+        else:
+            raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
+
+        logger.info("Begin to copy guest images...")
+
+        cmd = "cp -rf %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/"), image_path)
+        ret, output = self.runcmd(cmd, "copy all kvm images")
+        if ret == 0:
+            logger.info("Succeeded to copy guest images to host machine.")
+        else:
+            raise FailException("Failed to copy guest images to host machine.")
+
+        cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
+        ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
+        if ret == 0:
+            logger.info("Succeeded to add '%s *(rw,no_root_squash)' to /etc/exports file." % image_nfs_path)
+        else:
+            raise FailException("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % image_nfs_path)
+        cmd = "service nfs restart"
+        ret, output = self.runcmd(cmd, "restarting nfs service")
+        if ret == 0 :
+            logger.info("Succeeded to restart service nfs.")
+        else:
+            raise FailException("Failed to restart service nfs.")
+        cmd = "rpc.mountd"
+        ret, output = self.runcmd(cmd, "rpc.mountd")
+        cmd = "showmount -e 127.0.0.1"
+        ret, output = self.runcmd(cmd, "showmount")
+        if ret == 0 and (image_nfs_path in output):
+            logger.info("Succeeded to export dir '%s' as nfs." % image_nfs_path)
+        else:
+            raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
+
+        cmd = "mount %s:%s %s" % ("127.0.0.1", image_nfs_path, image_path)
+        ret, output = self.runcmd(cmd, "mount nfs images in host machine")
+        if ret == 0 or "is busy or already mounted" in output:
+            logger.info("Succeeded to mount nfs images in host machine.")
+        else:
+            raise FailException("Failed to mount nfs images in host machine.")
+
+    def vw_define_all_guests(self, targetmachine_ip=""):
+        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        for guestname in self.get_all_guests_list(guest_path):
+            self.vw_define_guest(guestname)
+
+    def get_all_guests_list(self, guest_path, targetmachine_ip=""):
+        cmd = "ls %s" % guest_path
+        ret, output = self.runcmd(cmd, "get all guest in images folder", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to get all guest list in %s." % guest_path)
+            return output.split(" ")
+        else:
+            raise FailException("Failed to get all guest list in %s." % guest_path)
 
     #========================================================
     #     ESX Functions

@@ -4,8 +4,12 @@ from utils.exception.failexception import FailException
 
 class VIRTWHOConstants(object):
     virt_who_cons = {
-                    "image_machine_ip" : "10.66.100.116:/data/projects/sam-virtwho/pub",
-                    "beaker_image_machine_ip" : "10.16.96.131:/home/samdata",
+
+                    "beaker_image_server" : "10.16.96.131:/home/samdata",
+                    "local_image_path" : "/root/images/",
+                    "nfs_image_path" : "/root/images_nfs/",
+                    "local_mount_point" : "/tmp/images_mnt/",
+
                     "esx_guest_url" : "http://10.66.100.116/projects/sam-virtwho/esx_guest/",
 
                     "SAM_USER":"admin",
