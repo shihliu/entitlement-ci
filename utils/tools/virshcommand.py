@@ -52,7 +52,7 @@ class VirshCommand(Command):
                 "    <emulator>/usr/libexec/qemu-kvm</emulator>\n"
                 "    <disk type='file' device='disk'>\n"
                 "      <driver name='qemu' type='raw' cache='none'/>\n"
-                "      <source file='%s/>\n"
+                "      <source file='%s'/>\n"
                 "      <target dev='vda' bus='virtio'/>\n"
                 "      <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>\n"
                 "    </disk>\n"
