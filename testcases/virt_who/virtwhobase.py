@@ -70,10 +70,10 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "service network restart"
         ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
-        if ret == 0:
-            logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+#         if ret == 0:
+#             logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
