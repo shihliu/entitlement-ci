@@ -46,6 +46,7 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         self.kvm_bridge_setup(targetmachine_ip)
+        self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
         if ret == 0:
@@ -74,6 +75,14 @@ class VIRTWHOBase(unittest.TestCase):
 #             logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 #         else:
 #             raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+
+    def kvm_permission_setup(self, targetmachine_ip=""):
+        cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        if ret == 0:
+            logger.info("Succeeded to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
