@@ -109,6 +109,13 @@ class VirshCommand(Command):
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
         return self.__check_vm_available(guest_name)
 
+    def getip_vm(self, guest_name):
+        guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
+        if guestip != "" and (not "can not get ip by mac" in guestip):
+            return guestip
+        else:
+            raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
+
     def shutdown_vm(self, guest_name):
         cmd = "virsh shutdown %s" % (guest_name)
         ret, output = self.run(cmd, timeout=None)

@@ -4,6 +4,7 @@ from utils.exception.failexception import FailException
 
 class VIRTWHOConstants(object):
     virt_who_cons = {
+                    "KVM_GUEST_NAME":"ESX_6.5_Server_x86_64",
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
                     "local_image_path" : "/root/images",
@@ -14,7 +15,7 @@ class VIRTWHOConstants(object):
 
                     "SAM_USER":"admin",
                     "SAM_PASS":"admin",
-                    
+
                     "ESX_HOST":"10.66.128.77",
                     "ESX_GUEST_NAME":"ESX_6.5_Server_x86_64",
 

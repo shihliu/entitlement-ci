@@ -355,6 +355,28 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % productid)
 
+    def sub_subscribe_sku(self, sku, targetmachine_ip=""):
+        ''' subscribe by sku. '''
+        availpoollist = self.sub_listavailpools(sku, targetmachine_ip)
+        if availpoollist != None:
+            rindex = -1
+            for index in range(0, len(availpoollist)):
+                if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku):
+                    rindex = index
+                    break
+                elif("ProductId" in availpoollist[index] and availpoollist[index]["ProductId"] == sku):
+                    rindex = index
+                    break
+            if rindex == -1:
+                raise FailException("Failed to show find the bonus pool")
+            if "PoolID" in availpoollist[index]:
+                poolid = availpoollist[rindex]["PoolID"]
+            else:
+                poolid = availpoollist[rindex]["PoolId"]
+            self.sub_subscribetopool(logger, poolid, targetmachine_ip)
+        else:
+            raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
+
     def sub_subscribetopool(self, poolid, targetmachine_ip=""):
         ''' subscribe to a pool. '''
         cmd = "subscription-manager subscribe --pool=%s" % (poolid)
@@ -366,6 +388,15 @@ class VIRTWHOBase(unittest.TestCase):
                 raise FailException("Failed to show correct information after subscribing %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+
+    def sub_unsubscribe(self, targetmachine_ip=""):
+        ''' unsubscribe from all entitlements. '''
+        cmd = "subscription-manager unsubscribe --all"
+        ret, output = self.runcmd(cmd, "unsubscribe all", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to unsubscribe all in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to unsubscribe all in %s." % self.get_hg_info(targetmachine_ip))
 
     def sub_listconsumed(self, productname, targetmachine_ip="", productexists=True):
         ''' list consumed entitlements. '''
@@ -490,6 +521,19 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to get all guest list in %s." % guest_path)
 
+    def vw_start_guests(self, guestname, targetmachine_ip=""):
+        VirshCommand().start_vm(guestname)
+
+    def vw_stop_guests(self, guestname, targetmachine_ip=""):
+        VirshCommand().shutdown_vm(guestname)
+
+    def kvm_get_guest_ip(self, guest_name):
+        ''' get guest ip address in kvm host '''
+        ipAddress = VirshCommand().getip_vm(guest_name)
+        if ipAddress == None or ipAddress == "":
+            raise FailException("Faild to get guest %s ip." % guest_name)
+        else:
+            return ipAddress
 
     #========================================================
     #     ESX Functions
