@@ -45,12 +45,35 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.kvm_bridge_setup(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
         if ret == 0:
             logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+
+    def kvm_bridge_setup(self, targetmachine_ip=""):
+        network_dev = ""
+        cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        if ret == 0:
+            network_dev = output.strip()
+            logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;cat > /etc/sysconfig/network-scripts/ifcfg-br0 <<EOF DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\nEOF" % (network_dev, network_dev)
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        if ret == 0:
+            logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "service network restart"
+        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        if ret == 0:
+            logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
