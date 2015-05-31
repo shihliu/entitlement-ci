@@ -423,10 +423,6 @@ class VIRTWHOBase(unittest.TestCase):
 
         cmd = "umount %s" % (image_mount_path)
         ret, output = self.runcmd(cmd, "umount images in host")
-        if ret == 0:
-            logger.info("Succeeded to umount %s." % (image_mount_path))
-        else:
-            raise FailException("Failed to umount %s." % (image_mount_path))
 
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
