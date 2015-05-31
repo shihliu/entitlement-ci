@@ -86,7 +86,7 @@ class VirshCommand(Command):
                 "    </memballoon>\n"
                 "  </devices>\n"
                 "</domain>\n"
-                "EOF") % (guest_name, guest_path)
+                "EOF") % (guest_name, guest_name, guest_path)
         ret, output = self.run(cmd, timeout=None)
         if ret == 0:
             logger.info("Succeeded to generate virsh define xml in /root/%s.xml " % guest_name)
