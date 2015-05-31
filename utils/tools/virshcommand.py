@@ -31,7 +31,6 @@ class VirshCommand(Command):
         cmd = ("cat > /root/%s.xml <<EOF\n"
                 "<domain type='kvm'>\n"
                 "  <name>%s</name>\n"
-                "  <uuid>e29811e2-cbba-7f38-ec26-9e71d427ac7e</uuid>\n"
                 "  <memory unit='KiB'>1048576</memory>\n"
                 "  <currentMemory unit='KiB'>1048576</currentMemory>\n"
                 "  <vcpu placement='static'>1</vcpu>\n"
