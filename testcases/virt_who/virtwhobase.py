@@ -405,7 +405,7 @@ class VIRTWHOBase(unittest.TestCase):
 #         self.runcmd(cmd, "create local images directory")
         cmd = "mkdir %s" % image_nfs_path
         self.runcmd(cmd, "create local nfs images directory")
-        cmd = "mount -r %s %s; sleep 30" % (image_server, image_mount_path)
+        cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
         ret, output = self.runcmd(cmd, "mount images in host")
         if ret == 0:
             logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
@@ -462,7 +462,7 @@ class VIRTWHOBase(unittest.TestCase):
         ret, output = self.runcmd(cmd, "get all guest in images folder", targetmachine_ip)
         if ret == 0 :
             logger.info("Succeeded to get all guest list in %s." % guest_path)
-            return output.split("\n")
+            return output.strip().split("\n")
         else:
             raise FailException("Failed to get all guest list in %s." % guest_path)
 
