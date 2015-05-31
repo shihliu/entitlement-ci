@@ -461,8 +461,9 @@ class VIRTWHOBase(unittest.TestCase):
         cmd = "ls %s" % guest_path
         ret, output = self.runcmd(cmd, "get all guest in images folder", targetmachine_ip)
         if ret == 0 :
-            logger.info("Succeeded to get all guest list in %s." % guest_path)
-            return output.strip().split("\n")
+            guest_list = output.strip().split("\n")
+            logger.info("Succeeded to get all guest list %s in %s." % (guest_list, guest_path))
+            return guest_list
         else:
             raise FailException("Failed to get all guest list in %s." % guest_path)
 
