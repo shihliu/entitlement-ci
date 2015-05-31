@@ -396,13 +396,13 @@ class VIRTWHOBase(unittest.TestCase):
     def mount_images(self):
         ''' mount the images prepared '''
         image_server = VIRTWHOConstants().get_constant("beaker_image_server")
-        image_path = VIRTWHOConstants().get_constant("local_image_path")
+#         image_path = VIRTWHOConstants().get_constant("local_image_path")
         image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
         image_mount_path = VIRTWHOConstants().get_constant("local_mount_point")
         cmd = "mkdir %s" % image_mount_path
         self.runcmd(cmd, "create local images mount point")
-        cmd = "mkdir %s" % image_path
-        self.runcmd(cmd, "create local images directory")
+#         cmd = "mkdir %s" % image_path
+#         self.runcmd(cmd, "create local images directory")
         cmd = "mkdir %s" % image_nfs_path
         self.runcmd(cmd, "create local nfs images directory")
         cmd = "mount -r %s %s; sleep 30" % (image_server, image_mount_path)
@@ -414,7 +414,7 @@ class VIRTWHOBase(unittest.TestCase):
 
         logger.info("Begin to copy guest images...")
 
-        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_path)
+        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
         ret, output = self.runcmd(cmd, "copy all kvm images")
 #         if ret == 0:
 #             logger.info("Succeeded to copy guest images to host machine.")
@@ -445,12 +445,12 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
-        cmd = "mount %s:%s %s" % ("127.0.0.1", image_nfs_path, image_path)
-        ret, output = self.runcmd(cmd, "mount nfs images in host machine")
-        if ret == 0 or "is busy or already mounted" in output:
-            logger.info("Succeeded to mount nfs images in host machine.")
-        else:
-            raise FailException("Failed to mount nfs images in host machine.")
+#         cmd = "mount %s:%s %s" % ("127.0.0.1", image_nfs_path, image_path)
+#         ret, output = self.runcmd(cmd, "mount nfs images in host machine")
+#         if ret == 0 or "is busy or already mounted" in output:
+#             logger.info("Succeeded to mount nfs images in host machine.")
+#         else:
+#             raise FailException("Failed to mount nfs images in host machine.")
 
     def vw_define_all_guests(self, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
