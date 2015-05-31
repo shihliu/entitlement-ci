@@ -62,7 +62,7 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;cat > /etc/sysconfig/network-scripts/ifcfg-br0 <<EOF DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\nEOF" % (network_dev, network_dev)
+        cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
         ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
         if ret == 0:
             logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
