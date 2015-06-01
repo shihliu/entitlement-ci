@@ -38,7 +38,7 @@ class VirshCommand(Command):
         self.list_vm()
 
     def define_xml_gen(self, guest_name, xml):
-        cmd = "echo %s /root/%s.xml> "(xml, guest_name)
+        cmd = "echo %s /root/%s.xml> " % (xml, guest_name)
         ret, output = self.run(cmd, timeout=None)
         if ret == 0:
             logger.info("Succeeded to generate virsh define xml in /root/%s.xml " % guest_name)
