@@ -4,6 +4,7 @@ Use virsh API to manipulate vms
 from utils import *
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
+from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class VirshCommand(Command):
 
@@ -18,8 +19,16 @@ class VirshCommand(Command):
         return self.start_vm(guest_name), "root", "redhat"
 
     def define_vm(self, guest_name, guest_path):
-        self.define_xml_gen(guest_name, guest_path)
-        cmd = "virsh define /root/%s.xml" % (guest_name)
+#         self.define_xml_gen(guest_name, guest_path)
+        params = {"guestname":guest_name, "guesttype":"kvm", "source": "switch", "ifacetype" : "bridge", "fullimagepath":guest_path }
+        xml_obj = XmlBuilder()
+        domain = xml_obj.add_domain(params)
+        xml_obj.add_disk(params, domain)
+        xml_obj.add_interface(params, domain)
+        dom_xml = xml_obj.build_domain(domain)
+        logger.info("Succeeded to generate define xml:%s." % dom_xml)
+#         cmd = "virsh define /root/%s.xml" % (guest_name)
+        cmd = "virsh define %s" % (dom_xml)
         ret, output = self.run(cmd, timeout=None)
         if ret == 0:
             logger.info("Succeeded to define guest %s." % guest_name)
@@ -171,8 +180,8 @@ class VirshCommand(Command):
                 return guestip
             if terminate_time < time.time():
                 raise OSError("Process timeout has been reached")
-            logger.debug("Check guest IP, wait 1 minute ...")
-            time.sleep(60)
+            logger.debug("Check guest IP, wait 10 seconds ...")
+            time.sleep(10)
 
     def __get_dom_mac_addr(self, domname):
         """
