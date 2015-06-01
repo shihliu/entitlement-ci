@@ -382,7 +382,7 @@ class VIRTWHOBase(unittest.TestCase):
                 poolid = availpoollist[rindex]["PoolID"]
             else:
                 poolid = availpoollist[rindex]["PoolId"]
-            self.sub_subscribetopool(logger, poolid, targetmachine_ip)
+            self.sub_subscribetopool(poolid, targetmachine_ip)
         else:
             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
 

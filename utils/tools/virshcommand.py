@@ -118,8 +118,9 @@ class VirshCommand(Command):
 
     def __check_vm_available(self, guest_name, timeout=600):
         terminate_time = time.time() + timeout
+        guest_mac = self.__get_dom_mac_addr(guest_name)
         while True:
-            guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name))
+            guestip = self.__mac_to_ip(guest_mac)
             if guestip != "" and (not "can not get ip by mac" in guestip):
                 return guestip
             if terminate_time < time.time():
