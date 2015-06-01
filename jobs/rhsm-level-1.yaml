@@ -95,7 +95,7 @@
             export SAM_HOSTNAME=$SAM_HOSTNAME
             
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
-            nosetests tc_ID115120_autosubscribe.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:

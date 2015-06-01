@@ -93,9 +93,13 @@
             export RUN_SERVER=sam
             export SAM_IP=$SAM_IP
             export SAM_HOSTNAME=$SAM_HOSTNAME
-            
+
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
-            nosetests tc_ID000000_ESX_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:
