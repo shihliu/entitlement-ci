@@ -117,13 +117,12 @@ class VirshCommand(Command):
             raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
 
     def shutdown_vm(self, guest_name):
-        cmd = "virsh shutdown %s" % (guest_name)
+        cmd = "virsh destroy %s" % (guest_name)
         ret, output = self.run(cmd, timeout=None)
         if ret == 0:
             logger.info("Succeeded to shutdown guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to shutdown guest %s." % guest_name)
-        time.sleep(180)
 
     def clone_vm(self, guest_name, cloned_guest_name):
         cmd = "virt-clone --original %s --name %s --file=/home/auto-imgs/%s.img" % (guest_name, cloned_guest_name, cloned_guest_name)

@@ -50,7 +50,7 @@ class tc_ID126097_validate_bonus_pool_creation(VIRTWHOBase):
                 self.sub_unregister(guestip)
             # unsubscribe host
             self.sub_unsubscribe()
-            self.esx_stop_guest(guest_name)
+            self.vw_stop_guests(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
