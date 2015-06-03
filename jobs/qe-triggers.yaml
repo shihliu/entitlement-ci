@@ -1,0 +1,132 @@
+- job-template:
+    name: 'qe-rhel-6-trigger'
+    node: master
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "RHEL-6.7-20150519.0" > BUILD.txt
+
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-template:
+    name: 'qe-rhel-7-trigger'
+    node: master
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "RHEL-7.1-20150219.1" > BUILD.txt
+
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-template:
+    name: 'qe-sam-1-4-trigger'
+    node: master
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "SAM-1.4.1-RHEL-6-20141113.0" > BUILD.txt
+
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-template:
+    name: 'qe-satellite-6-1-trigger'
+    node: master
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "Satellite-6.1.0-RHEL-7-20150513.0" > BUILD.txt
+
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-group:
+    name: qe-triggers
+    jobs:
+      - 'qe-rhel-6-trigger'
+      - 'qe-rhel-7-trigger'
+      - 'qe-sam-1-4-trigger'
+      - 'qe-satellite-6-1-trigger'
+
+- project:
+    name: qe-triggers-jobs
+    project:
+     - qe-triggers
