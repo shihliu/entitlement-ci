@@ -1,5 +1,5 @@
 - job-template:
-    name: 'virt-who-kvm-provision'
+    name: 'virt-who-kvm-rhel-7-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -49,7 +49,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'virt-who-kvm-runtest'
+          - project: 'virt-who-kvm-rhel-7-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -57,12 +57,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'virt-who-kvm-runtest'
+    name: 'virt-who-kvm-rhel-7-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'virt-who-kvm-provision'
+            project: 'virt-who-kvm-rhel-7-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -113,21 +113,21 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: virt-who-kvm-provision-runtest
+    name: virt-who-kvm-rhel-7-provision-runtest
     jobs:
-      - 'virt-who-kvm-provision'
-      - 'virt-who-kvm-runtest'
+      - 'virt-who-kvm-rhel-7-provision'
+      - 'virt-who-kvm-rhel-7-runtest'
 
 - project:
-    name: virt-who-kvm-jobs
+    name: virt-who-kvm-rhel-7-jobs
     project:
-     - virt-who-kvm
+     - virt-who-kvm-rhel-7
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_virt-who_kvm
+     - bkr_virt-who_kvm_rhel_7
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -135,9 +135,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - virt-who-kvm-provision-runtest
+      - virt-who-kvm-rhel-7-provision-runtest
     jslavename:
-     - jslave-virt-who-kvm-slave
+     - jslave-virt-who-kvm-rhel-7-slave
     jslave_execs:
      - 10
     jslaveimage:

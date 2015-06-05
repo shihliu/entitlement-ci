@@ -1,5 +1,5 @@
 - job-template:
-    name: 'virt-who-esx-provision'
+    name: 'virt-who-esx-rhel-6-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -49,7 +49,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-runtest'
+          - project: 'virt-who-esx-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -58,12 +58,12 @@
 
 
 - job-template:
-    name: 'virt-who-esx-runtest'
+    name: 'virt-who-esx-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'virt-who-esx-provision'
+            project: 'virt-who-esx-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -110,21 +110,21 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: virt-who-esx-provision-runtest
+    name: virt-who-esx-rhel-6-provision-runtest
     jobs:
-      - 'virt-who-esx-provision'
-      - 'virt-who-esx-runtest'
+      - 'virt-who-esx-rhel-6-provision'
+      - 'virt-who-esx-rhel-6-runtest'
 
 - project:
-    name: virt-who-esx-jobs
+    name: virt-who-esx-rhel-6-jobs
     project:
-     - virt-who-esx
+     - virt-who-esx-rhel-6
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_virt-who_esx
+     - bkr_virt-who_esx_rhel_6
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -132,9 +132,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - virt-who-esx-provision-runtest
+      - virt-who-esx-rhel-6-provision-runtest
     jslavename:
-     - jslave-virt-who-esx-slave
+     - jslave-virt-who-esx-rhel-6-slave
     jslave_execs:
      - 10
     jslaveimage:

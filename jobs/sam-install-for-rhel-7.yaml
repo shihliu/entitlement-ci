@@ -1,14 +1,10 @@
 - job-template:
-    name: 'qe-rhel-6-trigger-provision'
+    name: 'sam-install-for-rhel-7-provision'
     defaults: virt-who-provision
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
-              check-content:
-                - simple: true
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
     builders:
         - shell: |
             #!/bin/bash
@@ -30,7 +26,7 @@
 
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=qe-rhel-6-trigger
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7
 
             TR_STATUS=$?
 
@@ -50,7 +46,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'qe-rhel-6-trigger-runtest'
+          - project: 'sam-install-for-rhel-7-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -58,12 +54,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'qe-rhel-6-trigger-runtest'
+    name: 'sam-install-for-rhel-7-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'qe-rhel-6-trigger-provision'
+            project: 'sam-install-for-rhel-7-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -107,17 +103,17 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
+          - project: 'virt-who-esx-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SAMSERVER.txt
             fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
+          - project: 'virt-who-kvm-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SAMSERVER.txt
             fail-on-missing: true
-          - project: 'rhsm-level-1-provision'
+          - project: 'rhsm-level-1-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SAMSERVER.txt
@@ -125,15 +121,15 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: qe-rhel-6-trigger-provision-runtest
+    name: sam-install-for-rhel-7-provision-runtest
     jobs:
-      - 'qe-rhel-6-trigger-provision'
-      - 'qe-rhel-6-trigger-runtest'
+      - 'sam-install-for-rhel-7-provision'
+      - 'sam-install-for-rhel-7-runtest'
 
 - project:
-    name: qe-rhel-6-trigger-jobs
+    name: sam-install-for-rhel-7-jobs
     project:
-     - qe-rhel-6-trigger
+     - sam-install-for-rhel-7
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
@@ -147,9 +143,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - qe-rhel-6-trigger-provision-runtest
+      - sam-install-for-rhel-7-provision-runtest
     jslavename:
-     - jslave-qe-rhel-6-trigger-slave
+     - jslave-sam-install-for-rhel-7-slave
     jslave_execs:
      - 10
     jslaveimage:

@@ -1,11 +1,12 @@
 - job-template:
-    name: 'sam-install-provision'
+    name: 'virt-who-esx-rhel-7-provision'
     defaults: virt-who-provision
     node: master
-    triggers:
-        - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
     builders:
+        - copyartifact:
+            project: 'sam-install-runtest'
+            filter: 'SAMSERVER.txt'
+            target: $WORKSPACE
         - shell: |
             #!/bin/bash
 
@@ -16,7 +17,7 @@
             if [ "$JSLAVENAME" != "master" ]
             then
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
                 --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
 
@@ -26,7 +27,7 @@
 
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
 
             TR_STATUS=$?
 
@@ -38,6 +39,8 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
+            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
+
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -46,20 +49,21 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'sam-install-runtest'
+          - project: 'virt-who-esx-rhel-7-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
       - default-virt-who-publishers
 
+
 - job-template:
-    name: 'sam-install-runtest'
+    name: 'virt-who-esx-rhel-7-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'sam-install-provision'
+            project: 'virt-who-esx-rhel-7-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -86,56 +90,41 @@
             export REMOTE_IP=$beaker_ip
             export REMOTE_USER=root
             export REMOTE_PASSWD=xxoo2014
+            export RUN_SERVER=sam
+            export SAM_IP=$SAM_IP
+            export SAM_HOSTNAME=$SAM_HOSTNAME
 
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
-
-        - inject:
-            properties-file: $WORKSPACE/SAMSERVER.txt
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'rhsm-level-1-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: sam-install-provision-runtest
+    name: virt-who-esx-rhel-7-provision-runtest
     jobs:
-      - 'sam-install-provision'
-      - 'sam-install-runtest'
+      - 'virt-who-esx-rhel-7-provision'
+      - 'virt-who-esx-rhel-7-runtest'
 
 - project:
-    name: sam-install-jobs
+    name: virt-who-esx-rhel-7-jobs
     project:
-     - sam-install
+     - virt-who-esx-rhel-7
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - bkr_virt-who_esx_rhel_7
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -143,9 +132,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - sam-install-provision-runtest
+      - virt-who-esx-rhel-7-provision-runtest
     jslavename:
-     - jslave-sam-install-slave
+     - jslave-virt-who-esx-rhel-7-slave
     jslave_execs:
      - 10
     jslaveimage:

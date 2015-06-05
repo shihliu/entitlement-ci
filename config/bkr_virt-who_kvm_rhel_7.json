@@ -4,10 +4,11 @@
             "job_group": "Entitlement-QA",
             "recipesets": [
                 {
-                    "distro": "RHEL-6.5",
+                    "Family": "RedHatEnterpriseLinux7",
+                    "Tag":"RTT_ACCEPTED",
                     "arch": "X86_64",
-                    "keyvalue": ["DISKSPACE>=20000"],
                     "variant": "Server",
+                    "keyvalue": ["DISKSPACE>=20000"],
                     "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Master",
@@ -15,10 +16,11 @@
                     }
                 },
                 {
-                    "distro": "RHEL-6.4",
+                    "Family": "RedHatEnterpriseLinux7",
+                    "Tag":"RTT_ACCEPTED",
                     "arch": "X86_64",
-                    "keyvalue": ["DISKSPACE>=20000"],
                     "variant": "Server",
+                    "keyvalue": ["DISKSPACE>=20000"],
                     "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Slave",

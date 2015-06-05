@@ -1,15 +1,12 @@
 - job-template:
-    name: 'qe-sam-1-4-trigger-provision'
+    name: 'virt-who-kvm-rhel-6-provision'
     defaults: virt-who-provision
     node: master
-    triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
-              check-content:
-                - simple: true
     builders:
+        - copyartifact:
+            project: 'sam-install-runtest'
+            filter: 'SAMSERVER.txt'
+            target: $WORKSPACE
         - shell: |
             #!/bin/bash
 
@@ -20,7 +17,7 @@
             if [ "$JSLAVENAME" != "master" ]
             then
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
                 --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
 
@@ -28,9 +25,9 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
-            # Provision Test Resources
+            # Provision Test Resources Master Machine And Slave Machine
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=qe-sam-1-4-trigger
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
 
             TR_STATUS=$?
 
@@ -42,6 +39,8 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
+            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
+
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -50,7 +49,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'qe-sam-1-4-trigger-runtest'
+          - project: 'virt-who-kvm-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -58,12 +57,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'qe-sam-1-4-trigger-runtest'
+    name: 'virt-who-kvm-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'qe-sam-1-4-trigger-provision'
+            project: 'virt-who-kvm-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -86,60 +85,49 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip
+            EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
+            EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
+            beaker_ip_1=`ping $EXISTING_NODES_1 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip_1
+            export REMOTE_IP_2=$beaker_ip_2
             export REMOTE_USER=root
             export REMOTE_PASSWD=xxoo2014
+            export RUN_SERVER=sam
+            export SAM_IP=$SAM_IP
+            export SAM_HOSTNAME=$SAM_HOSTNAME
 
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            nosetests virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
-
-        - inject:
-            properties-file: $WORKSPACE/SAMSERVER.txt
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'rhsm-level-1-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: qe-sam-1-4-trigger-provision-runtest
+    name: virt-who-kvm-rhel-6-provision-runtest
     jobs:
-      - 'qe-sam-1-4-trigger-provision'
-      - 'qe-sam-1-4-trigger-runtest'
+      - 'virt-who-kvm-rhel-6-provision'
+      - 'virt-who-kvm-rhel-6-runtest'
 
 - project:
-    name: qe-sam-1-4-trigger-jobs
+    name: virt-who-kvm-rhel-6-jobs
     project:
-     - qe-sam-1-4-trigger
+     - virt-who-kvm-rhel-6
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - bkr_virt-who_kvm_rhel_6
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -147,9 +135,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - qe-sam-1-4-trigger-provision-runtest
+      - virt-who-kvm-rhel-6-provision-runtest
     jslavename:
-     - jslave-qe-sam-1-4-trigger-slave
+     - jslave-virt-who-kvm-rhel-6-slave
     jslave_execs:
      - 10
     jslaveimage:
