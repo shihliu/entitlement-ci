@@ -88,7 +88,7 @@
             export REMOTE_PASSWD=xxoo2014
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_install_1_4.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests sam_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt

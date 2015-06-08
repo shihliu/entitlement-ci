@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhsm-level-1-provision'
+    name: 'rhsm-level-1-rhel-6-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -49,7 +49,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhsm-level-1-runtest'
+          - project: 'rhsm-level-1-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -58,12 +58,12 @@
 
 
 - job-template:
-    name: 'rhsm-level-1-runtest'
+    name: 'rhsm-level-1-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhsm-level-1-provision'
+            project: 'rhsm-level-1-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -106,21 +106,21 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: rhsm-level-1-provision-runtest
+    name: rhsm-level-1-rhel-6-provision-runtest
     jobs:
-      - 'rhsm-level-1-provision'
-      - 'rhsm-level-1-runtest'
+      - 'rhsm-level-1-rhel-6-provision'
+      - 'rhsm-level-1-rhel-6-runtest'
 
 - project:
-    name: rhsm-level-1
+    name: rhsm-level-1-rhel-6
     project:
-     - rhsm-level-1
+     - rhsm-level-1-rhel-6
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_virt-who_esx
+     - bkr_rhsm_rhel_6
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -128,9 +128,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-     - rhsm-level-1-provision-runtest
+     - rhsm-level-1-rhel-6-provision-runtest
     jslavename:
-     - jslave-rhsm-level-1-slave
+     - jslave-rhsm-level-1-rhel-6-slave
     jslave_execs:
      - 10
     jslaveimage:

@@ -1,0 +1,21 @@
+{
+    "resources": [
+        {
+            "job_group": "Entitlement-QA",
+            "recipesets": [
+                {
+                    "Family": "RedHatEnterpriseLinux7",
+                    "Tag":"RTT_ACCEPTED",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "keyvalue": ["DISKSPACE>=20000"],
+                    "hostrequire": ["arch=X86_64", "memory>=1000"],
+                    "bkr_data": {
+                        "role": "rhsm-rhel-7",
+                        "name": "rhsm-rhel-7-Machine"
+                    }
+                }
+            ]
+        }
+   ]
+}

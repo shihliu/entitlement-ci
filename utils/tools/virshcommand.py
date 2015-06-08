@@ -148,7 +148,7 @@ class VirshCommand(Command):
         """
         if not mac:
             raise FailException("Failed to get guest mac ...")
-        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ | sleep 10 | chmod 777 /root/ipget.sh"
+        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh"
         ret, output = self.run(generate_ipget_cmd)
         if ret == 0 or "already there" in output:
             logger.info("Succeeded to wget ipget.sh to /root/.")
