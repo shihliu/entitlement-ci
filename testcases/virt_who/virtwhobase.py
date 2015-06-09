@@ -544,6 +544,25 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             return ipAddress
 
+    def vw_migrate_guest(self, guestname, target_machine, origin_machine=""):
+        ''' migrate a guest from source machine to target machine. '''
+        uri = "qemu+ssh://%s/system" % target_machine
+        cmd = "virsh migrate --live %s %s --undefinesource" % (guestname, uri)
+        ret, output = self.runcmd(cmd, "migrate guest from master to slave machine", origin_machine, "root", "xxoo2014")
+        if ret == 0:
+            logger.info("Succeeded to migrate guest '%s' to %s." % (guestname, target_machine))
+        else:
+            raise FailException("Failed to migrate guest '%s' to %s." % (guestname, target_machine))
+
+    def vw_undefine_guest(self, guestname, targetmachine_ip=""):
+        ''' undefine guest in host machine. '''
+        cmd = "virsh undefine %s" % guestname
+        ret, output = self.runcmd(cmd, "undefine guest in %s" % targetmachine_ip, targetmachine_ip)
+        if "Domain %s has been undefined" % guestname in output:
+            logger.info("Succeeded to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
+        else:
+            raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
+
     #========================================================
     #     ESX Functions
     #========================================================
