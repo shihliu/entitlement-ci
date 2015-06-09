@@ -8,7 +8,7 @@
                     "Tag":"RTT_ACCEPTED",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "keyvalue": ["DISKSPACE>=20000"],
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
                     "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Master",
@@ -20,7 +20,7 @@
                     "Tag":"RTT_ACCEPTED",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "keyvalue": ["DISKSPACE>=20000"],
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
                     "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Slave",
