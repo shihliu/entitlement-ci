@@ -599,7 +599,7 @@ class VIRTWHOBase(unittest.TestCase):
         ret, output = self.runcmd_esx(cmd, "add guest '%s' to ESX '%s'" % (guest_name, destination_ip), destination_ip)
         if ret == 0:
             # need to wait 30 s for add sucess
-            time.sleep(60)
+#             time.sleep(10)
             logger.info("Succeeded to add guest '%s' to ESX host" % guest_name)
         else:
             if "AlreadyExists" in output:
