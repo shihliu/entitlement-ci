@@ -12,8 +12,10 @@ class VIRTWHOBase(unittest.TestCase):
 
     def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         if targetmachine_ip != None and targetmachine_ip != "":
-#             if targetmachine_user != None and targetmachine_user != "":
-            commander = Command(targetmachine_ip, "root", "red2015")
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
         else:
             commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
 #         else:

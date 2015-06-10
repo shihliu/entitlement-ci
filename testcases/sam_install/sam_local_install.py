@@ -11,7 +11,7 @@ class SAM_LOCAL_INSTALL(SAM_Install_Base):
     def install_host(self):
         host_ip = "10.66.144.13"
         host_user = "root"
-        host_passwd = "gaoshang"
+        host_passwd = "red2015"
         return host_ip, host_user, host_passwd
 
     def install_guest(self, host_ip, host_user, host_passwd, guest_name, guest_compose=default_rhel_build):

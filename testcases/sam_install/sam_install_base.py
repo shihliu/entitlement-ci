@@ -4,12 +4,14 @@ from utils.exception.failexception import FailException
 
 class SAM_Install_Base(unittest.TestCase):
 
-
     def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None):
         if targetmachine_ip != None and targetmachine_ip != "":
-            commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
         else:
-            commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, cmddesc)
 
     def install_sam(self, compose, server_ip=None, server_user=None, server_passwd=None):

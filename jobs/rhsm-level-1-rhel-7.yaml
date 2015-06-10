@@ -88,8 +88,6 @@
 
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
-            export REMOTE_USER=root
-            export REMOTE_PASSWD=xxoo2014
             export RUN_SERVER=sam
             export SAM_IP=$SAM_IP
             export SAM_HOSTNAME=$SAM_HOSTNAME
