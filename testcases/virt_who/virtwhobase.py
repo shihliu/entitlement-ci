@@ -42,7 +42,7 @@ class VIRTWHOBase(unittest.TestCase):
         # system setup for virt-who testing
         # cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -50,7 +50,7 @@ class VIRTWHOBase(unittest.TestCase):
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -59,20 +59,20 @@ class VIRTWHOBase(unittest.TestCase):
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
         cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
         if ret == 0:
             network_dev = output.strip()
             logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "service network restart"
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 #         else:
@@ -80,7 +80,7 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
-        ret, output = self.runcmd(cmd, targetmachine_ip, targetmachine_user="root", targetmachine_pass="xxoo2014")
+        ret, output = self.runcmd(cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -137,44 +137,16 @@ class VIRTWHOBase(unittest.TestCase):
         self.mount_images()
         # add guests in host machine.
         self.vw_define_all_guests()
-
-
-# (9)set up env for migration if needed
-# if params.has_key("targetmachine_ip") and params.has_key("targetmachine_hostname"):
-# logger.info("-------- Begin to set up env for migration -------- ")
-# targetmachine_ip = params["targetmachine_ip"]
-# targetmachine_hostname = params["targetmachine_hostname"]
-# # 1)mount image path in target machine
-# eu().mount_images_in_targetmachine( targetmachine_ip, ee.imagenfspath, ee.imagepath)
-# # 2)mount the rhsm log of the target machine into source machine.
-# eu().mount_rhsmlog_of_targetmachine( targetmachine_ip, ee.rhsmlog_for_targetmachine)
-# # 3)update /etc/hosts file
-# eu().update_hosts_file( targetmachine_ip, targetmachine_hostname)
-# # 4)set cpu socket
-# eu().set_cpu_socket( targetmachine_ip=targetmachine_ip)
-# # 5)stop firewall of two host machines for migration
-# eu().stop_firewall(logger)
-# eu().stop_firewall( targetmachine_ip)
-# # 6)update xen configuration file /etc/xen/xend-config.sxp of two host machines for migration to 
-# # make sure contain necessary config options, and then restart service xend.
-# if testtype == "xen":
-# eu().update_xen_configure(logger)
-# eu().update_xen_configure( targetmachine_ip)
-# # 7)configure and register the host
-# if not eu().sub_isregistered( targetmachine_ip):
-# eu().configure_host( params.get("samhostname"), params.get("samhostip"), targetmachine_ip)
-# username = eu().get_env(logger)["username"]
-# password = eu().get_env(logger)["password"]
-# eu().sub_register( username, password, targetmachine_ip)
-# # disable autopool on remote host
-# eu().sub_autopool( "disable", targetmachine_ip)
-# # 8)update virt-who configure file
-# eu().update_vw_configure( targetmachine_ip=targetmachine_ip)
-# # 9)restart virt-who service in target machine
-# eu().vw_restart_virtwho( targetmachine_ip)
-# logger.info("-------- End to set up env for migration -------- ")
-# else:
-# logger.info("There is no target machine ip/hostname provided, so does not setup env for migration.")
+        # configure slave machine
+        slave_machine_ip = get_exported_param("REMOTE_IP_2")
+        if slave_machine_ip != None and slave_machine_ip != "":
+            # configure and register the host
+            if not self.sub_isregistered(slave_machine_ip):
+                self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
+                self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
+            self.mount_images_in_slave_machine(slave_machine_ip)
+            self.update_vw_configure(slave_machine_ip)
+            self.vw_restart_virtwho(slave_machine_ip)
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
@@ -550,7 +522,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' migrate a guest from source machine to target machine. '''
         uri = "qemu+ssh://%s/system" % target_machine
         cmd = "virsh migrate --live %s %s --undefinesource" % (guestname, uri)
-        ret, output = self.runcmd(cmd, "migrate guest from master to slave machine", origin_machine, "root", "xxoo2014")
+        ret, output = self.runcmd(cmd, "migrate guest from master to slave machine", origin_machine)
         if ret == 0:
             logger.info("Succeeded to migrate guest '%s' to %s." % (guestname, target_machine))
         else:
@@ -564,6 +536,26 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
         else:
             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
+
+    def mount_images_in_slave_machine(self, targetmachine_ip, imagenfspath, imagepath):
+        ''' mount images in master machine to slave_machine. '''
+        cmd = "test -d %s" % (imagepath)
+        ret, output = self.runcmd(cmd, "check images dir exist", targetmachine_ip)
+        if ret == 1:
+            cmd = "mkdir -p %s" % (imagepath)
+            ret, output = self.runcmd(cmd, "create image path in the slave_machine", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to create imagepath in the slave_machine.")
+            else:
+                raise FailException("Failed to create imagepath in the slave_machine.")
+        # mount image path of source machine into just created image path in slave_machine
+        master_machine_ip = get_exported_param("REMOTE_IP_2")
+        cmd = "mount %s:%s %s" % (master_machine_ip, imagenfspath, imagepath)
+        ret, output = self.runcmd(cmd, "mount images in the slave_machine", targetmachine_ip)
+        if ret == 0 or "is busy or already mounted" in output:
+            logger.info("Succeeded to mount images in the slave_machine.")
+        else:
+            raise FailException("Failed to mount images in the slave_machine.")
 
     #========================================================
     #     ESX Functions
