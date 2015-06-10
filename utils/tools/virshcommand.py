@@ -31,7 +31,7 @@ class VirshCommand(Command):
 #         cmd = "virsh define /root/%s.xml" % (guest_name)
         cmd = "virsh define /root/%s.xml" % (guest_name)
         ret, output = self.run(cmd, timeout=None)
-        if ret == 0:
+        if ret == 0 or "already exists" in output:
             logger.info("Succeeded to define guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to define guest %s." % guest_name)
