@@ -32,7 +32,7 @@ class VIRTWHOBase(unittest.TestCase):
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
 #         cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "install virt-who for esx testing")
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
@@ -42,7 +42,7 @@ class VIRTWHOBase(unittest.TestCase):
         # system setup for virt-who testing
         # cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -59,20 +59,20 @@ class VIRTWHOBase(unittest.TestCase):
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
         cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
         if ret == 0:
             network_dev = output.strip()
             logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "service network restart"
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
 #         if ret == 0:
 #             logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 #         else:
@@ -80,7 +80,7 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "setup kvm permission", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
         else:
