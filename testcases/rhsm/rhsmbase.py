@@ -13,9 +13,9 @@ class RHSMBase(unittest.TestCase):
             if targetmachine_user != None and targetmachine_user != "":
                 commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
             else:
-                commander = Command(targetmachine_ip, "root", "redhat")
+                commander = Command(targetmachine_ip, "root", "red2015")
         else:
-            commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, cmddesc)
 
 #     def runcmd_remote(self, remoteIP, username, password, cmd):
