@@ -13,8 +13,8 @@ class Command(object):
             logger.info("command run in: %s" % self.remote_ip)
         else:
             self.remote_ip = get_exported_param("REMOTE_IP")
-            self.username = get_exported_param("REMOTE_USER")
-            self.password = get_exported_param("REMOTE_PASSWD")
+            self.username = "root"
+            self.password = "red2015"
             logger.info("command run in: %s" % self.remote_ip)
 
     def run(self, cmd, timeout=None, comments=True):
