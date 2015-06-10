@@ -7,7 +7,7 @@ class VIRTWHOConstants(object):
                     "KVM_GUEST_NAME":"6.5_Server_x86_64",
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
-                    "local_image_path" : "/root/images",
+#                     "local_image_path" : "/root/images",
                     "nfs_image_path" : "/root/images_nfs",
                     "local_mount_point" : "/tmp/images_mnt",
 

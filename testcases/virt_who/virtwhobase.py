@@ -144,7 +144,8 @@ class VIRTWHOBase(unittest.TestCase):
             if not self.sub_isregistered(slave_machine_ip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
                 self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
-            self.mount_images_in_slave_machine(slave_machine_ip)
+            image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
+            self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
             self.vw_restart_virtwho(slave_machine_ip)
 
