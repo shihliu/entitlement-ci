@@ -50,7 +50,7 @@ class VIRTWHOBase(unittest.TestCase):
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"
-        ret, output = self.runcmd(cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         else:
