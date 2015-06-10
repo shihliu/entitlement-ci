@@ -550,7 +550,7 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 raise FailException("Failed to create imagepath in the slave_machine.")
         # mount image path of source machine into just created image path in slave_machine
-        master_machine_ip = get_exported_param("REMOTE_IP_2")
+        master_machine_ip = get_exported_param("REMOTE_IP")
         cmd = "mount %s:%s %s" % (master_machine_ip, imagenfspath, imagepath)
         ret, output = self.runcmd(cmd, "mount images in the slave_machine", targetmachine_ip)
         if ret == 0 or "is busy or already mounted" in output:
