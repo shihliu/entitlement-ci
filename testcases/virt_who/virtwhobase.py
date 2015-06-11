@@ -423,7 +423,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' setup ssh tunnel between two host machines. '''
         logger.info("setup ssh tunnel between master machine %s and slave machine %s." % (master_machine_ip, slave_machine_ip))
         user_host = "%s@%s" % ("root", master_machine_ip)
-        import pexpect
+        import utils.tools.pexpect as pexpect
         child = pexpect.spawn("ssh", [user_host, "echo 'try to get access to master machine by ssh command.'"])
         while True:
             index = child.expect(['yes\/no', 'password: ',
