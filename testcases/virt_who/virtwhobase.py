@@ -25,6 +25,16 @@ class VIRTWHOBase(unittest.TestCase):
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout, showlogger)
 
+    def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        if targetmachine_ip != None and targetmachine_ip != "":
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
+        else:
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run_interact(cmd, timeout, cmddesc)
+
 #     def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
 #         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
@@ -419,41 +429,6 @@ class VIRTWHOBase(unittest.TestCase):
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
-    def set_ssh_tunnel(self, master_machine_ip, slave_machine_ip):
-        ''' setup ssh tunnel between two host machines. '''
-        logger.info("setup ssh tunnel between master machine %s and slave machine %s." % (master_machine_ip, slave_machine_ip))
-        user_host = "%s@%s" % ("root", master_machine_ip)
-        import utils.tools.pexpect as pexpect
-        child = pexpect.spawn("ssh", [user_host, "echo 'try to get access to master machine by ssh command.'"])
-        while True:
-            index = child.expect(['yes\/no', 'password: ',
-                pexpect.EOF,
-                pexpect.TIMEOUT])
-            if index == 0:
-                child.sendline("yes")
-            elif index == 1:
-                child.sendline("red2015")
-            elif index == 2:
-                child.close()
-                logger.info("setup tunnel completed, the result is: %s" % child.exitstatus)
-                break
-            elif index == 3:
-                child.close()
-                raise FailException("Failed to setup ssh tunnel.")
-        # copy all files in /root/.ssh in master machine to slave machine
-        cmd = "scp /root/.ssh/* root@%s:/root/.ssh/" % slave_machine_ip
-        (ret, output) = self.runcmd(cmd, "scp /root/.ssh/* to slave machine")
-        if ret == 0:
-            logger.info("Succeeded to copy all file in /root/.ssh to slave machine: '%s'." % slave_machine_ip)
-        else:
-            raise FailException("Failed to copy all file in /root/.ssh to slave machine: '%s'." % slave_machine_ip)
-        cmd = "scp root@%s:/root/.ssh/authorized_keys /root/.ssh/" % slave_machine_ip
-        (ret, output) = self.runcmd(cmd, "scp /root/.ssh/authorized_keys to master machine")
-        if ret == 0:
-            logger.info("Succeeded to copy slave authorized_keys to master machine: '%s'." % master_machine_ip)
-        else:
-            raise FailException("Failed to copy slave authorized_keys to master machine: '%s'." % master_machine_ip)
-
 
     #========================================================
     #     KVM Functions
@@ -559,7 +534,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' migrate a guest from source machine to target machine. '''
         uri = "qemu+ssh://%s/system" % target_machine
         cmd = "virsh migrate --live %s %s --undefinesource" % (guestname, uri)
-        ret, output = self.runcmd(cmd, "migrate guest from master to slave machine", origin_machine)
+        ret, output = self.runcmd_interact(cmd, "migrate guest from master to slave machine", origin_machine)
         if ret == 0:
             logger.info("Succeeded to migrate guest '%s' to %s." % (guestname, target_machine))
         else:

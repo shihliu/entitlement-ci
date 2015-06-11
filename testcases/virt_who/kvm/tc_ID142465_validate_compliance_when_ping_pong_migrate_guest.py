@@ -37,7 +37,6 @@ class tc_ID142465_validate_compliance_when_ping_pong_migrate_guest(VIRTWHOBase):
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
-            self.set_ssh_tunnel(master_machine_ip, slave_machine_ip)
             # migrate guest to slave machine
             self.vw_migrate_guest(guest_name, slave_machine_ip)
 #             time.sleep(60)

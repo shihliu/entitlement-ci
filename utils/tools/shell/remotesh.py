@@ -109,3 +109,20 @@ class RemoteSH(object):
                 except socket.timeout:
                     logger.debug("SSH channel timeout exceeded ...")
                     return -1, "SSH channel timeout exceeded ..."
+
+    def run_paramiko_interact(self, cmd, remote_ip, username, password, timeout=None):
+        """Execute the given commands in an interactive shell."""
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(remote_ip, 22, username, password)
+        chan = ssh.invoke_shell()
+        stdout = ""
+        while True:
+            stdout += chan.recv(9999)
+            if stdout.endswith('yes/no)?'):
+                chan.send("yes" + '\n')
+            if stdout.endswith('\'s password:'):
+                chan.send("red2015")
+            if stdout.endswith(']#'):
+                retcode = chan.recv_exit_status()
+                return retcode, stdout

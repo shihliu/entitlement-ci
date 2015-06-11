@@ -23,3 +23,7 @@ class Command(object):
         else:
             ret, output = RemoteSH.remote_run(cmd, self.remote_ip, self.username, self.password, timeout, comments)
         return ret, output
+
+    def run_interact(self, cmd, timeout=None, comments=True):
+        ret, output = RemoteSH.run_paramiko_interact(cmd, self.remote_ip, self.username, self.password, timeout)
+        return ret, output
