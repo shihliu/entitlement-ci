@@ -441,7 +441,7 @@ class VIRTWHOBase(unittest.TestCase):
                 child.close()
                 raise FailException("Failed to setup ssh tunnel.")
         # copy all files in /root/.ssh in master machine to slave machine
-        cmd = "scp /root/.ssh/* root@%s:/root/.ssh/" % master_machine_ip
+        cmd = "scp /root/.ssh/* root@%s:/root/.ssh/" % slave_machine_ip
         (ret, output) = self.runcmd(cmd, "scp /root/.ssh/* to slave machine")
         if ret == 0:
             logger.info("Succeeded to copy all file in /root/.ssh to slave machine: '%s'." % slave_machine_ip)
