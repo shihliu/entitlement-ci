@@ -419,6 +419,42 @@ class VIRTWHOBase(unittest.TestCase):
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
+    def set_ssh_tunnel(self, master_machine_ip, slave_machine_ip):
+        ''' setup ssh tunnel between two host machines. '''
+        logger.info("setup ssh tunnel between master machine %s and slave machine %s." % (master_machine_ip, slave_machine_ip))
+        user_host = "%s@%s" % ("root", master_machine_ip)
+        import pexpect
+        child = pexpect.spawn("ssh", [user_host, "echo 'try to get access to master machine by ssh command.'"])
+        while True:
+            index = child.expect(['yes\/no', 'password: ',
+                pexpect.EOF,
+                pexpect.TIMEOUT])
+            if index == 0:
+                child.sendline("yes")
+            elif index == 1:
+                child.sendline("red2015")
+            elif index == 2:
+                child.close()
+                logger.info("setup tunnel completed, the result is: %s" % child.exitstatus)
+                break
+            elif index == 3:
+                child.close()
+                raise FailException("Failed to setup ssh tunnel.")
+        # copy all files in /root/.ssh in master machine to slave machine
+        cmd = "scp /root/.ssh/* root@%s:/root/.ssh/" % master_machine_ip
+        (ret, output) = self.runcmd(cmd, "scp /root/.ssh/* to slave machine")
+        if ret == 0:
+            logger.info("Succeeded to copy all file in /root/.ssh to slave machine: '%s'." % slave_machine_ip)
+        else:
+            raise FailException("Failed to copy all file in /root/.ssh to slave machine: '%s'." % slave_machine_ip)
+        cmd = "scp root@%s:/root/.ssh/authorized_keys /root/.ssh/" % slave_machine_ip
+        (ret, output) = self.runcmd(cmd, "scp /root/.ssh/authorized_keys to master machine")
+        if ret == 0:
+            logger.info("Succeeded to copy slave authorized_keys to master machine: '%s'." % master_machine_ip)
+        else:
+            raise FailException("Failed to copy slave authorized_keys to master machine: '%s'." % master_machine_ip)
+
+
     #========================================================
     #     KVM Functions
     #========================================================
