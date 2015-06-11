@@ -110,6 +110,7 @@ class RemoteSH(object):
                     logger.debug("SSH channel timeout exceeded ...")
                     return -1, "SSH channel timeout exceeded ..."
 
+    @classmethod
     def run_paramiko_interact(self, cmd, remote_ip, username, password, timeout=None):
         """Execute the given commands in an interactive shell."""
         ssh = paramiko.SSHClient()
