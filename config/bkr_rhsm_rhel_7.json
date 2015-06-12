@@ -5,7 +5,7 @@
             "recipesets": [
                 {
                     "Family": "RedHatEnterpriseLinux7",
-                    "tag":"RTT_ACCEPTED",
+                    "tag": ["RTT_ACCEPTED"],
                     "arch": "X86_64",
                     "variant": "Server",
                     "keyvalue": ["DISKSPACE>=20000"],
