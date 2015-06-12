@@ -1,7 +1,7 @@
 '''
 Run command in remote machine with paramiko
 '''
-import sys, re
+import sys, re,time
 # import pexpect
 from utils import logger
 
@@ -117,13 +117,21 @@ class RemoteSH(object):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(remote_ip, 22, username, password)
         chan = ssh.invoke_shell()
-        stdout = ""
+        chan.send(cmd + '\n')
+        terminate_time = time.time() + 3600
         while True:
-            stdout += chan.recv(9999)
-            if stdout.endswith('yes/no)?'):
+            stdout = chan.recv(9999)
+            logger.debug("stdout:%s" % stdout)
+            if stdout.strip().endswith('yes/no)?'):
+                logger.debug("interactive input: yes")
                 chan.send("yes" + '\n')
-            if stdout.endswith('\'s password:'):
-                chan.send("red2015")
-            if stdout.endswith(']#'):
-                retcode = chan.recv_exit_status()
-                return retcode, stdout
+            if stdout.strip().endswith('\'s password:'):
+                logger.debug("interactive input: red2015")
+                chan.send("red2015" + '\n')
+            if "interact_done" in stdout:
+                return 0, "interact_done"
+            if "interact_error" in stdout:
+                return -1, "interact_error"
+            if terminate_time < time.time():
+                logger.debug("Command timeout exceeded ...")
+                return -1, "Command timeout exceeded ..."

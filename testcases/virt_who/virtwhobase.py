@@ -59,6 +59,7 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
+        self.stop_firewall(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:
@@ -95,6 +96,28 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
+
+    def stop_firewall(self, targetmachine_ip=""):
+        ''' stop iptables service and setenforce as 0. '''
+        # stop iptables service
+        cmd = "service iptables stop"
+        ret, output = self.runcmd(cmd, "Stop iptables service", targetmachine_ip)
+        cmd = "service iptables status"
+        ret, output = self.runcmd(cmd, "Chech iptables service status", targetmachine_ip)
+        if ("Firewall is stopped" in output) or ("Firewall is not running" in output) or ("Active: inactive" in output):
+            logger.info("Succeeded to stop iptables service.")
+        else:
+            raise FailException("Failed to stop iptables service.")
+        # setenforce as 0
+        cmd = "setenforce 0"
+        ret, output = self.runcmd(cmd, "Set setenforce 0", targetmachine_ip)
+        cmd = "getenforce"
+        ret, output = self.runcmd(logger, cmd, "Get setenforce 0", targetmachine_ip)
+        if ret == 0 and "Permissive" in output:
+            logger.info("Succeeded to setenforce as 0.")
+        else:
+            raise FailException("Failed to setenforce as 0.")
+        #unfinished, close firewall and iptables for ever 
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
