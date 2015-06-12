@@ -114,24 +114,28 @@ class RemoteSH(object):
     def run_paramiko_interact(self, cmd, remote_ip, username, password, timeout=None):
         """Execute the given commands in an interactive shell."""
         ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(remote_ip, 22, username, password)
-        chan = ssh.invoke_shell()
-        chan.send(cmd + '\n')
-        terminate_time = time.time() + 3600
+        channel = ssh.get_transport().open_session()
+        channel.settimeout(600)
+        channel.get_pty()
+        channel.exec_command(cmd)
+        output = ""
         while True:
-            stdout = chan.recv(9999)
-            logger.debug("stdout:%s" % stdout)
-            if stdout.strip().endswith('yes/no)?'):
-                logger.debug("interactive input: yes")
-                chan.send("yes" + '\n')
-            if stdout.strip().endswith('\'s password:'):
-                logger.debug("interactive input: red2015")
-                chan.send("red2015" + '\n')
-            if stdout.strip().endswith('interact_done'):
-                return 0, "interact_done"
-            if stdout.strip().endswith('interact_error'):
-                return -1, "interact_error"
-            if terminate_time < time.time():
-                logger.debug("Command timeout exceeded ...")
-                return -1, "Command timeout exceeded ..."
+            data = channel.recv(1048576)
+            output += data
+            logger.debug("output: %s" % data)
+            if channel.send_ready():
+                if data.strip().endswith('yes/no)?'):
+                    logger.debug("interactive input: yes")
+                    channel.send("yes" + '\n')
+                if data.strip().endswith('\'s password:'):
+                    logger.debug("interactive input: red2015")
+                    channel.send("red2015" + '\n')
+                if channel.exit_status_ready():
+                    break
+        if channel.recv_ready():
+            data = channel.recv(1048576)
+            output += data
+        return channel.recv_exit_status(), output

@@ -25,12 +25,11 @@ class Command(object):
         return ret, output
 
     def run_interact(self, cmd, timeout=None, comments=True):
-        pack_cmd = cmd + " && echo interact_done || echo interact_error"
-        ret, output = RemoteSH.run_paramiko_interact(pack_cmd, self.remote_ip, self.username, self.password, timeout)
+        ret, output = RemoteSH.run_paramiko_interact(cmd, self.remote_ip, self.username, self.password, timeout)
         return ret, output
 
 if __name__ == "__main__":
     commander = Command("10.34.35.76", "root", "red2015")
-    cmd = "virsh migrate --live 5.10_Server_x86_64 qemu+ssh://10.16.67.184/system --undefinesource && echo interact_done || echo interact_error"
-#     cmd = "scp /root/images_nfs/test.xml root@10.16.67.184:/root/ && echo interact_done || echo interact_error"
+#     cmd = "virsh migrate --live 5.10_Server_x86_64 qemu+ssh://10.16.67.184/system --undefinesource"
+    cmd = "scp /root/images_nfs/test.xml root@10.16.67.184:/root/"
     print commander.run_interact(cmd)
