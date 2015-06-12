@@ -128,9 +128,9 @@ class RemoteSH(object):
             if stdout.strip().endswith('\'s password:'):
                 logger.debug("interactive input: red2015")
                 chan.send("red2015" + '\n')
-            if "interact_done" in stdout:
+            if stdout.strip().endswith('interact_done'):
                 return 0, "interact_done"
-            if "interact_error" in stdout:
+            if stdout.strip().endswith('interact_error'):
                 return -1, "interact_error"
             if terminate_time < time.time():
                 logger.debug("Command timeout exceeded ...")
