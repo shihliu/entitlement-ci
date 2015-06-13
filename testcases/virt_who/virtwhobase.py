@@ -111,8 +111,8 @@ class VIRTWHOBase(unittest.TestCase):
         # setenforce as 0
         cmd = "setenforce 0"
         ret, output = self.runcmd(cmd, "Set setenforce 0", targetmachine_ip)
-        cmd = "getenforce"
-        ret, output = self.runcmd(logger, cmd, "Get setenforce 0", targetmachine_ip)
+        cmd = "sestatus"
+        ret, output = self.runcmd(cmd, "Check selinux status", targetmachine_ip)
         if ret == 0 and "Permissive" in output:
             logger.info("Succeeded to setenforce as 0.")
         else:
