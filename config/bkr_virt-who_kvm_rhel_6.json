@@ -17,7 +17,7 @@
                 },
                 {
                     "Family": "RedHatEnterpriseLinux6",
-                    "Tags":"RTT_ACCEPTED",
+                    "tag": ["RTT_ACCEPTED"],
                     "arch": "X86_64",
                     "variant": "Server",
                     "keyvalue": ["DISKSPACE>=20000","HVM=1"],
