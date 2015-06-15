@@ -601,7 +601,7 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to start guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
-        return self.__check_vm_available(guest_name, targetmachine_ip)
+        return self.__check_vm_available(guest_name, targetmachine_ip=targetmachine_ip)
 
     def __check_vm_available(self, guest_name, timeout=600, targetmachine_ip=""):
         terminate_time = time.time() + timeout
@@ -612,7 +612,7 @@ class VIRTWHOBase(unittest.TestCase):
             if guestip != "" and (not "can not get ip by mac" in guestip):
                 return guestip
             if terminate_time < time.time():
-                raise OSError("Process timeout has been reached")
+                raise FailException("Process timeout has been reached")
             logger.debug("Check guest IP, wait 10 seconds ...")
             time.sleep(10)
 
