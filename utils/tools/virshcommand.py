@@ -19,16 +19,18 @@ class VirshCommand(Command):
         return self.start_vm(guest_name), "root", "red2015"
 
     def define_vm(self, guest_name, guest_path):
-#         self.define_xml_gen(guest_name, guest_path)
-        params = {"guestname":guest_name, "guesttype":"kvm", "source": "switch", "ifacetype" : "bridge", "fullimagepath":guest_path }
-        xml_obj = XmlBuilder()
-        domain = xml_obj.add_domain(params)
-        xml_obj.add_disk(params, domain)
-        xml_obj.add_interface(params, domain)
-        dom_xml = xml_obj.build_domain(domain)
-        logger.info("Succeeded to generate define xml:%s." % dom_xml)
-        self.define_xml_gen(guest_name, dom_xml)
-#         cmd = "virsh define /root/%s.xml" % (guest_name)
+        cmd = "[ -f /root/%s.xml ]" % (guest_name)
+        ret, output = self.run(cmd, timeout=None)
+        if ret == 0 :
+            logger.info("Generate guest %s xml." % guest_name)
+            params = {"guestname":guest_name, "guesttype":"kvm", "source": "switch", "ifacetype" : "bridge", "fullimagepath":guest_path }
+            xml_obj = XmlBuilder()
+            domain = xml_obj.add_domain(params)
+            xml_obj.add_disk(params, domain)
+            xml_obj.add_interface(params, domain)
+            dom_xml = xml_obj.build_domain(domain)
+            logger.info("Succeeded to generate define xml:%s." % dom_xml)
+            self.define_xml_gen(guest_name, dom_xml)
         cmd = "virsh define /root/%s.xml" % (guest_name)
         ret, output = self.run(cmd, timeout=None)
         if ret == 0 or "already exists" in output:

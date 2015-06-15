@@ -529,6 +529,10 @@ class VIRTWHOBase(unittest.TestCase):
         for guestname in self.get_all_guests_list(guest_path):
             VirshCommand().define_vm(guestname, os.path.join(guest_path, guestname))
 
+    def vw_define_guest(self, guestname, targetmachine_ip=""):
+        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        VirshCommand().define_vm(guestname, os.path.join(guest_path, guestname))
+
     def get_all_guests_list(self, guest_path, targetmachine_ip=""):
         cmd = "ls %s" % guest_path
         ret, output = self.runcmd(cmd, "get all guest in images folder", targetmachine_ip)
