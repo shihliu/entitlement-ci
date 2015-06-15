@@ -517,6 +517,21 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
+    def kvm_get_guest_ip(self, guest_name, targetmachine_ip=""):
+        ''' get guest ip address in kvm host '''
+        ipAddress = self.getip_vm(guest_name, targetmachine_ip)
+        if ipAddress == None or ipAddress == "":
+            raise FailException("Faild to get guest %s ip." % guest_name)
+        else:
+            return ipAddress
+
+    def getip_vm(self, guest_name, targetmachine_ip=""):
+        guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name, targetmachine_ip), targetmachine_ip)
+        if guestip != "" and (not "can not get ip by mac" in guestip):
+            return guestip
+        else:
+            raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
+
     def vw_define_all_guests(self, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
