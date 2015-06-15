@@ -602,7 +602,7 @@ class VIRTWHOBase(unittest.TestCase):
     def define_vm(self, guest_name, guest_path, targetmachine_ip=""):
         cmd = "[ -f /root/%s.xml ]" % (guest_name)
         ret, output = self.runcmd(cmd, "check whether define xml exist", targetmachine_ip)
-        if ret == 0 :
+        if ret != 0 :
             logger.info("Generate guest %s xml." % guest_name)
             params = {"guestname":guest_name, "guesttype":"kvm", "source": "switch", "ifacetype" : "bridge", "fullimagepath":guest_path }
             xml_obj = XmlBuilder()
