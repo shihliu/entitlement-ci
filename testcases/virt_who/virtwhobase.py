@@ -577,7 +577,7 @@ class VIRTWHOBase(unittest.TestCase):
     def vw_undefine_all_guests(self, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
-            self.vw_undefine_guest(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
+            self.vw_undefine_guest(guestname, targetmachine_ip)
 
     def vw_define_guest(self, guestname, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
