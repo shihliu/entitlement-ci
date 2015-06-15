@@ -517,6 +517,43 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
+    def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check if the guest uuid is correctly monitored by virt-who. '''
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        self.vw_restart_virtwho(targetmachine_ip)
+        cmd = "tail -2 %s " % rhsmlogfile
+        ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        if ret == 0:
+            if "Sending list of uuids: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update to updateConsumer: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Libvirt domains found" in output:
+                log_uuid_list = output.split('Libvirt domains found: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending domain info" in output:
+                log_uuid_list = output.split('Sending domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            else:
+                raise FailException("Failed to get uuid list from rhsm.log")
+            if uuidexists:
+                if guestuuid == "" and len(log_uuid_list) == 0:
+                    logger.info("Succeeded to get none uuid list")
+                else:
+                    if guestuuid in log_uuid_list:
+                        logger.info("Succeeded to check guestuuid %s in log_uuid_list" % guestuuid)
+                    else:
+                        raise FailException("Failed to check guestuuid %s in log_uuid_list" % guestuuid)
+            else:
+                if guestuuid not in log_uuid_list:
+                    logger.info("Succeeded to check guestuuid %s not in log_uuid_list" % guestuuid)
+                else:
+                    raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
+        else:
+            raise FailException("Failed to get rhsm.log")
+
     def kvm_get_guest_ip(self, guest_name, targetmachine_ip=""):
         ''' get guest ip address in kvm host '''
         ipAddress = self.getip_vm(guest_name, targetmachine_ip)
@@ -536,6 +573,11 @@ class VIRTWHOBase(unittest.TestCase):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
             self.define_vm(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
+
+    def vw_undefine_all_guests(self, targetmachine_ip=""):
+        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
+            self.vw_undefine_guest(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
 
     def vw_define_guest(self, guestname, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
