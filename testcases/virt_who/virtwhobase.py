@@ -59,13 +59,13 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
-        self.stop_firewall(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
 
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
