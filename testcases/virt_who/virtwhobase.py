@@ -3,7 +3,7 @@ import time, random, commands
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
-from utils.tools.virshcommand import VirshCommand
+from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class VIRTWHOBase(unittest.TestCase):
     # ========================================================
@@ -117,7 +117,7 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to setenforce as 0.")
         else:
             raise FailException("Failed to setenforce as 0.")
-        #unfinished, close firewall and iptables for ever 
+        # unfinished, close firewall and iptables for ever 
 
     def esx_setup(self):
         SAM_IP = get_exported_param("SAM_IP")
@@ -517,21 +517,14 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
-#         cmd = "mount %s:%s %s" % ("127.0.0.1", image_nfs_path, image_path)
-#         ret, output = self.runcmd(cmd, "mount nfs images in host machine")
-#         if ret == 0 or "is busy or already mounted" in output:
-#             logger.info("Succeeded to mount nfs images in host machine.")
-#         else:
-#             raise FailException("Failed to mount nfs images in host machine.")
-
     def vw_define_all_guests(self, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
-        for guestname in self.get_all_guests_list(guest_path):
-            VirshCommand().define_vm(guestname, os.path.join(guest_path, guestname))
+        for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
+            self.define_vm(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
 
     def vw_define_guest(self, guestname, targetmachine_ip=""):
         guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
-        VirshCommand().define_vm(guestname, os.path.join(guest_path, guestname))
+        self.define_vm(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
 
     def get_all_guests_list(self, guest_path, targetmachine_ip=""):
         cmd = "ls %s" % guest_path
@@ -544,18 +537,113 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Failed to get all guest list in %s." % guest_path)
 
     def vw_start_guests(self, guestname, targetmachine_ip=""):
-        VirshCommand().start_vm(guestname)
+        self.start_vm(guestname, targetmachine_ip)
 
     def vw_stop_guests(self, guestname, targetmachine_ip=""):
-        VirshCommand().shutdown_vm(guestname)
+        self.shutdown_vm(guestname, targetmachine_ip)
 
-    def kvm_get_guest_ip(self, guest_name):
-        ''' get guest ip address in kvm host '''
-        ipAddress = VirshCommand().getip_vm(guest_name)
-        if ipAddress == None or ipAddress == "":
-            raise FailException("Faild to get guest %s ip." % guest_name)
+    def define_vm(self, guest_name, guest_path, targetmachine_ip=""):
+        cmd = "[ -f /root/%s.xml ]" % (guest_name)
+        ret, output = self.runcmd(cmd, "check whether define xml exist", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Generate guest %s xml." % guest_name)
+            params = {"guestname":guest_name, "guesttype":"kvm", "source": "switch", "ifacetype" : "bridge", "fullimagepath":guest_path }
+            xml_obj = XmlBuilder()
+            domain = xml_obj.add_domain(params)
+            xml_obj.add_disk(params, domain)
+            xml_obj.add_interface(params, domain)
+            dom_xml = xml_obj.build_domain(domain)
+            logger.info("Succeeded to generate define xml:%s." % dom_xml)
+            self.define_xml_gen(guest_name, dom_xml, targetmachine_ip)
+        cmd = "virsh define /root/%s.xml" % (guest_name)
+        ret, output = self.runcmd(cmd, "define guest", targetmachine_ip)
+        if ret == 0 or "already exists" in output:
+            logger.info("Succeeded to define guest %s." % guest_name)
         else:
-            return ipAddress
+            raise FailException("Test Failed - Failed to define guest %s." % guest_name)
+        self.list_vm(targetmachine_ip)
+
+    def define_xml_gen(self, guest_name, xml, targetmachine_ip=""):
+        cmd = "echo '%s' > /root/%s.xml" % (xml, guest_name)
+        ret, output = self.runcmd(cmd, "write define xml", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to generate virsh define xml in /root/%s.xml " % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to generate virsh define xml in /root/%s.xml " % guest_name)
+
+    def list_vm(self, targetmachine_ip=""):
+        cmd = "virsh list --all"
+        ret, output = self.runcmd(cmd, "List all existing guests:", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to list all curent guest ")
+        else:
+            raise FailException("Test Failed - Failed to list all curent guest ")
+
+    def start_vm(self, guest_name, targetmachine_ip=""):
+        cmd = "virsh start %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to start guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to start guest %s." % guest_name)
+        return self.__check_vm_available(guest_name, targetmachine_ip)
+
+    def __check_vm_available(self, guest_name, timeout=600, targetmachine_ip=""):
+        terminate_time = time.time() + timeout
+        guest_mac = self.__get_dom_mac_addr(guest_name, targetmachine_ip)
+        self.__generate_ipget_file(targetmachine_ip)
+        while True:
+            guestip = self.__mac_to_ip(guest_mac, targetmachine_ip)
+            if guestip != "" and (not "can not get ip by mac" in guestip):
+                return guestip
+            if terminate_time < time.time():
+                raise OSError("Process timeout has been reached")
+            logger.debug("Check guest IP, wait 10 seconds ...")
+            time.sleep(10)
+
+    def __generate_ipget_file(self, targetmachine_ip=""):
+        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh"
+        ret, output = self.runcmd(generate_ipget_cmd, "wget ipget file", targetmachine_ip)
+        if ret == 0 or "already there" in output:
+            logger.info("Succeeded to wget ipget.sh to /root/.")
+        else:
+            raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
+
+    def __get_dom_mac_addr(self, domname, targetmachine_ip=""):
+        """
+        Get mac address of a domain
+        Return mac address on SUCCESS or None on FAILURE
+        """
+        cmd = "virsh dumpxml " + domname + " | grep 'mac address' | awk -F'=' '{print $2}' | tr -d \"[\'/>]\""
+        ret, output = self.runcmd(cmd, "get mac address", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to get mac address of domain %s." % domname)
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get mac address of domain %s." % domname)
+
+    def __mac_to_ip(self, mac, targetmachine_ip=""):
+        """
+        Map mac address to ip, need nmap installed and ipget.sh in /root/ target machine
+        Return None on FAILURE and the mac address on SUCCESS
+        """
+        if not mac:
+            raise FailException("Failed to get guest mac ...")
+        cmd = "sh /root/ipget.sh %s" % mac
+        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to get ip address.")
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get ip address.")
+
+    def shutdown_vm(self, guest_name, targetmachine_ip=""):
+        cmd = "virsh destroy %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "destroy guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to shutdown guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to shutdown guest %s." % guest_name)
 
     def vw_migrate_guest(self, guestname, target_machine, origin_machine=""):
         ''' migrate a guest from source machine to target machine. '''
