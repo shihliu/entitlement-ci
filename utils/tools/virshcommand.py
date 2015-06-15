@@ -16,7 +16,7 @@ class VirshCommand(Command):
         # you need to install a "RHEL6.6-Server-GA-AUTO" guest manually first
         # modify eth0, remove HWADDR and UUID, or else you will be failed to get dhcp IP
         self.clone_vm("AUTO-RHEL6.6-Server-GA", guest_name)
-        return self.start_vm(guest_name), "root", "redhat"
+        return self.start_vm(guest_name), "root", "red2015"
 
     def define_vm(self, guest_name, guest_path):
 #         self.define_xml_gen(guest_name, guest_path)
