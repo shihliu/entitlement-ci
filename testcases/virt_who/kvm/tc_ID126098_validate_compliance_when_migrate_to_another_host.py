@@ -51,7 +51,6 @@ class tc_ID126098_validate_compliance_when_migrate_to_another_host(VIRTWHOBase):
             # unsubscribe host
             self.sub_unsubscribe()
             self.vw_stop_guests(guest_name, slave_machine_ip)
-            self.vw_undefine_guest(guest_name, slave_machine_ip)
             self.vw_define_guest(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
