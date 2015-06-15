@@ -31,7 +31,7 @@ class tc_ID155142_ESX_validate_bonus_pool_creation(VIRTWHOBase):
             # check only physical subscription in guest
             
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SAM_IP)
+            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku), SAM_IP)
             
             # list available pools of guest, check related bonus pool generated.
             new_available_poollist = self.sub_listavailpools(test_sku, guestip)
