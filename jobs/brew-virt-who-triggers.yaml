@@ -1,0 +1,38 @@
+- job-template:
+    name: 'brew-virt-who-7-trigger'
+    node: master
+    triggers:
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
+    builders:
+        - shell: |
+            #!/bin/bash
+            #maybe got brew rpm link here for yum install virt-who
+            echo "RHEL-6.7-20150519.0" > BUILD.txt
+
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'brew-sam-install-for-rhel-7-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-group:
+    name: brew-virt-who-triggers
+    jobs:
+      - 'brew-virt-who-7-trigger'
+
+- project:
+    name: brew-virt-who-triggers-jobs
+    project:
+     - brew-virt-who-triggers
+    jobs:
+     - brew-virt-who-triggers

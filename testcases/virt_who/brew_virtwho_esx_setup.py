@@ -3,14 +3,13 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class virtwho_kvm_setup(VIRTWHOBase):
+class brew_virtwho_esx_setup(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.kvm_sys_setup()
-            self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
-            self.kvm_setup()
+            self.sys_setup()
+            self.esx_setup()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
