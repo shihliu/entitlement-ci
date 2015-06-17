@@ -230,6 +230,14 @@ class VIRTWHOBase(unittest.TestCase):
                 logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
+
+            # need to clean local data after unregister
+            cmd = "subscription-manager clean"
+            ret, output = self.runcmd(cmd, "clean system", targetmachine_ip)
+            if ret == 0 :
+                logger.info("Succeeded to clean %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to clean %s." % self.get_hg_info(targetmachine_ip))
         else:
             logger.info("The machine is not registered to server now, no need to do unregister.")
 
@@ -437,8 +445,8 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Failed to list consumed subscriptions.")
 
     def sub_refresh(self, targetmachine_ip=""):
-        ''' refresh all local data. '''
-        cmd = "subscription-manager refresh; sleep 10"
+        ''' sleep 20 seconds firstly due to guest restart, and then refresh all local data. '''
+        cmd = "sleep 20; subscription-manager refresh"
         ret, output = self.runcmd(cmd, "subscription fresh", targetmachine_ip)
         if ret == 0 and "All local data refreshed" in output:
             logger.info("Succeeded to refresh all local data %s." % self.get_hg_info(targetmachine_ip))

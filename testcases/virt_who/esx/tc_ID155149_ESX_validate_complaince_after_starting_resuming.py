@@ -23,10 +23,14 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(VIRTWHOBase):
             host_uuid = self.esx_get_host_uuid(destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
+
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
+
+            # before subscribe esx host with limited subscription, need to clean all the old subscribed pool from SAM
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
             # subscribe esx host with limited bonus subscription
             self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SAM_IP)
             # subscribe the registered guest to the corresponding bonus pool
