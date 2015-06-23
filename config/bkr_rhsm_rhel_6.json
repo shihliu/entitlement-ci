@@ -4,7 +4,7 @@
             "job_group": "Entitlement-QA",
             "recipesets": [
                 {
-                    "Family": "RedHatEnterpriseLinux6",
+                    "family": "RedHatEnterpriseLinux6",
                     "tag": ["RTT_ACCEPTED"],
                     "arch": "X86_64",
                     "variant": "Server",
