@@ -137,9 +137,10 @@ class VIRTWHOBase(unittest.TestCase):
         self.update_esx_vw_configure(VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
         # restart virt-who service
         self.vw_restart_virtwho()
-        if not self.sub_isregistered():
-            self.configure_host(SAM_HOSTNAME, SAM_IP)
-            self.sub_register(SAM_USER, SAM_PASS)
+        # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
+        self.sub_unregister()
+        self.configure_host(SAM_HOSTNAME, SAM_IP)
+        self.sub_register(SAM_USER, SAM_PASS)
         guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
         self.wget_images(VIRTWHOConstants().get_constant("esx_guest_url"), guest_name, ESX_HOST)
@@ -776,13 +777,21 @@ class VIRTWHOBase(unittest.TestCase):
                 raise FailException("Failed to uncompress guest '%s'." % guest_name)
 
     def update_esx_vw_configure(self, esx_owner, esx_env, esx_server, esx_username, esx_password, background=1, debug=1):
-        ''' update virt-who configure file /etc/sysconfig/virt-who. '''
-        cmd = "sed -i -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/#VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/#VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/#VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/#VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/#VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/#VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, esx_owner, esx_env, esx_server, esx_username, esx_password)
-        ret, output = self.runcmd(cmd, "updating virt-who configure file for esx")
+        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_ESX'''
+        cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_ESX/VIRTWHO_ESX/g' -e 's/^#VIRTWHO_ESX_OWNER/VIRTWHO_ESX_OWNERs/g' -e 's/^#VIRTWHO_ESX_ENV/VIRTWHO_ESX_ENV/g' -e 's/^#VIRTWHO_ESX_SERVER/VIRTWHO_ESX_SERVER/g' -e 's/^#VIRTWHO_ESX_USERNAME/VIRTWHO_ESX_USERNAME/g' -e 's/^#VIRTWHO_ESX_PASSWORD/VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
+        ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_ESX")
         if ret == 0:
-            logger.info("Succeeded to update virt-who configure file.")
+            logger.info("Succeeded to enable VIRTWHO_ESX.")
         else:
-            raise FailException("Test Failed - Failed to update virt-who configure file.")
+            raise FailException("Test Failed - Failed to enable VIRTWHO_ESX.")
+
+        ''' update virt-who configure file /etc/sysconfig/virt-who for setting VIRTWHO_ESX'''
+        cmd = "sed -i -e 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, esx_owner, esx_env, esx_server, esx_username, esx_password)
+        ret, output = self.runcmd(cmd, "updating virt-who configure file setting VIRTWHO_ESX")
+        if ret == 0:
+            logger.info("Succeeded to setting VIRTWHO_ESX.")
+        else:
+            raise FailException("Test Failed - Failed to setting VIRTWHO_ESX.")
 
     def esx_add_guest(self, guest_name, destination_ip):
         ''' add guest to esx host '''
