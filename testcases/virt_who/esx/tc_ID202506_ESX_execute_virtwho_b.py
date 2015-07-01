@@ -17,9 +17,9 @@ class tc_ID202506_ESX_execute_virtwho_b(VIRTWHOBase):
             ret, output = self.runcmd(cmd, "run virt-who -b -d command")
             if ret == 0 :
                 # check the status of virt-who
-                cmd = "ps -ef | grep virt-who"
+                cmd = "ps -ef | grep -E 'virtwho|virt-who'"
                 ret, output = self.runcmd(cmd, "check the process of virt-who with background mode")
-                if ret == 0 and "virt-who.py -b -d" in output:
+                if ret == 0 and "virtwho.py -b -d" in output:
                     logger.info("Succeeded to check virt-who process.")
                 else:
                     raise FailException("Failed to check virt-who process.")
@@ -57,7 +57,8 @@ class tc_ID202506_ESX_execute_virtwho_b(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.esx_stop_guest(guest_name, destination_ip)
+            if self.esx_guest_ispoweron(guest_name, destination_ip):
+                self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

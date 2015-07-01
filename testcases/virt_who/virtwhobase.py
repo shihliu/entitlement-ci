@@ -793,6 +793,26 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to setting VIRTWHO_ESX.")
 
+    def esx_guest_ispoweron(self, guest_name, destination_ip):
+        ''' check guest is power on or off '''
+        # get geust id by vmsvc/getallvms
+        cmd = "vim-cmd vmsvc/getallvms | grep '%s' | awk '{print $1'}" % (guest_name)
+        ret, output = self.runcmd_esx(cmd, "get guest '%s' ID" % (guest_name), destination_ip)
+        if ret == 0:
+            guest_id = output.strip()
+        else:
+            raise FailException("can't get guest '%s' ID" % guest_name)
+
+        # check geust status by vmsvc/power.getstate 
+        cmd = "vim-cmd vmsvc/power.getstate %s" %guest_id
+        ret, output = self.runcmd_esx(cmd, "check guest '%s' status" % (guest_name), destination_ip)
+        if ret == 0 and "Powered on" in output:
+            return True
+        elif ret == 0 and "Powered off" in output:
+            return False
+        else:
+            raise FailException("Failed to check guest '%s' status" % guest_name)
+
     def esx_add_guest(self, guest_name, destination_ip):
         ''' add guest to esx host '''
         cmd = "vim-cmd solo/register /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
@@ -1022,7 +1042,8 @@ class VIRTWHOBase(unittest.TestCase):
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho()
         self.vw_restart_virtwho()
-        cmd = "tail -1 %s " % rhsmlogfile
+        #need to sleep tail -3, then can get the output normally
+        cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
