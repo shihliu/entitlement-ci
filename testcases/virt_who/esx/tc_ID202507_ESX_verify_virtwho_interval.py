@@ -9,17 +9,25 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # config the virt-who config file
-            cmd = "sed -i 's/#VIRTWHO_INTERVAL=0/VIRTWHO_INTERVAL=5/' /etc/sysconfig/virt-who"
+            cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
+            (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file")
+            if ret == 0:
+                logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
+            else:
+                raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
+
+            cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=5/' /etc/sysconfig/virt-who"
             (ret, output) = self.runcmd(cmd, "changing interval time in virt-who config file")
             if ret == 0:
                 logger.info("Succeeded to set VIRTWHO_INTERVAL=5.")
             else:
                 raise FailException("Failed to set VIRTWHO_INTERVAL=5.")
+
             # restart virt-who service
             self.vw_restart_virtwho()
             cmd = "nohup tail -f -n 0 /var/log/rhsm/rhsm.log > /tmp/tail.rhsm.log 2>&1 &"
             self.runcmd(cmd, "got temp file /tmp/tail.rhsm.log")
-            time.sleep(23)
+            time.sleep(20)
             cmd = "killall -9 tail ; grep 'Sending update in hosts-to-guests mapping' /tmp/tail.rhsm.log | wc -l "
             (ret, output) = self.runcmd(cmd, "get log number added to rhsm.log")
             if ret == 0 and int(output) == 4:

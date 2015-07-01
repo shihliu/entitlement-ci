@@ -10,6 +10,9 @@ class tc_ID155173_ESX_check_uuid_when_guest_paused_or_shutdown(VIRTWHOBase):
         try:
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            # if the below step(1,2,3) failed, the guest will can't be stop.
+            self.esx_stop_guest(guest_name, destination_ip)
+
             # (1) start a guest    
             self.esx_start_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
