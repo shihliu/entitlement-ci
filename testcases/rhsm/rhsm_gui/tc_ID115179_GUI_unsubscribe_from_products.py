@@ -52,7 +52,7 @@ class tc_ID115179_GUI_unsubscribe_from_products(RHSMGuiBase):
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
-                self.register_in_gui(username, password)
+                self.register_and_autosubscribe_in_gui(username, password)
                 self.click_tab('my-subscriptions')
                 timeout = time.time() + 120 #2 min timer
                 while self.get_table_row_count('main-window','my-subscription-table') > 0:
