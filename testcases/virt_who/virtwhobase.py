@@ -461,6 +461,16 @@ class VIRTWHOBase(unittest.TestCase):
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
+    def subpool_isExist(self, test_sku, bonus_quantity, new_available_poollist):
+        for item in range(0, len(new_available_poollist)):
+            if "Available" in new_available_poollist[item]:
+                SKU_Number = "Available"
+            else:
+                SKU_Number = "Quantity"
+            if new_available_poollist[item]["SKU"] == test_sku and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
+                return True
+        return False
+
 
     #========================================================
     #     KVM Functions
