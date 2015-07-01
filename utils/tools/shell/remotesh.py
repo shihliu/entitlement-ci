@@ -59,11 +59,11 @@ class RemoteSH(object):
         if timeout == None:
             stdin, stdout, stderr = ssh.exec_command(cmd)
             retcode = stdout.channel.recv_exit_status()
-            logger.debug("Error : %s" % stderr.read())
-            logger.debug("Return Code : %s" % retcode)
-            logger.debug("Output : \n%s" % stdout.read())
+#             logger.debug("Error : %s" % stderr.read())
+#             logger.debug("Return Code : %s" % retcode)
+#             logger.debug("Output : \n%s" % stdout.read())
             ssh.close()
-            return retcode, stdout.read() and stderr.read()
+            return retcode, stdout.read() or stderr.read()
         else:
             import time, socket
             from select import select
