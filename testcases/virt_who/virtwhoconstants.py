@@ -31,8 +31,8 @@ class VIRTWHOConstants(object):
                     "productname_guest" : "Red Hat Enterprise Linux Server for HPC Compute Node",
                     "guestlimit" : "1",
                     # unlimited subscription
-                    "productid_unlimited_guest" : "SYS0395",
-                    "productname_unlimited_guest" : "Red Hat Employee Subscription",
+                    "productid_unlimited_guest" : "RH00060",
+                    "productname_unlimited_guest" : "Resilient Storage for Unlimited Guests",
                     "guestlimit_unlimited_guest" : "Unlimited",
 
                     # Datacenter subscription
