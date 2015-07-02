@@ -131,9 +131,43 @@ class RHSMGuiBase(unittest.TestCase):
     def verifycheck_checkbox(self, window, checkbox_name):
         return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
+    def get_table_row_index(self, window, table, row_name):
+        logger.info('Retrieving row index from window %s on table %s with row_name %s' % (window, table, row_name))
+        return ldtp.gettablerowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+
     # ========================================================
     #     1. LDTP GUI Keyword Functions
     # ========================================================
+
+    def check_hostype_and_isguest_gui_vs_cli(self):
+        self.double_click_row('system-facts-dialog','facts-view-table','virt')
+        virt_hostype_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.host_type')
+        virt_is_guest_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.is_guest')
+        virt_hostype_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_hostype_index,1)
+        virt_isguest_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_is_guest_index,1)
+
+        cmd = "subscription-manager facts --list | grep ^virt.host"
+        (ret, output) = Command().run(cmd)
+        real_output_host = output.split(':')[1].strip()
+
+        cmd = "subscription-manager facts --list | grep ^virt.is_guest"
+        (ret, output) = Command().run(cmd)
+        real_output_guest = output.split(':')[1].strip()
+
+        if real_output_host != virt_hostype_gui:
+            raise FailException("FAILED: host_name does not match!")
+        if real_output_guest != virt_isguest_gui:
+            raise FailException("FAILED: is_guest does not match!")
+        logger.info('SUCCESS: Retreived and matched virt.host and virt.is_guest!')
+
+    def open_subscription_manager_by_cmd_check_output(self):
+        cmd = "subscription-manager-gui &"
+        (ret, output) = Command().run(cmd)
+        if ret == 0:
+            logger.info("It's successful to run subscription-manager-gui the second time.")
+            return output == 'subscription-manager-gui is already running\n'
+        else:
+            raise FailException("Test Failed - Failed to run subscription-manager-gui the second time")
 
     def check_org_and_id_displayed_in_facts_match(self, username, password):
         cmd = "subscription-manager orgs --user=%s --password=%s | grep Key" % (username, password)
