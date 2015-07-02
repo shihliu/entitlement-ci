@@ -143,6 +143,8 @@ class RHSMGuiLocator(object):
     'classic-login-text':                    'txtLogin',
     'classic-password-text':                 'txtPassword',
     'classic-set-systemname-text':           'txtSystemName',
+    'text-service-level':                    'txtAllAvailableSupportLevelAndTypeText',
+
 
     ######## Menu Elements ########
     # under System menu
