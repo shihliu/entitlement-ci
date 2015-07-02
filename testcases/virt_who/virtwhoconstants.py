@@ -37,9 +37,9 @@ class VIRTWHOConstants(object):
 
                     # Datacenter subscription
                     "datacenter_name" : "Red Hat Enterprise Linux for Virtual Datacenters, Standard",
-                    "datacenter_sku" : "RH00002",
-                    "datacenter_bonus_sku" : "RH00050",
-                    "datacenter_bonus_available" : "Unlimited",
+                    "datacenter_sku_id" : "RH00002",
+                    "datacenter_bonus_sku_id" : "RH00050",
+                    "datacenter_bonus_quantity" : "Unlimited",
                     }
 
 

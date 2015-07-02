@@ -445,6 +445,27 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to list consumed subscriptions.")
 
+    def check_consumed_status(self, sku_id, targetmachine_ip=""):
+        ''' check consumed entitlements status details '''
+        cmd = "subscription-manager list --consumed"
+        ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
+        if ret == 0 and output is not None:
+            consumed_lines = self.__parse_avail_pools(output)
+            if consumed_lines != None:
+                for line in range(0, len(consumed_lines)):
+                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line]["StatusDetails"] == "Subscription is current":
+                        return True
+        return False
+
+    def check_installed_status(self, targetmachine_ip=""):
+        ''' check the installed entitlements. '''
+        cmd = "subscription-manager list --installed"
+        ret, output = self.runcmd(cmd, "list installed subscriptions", targetmachine_ip)
+        if ret == 0 and output is not None:
+            if "Not Subscribed" not in output:
+                return True
+        return False
+
     def sub_refresh(self, targetmachine_ip=""):
         ''' sleep 20 seconds firstly due to guest restart, and then refresh all local data. '''
         cmd = "sleep 20; subscription-manager refresh"
@@ -461,15 +482,49 @@ class VIRTWHOBase(unittest.TestCase):
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
-    def subpool_isExist(self, test_sku, bonus_quantity, new_available_poollist):
-        for item in range(0, len(new_available_poollist)):
-            if "Available" in new_available_poollist[item]:
-                SKU_Number = "Available"
-            else:
-                SKU_Number = "Quantity"
-            if new_available_poollist[item]["SKU"] == test_sku and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
-                return True
+    def check_bonus_isExist(self, sku_id, bonus_quantity, targetmachine_ip=""):
+        new_available_poollist = self.sub_listavailpools(sku_id, targetmachine_ip)
+        if new_available_poollist != None:
+            for item in range(0, len(new_available_poollist)):
+                if "Available" in new_available_poollist[item]:
+                    SKU_Number = "Available"
+                else:
+                    SKU_Number = "Quantity"
+                if new_available_poollist[item]["SKU"] == sku_id and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
+                    return True
         return False
+
+    def setup_custom_facts(self, facts_key, facts_value, targetmachine_ip=""):
+        ''' setup_custom_facts '''
+        cmd = "echo '{\"" + facts_key + "\":\"" + facts_value + "\"}' > /etc/rhsm/facts/custom.facts"
+        ret, output = self.runcmd(cmd, "create custom.facts", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
+
+        cmd = "subscription-manager facts --update"
+        ret, output = self.runcmd(cmd, "update subscription facts", targetmachine_ip)
+        if ret == 0 and "Successfully updated the system facts" in output:
+            logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+
+    def restore_facts(self, targetmachine_ip=""):
+        ''' setup_custom_facts '''
+        cmd = "rm -f /etc/rhsm/facts/custom.facts"
+        ret, output = self.runcmd(cmd, "remove custom.facts", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
+
+        cmd = "subscription-manager facts --update"
+        ret, output = self.runcmd(cmd, "update subscription facts", targetmachine_ip)
+        if ret == 0 and "Successfully updated the system facts" in output:
+            logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
 
     #========================================================
