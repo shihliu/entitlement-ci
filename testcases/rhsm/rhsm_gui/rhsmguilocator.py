@@ -126,6 +126,7 @@ class RHSMGuiLocator(object):
     'orgs-view-table':                       'tblownertreeview',
 
      ######## Text Elements ########
+    'text-product':                          'txtProductText',
     'filter-subscriptions-text':             'txtTextinSubscription',
     'login-text-5':                          'txtaccountlogin',
     'login-text':                            'account_login',
