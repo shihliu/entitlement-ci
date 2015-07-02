@@ -21,7 +21,7 @@ class VIRTWHOConstants(object):
 
                     "VIRTWHO_ESX_OWNER" : "ACME_Corporation",
                     "VIRTWHO_ESX_ENV" : "Library",
-                    "VIRTWHO_ESX_SERVER" : "10.66.78.27",
+                    "VIRTWHO_ESX_SERVER" : "10.66.78.89",
                     "VIRTWHO_ESX_USERNAME" : "administrator@vsphere.local",
                     "VIRTWHO_ESX_PASSWORD" : "qwer1234P!",
 
@@ -35,7 +35,14 @@ class VIRTWHOConstants(object):
                     "productname_unlimited_guest" : "Red Hat Employee Subscription",
                     "guestlimit_unlimited_guest" : "Unlimited",
 
+                    # Datacenter subscription
+                    "datacenter_name" : "Red Hat Enterprise Linux for Virtual Datacenters, Standard",
+                    "datacenter_sku" : "RH00002",
+                    "datacenter_bonus_sku" : "RH00050",
+                    "datacenter_bonus_available" : "Unlimited",
                     }
+
+
 #     image_machine_imagepath = "ENT_TEST_MEDIUM/images"
 #     # Note: make sure all the guest names are different with each other.
 #     imagenfspath = "/home/ENT_TEST_MEDIUM/imagenfs"
