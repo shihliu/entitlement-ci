@@ -1,7 +1,7 @@
 import ldtp, time
 from utils import *
 from utils.tools.shell.command import Command
-from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
+from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
 
 class RHSMGuiBase(unittest.TestCase):
