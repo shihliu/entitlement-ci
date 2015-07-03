@@ -368,6 +368,23 @@ class VIRTWHOBase(unittest.TestCase):
             data_list.append(data_dict)
         return data_list
 
+    def get_pool_by_SKU(self, SKU_id, guest_ip=""):
+        ''' get_pool_by_SKU '''
+        availpoollistguest = self.sub_listavailpools(SKU_id, guest_ip)
+        if availpoollistguest != None:
+            for index in range(0, len(availpoollistguest)):
+                if("SKU" in availpoollistguest[index] and availpoollistguest[index]["SKU"] == SKU_id):
+                    rindex = index
+                    break
+            if "PoolID" in availpoollistguest[index]:
+                gpoolid = availpoollistguest[rindex]["PoolID"]
+            else:
+                gpoolid = availpoollistguest[rindex]["PoolId"]
+            return gpoolid
+        else:
+            logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
+            self.SET_RESULT(1)
+
     def sub_subscribe_to_bonus_pool(self, productid, guest_ip=""):
         ''' subscribe the registered guest to the corresponding bonus pool of the product: productid. '''
         availpoollistguest = self.sub_listavailpools(productid, guest_ip)
@@ -424,6 +441,18 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
 
+    def sub_limited_subscribetopool(self, poolid, quality, targetmachine_ip=""):
+        ''' subscribe to a pool. '''
+        cmd = "subscription-manager subscribe --pool=%s --quantity=%s" % (poolid, quality)
+        ret, output = self.runcmd(cmd, "subscribe by --pool --quanitity", targetmachine_ip)
+        if ret == 0:
+            if "Successfully " in output:
+                logger.info("Succeeded to subscribe to limited pool %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to show correct information after subscribing %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+
     def sub_unsubscribe(self, targetmachine_ip=""):
         ''' unsubscribe from all entitlements. '''
         cmd = "subscription-manager unsubscribe --all"
@@ -466,13 +495,26 @@ class VIRTWHOBase(unittest.TestCase):
                         return True
         return False
 
+# Check conusmed subscription's quality
+    def check_consumed_quality(self, sku_id, quality, targetmachine_ip=""):
+        ''' check consumed entitlements status details '''
+        cmd = "subscription-manager list --consumed"
+        ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
+        if ret == 0 and output is not None:
+            consumed_lines = self.__parse_avail_pools(output)
+            if consumed_lines != None:
+                for line in range(0, len(consumed_lines)):
+                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line]["QuantityUsed"] == quality:
+                        return True
+        return False
+
     def check_installed_status(self, status, targetmachine_ip=""):
         ''' check the installed entitlements. '''
         cmd = "subscription-manager list --installed"
         ret, output = self.runcmd(cmd, "list installed subscriptions", targetmachine_ip)
         if ret == 0 and output is not None :
             if "Not Subscribed" not in output and status in output:
-                logger.info("Succeeded to check the installed status is %s" %status)
+                logger.info("Succeeded to check the installed status is %s" % status)
             else:
                 raise FailException("Failed to check the installed status in %s." % self.get_hg_info(targetmachine_ip))
             return True
@@ -607,7 +649,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' get the guest uuid. '''
         cmd = "virsh domuuid %s" % guest_name
         ret, output = self.runcmd(cmd, "get virsh domuuid", targetmachine_ip)
-        if ret ==0:
+        if ret == 0:
             logger.info("get the uuid %s" % output)
         else:
             raise FailException("Failed to get the uuid")
@@ -618,7 +660,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         # ignore restart virt-who serivce since virt-who -b -d will stop
-        #self.vw_restart_virtwho(targetmachine_ip)
+        # self.vw_restart_virtwho(targetmachine_ip)
         cmd = "tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:

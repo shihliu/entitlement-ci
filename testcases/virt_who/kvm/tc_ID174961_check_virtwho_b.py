@@ -23,8 +23,6 @@ class tc_ID174961_check_virtwho_b(VIRTWHOBase):
                 else:
                     logger.error("Failed to check virt-who process.")
                     self.assert_(False, case_name)
-                # restart libvirtd service
-                self.vw_restart_libvirtd()
                 # (1) start a guest    
                 self.vw_start_guests(guest_name)
                 # check if the uuid is correctly monitored by virt-who.

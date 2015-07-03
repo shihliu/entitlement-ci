@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID289216_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase):
+class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -15,10 +15,8 @@ class tc_ID289216_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase):
 
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
 
-            host_test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
-            guest_bonus_sku = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
-            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
-            sku_name = VIRTWHOConstants().get_constant("datacenter_name")
+            test_sku = VIRTWHOConstants().get_constant("instancebase_sku_id")
+            sku_name = VIRTWHOConstants().get_constant("instancebase_name")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
@@ -27,15 +25,14 @@ class tc_ID289216_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase):
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
-            # host subscribe datacenter pool
-            self.sub_subscribe_sku(host_test_sku)
+
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
-            # subscribe the registered guest to 1 bonus pool
-            gpoolid = self.get_pool_by_SKU(guest_bonus_sku, guestip)
-            self.sub_limited_subscribetopool(gpoolid, "1", guestip)
+            # subscribe the registered guest to 1 instance pool
+            poolid = self.get_pool_by_SKU(test_sku, guestip)
+            self.sub_limited_subscribetopool(poolid, "1", guestip)
             # list consumed subscriptions' quality should be 1 on guest
-            self.check_consumed_quality(guest_bonus_sku, "1", guestip)
+            self.check_consumed_quality(test_sku, "1", guestip)
             # list installed produced status
             self.check_installed_status("Subscribed", guestip)
 

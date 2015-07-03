@@ -40,6 +40,10 @@ class VIRTWHOConstants(object):
                     "datacenter_sku_id" : "RH00002",
                     "datacenter_bonus_sku_id" : "RH00050",
                     "datacenter_bonus_quantity" : "Unlimited",
+
+                    # Datacenter subscription
+                    "instancebase_name" : "Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)",
+                    "instancebase_sku_id" : "RH00003",
                     }
 
 
