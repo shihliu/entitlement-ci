@@ -192,6 +192,15 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to restart virt-who service.")
 
+    def check_virtwho_thread(self):
+        ''' check virt-who thread number '''
+        cmd = "ps -ef | grep -v grep | grep virt-who | wc -l"
+        ret, output = self.runcmd(cmd, "check virt-who thread")
+        if ret == 0 and output.strip() == "2":
+            logger.info("Succeeded to check virt-who thread number is 2.")
+        else:
+            raise FailException("Test Failed - Failed to check virt-who thread number is 2.")
+
     def vw_stop_virtwho(self, targetmachine_ip=""):
         ''' stop virt-who service. '''
         cmd = "service virt-who stop"
@@ -688,6 +697,25 @@ class VIRTWHOBase(unittest.TestCase):
                     logger.info("Succeeded to check guestuuid %s not in log_uuid_list" % guestuuid)
                 else:
                     raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
+        else:
+            raise FailException("Failed to get rhsm.log")
+
+    def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check whether given message exist or not in rhsm.log. '''
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        cmd = "tail -3 %s " % rhsmlogfile
+        ret, output = self.runcmd(cmd, "tail last 3 line in rhsm.log", targetmachine_ip)
+        if ret == 0:
+            if message_exists:
+                if message in output:
+                    logger.info("Succeeded to get message in rhsm.log: %s") % message
+                else:
+                    raise FailException("Failed to get message in rhsm.log: %s") % message
+            else:
+                if message not in output:
+                    logger.info("Succeeded to check message not in rhsm.log: %s") % message
+                else:
+                    raise FailException("Failed to check message not in rhsm.log: %s") % message
         else:
             raise FailException("Failed to get rhsm.log")
 

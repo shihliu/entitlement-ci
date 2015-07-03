@@ -19,14 +19,5 @@ class tc_ID417575_thread_not_increase_restart_virtwho(VIRTWHOBase):
         finally:
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-    def check_virtwho_thread(self):
-        ''' check virt-who thread number '''
-        cmd = "ps -ef | grep -v grep | grep virt-who | wc -l"
-        ret, output = self.runcmd(cmd, "check virt-who thread")
-        if ret == 0 and output.strip() == "1":
-            logger.info("Succeeded to check virt-who thread number is 1.")
-        else:
-            raise FailException("Test Failed - Failed to check virt-who thread number is 1.")
-
 if __name__ == "__main__":
     unittest.main()
