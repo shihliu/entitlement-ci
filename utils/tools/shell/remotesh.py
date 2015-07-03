@@ -63,7 +63,9 @@ class RemoteSH(object):
 #             logger.debug("Return Code : %s" % retcode)
 #             logger.debug("Output : \n%s" % stdout.read())
             ssh.close()
-            return retcode, stdout.read() or stderr.read()
+            stderr_output = stderr.read()
+            stdout_output = stdout.read()
+            return retcode, stderr_output if stderr_output != "" else stdout_output
         else:
             import time, socket
             from select import select
