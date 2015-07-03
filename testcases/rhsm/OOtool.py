@@ -172,8 +172,9 @@ def getMatchedKeywordList(windowName, keyword):
         if keyword.lower() in item.lower():
             sortedList += [item]
     printSection('The following objects with keyword "%s" have been matched' % keyword)
-    printFoundReturnUnfound(sortedList)
+    unfounds = printFoundReturnUnfound(sortedList)
     printSection('The following objects with keyword "%s" have NOT been matched' % keyword)
+    printUnfounds(unfounds)
 
 def printDict():
     print GUI_DICT

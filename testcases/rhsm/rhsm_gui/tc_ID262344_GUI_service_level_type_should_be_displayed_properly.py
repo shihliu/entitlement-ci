@@ -25,12 +25,12 @@ Completed.
 """
 ##############################################################################
 from utils import *
-from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
+from testcases.rhsm.rhsmguibase import RHSMGuiBase
+from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID262344_GUI_Service_level_Type_should_display_properly(RHSMGuiBase):
+class tc_ID262344_GUI_service_level_type_should_display_properly(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__

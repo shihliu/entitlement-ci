@@ -42,8 +42,8 @@ click_proxy_close_button() is obsolete.  RHEL 7 uses btnCancelButton
 ########################################################
 
 from utils import *
-from testcases.rhsm.rhsm_gui.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsm_gui.rhsmguilocator import RHSMGuiLocator
+from testcases.rhsm.rhsmguibase import RHSMGuiBase
+from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
