@@ -1,7 +1,7 @@
 '''
 Run command in remote machine with paramiko
 '''
-import sys, re,time
+import sys, re, time
 # import pexpect
 from utils import logger
 
@@ -22,17 +22,6 @@ class RemoteSH(object):
         if comments:
             logger.info(">>>Remote Run: %s" % cmd)
         retcode, stdout = self.run_paramiko(cmd, remote_ip, username, password, timeout)
-#         regex = re.compile(r'\x1b\[\d\d?m')
-#         if stdout:
-#             stdout = stdout.decode('utf-8')
-#             stdout = u"".join(stdout).split("\n")
-#             output = [
-#                 regex.sub('', line) for line in stdout if not line.startswith("[")
-#                 ]
-#         else:
-#             output = []
-#         if output:
-#             logger.debug("<<<\n%s" % '\n'.join(output[:-1]))
         if comments:
             logger.info("<<<Return Code: %s" % retcode)
             logger.info("<<<Output:\n%s" % stdout)
@@ -70,11 +59,13 @@ class RemoteSH(object):
         if timeout == None:
             stdin, stdout, stderr = ssh.exec_command(cmd)
             retcode = stdout.channel.recv_exit_status()
-#             logger.info("Error : %s" % stderr.read())
-#             logger.info("Return Code : %s" % retcode)
-#             logger.info("Output : \n%s" % stdout.read())
+#             logger.debug("Error : %s" % stderr.read())
+#             logger.debug("Return Code : %s" % retcode)
+#             logger.debug("Output : \n%s" % stdout.read())
             ssh.close()
-            return retcode, stdout.read() or stderr.read()
+            stderr_output = stderr.read()
+            stdout_output = stdout.read()
+            return retcode, stderr_output if stderr_output != "" else stdout_output
         else:
             import time, socket
             from select import select

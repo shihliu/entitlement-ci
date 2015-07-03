@@ -201,6 +201,15 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to stop virt-who service.")
 
+    def vw_restart_libvirtd(self, targetmachine_ip=""):
+        ''' restart libvirtd service. '''
+        cmd = "service libvirtd restart"
+        ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to restart libvirtd service.")
+        else:
+            raise FailException("Test Failed - Failed to restart libvirtd")
+
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
         cmd = "subscription-manager identity"
@@ -445,6 +454,27 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to list consumed subscriptions.")
 
+    def check_consumed_status(self, sku_id, targetmachine_ip=""):
+        ''' check consumed entitlements status details '''
+        cmd = "subscription-manager list --consumed"
+        ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
+        if ret == 0 and output is not None:
+            consumed_lines = self.__parse_avail_pools(output)
+            if consumed_lines != None:
+                for line in range(0, len(consumed_lines)):
+                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line]["StatusDetails"] == "Subscription is current":
+                        return True
+        return False
+
+    def check_installed_status(self, targetmachine_ip=""):
+        ''' check the installed entitlements. '''
+        cmd = "subscription-manager list --installed"
+        ret, output = self.runcmd(cmd, "list installed subscriptions", targetmachine_ip)
+        if ret == 0 and output is not None:
+            if "Not Subscribed" not in output:
+                return True
+        return False
+
     def sub_refresh(self, targetmachine_ip=""):
         ''' sleep 20 seconds firstly due to guest restart, and then refresh all local data. '''
         cmd = "sleep 20; subscription-manager refresh"
@@ -460,6 +490,50 @@ class VIRTWHOBase(unittest.TestCase):
         elif "SystemType" in pool_dict.keys():
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
+
+    def check_bonus_isExist(self, sku_id, bonus_quantity, targetmachine_ip=""):
+        new_available_poollist = self.sub_listavailpools(sku_id, targetmachine_ip)
+        if new_available_poollist != None:
+            for item in range(0, len(new_available_poollist)):
+                if "Available" in new_available_poollist[item]:
+                    SKU_Number = "Available"
+                else:
+                    SKU_Number = "Quantity"
+                if new_available_poollist[item]["SKU"] == sku_id and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
+                    return True
+        return False
+
+    def setup_custom_facts(self, facts_key, facts_value, targetmachine_ip=""):
+        ''' setup_custom_facts '''
+        cmd = "echo '{\"" + facts_key + "\":\"" + facts_value + "\"}' > /etc/rhsm/facts/custom.facts"
+        ret, output = self.runcmd(cmd, "create custom.facts", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to create custom.facts %s." % self.get_hg_info(targetmachine_ip))
+
+        cmd = "subscription-manager facts --update"
+        ret, output = self.runcmd(cmd, "update subscription facts", targetmachine_ip)
+        if ret == 0 and "Successfully updated the system facts" in output:
+            logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+
+    def restore_facts(self, targetmachine_ip=""):
+        ''' setup_custom_facts '''
+        cmd = "rm -f /etc/rhsm/facts/custom.facts"
+        ret, output = self.runcmd(cmd, "remove custom.facts", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to remove custom.facts %s." % self.get_hg_info(targetmachine_ip))
+
+        cmd = "subscription-manager facts --update"
+        ret, output = self.runcmd(cmd, "update subscription facts", targetmachine_ip)
+        if ret == 0 and "Successfully updated the system facts" in output:
+            logger.info("Succeeded to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
 
     #========================================================
@@ -526,11 +600,19 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
+    def vw_get_uuid(self, guest_name, targetmachine_ip=""):
+        ''' get the guest uuid. '''
+        cmd = "virsh domuuid %s" % guest_name
+        ret, output = self.runcmd(cmd, "get virsh domuuid", targetmachine_ip)
+        logger.info("get the uuid %s" % output)
+        guestuuid = output[:-1].strip()
+        return guestuuid
+
     def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho(targetmachine_ip)
-        cmd = "tail -2 %s " % rhsmlogfile
+        cmd = "tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
             if "Sending list of uuids: " in output:
@@ -538,9 +620,6 @@ class VIRTWHOBase(unittest.TestCase):
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending update to updateConsumer: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Libvirt domains found" in output:
-                log_uuid_list = output.split('Libvirt domains found: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
@@ -648,7 +727,7 @@ class VIRTWHOBase(unittest.TestCase):
     def start_vm(self, guest_name, targetmachine_ip=""):
         cmd = "virsh start %s" % (guest_name)
         ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
-        if ret == 0:
+        if ret == 0 or "already active" in output:
             logger.info("Succeeded to start guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
@@ -710,6 +789,24 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to shutdown guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to shutdown guest %s." % guest_name)
+
+    def pause_vm(self, guest_name, targetmachine_ip=""):
+        ''' Pause a guest in host machine. '''
+        cmd = "virsh suspend %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "pause guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to pause guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to pause guest %s." % guest_name)
+
+    def resume_vm(self, guest_name, targetmachine_ip=""):
+        ''' resume a guest in host machine. '''
+        cmd = "virsh resume %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "resume guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to resume guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to pause guest %s.")
 
     def vw_migrate_guest(self, guestname, target_machine, origin_machine=""):
         ''' migrate a guest from source machine to target machine. '''
@@ -804,7 +901,7 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("can't get guest '%s' ID" % guest_name)
 
         # check geust status by vmsvc/power.getstate 
-        cmd = "vim-cmd vmsvc/power.getstate %s" %guest_id
+        cmd = "vim-cmd vmsvc/power.getstate %s" % guest_id
         ret, output = self.runcmd_esx(cmd, "check guest '%s' status" % (guest_name), destination_ip)
         if ret == 0 and "Powered on" in output:
             return True
@@ -1042,7 +1139,7 @@ class VIRTWHOBase(unittest.TestCase):
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho()
         self.vw_restart_virtwho()
-        #need to sleep tail -3, then can get the output normally
+        # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
