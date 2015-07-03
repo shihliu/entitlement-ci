@@ -612,7 +612,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho(targetmachine_ip)
-        cmd = "tail -2 %s " % rhsmlogfile
+        cmd = "tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
             if "Sending list of uuids: " in output:
@@ -727,7 +727,7 @@ class VIRTWHOBase(unittest.TestCase):
     def start_vm(self, guest_name, targetmachine_ip=""):
         cmd = "virsh start %s" % (guest_name)
         ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
-        if ret == 0:
+        if ret == 0 or "already active" in output:
             logger.info("Succeeded to start guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
@@ -901,7 +901,7 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("can't get guest '%s' ID" % guest_name)
 
         # check geust status by vmsvc/power.getstate 
-        cmd = "vim-cmd vmsvc/power.getstate %s" %guest_id
+        cmd = "vim-cmd vmsvc/power.getstate %s" % guest_id
         ret, output = self.runcmd_esx(cmd, "check guest '%s' status" % (guest_name), destination_ip)
         if ret == 0 and "Powered on" in output:
             return True
@@ -1139,7 +1139,7 @@ class VIRTWHOBase(unittest.TestCase):
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho()
         self.vw_restart_virtwho()
-        #need to sleep tail -3, then can get the output normally
+        # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
