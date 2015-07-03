@@ -16,21 +16,21 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(VIRTWHOBase):
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
 
-            sku_name = VIRTWHOConstants().get_constant("datacenter_name")
-            test_sku = VIRTWHOConstants().get_constant("datacenter_sku")
-            test_bonus_sku = VIRTWHOConstants().get_constant("datacenter_bonus_sku")
-            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_available")
+            product_name = VIRTWHOConstants().get_constant("datacenter_name")
+            host_sku_id = VIRTWHOConstants().get_constant("datacenter_sku_id")
+            bonus_sku_id = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
+            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
 
             #1).check DataCenter is exist on host/hpyervisor
-            pool_id = self.get_poolid_by_SKU(test_sku)
-            if pool_id is not None or pool_id !="":
-                 logger.info("Succeeded to find the pool id for product '%s': '%s'" % (sku_name,test_sku))
+            host_pool_id = self.get_poolid_by_SKU(host_sku_id)
+            if host_pool_id is not None or host_pool_id !="":
+                 logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
-                raise FailException("Failed to find the pool of product %s" % sku_name)
+                raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
@@ -38,16 +38,14 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(VIRTWHOBase):
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #3).subscribe successfully to the DataCenter subscription pool on host
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku), SAM_IP)
+            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SAM_IP)
 
             #4).check the bonus pool is available
-            new_available_poollist = self.sub_listavailpools(test_bonus_sku, guestip)
-            if new_available_poollist != None:
-                if self.subpool_isExist(test_bonus_sku, bonus_quantity, new_available_poollist) is True:
-                    logger.info("Succeeded to list the bonus pool of product '%s'" % sku_name)
-                    self.assert_(True, case_name)
+            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+                logger.info("Succeeded to find the bonus pool of product '%s'" % product_name)
+                self.assert_(True, case_name)
             else:
-                raise FailException("Failed to get available pool list from guest.")
+                raise FailException("Failed to find the bonus pool from guest.")
 
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
