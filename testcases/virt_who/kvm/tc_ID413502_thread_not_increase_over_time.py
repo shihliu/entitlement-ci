@@ -22,9 +22,9 @@ class tc_ID413502_thread_not_increase_over_time(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.vw_define_all_guests()
             self.restore_libvirtd_config()
             self.vw_restart_libvirtd()
+            self.vw_define_all_guests()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
     def setup_libvirtd_config(self):
