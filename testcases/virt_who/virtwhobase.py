@@ -466,13 +466,16 @@ class VIRTWHOBase(unittest.TestCase):
                         return True
         return False
 
-    def check_installed_status(self, targetmachine_ip=""):
+    def check_installed_status(self, status, targetmachine_ip=""):
         ''' check the installed entitlements. '''
         cmd = "subscription-manager list --installed"
         ret, output = self.runcmd(cmd, "list installed subscriptions", targetmachine_ip)
-        if ret == 0 and output is not None:
-            if "Not Subscribed" not in output:
-                return True
+        if ret == 0 and output is not None :
+            if "Not Subscribed" not in output and status in output:
+                logger.info("Succeeded to check the installed status is %s" %status)
+            else:
+                raise FailException("Failed to check the installed status in %s." % self.get_hg_info(targetmachine_ip))
+            return True
         return False
 
     def sub_refresh(self, targetmachine_ip=""):
@@ -604,14 +607,18 @@ class VIRTWHOBase(unittest.TestCase):
         ''' get the guest uuid. '''
         cmd = "virsh domuuid %s" % guest_name
         ret, output = self.runcmd(cmd, "get virsh domuuid", targetmachine_ip)
-        logger.info("get the uuid %s" % output)
+        if ret ==0:
+            logger.info("get the uuid %s" % output)
+        else:
+            raise FailException("Failed to get the uuid")
         guestuuid = output[:-1].strip()
         return guestuuid
 
     def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.vw_restart_virtwho(targetmachine_ip)
+        # ignore restart virt-who serivce since virt-who -b -d will stop
+        #self.vw_restart_virtwho(targetmachine_ip)
         cmd = "tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
