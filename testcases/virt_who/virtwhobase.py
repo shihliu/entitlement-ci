@@ -201,6 +201,15 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to stop virt-who service.")
 
+    def vw_restart_libvirtd(self, targetmachine_ip=""):
+        ''' restart libvirtd service. '''
+        cmd = "service libvirtd restart"
+        ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to restart libvirtd service.")
+        else:
+            raise FailException("Test Failed - Failed to restart libvirtd")
+
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
         cmd = "subscription-manager identity"
@@ -591,11 +600,19 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
 
+    def vw_get_uuid(self, guest_name, targetmachine_ip=""):
+        ''' get the guest uuid. '''
+        cmd = "virsh domuuid %s" % guest_name
+        ret, output = self.runcmd(cmd, "get virsh domuuid", targetmachine_ip)
+        logger.info("get the uuid %s" % output)
+        guestuuid = output[:-1].strip()
+        return guestuuid
+
     def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho(targetmachine_ip)
-        cmd = "tail -2 %s " % rhsmlogfile
+        cmd = "tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
             if "Sending list of uuids: " in output:
@@ -603,9 +620,6 @@ class VIRTWHOBase(unittest.TestCase):
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending update to updateConsumer: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Libvirt domains found" in output:
-                log_uuid_list = output.split('Libvirt domains found: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
@@ -713,7 +727,7 @@ class VIRTWHOBase(unittest.TestCase):
     def start_vm(self, guest_name, targetmachine_ip=""):
         cmd = "virsh start %s" % (guest_name)
         ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
-        if ret == 0:
+        if ret == 0 or "already active" in output:
             logger.info("Succeeded to start guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
@@ -775,6 +789,24 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to shutdown guest %s." % guest_name)
         else:
             raise FailException("Test Failed - Failed to shutdown guest %s." % guest_name)
+
+    def pause_vm(self, guest_name, targetmachine_ip=""):
+        ''' Pause a guest in host machine. '''
+        cmd = "virsh suspend %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "pause guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to pause guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to pause guest %s." % guest_name)
+
+    def resume_vm(self, guest_name, targetmachine_ip=""):
+        ''' resume a guest in host machine. '''
+        cmd = "virsh resume %s" % (guest_name)
+        ret, output = self.runcmd(cmd, "resume guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to resume guest %s." % guest_name)
+        else:
+            raise FailException("Test Failed - Failed to pause guest %s.")
 
     def vw_migrate_guest(self, guestname, target_machine, origin_machine=""):
         ''' migrate a guest from source machine to target machine. '''
@@ -869,7 +901,7 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("can't get guest '%s' ID" % guest_name)
 
         # check geust status by vmsvc/power.getstate 
-        cmd = "vim-cmd vmsvc/power.getstate %s" %guest_id
+        cmd = "vim-cmd vmsvc/power.getstate %s" % guest_id
         ret, output = self.runcmd_esx(cmd, "check guest '%s' status" % (guest_name), destination_ip)
         if ret == 0 and "Powered on" in output:
             return True
@@ -1107,7 +1139,7 @@ class VIRTWHOBase(unittest.TestCase):
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         self.vw_restart_virtwho()
         self.vw_restart_virtwho()
-        #need to sleep tail -3, then can get the output normally
+        # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
