@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID142465_validate_compliance_when_ping_pong_migrate_guest(VIRTWHOBase):
+class tc_ID155144_validate_compliance_when_migrate_to_another_host(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -31,8 +31,6 @@ class tc_ID142465_validate_compliance_when_ping_pong_migrate_guest(VIRTWHOBase):
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             self.sub_subscribe_sku(test_sku)
-            self.sub_subscribe_sku(test_sku, slave_machine_ip)
-
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
@@ -40,18 +38,6 @@ class tc_ID142465_validate_compliance_when_ping_pong_migrate_guest(VIRTWHOBase):
             # migrate guest to slave machine
             self.vw_migrate_guest(guest_name, slave_machine_ip)
 #             time.sleep(60)
-            self.sub_refresh(guestip)
-            # list consumed subscriptions on guest
-            self.sub_listconsumed(sku_name, guestip, productexists=False)
-
-            # subscribe the registered guest to the corresponding bonus pool
-            self.sub_subscribe_to_bonus_pool(test_sku, guestip)
-            # list consumed subscriptions on guest
-            self.sub_listconsumed(sku_name, guestip)
-            # migrate guest back
-            self.vw_migrate_guest(guest_name, master_machine_ip, slave_machine_ip)
-#             time.sleep(60)
-            # refresh the guest
             self.sub_refresh(guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -64,8 +50,7 @@ class tc_ID142465_validate_compliance_when_ping_pong_migrate_guest(VIRTWHOBase):
                 self.sub_unregister(guestip)
             # unsubscribe host
             self.sub_unsubscribe()
-            self.sub_unsubscribe(slave_machine_ip)
-            self.vw_stop_guests(guest_name)
+            self.vw_stop_guests(guest_name, slave_machine_ip)
             self.vw_define_guest(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
