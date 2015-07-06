@@ -3,15 +3,15 @@
     node: master
     triggers:
         - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'" AND release LIKE '%.el7%'
     builders:
         - shell: |
             #!/bin/bash
             #maybe got brew rpm link here for yum install virt-who
-            echo "RHEL-6.7-20150519.0" > BUILD.txt
+            echo ${CI_MESSAGE} | tee $WORKSPACE/CI_MESSAGE.txt
 
         - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+            properties-file: $WORKSPACE/CI_MESSAGE.txt
 
     publishers:
       - archive:
@@ -21,7 +21,7 @@
           - project: 'brew-sam-install-for-rhel-7-provision'
             current-parameters: true
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
+            property-file: $WORKSPACE/CI_MESSAGE.txt
             fail-on-missing: true
       - default-virt-who-publishers
 
