@@ -9,6 +9,7 @@ class brew_virtwho_esx_setup(VIRTWHOBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.sys_setup()
+            self.brew_virtwho_upgrate()
             self.esx_setup()
             self.assert_(True, case_name)
         except Exception, e:
