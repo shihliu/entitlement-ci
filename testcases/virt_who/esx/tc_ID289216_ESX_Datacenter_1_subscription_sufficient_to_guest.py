@@ -55,17 +55,22 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase)
             self.sub_subscribe_sku(bonus_sku_id, guestip)
 
             #8).check the Status Details of consumed product
-            if self.check_consumed_status(bonus_sku_id, guestip):
+            consumed_status_key = "StatusDetails"
+            consumed_status_value = "Subscription is current"
+            if self.check_consumed_status(bonus_sku_id, consumed_status_key, consumed_status_value, guestip):
                 logger.info("Succeeded to check the consumed Status Details: Subscription is current")
             else:
                 raise FailException("Failed to check the consumed Status Details.")
 
             #9).check the Status of installed product
-            if self.check_installed_status(guestip):
+            installed_status_key = "Status"
+            installed_status_value = "Subscribed"
+            if self.check_installed_status(installed_status_key, installed_status_value, guestip):
                 logger.info("Succeeded to check the installed Status: Subscribed")
-                self.assert_(True, case_name)
             else:
                 raise FailException("Failed to check the installed Status.")
+
+            self.assert_(True, case_name)
 
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

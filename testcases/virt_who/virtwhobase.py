@@ -349,6 +349,34 @@ class VIRTWHOBase(unittest.TestCase):
             pool_list.append(pool_dict)
         return pool_list
 
+    # used to parse the output for "subscribe list --installed"
+    def __parse_installed_lines(self, output):
+        datalines = output.splitlines()
+        pool_list = []
+        data_segs = []
+        segs = []
+        for line in datalines:
+            if ("Product Name:" in line) or ("ProductName:" in line) or ("Subscription Name:" in line):
+                segs.append(line)
+            elif segs:
+                # change this section for more than 1 lines without ":" exist
+                if ":" in line:
+                    segs.append(line)
+                else:
+                    segs[-1] = segs[-1] + " " + line.strip()
+            if ("Ends:" in line):
+                data_segs.append(segs)
+                segs = []
+        # parse detail information for each pool
+        for seg in data_segs:
+            pool_dict = {}
+            for item in seg:
+                keyitem = item.split(":")[0].replace(" ", "")
+                valueitem = item.split(":")[1].strip()
+                pool_dict[keyitem] = valueitem
+            pool_list.append(pool_dict)
+        return pool_list
+
     def __parse_listavailable_output(self, output):
         datalines = output.splitlines()
         data_list = []
@@ -492,7 +520,8 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Failed to list consumed subscriptions.")
 
-    def check_consumed_status(self, sku_id, targetmachine_ip=""):
+    # check "subscription-manager list --consumed" key & value 
+    def check_consumed_status(self, sku_id, key, value, targetmachine_ip=""):
         ''' check consumed entitlements status details '''
         cmd = "subscription-manager list --consumed"
         ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
@@ -500,33 +529,21 @@ class VIRTWHOBase(unittest.TestCase):
             consumed_lines = self.__parse_avail_pools(output)
             if consumed_lines != None:
                 for line in range(0, len(consumed_lines)):
-                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line]["StatusDetails"] == "Subscription is current":
+                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
                         return True
         return False
 
-# Check conusmed subscription's quality
-    def check_consumed_quality(self, sku_id, quality, targetmachine_ip=""):
-        ''' check consumed entitlements status details '''
-        cmd = "subscription-manager list --consumed"
-        ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
-        if ret == 0 and output is not None:
-            consumed_lines = self.__parse_avail_pools(output)
-            if consumed_lines != None:
-                for line in range(0, len(consumed_lines)):
-                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line]["QuantityUsed"] == quality:
-                        return True
-        return False
-
-    def check_installed_status(self, status, targetmachine_ip=""):
+    # check "subscription-manager list --installed" key & value 
+    def check_installed_status(self, key, value, targetmachine_ip=""):
         ''' check the installed entitlements. '''
         cmd = "subscription-manager list --installed"
         ret, output = self.runcmd(cmd, "list installed subscriptions", targetmachine_ip)
         if ret == 0 and output is not None :
-            if "Not Subscribed" not in output and status in output:
-                logger.info("Succeeded to check the installed status is %s" % status)
-            else:
-                raise FailException("Failed to check the installed status in %s." % self.get_hg_info(targetmachine_ip))
-            return True
+            installed_lines = self.__parse_installed_lines(output)
+            if installed_lines != None:
+                for line in range(0, len(installed_lines)):
+                    if installed_lines[line][key] == value:
+                        return True
         return False
 
     def sub_refresh(self, targetmachine_ip=""):

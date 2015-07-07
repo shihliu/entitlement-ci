@@ -31,10 +31,22 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
             # subscribe the registered guest to 1 instance pool
             poolid = self.get_pool_by_SKU(test_sku, guestip)
             self.sub_limited_subscribetopool(poolid, "1", guestip)
-            # list consumed subscriptions' quality should be 1 on guest
-            self.check_consumed_quality(test_sku, "1", guestip)
-            # list installed produced status
-            self.check_installed_status("Subscribed", guestip)
+
+            #check consumed subscriptions' quality, should be 1 on guest 
+            consumed_quantity_key = "QuantityUsed"
+            consumed_quantity_value = "1"
+            if self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, guestip):
+                logger.info("Succeeded to check the consumed quantity value is: %s" % quantity_value)
+            else:
+                raise FailException("Failed to check the consumed quantity value.")
+
+            #.check the Status of installed product, should be 'Subscribed' status
+            installed_status_key = "Status"
+            installed_status_value = "Subscribed"
+            if self.check_installed_status(installed_status_key, installed_status_value, guestip):
+                logger.info("Succeeded to check the installed Status: Subscribed")
+            else:
+                raise FailException("Failed to check the installed Status.")
 
             self.assert_(True, case_name)
         except Exception, e:
