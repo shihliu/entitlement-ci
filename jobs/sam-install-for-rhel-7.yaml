@@ -2,9 +2,6 @@
     name: 'sam-install-for-rhel-7-provision'
     defaults: virt-who-provision
     node: master
-    triggers:
-        - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
     builders:
         - shell: |
             #!/bin/bash
