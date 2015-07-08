@@ -565,8 +565,8 @@ class VIRTWHOBase(unittest.TestCase):
 
     # check ^Certificate: or ^Content: in cert file
     def check_cert_file(self, keywords, targetmachine_ip=""):
-        cmd = "rct cat-cert /etc/pki/entitlement/*[^-key].pem | grep -A5 \"%s\"" %keywords
-        ret, output = self.runcmd(cmd, "Check %s exist in cert file in guest" %keywords, targetmachine_ip)
+        cmd = "rct cat-cert /etc/pki/entitlement/*[^-key].pem | grep -A5 \"%s\"" % keywords
+        ret, output = self.runcmd(cmd, "Check %s exist in cert file in guest" % keywords, targetmachine_ip)
         if ret == 0:
             return True
         return False
@@ -760,6 +760,45 @@ class VIRTWHOBase(unittest.TestCase):
                     raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
         else:
             raise FailException("Failed to get rhsm.log")
+
+    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check if the guest attributions is correctly monitored by virt-who. '''
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        self.vw_restart_virtwho(targetmachine_ip)
+        cmd = "tail -3 %s | grep Sending" % rhsmlogfile 
+        ret, output = self.runcmd(cmd, "check output in rhsm.log")
+        if ret == 0:
+            ''' get guest uuid.list from rhsm.log '''
+            if "Sending list of uuids: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update to updateConsumer: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending domain info" in output:
+                log_uuid_list = output.split('Sending domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")    
+            else:
+                raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+            loglist = eval(log_uuid_list)
+            for item in loglist:
+                if item['guestId'] == guestuuid:
+                    attr_status = item['attributes']['active']
+                    logger.info("guest's active status is %s." % attr_status)
+                    attr_type = item['attributes']['virtWhoType']
+                    logger.info("guest virtwhotype is %s." % attr_type)
+                    attr_hypertype = item['attributes']['hypervisorType']
+                    logger.info("guest hypervisortype is %s." % attr_hypertype)
+                    attr_state = item['state']
+                    logger.info("guest state is %s." % attr_state)
+            if guestname != "" and (guest_status == attr_status) and (guest_type in attr_type) and (guest_hypertype in attr_hypertype) and (guest_state == attr_state):
+                logger.info("successed to check guest %s attribute" % guestname)
+            else:
+                raise FailException("Failed to check guest %s attribute" % guestname)
+        else:
+            logger.error("Failed to get uuids in rhsm.log")
+            self.SET_RESULT(1)
+
 
     def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. '''
