@@ -36,7 +36,7 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "1"
             if self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, guestip):
-                logger.info("Succeeded to check the consumed quantity value is: %s" % quantity_value)
+                logger.info("Succeeded to check the consumed quantity value is: %s" % consumed_quantity_value)
             else:
                 raise FailException("Failed to check the consumed quantity value.")
 
