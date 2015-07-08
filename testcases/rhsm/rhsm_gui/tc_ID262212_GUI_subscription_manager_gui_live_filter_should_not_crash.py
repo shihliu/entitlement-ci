@@ -3,17 +3,15 @@
 ##############################################################################
 """
 Setup:
-	
+
 Breakdown:
 
 Actions:
-
 1. Open subscription-manager-gui and register the system.
 2. Click filters on the "All Available Subscriptions" tab, uncheck everything, and put in any string in the "Contain the text" field. After that close the filters and click 'update' to search for subscriptions.
 3. Open filters again and change the text filter very quickly, and then update the search list.
-	
-Expected Results:
 
+Expected Results:
 1. After step 1, subscription-manager-gui is loaded and regeisteration is successfull.
 2. After step 2, no error happens.
 3. After step 3, subscription-manager-gui should not crash.
@@ -22,6 +20,7 @@ Notes:
 Does above instructions and sees whether the subscription-manager-gui window is still open
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
@@ -55,7 +54,7 @@ class tc_ID262212_GUI_subscription_manager_gui_live_filter_should_not_crash(RHSM
                 self.click_update_button()
                 self.check_window_exist('main-window')
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

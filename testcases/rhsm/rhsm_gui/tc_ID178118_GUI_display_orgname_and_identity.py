@@ -3,28 +3,23 @@
 ##############################################################################
 """
 Setup:
-
 1.Prepare a registered machine.
-	
+
 Breakdown:
 
 Actions:
-
 1.open the subscription-manager GUI
-
 #subscription-manager-GUI
-
 2.click  the "View System Facts" ,
 3.click the  "System"
-	
-Expected Results:
 
+Expected Results:
 1.after step 1, the subscription-manager GUI should be displayed
 2. the Subscription-manager Facts will be displayed and the org info displays on the right panel.
 3. the identity info should be displayed
 
 Notes: 
-Completed
+Completed.
 """
 ##############################################################################
 
@@ -50,7 +45,7 @@ class tc_ID178118_GUI_display_orgname_and_identity(RHSMGuiBase):
                 self.check_org_and_id_displayed_in_facts_match(username, password)
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

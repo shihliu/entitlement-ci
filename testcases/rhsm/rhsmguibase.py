@@ -123,9 +123,11 @@ class RHSMGuiBase(unittest.TestCase):
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
 
     def check_checkbox(self, window, checkbox_name):
+        logger.info("Checking checkbox %s in window %s" % (checkbox_name, window))
         ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def uncheck_checkbox(self, window, checkbox_name):
+        logger.info("Unchecking checkbox %s in window %s" % (checkbox_name, window))
         ldtp.uncheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def verifycheck_checkbox(self, window, checkbox_name):
@@ -138,6 +140,17 @@ class RHSMGuiBase(unittest.TestCase):
     # ========================================================
     #     1. LDTP GUI Keyword Functions
     # ========================================================
+
+    def restore_firstboot_environment(self):
+        filename = "/etc/sysconfig/firstboot"
+        text = open(filename).read()
+        open(filename, "w").write(text.replace("NO","YES"))
+        logger.info("SUCCESS: firstboot restored in /etc/sysconfig/firstboot!")
+
+    def click_firstboot_fwd_button(self):
+        self.click_button('firstboot-main-window', 'firstboot-fwd-button')
+        logger.info("SUCCESS: clicked firstboot forward button!")
+        ldtp.wait()
 
     def check_hostype_and_isguest_gui_vs_cli(self):
         self.double_click_row('system-facts-dialog','facts-view-table','virt')

@@ -3,28 +3,27 @@
 ##############################################################################
 """
 Setup:
-
 1.prepare a machine which has been registered to SAM server.
-    
+
 Breakdown:
+
 Actions:
 
 1.open the  subscription manager GUI
-
 #subscription-manager-gui
-
 2.click My Subscriptions to show the subscriptions which the machine has consumed
-    
+
 Expected Results:
-
 1.after step1,the GUI should be opened.
-
 2.after step 2,the consumed subscriptions should display in the table.
 
 Notes:
+Subscribes to subscriptions 1 and 3.  Be sure to have at least three available subscriptions, or
+you'll get an index out of bounds error. 
 Completed.
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
@@ -49,15 +48,15 @@ class tc_ID183421_GUI_list_consumed_entitlements(RHSMGuiBase):
                 self.select_row('main-window','all-subscription-table', 1)
                 self.click_button('main-window','attach-subscription')
                 self.click_my_subscriptions_tab()
+                #find all consumed pools in a dict
                 sub_dict = self.sub_listconsumedpools()
+                #go through the dictionary and dheck whether pools match
                 for i in xrange(len(sub_dict)):
-                    print repr(self.get_table_cell('main-window','my-subscription-table', i, 0))
-                    print repr(sub_dict[i]['SubscriptionName'])
                     if self.get_table_cell('main-window','my-subscription-table', i, 0) != sub_dict[i]['SubscriptionName']:
-                        raise FailException('My consumed subscriptions do not match the ones listed in GUI!')
+                        raise FailException('FAILED: My consumed subscriptions do not match the ones listed in GUI!')
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)   

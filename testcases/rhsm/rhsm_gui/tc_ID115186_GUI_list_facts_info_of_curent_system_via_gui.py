@@ -3,21 +3,19 @@
 ##############################################################################
 """
 Setup:
-	
+
 Breakdown:
 
 Actions:
-
 1.# subscription-manager-gui
 2.Click "View System Facts" button.
 
 Expected Results:
-
 1.After step1, the subscription-manager GUI is opened.
 2.After step2, the "Facts" dialog pops up and facts info of the current system should successfully display.
 
 Notes:
-Works for RHEL 7 and 6 only.  If there is a 5 version, may need to change lines 45-46 and the check_object_status function
+Completed.
 """
 ##############################################################################
 from utils import *
@@ -38,15 +36,14 @@ class tc_ID115186_GUI_list_facts_info_of_current_system_via_gui(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_view_system_facts_menu()
-                #check object status handles whether 7 or 6 version
                 self.check_window_exist('system-facts-dialog')
                 self.check_object_status("main-window", "system-facts-dialog","VISIBLE")
-                logger.info("System facts visible!")
+                logger.info("SUCCESS: System facts visible!")
                 self.check_object_status("main-window", "system-facts-dialog","ENABLED")
-                logger.info("System facts enabled!")
+                logger.info("SUCCESS: System facts enabled!")
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)
