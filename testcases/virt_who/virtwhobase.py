@@ -532,7 +532,7 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Failed to list consumed subscriptions.")
 
     # check "subscription-manager list --consumed" key & value 
-    def check_consumed_status(self, sku_id, key, value, targetmachine_ip=""):
+    def check_consumed_status(self, sku_id, key="", value="", targetmachine_ip=""):
         ''' check consumed entitlements status details '''
         cmd = "subscription-manager list --consumed"
         ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
@@ -540,9 +540,14 @@ class VIRTWHOBase(unittest.TestCase):
             consumed_lines = self.__parse_avail_pools(output)
             if consumed_lines != None:
                 for line in range(0, len(consumed_lines)):
-                    if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
-                        return True
-        return False
+                    if key is not None and value is not None: 
+                        if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
+                            return True
+                    else:
+                        if consumed_lines[line]["SKU"] == sku_id:
+                            return True
+            return False
+        raise FailException("Failed to list consumed subscriptions.")
 
     # check "subscription-manager list --installed" key & value 
     def check_installed_status(self, key, value, targetmachine_ip=""):
@@ -555,8 +560,25 @@ class VIRTWHOBase(unittest.TestCase):
                 for line in range(0, len(installed_lines)):
                     if installed_lines[line][key] == value:
                         return True
+            return False
+        raise FailException("Failed to list installed info.")
+
+    # check ^Certificate: or ^Content: in cert file
+    def check_cert_file(self, keywords, targetmachine_ip=""):
+        cmd = "rct cat-cert /etc/pki/entitlement/*[^-key].pem | grep -A5 \"%s\"" %keywords
+        ret, output = self.runcmd(cmd, "Check %s exist in cert file in guest" %keywords, targetmachine_ip)
+        if ret == 0:
+            return True
         return False
 
+    # check ^Repo ID by subscription-manager repos --list 
+    def check_yum_repo(self, keywords, targetmachine_ip=""):
+        cmd = "subscription-manager repos --list | grep -A4 \"^Repo ID\""
+        ret, output = self.runcmd(cmd, "Check repositories available in guest", targetmachine_ip)
+        if ret == 0 and "This system has no repositories available through subscriptions." not in output:
+            return True
+        return False
+            
     def sub_refresh(self, targetmachine_ip=""):
         ''' sleep 20 seconds firstly due to guest restart, and then refresh all local data. '''
         cmd = "sleep 20; subscription-manager refresh"
@@ -574,16 +596,27 @@ class VIRTWHOBase(unittest.TestCase):
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
     def check_bonus_isExist(self, sku_id, bonus_quantity, targetmachine_ip=""):
-        new_available_poollist = self.sub_listavailpools(sku_id, targetmachine_ip)
-        if new_available_poollist != None:
-            for item in range(0, len(new_available_poollist)):
-                if "Available" in new_available_poollist[item]:
-                    SKU_Number = "Available"
+        # check bonus pool is exist or not
+        cmd = "subscription-manager list --available"
+        ret, output = self.runcmd(cmd, "run 'subscription-manager list --available'", targetmachine_ip)
+        if ret == 0:
+            if "No Available subscription pools to list" not in output:
+                pool_list = self.__parse_avail_pools(output)
+                if pool_list != None:
+                    for item in range(0, len(pool_list)):
+                        if "Available" in pool_list[item]:
+                            SKU_Number = "Available"
+                        else:
+                            SKU_Number = "Quantity"
+                        if pool_list[item]["SKU"] == sku_id and self.check_type_virtual(pool_list[item]) and pool_list[item][SKU_Number] == bonus_quantity:
+                            return True
+                    return False
                 else:
-                    SKU_Number = "Quantity"
-                if new_available_poollist[item]["SKU"] == sku_id and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
-                    return True
-        return False
+                    raise FailException("Failed to list available pool, the pool is None.")
+            else:
+                raise FailException("Failed to list available pool, No Available subscription pools to list.")
+        else:
+            raise FailException("Failed to run 'subscription-manager list --available'")
 
     def setup_custom_facts(self, facts_key, facts_value, targetmachine_ip=""):
         ''' setup_custom_facts '''
