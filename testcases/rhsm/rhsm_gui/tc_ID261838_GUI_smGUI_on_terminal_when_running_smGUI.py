@@ -3,19 +3,15 @@
 ##############################################################################
 """
 Setup:
-
 1. subscription-manager-gui is already running and it either minimized or in the background.
-    
+
 Breakdown:
 
 Actions:
-
 1. Open another terminal and run subscription-manager-gui on the terminal.
-    
+
 Expected Results:
-
 1. After step 1, the subscription-manager-gui window is brought to foreground, and the following message is displayed:
-
 # subscription-manager-gui
 subscription-manager-gui is already running
 
@@ -23,6 +19,7 @@ Notes:
 Completed.
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
@@ -37,9 +34,9 @@ class tc_ID261838_GUI_smGUI_on_terminal_when_running_smGUI(RHSMGuiBase):
         try:
             try:
                 self.open_subscription_manager()
-                logger.info("SUCCESS: Opened sm-gui without crashing!")
                 if not(self.open_subscription_manager_by_cmd_check_output()):
                     FailException("FAILED: Error when opening subscription manager twice or error message wrong!")
+                logger.info("SUCCESS: Opened sm-gui on terminal without crashing!")
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))

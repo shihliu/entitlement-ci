@@ -139,6 +139,8 @@ class RHSMGuiLocator(object):
     # firstboot
     'firstboot-login-text':                  'txtaccountlogin',
     'firstboot-password-text':               'txtaccountpassword',
+    'firstboot-organization-entry-text':     'txtorganizationentry',
+    'firstboot-activation-key-text':         'txtactivationkeyentry',
     # rhn_classic
     'classic-login-text':                    'txtLogin',
     'classic-password-text':                 'txtPassword',

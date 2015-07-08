@@ -3,28 +3,22 @@
 ##############################################################################
 """
 Setup:
-
 1. The system is registered and autosubscribed.
-    
+
 Breakdown:
+
 Actions:
-
 1. Open subscription-manager-gui.
-
 2. Click "System Preferences" button in toolbar.
-
 3. Check the drop-down list of release version.
-    
+
 Expected Results:
-
 1. After step1, subscription manager GUI is openned.
-
 2. After step2, "System Preferences" dialog should display.
-
 3. After step3, release list should display.
 
 Notes:
-Completed
+Completed.
 """
 
 ########################################################
@@ -54,7 +48,7 @@ class tc_ID155109_GUI_list_avaialble_release(RHSMGuiBase):
                         raise FailException("FAILED: Unable to check release %s exist." % item)
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

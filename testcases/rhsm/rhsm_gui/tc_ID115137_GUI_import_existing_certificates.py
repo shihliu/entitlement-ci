@@ -2,38 +2,28 @@
 ## Test Description
 ##############################################################################
 """
-etup:
-
+Setup:
 1.System has been successfully registered to a candlepin server.
-
 2.Prepare an entitlement cert including a cert part ang a key part.
-    
+
 Breakdown:
+
 Actions:
-
 1.# subscription-manager-gui
-
 2.Click "Import Certificate" button.
-
 3.Chose a cert location and click "Import Certificate " button.
 4.Click "My Subscriptions" bookmark.
-    
+
 Expected Results:
-
 1.After step1, the subscription-manager GUI is opened.
-
 2.After step2, the "Provide a Subscription Certificate" dialog pops up.
-
 3.After step3, a prompt message "Certificate import was successful" should display.
-
 4.After step4, the subscription binded with the imported entitlement cert should display and corresponding cert and key files should be generated in /etc/pki/entitlement/.
 
 Notes:
-When doing this test, DO NOT move the mouse or the test will fail at certain points
+See comments in code.
 """
-
-########################################################
-
+##############################################################################
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
@@ -63,25 +53,29 @@ class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
                 self.input_username(username)
                 self.input_password(password)
                 self.click_dialog_register_button()
-                self.click_dialog_cancle_button()
+                self.click_dialog_cancel_button()
+                #import certificate using new interface.  RHEL 7 changed it's search dlg and
+                #the search txt box is buggy with ldtp.  We will use a system of clicks in finder
+                #to search for new certificate
                 self.click_import_cert_menu()
-                self.double_click_row('import-cert-dialog', 'table-places','File System')
-                self.double_click_row('import-cert-dialog', 'table-files','tmp')
-                self.double_click_row('import-cert-dialog', 'table-files','test.pem')
+                self.select_row_by_name('import-cert-dialog', 'table-places','File System')
+                self.select_row_by_name('import-cert-dialog', 'table-files','tmp')
+                self.click_button('import-cert-dialog', 'import-file-button')
+                self.select_row_by_name('import-cert-dialog', 'table-files','test.pem')
+                self.click_button('import-cert-dialog', 'import-file-button')
                 if self.check_window_open("information-dialog") and self.check_object_exist("information-dialog", "import-cert-success-label"):
-                    logger.info("SUCCES: Import success prompt displayed")
+                    logger.info("SUCCES: Import success prompt displayed!")
                 else:
-                    raise FailException("Test Faild - Failed to check prompt message displayed")
-                # check whether entitlement certificates generated and productid in them or not
+                    raise FailException("FAILED: Success prompt not found!")
+                #check whether imported certificate has proper productid
                 productid = RHSMConstants().get_constant("productid")
-                print productid
                 self.check_entitlement_cert(productid)
-                ldtp.click('dlgInformation', 'btnOK')
+                self.click_button('information-dialog', 'ok-button')
                 self.click_my_subscriptions_tab()
                 if self.get_my_subscriptions_table_my_subscriptions() == subscribed:
                     logger.info("SUCCESS: My subscription tab matches previous subscription!")
                 else:
-                    raise FailException("FAILED: Unable to check subscriptions under my_subscriptions tab")
+                    raise FailException("FAILED: Unable to check subscriptions under my_subscriptions tab!")
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))
