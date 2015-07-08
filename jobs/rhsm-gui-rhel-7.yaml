@@ -1,0 +1,145 @@
+- job-template:
+    name: 'rhsm-gui-rhel-7-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - copyartifact:
+            project: 'sam-install-for-rhel-7-runtest'
+            filter: 'SAMSERVER.txt'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+
+            kinit -k -t $KEYTAB $PRINCIPAL
+
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+
+            # Provision Test Resources
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+
+            TR_STATUS=$?
+
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+
+            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
+
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'rhsm-gui-rhel-7-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+
+- job-template:
+    name: 'rhsm-gui-rhel-7-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'rhsm-gui-rhel-7-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+
+        - shell: |
+            #!/bin/bash
+            set -x
+
+            export TOPOLOGY={topology}
+            {testparams}
+
+            echo "TOPOLOGY: {topology}"
+
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+
+            echo "Jenkins machine info we are running on"
+            ifconfig
+
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
+            export RUN_SERVER=sam
+            #export SAM_IP=$SAM_IP
+            export SAM_IP=10.66.144.112
+            export SAM_HOSTNAME=samserv.redhat.com
+            #export SAM_HOSTNAME=$SAM_HOSTNAME
+            
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_gui/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - default-virt-who-publishers
+
+- job-group:
+    name: rhsm-gui-rhel-7-provision-runtest
+    jobs:
+      - 'rhsm-gui-rhel-7-provision'
+      - 'rhsm-gui-rhel-7-runtest'
+
+- project:
+    name: rhsm-gui-rhel-7
+    project:
+     - rhsm-gui-rhel-7
+    project_defaults:
+     - entitlement-ci/config/project_defaults
+    topology_path:
+     - entitlement-ci/config
+    topology:
+     - bkr_rhsm_rhel_7
+    ssh_keyfile:
+     - entitlement-ci/config/keys/ent-key
+    tests_path:
+     - entitlement-ci/tests
+    testparams:
+     - echo "I am a test parameter"
+    jobs:
+     - rhsm-gui-rhel-7-provision-runtest
+    jslavename:
+     - jslave-rhsm-gui-rhel-7-slave
+    jslave_execs:
+     - 10
+    jslaveimage:
+     - RHEL-6.6-Server-x86_64-released
+    jslaveflavor:
+     - m1.medium
+    jslaveusername:
+     - root
+    jslavepassword:
+     - redhat
+    jslaveteardown:
+     - True
