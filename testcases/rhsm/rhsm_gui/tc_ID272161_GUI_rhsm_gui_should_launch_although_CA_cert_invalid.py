@@ -3,27 +3,23 @@
 ##############################################################################
 """
 Setup:
-	
+
 Breakdown:
 
 Actions:
-
 1.remove the CA file
-
 #mv /etc/rhsm/ca/* /root/tmp
-
 2.launch rhsm gui
-
 #subscription-manager-gui
-	
+    
 Expected Results:
-
 1.After step2 the rhsm gui should be launched successfully.
 
 Notes:
 Completed.
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
@@ -43,7 +39,7 @@ class tc_ID272161_GUI_rhsm_gui_should_launch_although_CA_cert_invalid(RHSMGuiBas
                 logger.info("SUCCESS: Opened sm-gui without crashing!")
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)   

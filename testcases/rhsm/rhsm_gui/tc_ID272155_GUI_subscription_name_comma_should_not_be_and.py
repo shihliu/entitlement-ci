@@ -3,44 +3,35 @@
 ##############################################################################
 """
 Setup:
-
 1.Prepare a subscription with a comma in the Subscription name
-
 2.The system is registered.
 
 Breakdown:
 
 Actions:
-
 1.Attach the prepared subscription
-
 #subscription-manager attach --pool=[poolid]
-
 2.launch subscription-manager-gui
-
 #subscription-manager-gui
-
 3.Look at the corresponding product in the My Installed Products tab and look at the Subscription name
 
 Expected Results:
-
 1.After step1 the subscription should be attached successfully
-
 2.After step2 the rhsm gui should be launched successfully
-
 3.After step3 Subscription should be listed with a comma in the Subscription name not an "and".
 
 Notes:
 Completed.
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID272155_subscription_name_comma_should_not_be_and(RHSMGuiBase):
+class tc_ID272155_GUI_subscription_name_comma_should_not_be_and(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
@@ -53,6 +44,7 @@ class tc_ID272155_subscription_name_comma_should_not_be_and(RHSMGuiBase):
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()
                 self.click_update_button()
+                #look trhough the entire table and find a subscription with a comma
                 for i in xrange(self.get_table_row_count('main-window','all-subscription-table')):
                     if "," in self.get_table_cell('main-window','all-subscription-table',i,0):
                         self.select_row('main-window','all-subscription-table', i)
@@ -66,7 +58,7 @@ class tc_ID272155_subscription_name_comma_should_not_be_and(RHSMGuiBase):
                 #we found the exact name, therefore, the 'and' could not have been added in! and so we must pass!
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)   

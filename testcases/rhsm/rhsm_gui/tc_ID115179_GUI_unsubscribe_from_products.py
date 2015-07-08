@@ -1,39 +1,30 @@
-########################################################
-#### Ben's Change Log
-########################################################
+##############################################################################
+## Test Description
+##############################################################################
 """
 Setup:
-
 System has been successfully subscribed to some products.
-	
+
 Breakdown:
+
 Actions:
-
 1. Open subscription-manager-gui
-
 2. Click "My Subscriptions" tab
-
 3. Select a subscription and click "Unsubscribe" button
-
 4. Repeat step 3 for all consumed subscriptions
-	
+
 Expected Results:
-
 1. "Subscription Manager" dialog pops up.
-
 2. All subscriptions consumed by this machine are listed
-
 3. The selected subscription is unsubscribed
-
 4. All subscriptions are unsubscribed
 
 Note: 
 Checks to see whether unsubscribed products are not in the list anymore.
 Simple timer installed in case while loops does not end.
-
+Completed.
 """
-
-########################################################
+##############################################################################
 
 from utils import *
 import time
@@ -58,11 +49,11 @@ class tc_ID115179_GUI_unsubscribe_from_products(RHSMGuiBase):
                 while self.get_table_row_count('main-window','my-subscription-table') > 0:
                     if time.time() > timeout: raise FailException("unsubscription process timed out!")
                     self.click_button('main-window', 'remove-subscriptions-button')
-                    logger.info("Unsubscribed from a product!")
-                logger.info("Unsubscribed from all products!")
+                    logger.info("SUCCESS: Unsubscribed from a product!")
+                logger.info("SUCCESS: Unsubscribed from all products!")
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)

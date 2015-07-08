@@ -3,25 +3,21 @@
 ##############################################################################
 """
 Setup:
-subscription-manager has been installed, and be in a completely unregistered state
-
+    
 Breakdown:
 
 Actions:
-1. start subscription-manager-gui
-2. register through the gui
-3. Go to System --> View System Facts --> virt
-    
-Expected Results:
-3. the virt info in gui should correct and consistent with it in CLI
 
-    In the CLI during the same time:
-    # subscription-manager facts --list | grep ^virt
-    virt.host_type: kvm
-    virt.is_guest: True
-    virt.uuid: 131e448d-c000-f6bb-e2a9-8bb549e21ab4
+1. Start Firstboot 
+2. click Next goes to the subscription-manager-firstboot page.
+
+Expected Results:
+
+1.After step2 There should be an option to register with proxy
 
 Notes:
+Firstboot test specifics are included in Documentation-Ben.
+Please read the note there on firstboot tests if you encounter any errors.
 Completed.
 """
 ##############################################################################
@@ -32,25 +28,26 @@ from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID261955_GUI_smGUI_facts_update_after_registering(RHSMGuiBase):
+class tc_ID324127_GUI_option_to_register_with_proxy_firstboot(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
-                self.open_subscription_manager()
-                self.register_and_autosubscribe_in_gui(username, password)
-                self.click_view_system_facts_menu()
-                self.check_hostype_and_isguest_gui_vs_cli()
+                self.restore_firstboot_environment()
+                self.open_firstboot()
+                self.click_firstboot_fwd_button()
+                self.check_object_exist('firstboot-main-window', 'configure-proxy-button')
+                self.close_firstboot()
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("FAILED - ERROR Message:" + str(e))
+                logger.error("Test Failed - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)
+            #need to restore firstboot environment
+            self.restore_firstboot_environment()
             self.restore_gui_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

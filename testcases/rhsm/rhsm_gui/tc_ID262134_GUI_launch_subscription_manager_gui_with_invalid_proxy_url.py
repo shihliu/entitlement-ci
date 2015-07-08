@@ -3,22 +3,22 @@
 ##############################################################################
 """
 Setup:
-	
+
 Breakdown:
 
 Actions:
 
 1. launch subscription-manager gui and configure invalid proxy in proxy url
 2. close and reopen subscription-manager gui
-	
-Expected Results:
 
+Expected Results:
 2. subscription-manager gui should open and no error should display on console.
 
 Notes:
 
 """
 ##############################################################################
+
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
@@ -45,14 +45,12 @@ class tc_ID262134_GUI_launch_subscription_manager_gui_with_invalid_proxy_url(RHS
                 self.open_subcription_manager_and_check_for_error()              
                 self.assert_(True, case_name)
             except Exception, e:
-                logger.error("Test Failed - ERROR Message:" + str(e))
+                logger.error("FAILED - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
         finally:
             self.capture_image(case_name)
-            
             #special restore: needs to uncheck use proxy before killing program
             self.uncheck_proxy_in_subscription_manager()
-
             self.restore_gui_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

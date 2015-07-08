@@ -3,43 +3,30 @@
 ##############################################################################
 """
 Setup:
-
 1.Prepare a proxy with its location, username and password.
-
 2.proxy address is : squid.corp.redhat.com:3128
-	
+
 Breakdown:
+
 Actions:
 
 1.# subscription-manager-gui
-
 2.Click "Proxy Configuration" button.
-
 3.Input "Proxy Location", "Proxy Username" and "Proxy Password" and click "close" button.
-
 4.Click "Register" button.
-
 5.Input "Login", "Password" and "System Name" and click "Register" button.
-	
+
 Expected Results:
-
 1.After step1, the subscription-manager GUI is opened.
-
 2.After step2, the "Advanced Network Configuration" dialog pops up.
-
 3.No error prompts.
-
 4.After step4, the "system registration" dialog pops up.
-
 5.After step5, registration succeeds and the following certs are dropped into /etc/pki/consumer: cert.pem, key.pem.
 
-
-
 Notes:
-click_proxy_close_button() is obsolete.  RHEL 7 uses btnCancelButton
+Completed.
 """
-
-########################################################
+##############################################################################
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
