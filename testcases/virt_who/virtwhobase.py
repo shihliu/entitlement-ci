@@ -578,7 +578,22 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0 and "This system has no repositories available through subscriptions." not in output:
             return True
         return False
-            
+
+    # get sku attribute value 
+    def get_SKU_attribute(self, sku_id, attribute_key, targetmachine_ip=""):
+        poollist = self.sub_listavailpools(sku_id, targetmachine_ip)
+        if poollist != None:
+            for index in range(0, len(poollist)):
+                if("SKU" in poollist[index] and poollist[index]["SKU"] == sku_id):
+                    rindex = index
+                    break
+            if attribute_key in poollist[index]:
+                attribute_value = poollist[rindex][attribute_key]
+                return attribute_value
+            raise FailException("Failed to check, the attribute_key is not exist.")
+        else:
+            raise FailException("Failed to list available subscriptions")
+                
     def sub_refresh(self, targetmachine_ip=""):
         ''' sleep 20 seconds firstly due to guest restart, and then refresh all local data. '''
         cmd = "sleep 20; subscription-manager refresh"
