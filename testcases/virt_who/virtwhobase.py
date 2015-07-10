@@ -38,12 +38,11 @@ class VIRTWHOBase(unittest.TestCase):
 #     def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
 #         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
-    def brew_virtwho_upgrate(self):
+    def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
-        version = "0.14"
-        release = "1.el7"
-        cmd = "yum -y upgrade http://download.devel.redhat.com/brewroot/packages/virt-who/%s/%s/noarch/virt-who-%s-%s.noarch.rpm" % (version, release, version, release)
-        ret, output = self.runcmd(cmd, "upgrade virt-who via brew")
+        brew_virt_who = get_exported_param("BREW-VIRT-WHO")
+        cmd = "yum -y upgrade %s" % brew_virt_who
+        ret, output = self.runcmd(cmd, "upgrade virt-who via brew", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to upgrade virt-who via brew.")
         else:

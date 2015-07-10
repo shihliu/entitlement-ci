@@ -88,6 +88,7 @@
 
             echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
             echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            echo BREW-VIRT-WHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm >> $WORKSPACE/SAMSERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SAMSERVER.txt
