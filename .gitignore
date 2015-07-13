@@ -10,3 +10,6 @@
 
 #ignore log file
 entitlement.log
+
+#ignore runtime tepmorary file
+runtime/

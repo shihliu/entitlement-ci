@@ -8,7 +8,7 @@ class RHSMBase(unittest.TestCase):
     #       0. Basic Functions
     # ========================================================
 
-    def runcmd(self, cmd, timeout=None, showlogger=True):
+    def runcmd(self, cmd, desc, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
