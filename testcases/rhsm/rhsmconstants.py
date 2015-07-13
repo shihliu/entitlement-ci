@@ -1,8 +1,9 @@
 from utils import *
 from utils.tools.shell.command import Command
+from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from utils.exception.failexception import FailException
 
-class RHSMConstants(object):
+class RHSMConstants(RHSMGuiBase):
     sam_cons6 = {
             "username": "admin",
             "password": "admin",
@@ -121,23 +122,25 @@ class RHSMConstants(object):
         else:
             raise FailException("Failed to configure rhsm.conf for stage")
 
-    def get_constant(self, name):
-        if self.server == "sam":
-            if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
-                return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
-            else:
-                if self.get_os_serials() == "6":
-                    return self.sam_cons6[name]
-                elif self.get_os_serials() == "7":
-                    return self.sam_cons7[name]
-        elif self.server == "stage":
-            return self.stage_cons[name]
-        elif self.server == "candlepin":
-            return self.candlepin_cons[name]
+    def get_constant(self, name, targetmachine_ip=None):
+#         if self.server == "sam":
+#             if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
+#                 return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
+#             else:
+#                 print self.get_os_serials(targetmachine_ip)
+        if self.get_os_serials(targetmachine_ip) == "6":
+            return self.sam_cons6[name]
+        elif self.get_os_serials(targetmachine_ip) == "7":
+            return self.sam_cons7[name]
+#         elif self.server == "stage":
+#             return self.stage_cons[name]
+#         elif self.server == "candlepin":
+#             return self.candlepin_cons[name]
 
-    def get_os_serials(self):
+    def get_os_serials(self, targetmachine_ip=None):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = Command().run(cmd, comments=False)
+#         (ret, output) = Command().run(cmd, comments=False)
+        (ret, output) = self.runcmd(cmd, "", targetmachine_ip)
         if ret == 0:
             return output.strip("\n").strip(" ")
             logger.info("It's successful to get system serials.")

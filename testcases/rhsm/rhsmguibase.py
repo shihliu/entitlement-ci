@@ -10,9 +10,19 @@ class RHSMGuiBase(unittest.TestCase):
     #     0. LDTP GUI Common Functions
     # ========================================================
 
-    #used to get the text value at a label and returns the output as a string
-    #eg get the value of lblOrganizationValue
-    #input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
+    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        if targetmachine_ip != None and targetmachine_ip != "":
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
+        else:
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run(cmd, timeout, cmddesc)
+
+    # used to get the text value at a label and returns the output as a string
+    # eg get the value of lblOrganizationValue
+    # input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
     def get_label_txt(self, window, label):
         logger.info("Retrieving label from %s" % label)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(label))
@@ -21,7 +31,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("Retrieving text from %s" % txtbox)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
-    def select_row(self, window, table, row): #row is 0 indexed
+    def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         ldtp.wait()
@@ -31,20 +41,20 @@ class RHSMGuiBase(unittest.TestCase):
         ldtp.doubleclickrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
         ldtp.wait()
 
-    def restore_gui_environment(self):
-        self.close_rhsm_gui()
-        self.unregister()
+    def restore_gui_environment(self, targetmachine_ip=None):
+        self.close_rhsm_gui(targetmachine_ip)
+        self.unregister(targetmachine_ip)
 
-    def close_rhsm_gui(self):
+    def close_rhsm_gui(self, targetmachine_ip=None):
         cmd = "killall -9 subscription-manager-gui"
-        (ret, output) = Command().run(cmd)
+        (ret, output) = self.runcmd(cmd, "", targetmachine_ip)
         if ret == 0:
             logger.info("It's successful to close subscription-manager-gui.")
 
-    def unregister(self):
+    def unregister(self, targetmachine_ip=None):
         # close subscription-manager-gui
         cmd = "subscription-manager unregister"
-        (ret, output) = Command().run(cmd)
+        (ret, output) = self.runcmd(cmd, "", targetmachine_ip)
         if ret == 0:
             logger.info("It's successful to unregister system.")
 
@@ -97,7 +107,7 @@ class RHSMGuiBase(unittest.TestCase):
         return parsed_objects_list
 
     def check_window_exist(self, window):
-        logger.info('check_window_exist %s' %window)
+        logger.info('check_window_exist %s' % window)
         ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
 
     def close_window(self, window):
@@ -144,7 +154,7 @@ class RHSMGuiBase(unittest.TestCase):
     def restore_firstboot_environment(self):
         filename = "/etc/sysconfig/firstboot"
         text = open(filename).read()
-        open(filename, "w").write(text.replace("NO","YES"))
+        open(filename, "w").write(text.replace("NO", "YES"))
         logger.info("SUCCESS: firstboot restored in /etc/sysconfig/firstboot!")
 
     def click_firstboot_fwd_button(self):
@@ -153,11 +163,11 @@ class RHSMGuiBase(unittest.TestCase):
         ldtp.wait()
 
     def check_hostype_and_isguest_gui_vs_cli(self):
-        self.double_click_row('system-facts-dialog','facts-view-table','virt')
-        virt_hostype_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.host_type')
-        virt_is_guest_index = self.get_table_row_index('system-facts-dialog','facts-view-table','virt.is_guest')
-        virt_hostype_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_hostype_index,1)
-        virt_isguest_gui = self.get_table_cell('system-facts-dialog','facts-view-table', virt_is_guest_index,1)
+        self.double_click_row('system-facts-dialog', 'facts-view-table', 'virt')
+        virt_hostype_index = self.get_table_row_index('system-facts-dialog', 'facts-view-table', 'virt.host_type')
+        virt_is_guest_index = self.get_table_row_index('system-facts-dialog', 'facts-view-table', 'virt.is_guest')
+        virt_hostype_gui = self.get_table_cell('system-facts-dialog', 'facts-view-table', virt_hostype_index, 1)
+        virt_isguest_gui = self.get_table_cell('system-facts-dialog', 'facts-view-table', virt_is_guest_index, 1)
 
         cmd = "subscription-manager facts --list | grep ^virt.host"
         (ret, output) = Command().run(cmd)
@@ -199,20 +209,20 @@ class RHSMGuiBase(unittest.TestCase):
         else:
             raise FailException("FAILED: Can't get ID by CML.")
 
-        #check org
+        # check org
         org_in_facts = "OrganizationValue"
         if self.check_element_exist("system-facts-dialog", "lbl", "OrganizationValue"):
-            org_in_facts = self.get_label_txt("system-facts-dialog","label-org")
+            org_in_facts = self.get_label_txt("system-facts-dialog", "label-org")
             logger.info("SUCCESS: Got label of %s in system facts" % org_in_facts)
         else: 
-            raise FailExpection("FAILED: Can't get id from facts")
+            raise FailException("FAILED: Can't get id from facts")
         
-        #check id
+        # check id
         id_in_facts = "lblSystemIdentityValue"
         if self.check_element_exist("system-facts-dialog", "lbl", "SystemIdentityValue"):
-            id_in_facts = self.get_label_txt("system-facts-dialog","label-id")
+            id_in_facts = self.get_label_txt("system-facts-dialog", "label-id")
             logger.info("SUCCESS: Got label of %s in system facts" % id_in_facts)
-        else: raise FailExpection("FAILED: Can't get id from facts")
+        else: raise FailException("FAILED: Can't get id from facts")
         if org_in_cml in org_in_facts:
             logger.info("SUCCESS: Org info matches!")
         else: 
@@ -222,9 +232,9 @@ class RHSMGuiBase(unittest.TestCase):
         else: 
             raise FailException("FAILED: ID info does not match!")
 
-    #opens subscription manager and checks for error
+    # opens subscription manager and checks for error
     def open_subcription_manager_and_check_for_error(self):
-        #uses a try and except to catch errors when opening the sm gui.  Can be impoved
+        # uses a try and except to catch errors when opening the sm gui.  Can be impoved
         try: 
             self.open_subscription_manager()
             logger.info("SUCCESS: Opened subcription-manager-invalid-proxy!")
@@ -675,7 +685,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_combo_item(self, window, combobox, item_name):
         logger.info("check_combo_item")
-        #do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
+        # do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
         ldtp.showlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox)) 
         return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
 
@@ -991,9 +1001,10 @@ class RHSMGuiBase(unittest.TestCase):
         else:
             raise FailException("TestFailed - TestFailed to unregister rhn_classic")
 
-    def check_consumer_cert_files(self, exist=True):
+    def check_consumer_cert_files(self, targetmachine_ip=None, exist=True):
         cmd = "ls /etc/pki/consumer"
-        (ret, output) = Command().run(cmd)
+#         (ret, output) = Command().run(cmd)
+        (ret, output) = self.runcmd(cmd, "", targetmachine_ip)
         print output
         if exist:
             if ret == 0 and "cert.pem" in output and "key.pem" in output:
