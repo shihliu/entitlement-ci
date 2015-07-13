@@ -10,12 +10,12 @@ class Command(object):
             self.remote_ip = remote_ip
             self.username = username
             self.password = password
-            logger.info("command run in: %s" % self.remote_ip)
+            # logger.info("command run in: %s" % self.remote_ip)
         else:
             self.remote_ip = get_exported_param("REMOTE_IP")
             self.username = "root"
             self.password = "red2015"
-            logger.info("command run in: %s" % self.remote_ip)
+            # logger.info("command run in: %s" % self.remote_ip)
 
     def run(self, cmd, timeout=None, comments=True):
         if self.remote_ip == None:

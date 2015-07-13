@@ -8,35 +8,9 @@ class RHSMBase(unittest.TestCase):
     #       0. Basic Functions
     # ========================================================
 
-    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None):
-        if targetmachine_ip != None and targetmachine_ip != "":
-            if targetmachine_user != None and targetmachine_user != "":
-                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
-            else:
-                commander = Command(targetmachine_ip, "root", "red2015")
-        else:
-            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, cmddesc)
-
-#     def runcmd_remote(self, remoteIP, username, password, cmd):
-#         """ Remote exec function via pexpect """
-#         if not self.check_ip(remoteIP):
-#             # only for beaker machines
-#             remoteIP = self.domain_to_ip(remoteIP)
-#             password = "xxoo2014"
-#         user_hostname = "%s@%s" % (username, remoteIP)
-#         child = pexpect.spawn("/usr/bin/ssh", [user_hostname, cmd], timeout=60, maxread=2000, logfile=None)
-#         while True:
-#             index = child.expect(['(yes\/no)', 'password:', pexpect.EOF, pexpect.TIMEOUT])
-#             if index == 0:
-#                 child.sendline("yes")
-#             elif index == 1:
-#                 child.sendline(password)
-#             elif index == 2:
-#                 child.close()
-#                 return child.exitstatus, child.before
-#             elif index == 3:
-#                 child.close()
+    def runcmd(self, cmd, timeout=None, showlogger=True):
+        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run(cmd, timeout, showlogger)
 
     def check_ip(self, ip_address):
         pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"

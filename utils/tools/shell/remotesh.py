@@ -20,6 +20,7 @@ class RemoteSH(object):
         Executes SSH command on remote machine.
         """
         if comments:
+            logger.info("command run in: %s" % remote_ip)
             logger.info(">>>Remote Run: %s" % cmd)
         retcode, stdout = self.run_paramiko(cmd, remote_ip, username, password, timeout)
         if comments:

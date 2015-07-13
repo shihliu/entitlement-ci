@@ -1,7 +1,6 @@
-from utils import *
-from utils.tools.shell.command import Command
+from testcases.rhsm.rhsmconstants import RHSMConstants
 
-class RHSMGuiLocator(object):
+class RHSMGuiLocator(RHSMConstants):
 
     # ========================================================
     #       RHSM GUI test elements
@@ -242,13 +241,3 @@ class RHSMGuiLocator(object):
             return self.element_locators[name + "-" + self.os_serial]
         else:
             return self.element_locators[name]
-
-    def get_os_serials(self):
-        # close subscription-manager-gui
-        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = Command().run(cmd, comments=False)
-        if ret == 0:
-            return output.strip("\n").strip(" ")
-            logger.info("It's successful to get system serials.")
-        else:
-            logger.info("It's failed to get system serials.")
