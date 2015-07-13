@@ -117,7 +117,7 @@ class VIRTWHOBase(unittest.TestCase):
         if ("Firewall is stopped" in output) or ("Firewall is not running" in output) or ("Active: inactive" in output):
             logger.info("Succeeded to stop iptables service.")
         else:
-            raise FailException("Failed to stop iptables service.")
+            logger.info("Failed to stop iptables service.")
         # setenforce as 0
         cmd = "setenforce 0"
         ret, output = self.runcmd(cmd, "Set setenforce 0", targetmachine_ip)
