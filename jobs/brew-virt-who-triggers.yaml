@@ -25,10 +25,38 @@
             fail-on-missing: true
       - default-virt-who-publishers
 
+- job-template:
+    name: 'brew-virt-who-6-trigger'
+    node: master
+    triggers:
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el6' AND tag LIKE '%candidate'"
+    builders:
+        - shell: |
+            #!/bin/bash
+            #maybe got brew rpm link here for yum install virt-who
+            echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
+
+        - inject:
+            properties-file: $WORKSPACE/CI_MESSAGE.txt
+
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'brew-sam-install-for-rhel-6-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/CI_MESSAGE.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
 - job-group:
     name: brew-virt-who-triggers
     jobs:
       - 'brew-virt-who-7-trigger'
+      - 'brew-virt-who-6-trigger'
 
 - project:
     name: brew-virt-who-triggers-jobs
