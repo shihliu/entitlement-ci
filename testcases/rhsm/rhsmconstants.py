@@ -59,37 +59,31 @@ class RHSMConstants(object):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
-    def configure_sam_host(self, samhostname, samhostip):
-        ''' configure the host machine for sam '''
-        if samhostname != None and samhostip != None:
-            # add sam hostip and hostname in /etc/hosts
-            cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
+    def configure_sam_host(self, samhostip, samhostname):
+        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to configure /etc/hosts")
+        else:
+            raise FailException("Failed to configure /etc/hosts")
+        cmd = "rpm -qa | grep candlepin-cert-consumer"
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("candlepin-cert-consumer-%s-1.0-1.noarch has already exist, remove it first." % samhostname)
+            cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
             ret, output = self.runcmd(cmd)
             if ret == 0:
-                logger.info("Succeeded to configure /etc/hosts")
+                logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
             else:
-                raise FailException("Failed to configure /etc/hosts")
-            # config hostname, prefix, port,   and repo_ca_crt by installing candlepin-cert
-            cmd = "rpm -qa | grep candlepin-cert-consumer"
-            ret, output = self.runcmd(cmd)
-            if ret == 0:
-                logger.info("candlepin-cert-consumer-%s-1.0-1.noarch has already exist, remove it first." % samhostname)
-                cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
-                ret, output = self.runcmd(cmd)
-                if ret == 0:
-                    logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
-                else:
-                    raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
-            cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-            ret, output = self.runcmd(cmd)
-            if ret == 0:
-                logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-            else:
-                raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
+        cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+        else:
+            raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
 
     def configure_stage_host(self, stage_name):
-        ''' configure the host machine for stage '''
-        # configure /etc/rhsm/rhsm.conf to stage candlepin
         cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
         ret, output = self.runcmd(cmd)
         if ret == 0:

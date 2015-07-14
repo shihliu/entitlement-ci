@@ -3,7 +3,7 @@ from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 
-class rhsm_gui_setup(unittest.TestCase):
+class rhsm_setup(unittest.TestCase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -16,7 +16,7 @@ class rhsm_gui_setup(unittest.TestCase):
         finally:
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-    def rhsm_gui_sys_setup(self):
+    def rhsm_sys_setup(self):
         cmd = "yum install -y @gnome-desktop tigervnc-server python-twisted pexpect pyatspi"
         ret, output = self.runcmd(cmd)
         if ret == 0:
