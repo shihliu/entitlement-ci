@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRTWHOBase):
+class tc_ID301083_Instance_one_instance_for_one_guest(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -26,29 +26,21 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
-            # Set up guest facts
-            self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
-            # subscribe the registered guest to 1 instance pool
-            poolid = self.get_pool_by_SKU(test_sku, guestip)
-            self.sub_limited_subscribetopool(poolid, "1", guestip)
-
-            # check consumed subscriptions' quality, should be 1 on guest 
-            consumed_quantity_key = "QuantityUsed"
-            consumed_quantity_value = "1"
-            if self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, guestip):
-                logger.info("Succeeded to check the consumed quantity value is: %s" % consumed_quantity_value)
+            # check the instance pool Available on guest before subscribed
+            instance_quantity_before = self.get_SKU_attribute(test_sku, "Available", guestip)
+            # subscribe instance pool by --quantity=1 on guest  
+            pool_id = self.get_poolid_by_SKU(test_sku, guestip)
+            self.sub_limited_subscribetopool(pool_id, "1", guestip)
+            # check the instance pool Available on guest after subscribed
+            instance_quantity_after = self.get_SKU_attribute(test_sku, "Available", guestip)
+            # check the result, before - after = 1
+            if int(instance_quantity_before) - int(instance_quantity_after) == 1:
+                logger.info("Succeeded to check, the instance quantity is right.")
             else:
-                raise FailException("Failed to check the consumed quantity value.")
-
-            # .check the Status of installed product, should be 'Subscribed' status
-            installed_status_key = "Status"
-            installed_status_value = "Subscribed"
-            if self.check_installed_status(installed_status_key, installed_status_value, guestip):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status.")
+                raise FailException("Failed to check, the instance quantity is not right.")
 
             self.assert_(True, case_name)
+
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
