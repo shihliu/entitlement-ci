@@ -14,7 +14,7 @@ class tc_ID214402_check_virtwho_o(VIRTWHOBase):
 
             cmd = "virt-who -o -d"
             ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and "Sending domain info" in output and "ERROR" not in output:
+            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
                 logger.info("Succeeded to execute virt-who with one-shot mode.")
                 # check if the uuid is correctly monitored by virt-who.
                 self.vw_check_uuid(guestuuid, uuidexists=True)
