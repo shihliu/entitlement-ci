@@ -25,6 +25,11 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("Retrieving text from %s" % txtbox)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
+    def select_row_by_name(self, window, table, row_name):
+        ldtp.wait()
+        logger.info("Selecting table %s at row_name %s" % (table, row_name))
+        ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
@@ -146,9 +151,10 @@ class RHSMGuiBase(unittest.TestCase):
     # ========================================================
 
     def restore_firstboot_environment(self):
-        filename = "/etc/sysconfig/firstboot"
-        text = open(filename).read()
-        open(filename, "w").write(text.replace("NO", "YES"))
+        cmd = "sed -i '/RUN_FIRSTBOOT=NO/c\RUN_FIRSTBOOT=YES' /etc/sysconfig/firstboot"
+        (ret, output) = self.runcmd(cmd)
+        cmd = "killall -9  firstboot"
+        (ret, output) = self.runcmd(cmd)
         logger.info("SUCCESS: firstboot restored in /etc/sysconfig/firstboot!")
 
     def click_firstboot_fwd_button(self):
@@ -257,7 +263,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("click_save_button")
  
     def click_system_registration_cancel_button(self):
-        self.click_button("register-dialog", "dialog-cancle-button")
+        self.click_button("register-dialog", "dialog-cancel-button")
         self.check_window_closed("register-dialog")
         logger.info("click_system_registration_cancel_button")
 
@@ -323,7 +329,7 @@ class RHSMGuiBase(unittest.TestCase):
         self.input_password(password)
         self.click_dialog_register_button()
         self.click_dialog_next_button()
-        self.click_dialog_cancle_button()
+        self.click_dialog_cancel_button()
 
     def register_and_autosubscribe_in_gui(self, username, password):
         self.click_register_button()
@@ -443,13 +449,13 @@ class RHSMGuiBase(unittest.TestCase):
         self.click_button("register-dialog", "dialog-register-button")
         self.check_window_closed("register-dialog")
 
-    def click_dialog_cancle_button(self):
-        logger.info("click_dialog_cancle_button")
+    def click_dialog_cancel_button(self):
+        logger.info("click_dialog_cancel_button")
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        self.click_button("register-dialog", "dialog-cancle-button")
+        self.click_button("register-dialog", "dialog-cancel-button")
         self.check_window_closed("register-dialog")
 #         else:
-#             self.click_button("subscribe-dialog", 'dialog-cancle-button')
+#             self.click_button("subscribe-dialog", 'dialog-cancel-button')
 #             self.check_window_closed("subscribe-dialog")
 
     def click_proxy_close_button(self):
