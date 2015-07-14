@@ -25,7 +25,7 @@ class tc_ID214402_check_virtwho_o(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            #stop virt-who command line mode
+            # stop virt-who command line mode
             self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
