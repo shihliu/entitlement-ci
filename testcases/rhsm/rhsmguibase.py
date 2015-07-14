@@ -7,7 +7,7 @@ from utils.exception.failexception import FailException
 class RHSMGuiBase(unittest.TestCase):
 
     def rhsm_gui_sys_setup(self):
-        cmd = "yum install -y @gnome-desktop tigervnc-server"
+        cmd = "yum install -y @gnome-desktop tigervnc-server python-twisted pexpect"
         ret, output = self.runcmd(cmd)
         if ret == 0:
             logger.info("Succeeded to install desktop")
