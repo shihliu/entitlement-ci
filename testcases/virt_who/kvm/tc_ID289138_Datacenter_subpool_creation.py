@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID269395_Datacenter_guest_auto_attach_bonus_pool(VIRTWHOBase):
+class tc_ID289138_Datacenter_subpool_creation(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -15,7 +15,7 @@ class tc_ID269395_Datacenter_guest_auto_attach_bonus_pool(VIRTWHOBase):
 
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
+            host_test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
             guest_bonus_sku = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
             bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
             sku_name = VIRTWHOConstants().get_constant("datacenter_name")
@@ -27,24 +27,27 @@ class tc_ID269395_Datacenter_guest_auto_attach_bonus_pool(VIRTWHOBase):
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
-            # subscribe the host to the physical pool which can generate bonus pool
-            self.sub_subscribe_sku(test_sku)
-            # guest auto subscribe bonus pool
-            cmd = "subscription-manager subscribe --auto"
-            ret, output = self.runcmd(cmd, "guest auto subscribe bonus pool", guestip)
-            if ret == 0:
-                logger.info("Succeeded to auto subscribe bonus pool on %s." % self.get_hg_info(guestip))
+            # Check bonus pool not generated yet
+            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is False:
+                logger.info("Guest isn't bonus pool before host subscribe '%s' " % sku_name)
             else:
-                raise FailException("Failed to auto subscribe to a pool on %s." % self.get_hg_info(guestip))
-            # list consumed subscriptions on guest
-            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
+                raise FailException("Bonus pool exist before host subscribe '%s' " % sku_name)
+            # host subscribe datacenter pool
+            self.sub_subscribe_sku(host_test_sku)
+            # Check bonus pool has been generated after host subscribe datacenter pool
+            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is True:
+                logger.info("Success to check datacenter bonus pool after host subscribe '%s' " % sku_name)
+            else:
+                raise FailException("Failed to check datacenter bonus pool after host subscribe '%s' " % sku_name)
 
             self.assert_(True, case_name)
+
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.sub_unregister(guestip)
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
             # unsubscribe host
             self.sub_unsubscribe()
             self.vw_stop_guests(guest_name)
