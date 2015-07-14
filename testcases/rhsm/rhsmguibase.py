@@ -6,40 +6,6 @@ from utils.exception.failexception import FailException
 
 class RHSMGuiBase(unittest.TestCase):
 
-    def rhsm_gui_sys_setup(self):
-        cmd = "yum install -y @gnome-desktop tigervnc-server python-twisted pexpect"
-        ret, output = self.runcmd(cmd)
-        if ret == 0:
-            logger.info("Succeeded to install desktop")
-        else:
-            raise FailException("Test Failed - Failed to install desktop")
-        install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
-        ret, output = self.runcmd(install_ldtp_cmd)
-        if ret == 0:
-            logger.info("Succeeded to install ldtp.")
-        else:
-            raise FailException("Test Failed - Failed to install ldtp.")
-        cmd = "vncserver -SecurityTypes None"
-        ret, output = self.runcmd(cmd)
-        if ret == 0:
-            logger.info("Succeeded to start vncserver")
-        else:
-            raise FailException("Test Failed - Failed to start vncserver")
-
-    def rhsm_gui_slave_setup(self):
-        cmd = "yum install -y @gnome-desktop"
-        ret, output = self.runcmd(cmd)
-        if ret == 0:
-            logger.info("Succeeded to install desktop")
-        else:
-            raise FailException("Test Failed - Failed to install desktop")
-        install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
-        ret, output = self.runcmd(install_ldtp_cmd)
-        if ret == 0:
-            logger.info("Succeeded to install ldtp.")
-        else:
-            raise FailException("Test Failed - Failed to install ldtp.")
-
     # ========================================================
     #     0. LDTP GUI Common Functions
     # ========================================================
