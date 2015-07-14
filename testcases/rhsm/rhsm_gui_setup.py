@@ -2,14 +2,12 @@ from utils import *
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
-class rhsm_gui_setup(object):
+class rhsm_gui_setup(unittest.TestCase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.rhsm_gui_sys_setup()
-#             self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
-#             self.kvm_setup()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
@@ -30,6 +28,27 @@ class rhsm_gui_setup(object):
             logger.info("Succeeded to install ldtp.")
         else:
             raise FailException("Test Failed - Failed to install ldtp.")
+        cmd = '''mkdir -p /root/.config/autostart; cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
+[Desktop Entry]
+Type=Application
+Exec=gnome-terminal -e ldtp
+Hidden=false
+X-GNOME-Autostart-enabled=true
+Name=ldtpd
+Comment=
+EOF
+'''
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to start ldtp server")
+        else:
+            raise FailException("Test Failed - Failed to start ldtp server")
+        cmd = "service firewalld stop"
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to stop firewalld")
+        else:
+            raise FailException("Test Failed - Failed to stop firewalld")
         cmd = "vncserver -SecurityTypes None"
         ret, output = self.runcmd(cmd)
         if ret == 0:
