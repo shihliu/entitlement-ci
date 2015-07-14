@@ -231,6 +231,37 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to restart libvirtd")
 
+    def vw_check_virtwho_status(self, targetmachine_ip=""):
+        ''' Check the virt-who status. '''
+        cmd = "service virt-who status; sleep 10"
+        ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
+        if self.above_7_serials():
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check virt-who is running.")
+            else:
+                raise FailException("Test Failed - Failed to check virt-who is running.")
+        else:
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check virt-who is running.")
+            else:
+                raise FailException("Test Failed - Failed to check virt-who is running.")
+
+    def vw_check_libvirtd_status(self, targetmachine_ip=""):
+        ''' Check the libvirtd status. '''
+        cmd = "service libvirtd status; sleep 10"
+        ret, output = self.runcmd(cmd, "libvirtd status", targetmachine_ip)
+        if self.above_7_serials():
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check libvirtd is running.")
+            else:
+                raise FailException("Test Failed - Failed to check libvirtd is running.")
+        else:
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check libvirtd is running.")
+                self.SET_RESULT(0)
+            else:
+                raise FailException("Test Failed - Failed to check libvirtd is running.")
+
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
         cmd = "subscription-manager identity"
@@ -1391,7 +1422,7 @@ class VIRTWHOBase(unittest.TestCase):
         ''' esx_check_uuid_exist_in_rhsm_log '''
         self.vw_restart_virtwho()
         time.sleep(20)
-        cmd = "tail -1 /var/log/rhsm/rhsm.log"
+        cmd = "tail -3 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
