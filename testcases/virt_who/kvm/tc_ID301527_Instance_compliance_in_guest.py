@@ -44,10 +44,9 @@ class tc_ID301527_Instance_compliance_in_guest(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            # resume guest facts
-            self.restore_facts()
-            # unsubscribe host
-            self.sub_unsubscribe()
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            self.vw_stop_guests(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
