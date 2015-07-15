@@ -104,7 +104,7 @@ class RHSMConstants(object):
 
     def get_constant(self, name):
         test_server = get_exported_param("TEST_SERVER")
-        if self.test_server == "SAM":
+        if test_server == "SAM":
             if self.get_os_serials() == "6":
                 return self.sam_cons6[name]
             elif self.get_os_serials() == "7":
