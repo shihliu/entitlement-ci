@@ -48,9 +48,9 @@ class RHSMConstants(object):
             "servicelevel": "PREMIUM",
             "releaselist": "6.1,6.2,6.3,6.4,6Server",
             }
-    candlepin_cons = {
+    customer_portal_cons = {
             "username": "qa@redhat.com",
-            "password": "HWj8TE28Qi0eP2c",
+            "password": "uBLybd5JSmkRHebA",
             # please install a localcandlepin whose hostname is localcandlepin.redhat.com
             "baseurl": "https://localcandlepin.redhat.com:8443",
             }
@@ -91,20 +91,28 @@ class RHSMConstants(object):
         else:
             raise FailException("Failed to configure rhsm.conf for stage")
 
+    def configure_testing_server(self):
+        test_server = get_exported_param("TEST_SERVER")
+        if test_server == "SAM" :
+            RHSMConstants().configure_sam_host(get_exported_param("SAM_IP"), get_exported_param("SAM_HOSTNAME"))
+        elif test_server == "STAGE_CANDLEPIN" :
+            RHSMConstants().configure_stage_host("subscription.rhn.stage.redhat.com")
+        elif test_server == "CUSTOMER_PORTAL" :
+            pass
+        else:
+            raise FailException("Test Failed - Failed to configure rhsm testing server ... ")
+
     def get_constant(self, name):
-#         if self.server == "sam":
-#             if name == "baseurl" and self.get_delivered_param("SAM_HOSTNAME") != "":
-#                 return "https://%s:443" % self.get_delivered_param("SAM_HOSTNAME")
-#             else:
-#                 print self.get_os_serials(targetmachine_ip)
-        if self.get_os_serials() == "6":
-            return self.sam_cons6[name]
-        elif self.get_os_serials() == "7":
-            return self.sam_cons7[name]
-#         elif self.server == "stage":
-#             return self.stage_cons[name]
-#         elif self.server == "candlepin":
-#             return self.candlepin_cons[name]
+        test_server = get_exported_param("TEST_SERVER")
+        if self.test_server == "SAM":
+            if self.get_os_serials() == "6":
+                return self.sam_cons6[name]
+            elif self.get_os_serials() == "7":
+                return self.sam_cons7[name]
+        elif test_server == "STAGE_CANDLEPIN" :
+            return self.stage_cons[name]
+        elif test_server == "CUSTOMER_PORTAL" :
+            return self.customer_portal_cons[name]
 
     def get_os_serials(self):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
