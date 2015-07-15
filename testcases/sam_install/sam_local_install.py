@@ -1,5 +1,7 @@
 from utils import *
+from utils.tools.shell.command import Command
 from utils.tools.virshcommand import VirshCommand
+from utils.exception.failexception import FailException
 from testcases.sam_install.sam_install_base import SAM_Install_Base
 
 class SAM_LOCAL_INSTALL(SAM_Install_Base):
@@ -37,11 +39,21 @@ class SAM_LOCAL_INSTALL(SAM_Install_Base):
         self.install_product(guest_ip, guest_user, guest_passwd, sam_compose)
         self.clone_sam_guest(host_ip, host_user, host_passwd, sam_compose)
 
+    def curl_sam_compose(self):
+        cmd = "curl http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID"
+        ret, output = Command.run(cmd)
+        if ret == 0:
+            logger.info("Succeeded to get latest sam compose.")
+            return output.strip()
+        else:
+            raise FailException("Test Failed - Failed to get latest sam compose.")
+
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.start(self.default_sam_build)
+            sam_compose = self.curl_sam_compose()
+            self.start(sam_compose)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

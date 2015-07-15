@@ -88,10 +88,14 @@
 
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
-            export RUN_SERVER=sam
+            export TEST_SERVER=SAM
             export SAM_IP=$SAM_IP
             export SAM_HOSTNAME=$SAM_HOSTNAME
-            
+
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
+            nosetests rhsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
