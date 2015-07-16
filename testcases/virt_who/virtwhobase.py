@@ -92,14 +92,25 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = "service network restart"
-        ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
-        cmd = "service network restart"
-        ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+        if self.above_7_serials(targetmachine_ip):
+            cmd = "systemctl restart network"
+            ret, output = self.runcmd(cmd, "restart network service with systemctl the first time", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Test Failed - Failed to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
+            ret, output = self.runcmd(cmd, "restart network service with systemctl the second time", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart network service with systemctl the second time %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Test Failed - Failed to restart network service with systemctl the second time in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            cmd = "service network restart"
+            ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
@@ -195,6 +206,16 @@ class VIRTWHOBase(unittest.TestCase):
             self.update_vw_configure(slave_machine_ip)
             self.vw_restart_virtwho(slave_machine_ip)
 
+    def above_7_serials(self):
+        cmd = "echo $(python -c \"import yum, pprint; yb = yum.YumBase(); pprint.pprint(yb.conf.yumvar, width=1)\" | grep 'releasever' | awk -F\":\" '{print $2}' | sed  -e \"s/^ '//\" -e \"s/'}$//\" -e \"s/',$//\")"
+        ret, output = self.runcmd(cmd, "get rhel version")
+        if output[0:1] >= 7:
+            logger.info("System version is above or equal 7 serials")
+            return True
+        else:
+            logger.info("System version is bellow 7 serials")
+            return False
+
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
         cmd = "service virt-who restart"
@@ -233,14 +254,17 @@ class VIRTWHOBase(unittest.TestCase):
 
     def vw_check_virtwho_status(self, targetmachine_ip=""):
         ''' Check the virt-who status. '''
-        cmd = "service virt-who status; sleep 10"
-        ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
         if self.above_7_serials():
+            cmd = "systemctl status virt-who; sleep 10"
+            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
+            #if ret == 0:
                 logger.info("Succeeded to check virt-who is running.")
             else:
                 raise FailException("Test Failed - Failed to check virt-who is running.")
         else:
+            cmd = "service virt-who status; sleep 10"
+            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
                 logger.info("Succeeded to check virt-who is running.")
             else:
@@ -248,14 +272,16 @@ class VIRTWHOBase(unittest.TestCase):
 
     def vw_check_libvirtd_status(self, targetmachine_ip=""):
         ''' Check the libvirtd status. '''
-        cmd = "service libvirtd status; sleep 10"
-        ret, output = self.runcmd(cmd, "libvirtd status", targetmachine_ip)
         if self.above_7_serials():
+            cmd = "systemctl status libvirtd; sleep 10"
+            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
                 logger.info("Succeeded to check libvirtd is running.")
             else:
                 raise FailException("Test Failed - Failed to check libvirtd is running.")
         else:
+            cmd = "service libvirtd status; sleep 10"
+            ret, output = self.runcmd(cmd, "libvirtd status", targetmachine_ip)
             if ret == 0 and "running" in output:
                 logger.info("Succeeded to check libvirtd is running.")
                 self.SET_RESULT(0)
