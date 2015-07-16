@@ -1,8 +1,12 @@
 - job-template:
-    name: 'sam-install-for-rhel-7-provision'
+    name: 'rhsm-gui-rhel-6-provision'
     defaults: virt-who-provision
     node: master
     builders:
+        - copyartifact:
+            project: 'sam-install-for-rhel-6-runtest'
+            filter: 'SAMSERVER.txt'
+            target: $WORKSPACE
         - shell: |
             #!/bin/bash
 
@@ -10,20 +14,20 @@
 
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
-            if [ "$JSLAVENAME" != "master" ]
-            then
-                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
-                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
-                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+            #if [ "$JSLAVENAME" != "master" ]
+            #then
+            #    $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+            #    --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+            #    --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+            #    --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
 
-                TR_STATUS=$?
-                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            fi
+            #    TR_STATUS=$?
+            #    if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            #fi
 
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
 
             TR_STATUS=$?
 
@@ -35,6 +39,8 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
+            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
+
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -43,20 +49,21 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'sam-install-for-rhel-7-runtest'
+          - project: 'rhsm-gui-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
       - default-virt-who-publishers
 
+
 - job-template:
-    name: 'sam-install-for-rhel-7-runtest'
+    name: 'rhsm-gui-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'sam-install-for-rhel-7-provision'
+            project: 'rhsm-gui-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -81,61 +88,43 @@
 
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
+            export TEST_SERVER=SAM
+            export SAM_IP=$SAM_IP
+            export SAM_HOSTNAME=$SAM_HOSTNAME
 
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests sam_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
+            nosetests rhsm_gui_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            export LDTP_SERVER_ADDR=$beaker_ip
 
-        - inject:
-            properties-file: $WORKSPACE/SAMSERVER.txt
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_gui/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-esx-rhel-7-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-rhel-7-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'rhsm-level-1-rhel-7-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
-          - project: 'rhsm-gui-rhel-7-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
-            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: sam-install-for-rhel-7-provision-runtest
+    name: rhsm-gui-rhel-6-provision-runtest
     jobs:
-      - 'sam-install-for-rhel-7-provision'
-      - 'sam-install-for-rhel-7-runtest'
+      - 'rhsm-gui-rhel-6-provision'
+      - 'rhsm-gui-rhel-6-runtest'
 
 - project:
-    name: sam-install-for-rhel-7-jobs
+    name: rhsm-gui-rhel-6
     project:
-     - sam-install-for-rhel-7
+     - rhsm-gui-rhel-6
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - bkr_rhsm_rhel_7
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -143,9 +132,9 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - sam-install-for-rhel-7-provision-runtest
+     - rhsm-gui-rhel-6-provision-runtest
     jslavename:
-     - jslave-sam-install-for-rhel-7-slave
+     - entitlement-ldtp-slave-10.66.129.67
     jslave_execs:
      - 10
     jslaveimage:
