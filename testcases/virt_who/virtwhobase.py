@@ -206,9 +206,9 @@ class VIRTWHOBase(unittest.TestCase):
             self.update_vw_configure(slave_machine_ip)
             self.vw_restart_virtwho(slave_machine_ip)
 
-    def above_7_serials(self):
+    def above_7_serials(self, targetmachine_ip):
         cmd = "echo $(python -c \"import yum, pprint; yb = yum.YumBase(); pprint.pprint(yb.conf.yumvar, width=1)\" | grep 'releasever' | awk -F\":\" '{print $2}' | sed  -e \"s/^ '//\" -e \"s/'}$//\" -e \"s/',$//\")"
-        ret, output = self.runcmd(cmd, "get rhel version")
+        ret, output = self.runcmd(cmd, "get rhel version", targetmachine_ip)
         if output[0:1] >= 7:
             logger.info("System version is above or equal 7 serials")
             return True
@@ -225,10 +225,10 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to restart virt-who service.")
 
-    def check_virtwho_thread(self):
+    def check_virtwho_thread(self, targetmachine_ip=""):
         ''' check virt-who thread number '''
         cmd = "ps -ef | grep -v grep | grep virt-who | wc -l"
-        ret, output = self.runcmd(cmd, "check virt-who thread")
+        ret, output = self.runcmd(cmd, "check virt-who thread", targetmachine_ip)
         if ret == 0 and output.strip() == "2":
             logger.info("Succeeded to check virt-who thread number is 2.")
         else:
@@ -258,7 +258,7 @@ class VIRTWHOBase(unittest.TestCase):
             cmd = "systemctl status virt-who; sleep 10"
             ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
-            #if ret == 0:
+            # if ret == 0:
                 logger.info("Succeeded to check virt-who is running.")
             else:
                 raise FailException("Test Failed - Failed to check virt-who is running.")
@@ -355,7 +355,7 @@ class VIRTWHOBase(unittest.TestCase):
                 if len(packages) > 0:
                     for package in packages:
                         if re.match("candlepin-cert-consumer", package, re.I):
-                            cmd = "rpm -e %s" %package
+                            cmd = "rpm -e %s" % package
                             ret, output = self.runcmd(cmd, "remove candlepin-cert-consumer package to re-register system to SAM", targetmachine_ip)
                             if ret == 0:
                                 logger.info("Succeeded to uninstall candlepin-cert-consumer package.")
