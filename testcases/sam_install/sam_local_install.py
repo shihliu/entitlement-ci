@@ -41,7 +41,7 @@ class SAM_LOCAL_INSTALL(SAM_Install_Base):
 
     def curl_sam_compose(self):
         cmd = "curl http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID"
-        ret, output = Command.run(cmd)
+        ret, output = Command().run(cmd)
         if ret == 0:
             logger.info("Succeeded to get latest sam compose.")
             return output.strip()
