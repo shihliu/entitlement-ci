@@ -40,7 +40,7 @@ class SAM_LOCAL_INSTALL(SAM_Install_Base):
         self.clone_sam_guest(host_ip, host_user, host_passwd, sam_compose)
 
     def curl_sam_compose(self):
-        cmd = "curl http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID"
+        cmd = "curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID"
         ret, output = Command().run(cmd)
         if ret == 0:
             logger.info("Succeeded to get latest sam compose.")
