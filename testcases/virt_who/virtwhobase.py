@@ -342,7 +342,9 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         elif samhostname == "subscription.rhn.stage.redhat.com":
-            # configure /etc/rhsm/rhsm.conf to stage candlepin cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
+            # configure /etc/rhsm/rhsm.conf to stage candlepin
+            cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
+            ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
             else:
