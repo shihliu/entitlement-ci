@@ -322,15 +322,19 @@ class VIRTWHOBase(unittest.TestCase):
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
             cmd = "rpm -qa | grep candlepin-cert-consumer"
-            ret, output = self.runcmd(cmd, "check whether candlepin-cert-consumer-%s-1.0-1.noarch exist" % samhostname, targetmachine_ip)
-            if ret == 0:
-                logger.info("candlepin-cert-consumer-%s-1.0-1.noarch has already exist, remove it first." % samhostname)
-                cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
-                ret, output = self.runcmd(cmd, "remove candlepin-cert-consumer-%s-1.0-1.noarch to re-register system to SAM" % samhostname, targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
-                else:
-                    raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
+            ret, output = self.runcmd(cmd, "check whether candlepin-cert-consumer package exist", targetmachine_ip)
+            if ret == 0 and output is not None:
+                logger.info("candlepin-cert-consumer package has already exist, remove it first.")
+                packages = output.split('\n')
+                if len(packages) > 0:
+                    for package in packages:
+                        if re.match("candlepin-cert-consumer", package, re.I):
+                            cmd = "rpm -e %s" %package
+                            ret, output = self.runcmd(cmd, "remove candlepin-cert-consumer package to re-register system to SAM", targetmachine_ip)
+                            if ret == 0:
+                                logger.info("Succeeded to uninstall candlepin-cert-consumer package.")
+                            else:
+                                raise FailException("Failed to uninstall candlepin-cert-consumer package.")
             cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
             ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
             if ret == 0:
@@ -338,9 +342,7 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         elif samhostname == "subscription.rhn.stage.redhat.com":
-            # configure /etc/rhsm/rhsm.conf to stage candlepin
-            cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
-            ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
+            # configure /etc/rhsm/rhsm.conf to stage candlepin cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
             else:
