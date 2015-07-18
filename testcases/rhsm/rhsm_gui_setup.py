@@ -18,7 +18,7 @@ class rhsm_gui_setup(unittest.TestCase):
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
     def rhsm_gui_sys_setup(self):
-        cmd = "yum groupinstall -y gnome-desktop tigervnc-server pexpect pyatspi"
+        cmd = "yum groupinstall -y gnome-desktop"
         ret, output = RHSMConstants().runcmd(cmd, timeout=600)
         cmd = "yum install -y tigervnc-server pexpect pyatspi"
         if ret == 0:
