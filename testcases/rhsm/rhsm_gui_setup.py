@@ -21,6 +21,7 @@ class rhsm_gui_setup(unittest.TestCase):
         cmd = "yum groupinstall -y gnome-desktop"
         ret, output = RHSMConstants().runcmd(cmd, timeout=600)
         cmd = "yum install -y tigervnc-server pexpect pyatspi"
+        ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
             logger.info("Succeeded to install tigervnc-server pexpect pyatspi")
         else:
