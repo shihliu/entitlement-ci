@@ -46,14 +46,24 @@ class VIRTWHOConstants(object):
                     "instancebase_sku_id" : "RH00003",
                     }
 
-
-#     image_machine_imagepath = "ENT_TEST_MEDIUM/images"
-#     # Note: make sure all the guest names are different with each other.
-#     imagenfspath = "/home/ENT_TEST_MEDIUM/imagenfs"
-#     imagepath = "/home/ENT_TEST_MEDIUM/images"
-#     imagepath_kvm = "/home/ENT_TEST_MEDIUM/images/kvm"
-#     imagepath_xen_pv = "/home/ENT_TEST_MEDIUM/images/xen/xen-pv"
-#     imagepath_xen_fv = "/home/ENT_TEST_MEDIUM/images/xen/xen-fv"
+    virt_who_commands = {
+                    "restart_virtwho" : "service virt-who restart",
+                    "restart_virtwho_7" : "systemctl restart  virt-who.service",
+                    }
 
     def get_constant(self, name):
         return self.virt_who_cons[name]
+
+    def get_command(self, command):
+        if command + "-" + self.os_serial in self.virt_who_commands.keys():
+            return self.virt_who_commands[command + "-" + self.os_serial]
+        else:
+            return self.virt_who_commands[command]
+
+    def get_os_serials(self):
+        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
+        (ret, output) = self.runcmd(cmd, showlogger=False)
+        if ret == 0:
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Failed to get os serials")
