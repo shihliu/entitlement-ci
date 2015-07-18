@@ -48,15 +48,15 @@ class VIRTWHOConstants(object):
 
     virt_who_commands = {
                     "restart_virtwho" : "service virt-who restart",
-                    "restart_virtwho_7" : "systemctl restart  virt-who.service",
+                    "restart_virtwho_systemd" : "systemctl restart virt-who.service",
                     }
 
     def get_constant(self, name):
         return self.virt_who_cons[name]
 
     def get_command(self, command):
-        if command + "-" + self.os_serial in self.virt_who_commands.keys():
-            return self.virt_who_commands[command + "-" + self.os_serial]
+        if self.os_serial >= 7:
+            return self.virt_who_commands[command + "_systemd"]
         else:
             return self.virt_who_commands[command]
 
