@@ -19,14 +19,12 @@ class rhsm_gui_setup(unittest.TestCase):
 
     def rhsm_gui_sys_setup(self):
         # in rhel 6, run "yum install -y gnome-desktop" instead
-        cmd = "yum groupinstall -y gnome-desktop"
-        ret, output = RHSMConstants().runcmd(cmd, timeout=1200)
-        cmd = "yum install -y tigervnc-server pexpect pyatspi"
+        cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
-            logger.info("Succeeded to install tigervnc-server pexpect pyatspi")
+            logger.info("Succeeded to install @gnome-desktop tigervnc-server pexpect pyatspi")
         else:
-            raise FailException("Test Failed - Failed to install tigervnc-server pexpect pyatspi")
+            raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server pexpect pyatspi")
         install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
         ret, output = RHSMConstants().runcmd(install_ldtp_cmd)
         if ret == 0:
