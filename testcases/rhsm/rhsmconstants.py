@@ -55,6 +55,8 @@ class RHSMConstants(object):
             "baseurl": "https://localcandlepin.redhat.com:8443",
             }
 
+    samhostip = get_exported_param("SAM_IP")
+
     def runcmd(self, cmd, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
