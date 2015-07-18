@@ -67,3 +67,7 @@ class VIRTWHOConstants(object):
             return output.strip("\n").strip(" ")
         else:
             raise FailException("Failed to get os serials")
+
+    def runcmd(self, cmd, timeout=None, showlogger=True):
+        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run(cmd, timeout, showlogger)
