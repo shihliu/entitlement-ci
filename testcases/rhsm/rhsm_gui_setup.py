@@ -19,7 +19,7 @@ class rhsm_gui_setup(unittest.TestCase):
 
     def rhsm_gui_sys_setup(self):
         cmd = "yum groupinstall -y gnome-desktop"
-        ret, output = RHSMConstants().runcmd(cmd, timeout=600)
+        ret, output = RHSMConstants().runcmd(cmd, timeout=1200)
         cmd = "yum install -y tigervnc-server pexpect pyatspi"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
