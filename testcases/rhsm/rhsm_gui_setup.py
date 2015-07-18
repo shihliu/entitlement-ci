@@ -18,8 +18,8 @@ class rhsm_gui_setup(unittest.TestCase):
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
     def rhsm_gui_sys_setup(self):
-        cmd = "yum install -y @gnome-desktop tigervnc-server python-twisted pexpect pyatspi"
-        ret, output = RHSMConstants().runcmd(cmd)
+        cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
+        ret, output = RHSMConstants().runcmd(cmd, timeout=600)
         if ret == 0:
             logger.info("Succeeded to install desktop")
         else:
