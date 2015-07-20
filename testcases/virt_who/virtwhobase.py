@@ -347,20 +347,10 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
-            cmd = "rpm -qa | grep candlepin-cert-consumer"
-            ret, output = self.runcmd(cmd, "check whether candlepin-cert-consumer package exist", targetmachine_ip)
-            if ret == 0 and output != None:
-                logger.info("candlepin-cert-consumer package has already exist, remove it first.")
-                packages = output.split('\n')
-                if len(packages) > 0:
-                    for package in packages:
-                        if re.match("candlepin-cert-consumer", package, re.I):
-                            cmd = "rpm -e %s" % package
-                            ret, output = self.runcmd(cmd, "remove candlepin-cert-consumer package to re-register system to SAM", targetmachine_ip)
-                            if ret == 0:
-                                logger.info("Succeeded to uninstall candlepin-cert-consumer package.")
-                            else:
-                                raise FailException("Failed to uninstall candlepin-cert-consumer package.")
+
+            cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e"
+            ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
+
             cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
             ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
             if ret == 0:
