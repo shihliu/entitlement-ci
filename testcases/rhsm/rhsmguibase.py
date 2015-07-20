@@ -415,11 +415,6 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_exist("register-dialog")
         # logger.info(ldtp.getwindowlist())
 
-    def click_configure_proxy_button(self):
-#         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        logger.info("click_configure_proxy_button")
-        self.click_button("register-dialog", "configure-proxy-button")
-        self.check_window_exist("proxy-configuration-dialog")
 
     def click_dialog_register_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
@@ -434,14 +429,6 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("click_dialog_register_button_without_autoattach")
         self.click_button("register-dialog", "dialog-register-button")
         self.check_window_closed("register-dialog")
-
-    def click_dialog_register_for_account_without_org_access(self):
-        self.click_button('register-dialog', 'dialog-register-button')
-        time.sleep(10)
-        if self.check_object_exist('error-dialog', 'error-user-label'):
-            return 1
-        else:
-            self.assert_(True, case_name)
 
     def click_dialog_subscribe_button(self):
         logger.info("click_dialog_subscribe_button")
