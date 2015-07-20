@@ -11,7 +11,7 @@ class tc_ID166467_GUI_run_subscription_manager_gui_twice(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                self.open_subscription_manager()
+                self.open_subscription_manager_first()
                 self.open_subscription_manager_twice()
                 self.assert_(True, case_name)
             except Exception, e:

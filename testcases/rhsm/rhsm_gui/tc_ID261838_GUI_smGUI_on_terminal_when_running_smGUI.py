@@ -33,7 +33,7 @@ class tc_ID261838_GUI_smGUI_on_terminal_when_running_smGUI(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                self.open_subscription_manager()
+                self.open_subscription_manager_first()
                 if not(self.open_subscription_manager_by_cmd_check_output()):
                     FailException("FAILED: Error when opening subscription manager twice or error message wrong!")
                 logger.info("SUCCESS: Opened sm-gui on terminal without crashing!")

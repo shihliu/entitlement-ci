@@ -1138,6 +1138,14 @@ class RHSMGuiBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to run subscription-manager-gui the first time")
 
+    def open_subscription_manager_first(self):
+        cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui &"
+        (ret, output) = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("It's successful to open_subscription_manager_first.")
+        else:
+            raise FailException("Test Failed - Failed to open_subscription_manager_first")
+
     def open_subscription_manager_twice(self):
         cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui"
         (ret, output) = self.runcmd(cmd)
