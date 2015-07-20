@@ -349,7 +349,7 @@ class VIRTWHOBase(unittest.TestCase):
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
             cmd = "rpm -qa | grep candlepin-cert-consumer"
             ret, output = self.runcmd(cmd, "check whether candlepin-cert-consumer package exist", targetmachine_ip)
-            if ret == 0 and output is not None:
+            if ret == 0 and output != None:
                 logger.info("candlepin-cert-consumer package has already exist, remove it first.")
                 packages = output.split('\n')
                 if len(packages) > 0:
@@ -560,6 +560,15 @@ class VIRTWHOBase(unittest.TestCase):
                 logger.info("Succeeded to subscribe to limited pool %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to show correct information after subscribing %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
+
+    def sub_auto_subscribe(self, targetmachine_ip=""):
+        ''' subscribe to a pool by auto '''
+        cmd = "subscription-manager subscribe --auto"
+        ret, output = self.runcmd(cmd, "subscribe by --auto", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
 
@@ -1428,7 +1437,7 @@ class VIRTWHOBase(unittest.TestCase):
         self.vw_restart_virtwho()
         self.vw_restart_virtwho()
         time.sleep(10)
-        cmd = "tail -1 /var/log/rhsm/rhsm.log"
+        cmd = "tail -3 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
