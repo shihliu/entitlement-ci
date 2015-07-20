@@ -1,0 +1,180 @@
+##########################################
+####Setup
+##########################################
+
+Install the proper python packages.
+
+Make sure assistive technologies is on or else getwindowlist() and get 
+applist() will NOT work, even though they seem to work (ie. does not crash). 
+Without assistive technologies, getwindowlist and getapplist will not show 
+important windows/apps open such as 'subscription-manager-gui' and
+mozilla firefox. Since I could not find the assistive technologies button on 
+RHEL 7, I used following command in terminal and restart computer:
+
+gsettings set org.gnome.desktop.interface toolkit-accessibility true
+Make sure assistive technologies is on or else getwindowlist() and get 
+applist() will NOT work, even though they seem to work (ie. does not crash). 
+Without assistive technologies, getwindowlist and getapplist will not show 
+important windows/apps open such as 'subscription-manager-gui' and
+mozilla firefox. Since I could not find the assistive technologies button on 
+RHEL 7, I used following command in terminal and restart computer:
+
+gsettings set org.gnome.desktop.interface toolkit-accessibility true
+
+##########################################
+####Notes/Change log
+##########################################
+
+- Be wary of hidden and lurking race conditions!  Sometimes these are "hidden" using ldtp.wait.  So far, these work.  However, if race conditions become serious (eg. sometimes code works, sometimes not), some areas in guibase need to be changed.
+- Typos and error statements changed
+- Not really compatable with previous versions as some of the functions in guibase had to be rehauled.  If this is to be improved in the future, some parts of the guibase and structure need to be changed.
+
+##########################################
+####Jenkins Upload Log
+##########################################
+
+-So far, I'm unsure why Jenkins sometimes freezes for no reason.  But all in all, running testcases on Jenkins is still a crapshoot and is unstable.
+-Jenkins (sometimes) still has an issue where runcmd remotely does not give the appropriate output.
+
+##########################################
+####Jenkins Setup
+##########################################
+
+If you just want to build the test cases part on Jenkins, you'll need to configure the following settings:
+
+export REMOTE_IP=$beaker_ip
+export TEST_SERVER=SAM 
+export SAM_IP=$SAM_IP
+export SAM_HOSTNAME=$SAM_HOSTNAME
+
+##########################################
+####Available Tools
+##########################################
+
+-Check out OOtool in the rhsm folder.  There's some neat functions in there for GUI automation programmers to use.  More documentation on it will be in the file.
+
+-Currently working on another tool to automatically name all the btns etc of subscription manager.
+
+
+##########################################
+####Firstboot Setup/Testing remotely on virtual machine
+##########################################
+Firstboot tests are tricky because many of the tests on tcms are outdated.  The few that still can be tested are difficult because my firstboot (and the firstboot on RHEL 7 in general) is buggy as hell.  I was unable to run firstboot on my computer because everytime I updated /etc/sysconfig/firstboot from "RUN_FIRSTBOOT=NO" to "RUN_FIRSTBOOT=YES" and ran firstboot, nothing happens and /etc/sysconfig/firstboot turns back into "RUN_FIRSTBOOT=NO".
+
+Also, typing "firstboot" when you ssh into a virt machine completely obliterates (crashes) the virtual machine.
+
+Instructions on what I did are to be found here 
+http://ldtp.freedesktop.org/wiki/Executing_scripts_remotely/
+but since that website is written with very little detail, below is EXACTLY what I did to test firstboot.
+
+I had to use a virtual machine.  First I ssh'ed into 10.66.129.67.
+
+ssh 10.66.129.67 -X
+then I ran
+
+virt-manager
+
+then I opened a RHEL-7.1 virtual machine that I had set up previously.
+
+
+In a terminal in the virtual machine, I typed
+
+ldtp
+
+and let this terminal remain open.
+
+In another terminal, I typed
+
+ifconfig
+
+to get the IP address of the virt-machine.  If the IP address is not 10.66....etc, then click on the "show virtual hardware details" on the virt-machine manager (it looks like a blue circle with an i in it).  Click "NIC : ...etc" and change source device to "Specify shared device name".  Type in "switch" as the bridge name.  Then in another terminal on the virt manager, run
+
+dhclient
+
+Then check ifconfig for IP.
+
+Before you continue, be sure to turn off firewalls for both local and virt machine by typing
+
+service firewalld stop
+
+or 
+
+service iptables top (RHEL 6)
+
+in terminals.
+
+
+Then, in my local computer, I typed
+
+export LDTP_SERVER_ADDR=xx.xx.xx.xx
+
+in which xx.xx.xx.xx is the IP address of the virtual machine (you can find this)
+
+After which, I can import ldtp on my local laptop to find btns, etc. on the virt machine during firstboot.
+
+To run firstboot without breaking everything, run ldtp.launchapp('firstboot').  However, doing so ensures that your firstboot will crash after clicking forward twice.  If you run firstboot from the terminal, the object list will be quite buggy.
+
+##########################################
+####Identified Obsolete/Needs Update Cases for RHEL 7.1
+##########################################
+
+115151 (firstboot)
+115152 (firstboot)
+115153 (firstboot)
+115154 (firstboot)
+178110
+190648
+262253 <------ redundant case, seems to be checked in my new case 178118
+261833 <------ redundant case, seems to be checked in my new case 261955 
+327131 (firstboot)
+
+##########################################
+####Possible Future Test Cases with Notes/Testcases with bugs
+##########################################
+
+Below testcases are unable to be completed because they require some way to figure out what the current combobox selection is.  However, both getcombovalue and verifyselect are broken.
+If other ways or functions are found that can do this, all these functions below are trivial to automate.  Possible ways to fix are potentially other modules such as Dogtail, or if anyone has a systems level understand of the gui they can make a function of his or her own.
+    tc_ID143285_GUI_display_current_service_level
+    tc_ID143286_GUI_set_service_level
+    tc_ID155110_GUI_set_release_for_system
+    tc_ID189605_GUI_service_level_should_shown_correctly
+
+Below testcases are unable to be completed because the objectlist/windowlist is buggy and won't god-damn refresh.  If the underlying reason can be found, these testcases are trivial to write.
+    tc_ID190920_display_proper_message_to_tell_user_when_no_subscriptions_match_current_fulters
+    tc_ID190636_GUI_open_online_documentation_from_menu
+
+Below testcases are unable to be completed because my firstboot on my computer is buggy as hell.  If firstboot is run on another computer, hopefully these cases should be trivial to write.
+    178110
+    327128
+    327129
+
+Below testcases are unable to be completed because they need to use the toolbar at the top of the screen, eg Applications, places...etc.  This means finding and using things in dlg0, which is buggy as hell.  Perhaps other modules are more stable in this aspect, or the testcases can be changed.
+    261836
+
+##########################################
+####Total Stable and Running cases for RHEL 7.1 - 40 cases
+##########################################
+
+##########################################
+####Completed/Debugged - 20 cases
+##########################################
+
+tc_ID115137_GUI_import_existing_certificates
+tc_ID115155_GUI_register_using_proxy
+tc_ID115175_GUI_subscribe_to_a_pool
+tc_ID115186_GUI_list_facts_info_of_current_system_via_gui
+tc_ID155109_GUI_list_avaialble_release
+tc_ID178118_GUI_display_orgname_and_identity
+tc_ID183421_GUI_list_consumed_entitlements
+tc_ID190646_GUI_my_installed_products_default_selection
+tc_ID272161_GUI_filter_options_should_be_saved
+tc_ID261838_GUI_smGUI_on_terminal_when_running_smGUI
+tc_ID261955_GUI_smGUI_facts_update_after_registering
+tc_ID262134_GUI_launch_subscription_manager_gui_with_invalid_proxy_url
+tc_ID262212_GUI_subscription_manager_gui_live_filter_should_not_crash
+tc_ID262344_GUI_service_level_type_should_display_properly
+tc_ID272155_GUI_subscription_name_comma_should_not_be_and
+tc_ID272161_GUI_rhsm_gui_should_launch_although_CA_cert_invalid
+tc_ID311028_GUI_proper_error_firstboot_when_invalid_activation_key
+tc_ID324773_GUI_firstboot_appears_in_gui
+tc_ID324127_GUI_option_to_register_with_proxy_firstboot
