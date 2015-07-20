@@ -184,7 +184,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info('SUCCESS: Retreived and matched virt.host and virt.is_guest!')
 
     def open_subscription_manager_by_cmd_check_output(self):
-        cmd = "subscription-manager-gui"
+        cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui"
         (ret, output) = self.runcmd(cmd)
         if ret == 0:
             logger.info("It's successful to run subscription-manager-gui the second time.")
@@ -1139,7 +1139,7 @@ class RHSMGuiBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to run subscription-manager-gui the first time")
 
     def open_subscription_manager_twice(self):
-        cmd = "subscription-manager-gui"
+        cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui"
         (ret, output) = self.runcmd(cmd)
         if ret == 0 and "subscription-manager-gui is already running" in output:
             logger.info("It's successful to check message when run_subscription_manager_gui_twice.")
