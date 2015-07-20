@@ -52,12 +52,17 @@ EOF
             logger.info("Succeeded to stop firewalld")
         else:
             raise FailException("Test Failed - Failed to stop firewalld")
-        cmd = "vncserver -SecurityTypes None"
+        cmd = "ps -ef | grep Xvnc | grep -v grep"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
-            logger.info("Succeeded to start vncserver")
+            logger.info("vncserver already started ...")
         else:
-            raise FailException("Test Failed - Failed to start vncserver")
+            cmd = "vncserver -SecurityTypes None"
+            ret, output = RHSMConstants().runcmd(cmd)
+            if ret == 0:
+                logger.info("Succeeded to start vncserver")
+            else:
+                raise FailException("Test Failed - Failed to start vncserver")
 
     def rhsm_gui_slave_setup(self):
         cmd = "yum install -y @gnome-desktop"
