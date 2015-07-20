@@ -21,7 +21,7 @@ class tc_ID190632_GUI_quit_subscription_manager_from_menu(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.click_my_subscriptions_tab()
                 self.sendkeys("<ctrl>", "q")
-                self.wait_seconds(5)
+                self.wait_seconds(45)
                 if not self.check_object_exist("main-window", "main-window"):
                     logger.info("It's successful to check quit_subscription_manager_from_menu.")
                 else:
