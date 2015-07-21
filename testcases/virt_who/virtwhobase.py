@@ -374,6 +374,10 @@ class VIRTWHOBase(unittest.TestCase):
             cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e"
             ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
 
+            cmd = "subscription-manager clean"
+            ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+
+
             cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
             ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
             if ret == 0:
