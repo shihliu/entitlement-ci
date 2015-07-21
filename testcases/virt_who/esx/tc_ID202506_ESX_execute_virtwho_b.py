@@ -18,7 +18,7 @@ class tc_ID202506_ESX_execute_virtwho_b(VIRTWHOBase):
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
 
             #1). stop virt-who service
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             #2). Execute virt-who in the background mode.
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -b -d" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
@@ -62,7 +62,7 @@ class tc_ID202506_ESX_execute_virtwho_b(VIRTWHOBase):
             self.esx_add_guest(guest_name, destination_ip)
             # check if the uuid is correctly monitored by virt-who.
             self.esx_check_uuid(guest_name, destination_ip)
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             self.assert_(True, case_name)
 

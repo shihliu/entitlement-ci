@@ -24,7 +24,7 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
                 raise FailException("Failed to set VIRTWHO_INTERVAL=5.")
 
             # restart virt-who service
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             cmd = "nohup tail -f -n 0 /var/log/rhsm/rhsm.log > /tmp/tail.rhsm.log 2>&1 &"
             self.runcmd(cmd, "got temp file /tmp/tail.rhsm.log")
             time.sleep(20)

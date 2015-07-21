@@ -15,7 +15,7 @@ class tc_ID327394_ESX_killpid_restart_virtwho(VIRTWHOBase):
             esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
             
             #1). stop virt-who service
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             #2). Execute virt-who in the -b -d.
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -b -d" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
@@ -45,7 +45,7 @@ class tc_ID327394_ESX_killpid_restart_virtwho(VIRTWHOBase):
                 raise FailException("Failed to kill virt-who process.")
 
             #6). restart virt-who service and check status
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.vw_check_virtwho_status_new("running")
 
             self.assert_(True, case_name)

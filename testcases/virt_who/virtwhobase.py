@@ -275,6 +275,38 @@ class VIRTWHOBase(unittest.TestCase):
             else:
                 raise FailException("Test Failed - Failed to check virt-who is %s." %status)
 
+    def vw_restart_virtwho_new(self, targetmachine_ip=""):
+        if self.check_systemctl_service("virt-who", targetmachine_ip):
+            cmd = "systemctl restart virt-who.service; sleep 10"
+            ret, output = self.runcmd(cmd, "restart virt-who service by systemctl.", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restsart virt-who")
+            else:
+                raise FailException("Test Failed - Failed to restart virt-who")
+        else:
+            cmd = "service virt-who restart; sleep 10"
+            ret, output = self.runcmd(cmd, "restart virt-who by service", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restsart virt-who")
+            else:
+                raise FailException("Test Failed - Failed to restart virt-who")
+
+    def vw_stop_virtwho_new(self, targetmachine_ip=""):
+        if self.check_systemctl_service("virt-who", targetmachine_ip):
+            cmd = "systemctl stop virt-who.service; sleep 10"
+            ret, output = self.runcmd(cmd, "stop virt-who service by systemctl.", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to stop virt-who")
+            else:
+                raise FailException("Test Failed - Failed to stop virt-who")
+        else:
+            cmd = "service virt-who stop; sleep 10"
+            ret, output = self.runcmd(cmd, "stop virt-who by service", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to stop virt-who")
+            else:
+                raise FailException("Test Failed - Failed to stop virt-who")
+
     def vw_check_virtwho_status(self, targetmachine_ip=""):
         ''' Check the virt-who status. '''
         if self.above_7_serials():

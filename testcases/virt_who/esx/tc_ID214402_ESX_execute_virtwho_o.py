@@ -15,7 +15,7 @@ class tc_ID214402_ESX_execute_virtwho_o(VIRTWHOBase):
             esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
 
             #1). stop virt-who service
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             #2). Execute virt-who in the -b -d.
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -o -d" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
