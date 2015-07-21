@@ -65,9 +65,9 @@ class RemoteSH(object):
 #             logger.debug("Error : %s" % stderr.read())
 #             logger.debug("Return Code : %s" % retcode)
 #             logger.debug("Output : \n%s" % stdout.read())
-            ssh.close()
             stderr_output = stderr.read()
             stdout_output = stdout.read()
+            ssh.close()
             return retcode, stderr_output if stderr_output != "" else stdout_output
         else:
             import time, socket
