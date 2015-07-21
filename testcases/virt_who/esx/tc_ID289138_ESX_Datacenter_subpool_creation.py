@@ -22,6 +22,10 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(VIRTWHOBase):
             bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
+
+            #0).check the guest is power off or not, if power_on, stop it
+            if self.esx_guest_ispoweron(guest_name, destination_ip):
+                self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
 

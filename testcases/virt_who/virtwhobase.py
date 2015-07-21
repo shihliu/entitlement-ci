@@ -252,6 +252,29 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to restart libvirtd")
 
+    def check_systemctl_service(self, keyword, targetmachine_ip=""):
+        cmd = "systemctl list-units|grep %s -i" %keyword
+        ret, output = self.runcmd(cmd, "check %s service by systemctl" %keyword, targetmachine_ip)
+        if ret == 0:
+            return True
+        return False
+
+    def vw_check_virtwho_status_new(self, status, targetmachine_ip=""):
+        if self.check_systemctl_service("virt-who", targetmachine_ip):
+            cmd = "systemctl status virt-who.service; sleep 10"
+            ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
+            if ret == 0 and status in output:
+                logger.info("Succeeded to check virt-who is %s" %status)
+            else:
+                raise FailException("Test Failed - Failed to check virt-who is %s." %status)
+        else:
+            cmd = "service virt-who status; sleep 10"
+            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
+            if ret == 0 and status in output:
+                logger.info("Succeeded to check virt-who is %s" %status)
+            else:
+                raise FailException("Test Failed - Failed to check virt-who is %s." %status)
+
     def vw_check_virtwho_status(self, targetmachine_ip=""):
         ''' Check the virt-who status. '''
         if self.above_7_serials():
@@ -1430,18 +1453,18 @@ class VIRTWHOBase(unittest.TestCase):
         cmd = "tail -3 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
-            ''' get guest uuid.list from rhsm.log '''
+            ''' get uuid.list from rhsm.log '''
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+                logger.info("Succeeded to get uuid.list from rhsm.log.")
             elif "Sending update to updateConsumer: " in output:
                 log_uuid_list = output.split('Sending update to updateConsumer: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+                logger.info("Succeeded to get uuid.list from rhsm.log.")
             elif "Sending update in hosts-to-guests mapping: " in output:
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+                logger.info("Succeeded to get uuid.list from rhsm.log.")
             else:
-                raise FailException("Failed to get guest uuid.list from rhsm.log")
+                raise FailException("Failed to get uuid.list from rhsm.log")
             # check guest uuid in log_uuid_list
             return uuid in log_uuid_list
         else:

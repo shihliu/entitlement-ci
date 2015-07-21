@@ -21,8 +21,13 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(VIRTWHOBase):
             sku_name = VIRTWHOConstants().get_constant("productname_unlimited_guest")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
+
+            #0).check the guest is power off or not, if power_on, stop it
+            if self.esx_guest_ispoweron(guest_name, destination_ip):
+                self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
+            
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
