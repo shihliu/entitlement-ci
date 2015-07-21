@@ -16,14 +16,19 @@ class tc_ID155117_ESX_check_guest_uuid(VIRTWHOBase):
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
 
+            #0).check the guest is power off or not, if power_on, stop it
+            if self.esx_guest_ispoweron(guest_name, destination_ip):
+                self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
-            # register guest to SAM
+
+            #1).register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
-            # check virt uuid in facts list
+
+            #2).check virt uuid in facts list
             cmd = "subscription-manager facts --list | grep virt.uuid"
             ret, output = self.runcmd(cmd, "list virt.uuid", guestip)
             if ret == 0:
@@ -33,6 +38,7 @@ class tc_ID155117_ESX_check_guest_uuid(VIRTWHOBase):
                     self.assert_(True, case_name)
                 else:
                     raise FailException("Failed to check virt.uuid.")
+
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
