@@ -15,7 +15,7 @@ class tc_ID322866_ESX_run_virtwho_with_sam_option(VIRTWHOBase):
             esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
 
             #1). stop virt-who service
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             #2). Execute virt-who in the one-shot mode.
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s --sam -d -o" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
@@ -26,7 +26,7 @@ class tc_ID322866_ESX_run_virtwho_with_sam_option(VIRTWHOBase):
                 raise FailException("Failed to execute virt-who with --sam -d -o")
 
             #3).restart virtwho service
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
 
             self.assert_(True, case_name)
 

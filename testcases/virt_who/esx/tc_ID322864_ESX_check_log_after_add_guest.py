@@ -41,7 +41,7 @@ class tc_ID322864_ESX_check_log_after_add_guest(VIRTWHOBase):
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
             #3).restart virtwho service
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
 
             #4).check virt-who log
             rhsmlogpath='/var/log/rhsm/rhsm.log'

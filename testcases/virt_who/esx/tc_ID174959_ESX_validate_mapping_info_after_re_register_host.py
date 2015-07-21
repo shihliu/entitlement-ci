@@ -26,19 +26,19 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
             #1). register esxi host on sam by restart virt-who service 
-            self.vw_restart_virtwho() 
+            self.vw_restart_virtwho_new() 
 
             #2). check esxi host is registered or not on sam
             time.sleep(10)
             self.esx_check_host_in_samserv(host_uuid, SAM_IP)
 
             #3). unregister or remove esxi host from sam 
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
             self.esx_remove_host_in_samserv(host_uuid, SAM_IP)
             #self.esx_remove_deletion_record_in_samserv(host_uuid, SAM_IP)
 
             #4). re-register esxi host on sam by restart virt-who service 
-            self.vw_restart_virtwho() 
+            self.vw_restart_virtwho_new() 
 
             #5). check esxi host is registered or not on sam again, and check guest uuid from rhsm.log
             time.sleep(20)

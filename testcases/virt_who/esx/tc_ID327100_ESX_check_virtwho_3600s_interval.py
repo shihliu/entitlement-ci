@@ -24,7 +24,7 @@ class tc_ID327100_ESX_check_virtwho_3600s_interval(VIRTWHOBase):
                 raise FailException("Failed to set VIRTWHO_INTERVAL=3600.")
 
             #2).restart virt-who service
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
 
             #3).write log to /tmp/tail.rhsm.log
             time.sleep(10)
