@@ -18,7 +18,7 @@ class SAM_Install_Base(unittest.TestCase):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
         self.__set_hosts_file(server_ip, server_user, server_passwd)
-        self.__auto_subscribe(server_ip, server_user, server_passwd)
+#         self.__auto_subscribe(server_ip, server_user, server_passwd)
         self.__add_sam_repo(compose, server_ip, server_user, server_passwd)
         self.__install_katello(server_ip, server_user, server_passwd)
         self.__deploy_sam(server_ip, server_user, server_passwd)
