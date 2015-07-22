@@ -14,16 +14,16 @@
 
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
-            #if [ "$JSLAVENAME" != "master" ]
-            #then
-            #    $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-            #    --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
-            #    --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
-            #    --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
 
-            #    TR_STATUS=$?
-            #    if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            #fi
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
 
             # Provision Test Resources
             sleep 180
@@ -135,13 +135,13 @@
     jobs:
      - rhsm-gui-rhel-7-provision-runtest
     jslavename:
-     - entitlement-ldtp-slave-10.66.129.67
+     - entitlement-ldtp-6.6-slave
     jslave_execs:
-     - 10
+     - 3
     jslaveimage:
-     - RHEL-6.6-Server-x86_64-released
+     - entitlement-ldtp-6.6
     jslaveflavor:
-     - m1.medium
+     - m1.small
     jslaveusername:
      - root
     jslavepassword:

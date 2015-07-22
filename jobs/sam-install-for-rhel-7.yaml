@@ -147,11 +147,11 @@
     jslavename:
      - jslave-sam-install-for-rhel-7-slave
     jslave_execs:
-     - 10
+     - 3
     jslaveimage:
      - RHEL-6.6-Server-x86_64-released
     jslaveflavor:
-     - m1.medium
+     - m1.small
     jslaveusername:
      - root
     jslavepassword:
