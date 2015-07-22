@@ -22,11 +22,9 @@
             fi
 
             # Provision Test Resources
-            #$WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7
-
+            sam_compose=`curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7 --skipuuid
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={sam_compose} --skipuuid
 
             TR_STATUS=$?
 
