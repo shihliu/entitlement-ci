@@ -19,7 +19,7 @@ class rhsm_gui_setup(unittest.TestCase):
 
     def rhsm_gui_sys_setup(self):
         # in rhel 6, run yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform' instead
-        # yum install python-twisted
+        # yum install -y python-twisted tigervnc-server git
         cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
