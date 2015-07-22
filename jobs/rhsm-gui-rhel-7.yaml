@@ -87,6 +87,14 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
+            #configure slave for gui testing
+            yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'
+            yum install -y python-twisted tigervnc-server git
+            git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install
+            vncserver -SecurityTypes None
+
+            export DISPLAY=localhost:1
+
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
             export TEST_SERVER=SAM
@@ -135,11 +143,11 @@
     jobs:
      - rhsm-gui-rhel-7-provision-runtest
     jslavename:
-     - entitlement-ldtp-6.6-slave
+     - jslave-rhsm-gui-rhel-7-slave
     jslave_execs:
      - 3
     jslaveimage:
-     - entitlement-ldtp-6.6
+     - RHEL-6.6-Server-x86_64-released
     jslaveflavor:
      - m1.small
     jslaveusername:
