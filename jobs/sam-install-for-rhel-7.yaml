@@ -26,7 +26,7 @@
             --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7
 
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile}  --name=sam-install-for-rhel-7
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-7 --skipuuid
 
             TR_STATUS=$?
 
