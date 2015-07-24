@@ -112,7 +112,13 @@ class SAM_Install_Base(unittest.TestCase):
             logger.info("Succeeded to attach rhscl product.")
         else:
             raise FailException("Test Failed - Failed to attach rhscl product.")
-        cmd = "subscription-manager repos --enable rhel-server-rhscl-6-rpms"
+        cmd = "subscription-manager repos --disable "*""
+        ret, output = self.runcmd(cmd, "disable all repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to disable all repo.")
+        else:
+            raise FailException("Test Failed - Failed to disable all repo.")
+        cmd = "subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms"
         ret, output = self.runcmd(cmd, "enable rhscl repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to enable rhscl repo.")
