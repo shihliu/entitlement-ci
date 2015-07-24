@@ -132,7 +132,7 @@ class SAM_Install_Base(unittest.TestCase):
             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/sattools/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
-            'EOF' % satellite_compose
+            'EOF' % (satellite_compose, satellite_compose, satellite_compose)
             )
         ret, output = self.runcmd(cmd, "add satellite repo", server_ip, server_user, server_passwd)
         if ret == 0:
