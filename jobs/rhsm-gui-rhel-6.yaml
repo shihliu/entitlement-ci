@@ -87,6 +87,18 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
+            #configure slave for gui testing
+            yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'
+            yum install -y python-twisted tigervnc-server git
+            git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install
+            gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true
+            gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false
+            gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false
+            gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0
+            vncserver -SecurityTypes None
+
+            export DISPLAY=localhost:1
+
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
             export TEST_SERVER=SAM
