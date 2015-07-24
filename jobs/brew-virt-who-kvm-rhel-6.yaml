@@ -137,11 +137,11 @@
     jslavename:
      - jslave-brew-virt-who-kvm-rhel-6-slave
     jslave_execs:
-     - 10
+     - 3
     jslaveimage:
      - RHEL-6.6-Server-x86_64-released
     jslaveflavor:
-     - m1.medium
+     - m1.small
     jslaveusername:
      - root
     jslavepassword:

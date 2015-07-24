@@ -22,8 +22,9 @@
             fi
 
             # Provision Test Resources
-            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam-install-for-rhel-6
+            sam_compose=samserv-redhat-com
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=$sam_compose
 
             TR_STATUS=$?
 
@@ -79,15 +80,14 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip
+            export REMOTE_IP=$EXISTING_NODES
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests sam_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SAMSERVER.txt
@@ -135,7 +135,7 @@
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - qeos_sam_install
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -147,11 +147,11 @@
     jslavename:
      - jslave-sam-install-for-rhel-6-slave
     jslave_execs:
-     - 10
+     - 3
     jslaveimage:
      - RHEL-6.6-Server-x86_64-released
     jslaveflavor:
-     - m1.medium
+     - m1.small
     jslaveusername:
      - root
     jslavepassword:

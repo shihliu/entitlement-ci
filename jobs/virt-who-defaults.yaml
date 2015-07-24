@@ -47,11 +47,10 @@
     name: default-virt-who-build-timeout-wrapper
     wrappers:
         - timeout:
+            timeout: 600
             timeout-var: 'BUILD_TIMEOUT'
             fail: true
-            elastic-percentage: 150
-            elastic-default-timeout: 90
-            type: elastic
+            type: absolute
 
 - publisher:
     name: default-virt-who-publishers
