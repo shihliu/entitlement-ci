@@ -17,7 +17,7 @@ class SAM_Install_Base(unittest.TestCase):
     def install_sam(self, compose, server_ip=None, server_user=None, server_passwd=None):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
-        self.__set_hosts_file(server_ip, server_user, server_passwd)
+#         self.__set_hosts_file(server_ip, server_user, server_passwd)
 #         self.__auto_subscribe(server_ip, server_user, server_passwd)
         self.__add_sam_repo(compose, server_ip, server_user, server_passwd)
         self.__install_katello(server_ip, server_user, server_passwd)
@@ -27,7 +27,6 @@ class SAM_Install_Base(unittest.TestCase):
     def install_satellite(self, compose, server_ip=None, server_user=None, server_passwd=None):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
-        self.__set_hosts_file(server_ip, server_user, server_passwd)
         self.__add_satellite_repo(compose, server_ip, server_user, server_passwd)
         self.__install_satellite(server_ip, server_user, server_passwd)
         self.__deploy_satellite(server_ip, server_user, server_passwd)
