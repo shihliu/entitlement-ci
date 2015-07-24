@@ -27,6 +27,7 @@ class SAM_Install_Base(unittest.TestCase):
     def install_satellite(self, compose, server_ip=None, server_user=None, server_passwd=None):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
+        self.__satellite_subscribe(server_ip, server_user, server_passwd)
         self.__add_satellite_repo(compose, server_ip, server_user, server_passwd)
         self.__install_satellite(server_ip, server_user, server_passwd)
         self.__deploy_satellite(server_ip, server_user, server_passwd)
@@ -96,7 +97,27 @@ class SAM_Install_Base(unittest.TestCase):
 #             'gpgcheck=0\n'
 #             'EOF'
 #             )
-        self.runcmd(cmd)
+#         self.runcmd(cmd)
+
+    def __satellite_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
+        cmd = "subscription-manager register --username=rhn-engineering-automation --password=KoKMAtikw1ifEPSe"
+        ret, output = self.runcmd(cmd, "register system with ENG creds", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to register system with ENG creds.")
+        else:
+            raise FailException("Test Failed - Failed to register system with ENG creds.")
+        cmd = "subscription-manager attach --pool=8a85f9823e3d5e43013e3e0af77e0f36"
+        ret, output = self.runcmd(cmd, "attach rhscl product", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to attach rhscl product.")
+        else:
+            raise FailException("Test Failed - Failed to attach rhscl product.")
+        cmd = "subscription-manager repos --enable rhel-server-rhscl-6-rpms"
+        ret, output = self.runcmd(cmd, "enable rhscl repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to enable rhscl repo.")
+        else:
+            raise FailException("Test Failed - Failed to enable rhscl repo.")
 
     def __add_sam_repo(self, sam_compose, server_ip=None, server_user=None, server_passwd=None):
         cmd = ('cat <<EOF > /etc/yum.repos.d/sam.repo\n'
@@ -142,7 +163,6 @@ class SAM_Install_Base(unittest.TestCase):
 
     def __install_katello(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "yum install -y katello-headpin-all"
-        # cmd = "yum install -y git"
         ret, output = self.runcmd(cmd, "yum install -y katello-headpin-all", server_ip, server_user, server_passwd, timeout=3600)
         # here it always time out, need to research reason
         if ret == 0:
