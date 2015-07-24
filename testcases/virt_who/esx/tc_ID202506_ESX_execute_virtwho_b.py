@@ -36,8 +36,12 @@ class tc_ID202506_ESX_execute_virtwho_b(VIRTWHOBase):
             else:
                 raise FailException("Failed to check virt-who process.")
 
-            # (1) start a guest    
+            # (1).check the guest is power off or not, if power_on, stop it
+            if self.esx_guest_ispoweron(guest_name, destination_ip):
+                self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
+            guestip = self.esx_get_guest_ip(guest_name, destination_ip)
+            
             # check if the uuid is correctly monitored by virt-who.
             self.esx_check_uuid(guest_name, destination_ip)
             # (2)pause a guest
