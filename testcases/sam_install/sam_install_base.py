@@ -112,7 +112,7 @@ class SAM_Install_Base(unittest.TestCase):
             logger.info("Succeeded to attach rhscl product.")
         else:
             raise FailException("Test Failed - Failed to attach rhscl product.")
-        cmd = "subscription-manager repos --disable "*""
+        cmd = "subscription-manager repos --disable \"*\""
         ret, output = self.runcmd(cmd, "disable all repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to disable all repo.")
