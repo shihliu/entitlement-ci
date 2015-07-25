@@ -9,7 +9,7 @@
                     "arch": "X86_64",
                     "variant": "Server",
                     "keyvalue": ["DISKSPACE>=20000","HVM=1"],
-                    "hostrequire": ["arch=X86_64", "memory>=2000", "hostname=%.khw.%"],
+                    "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Master",
                         "name": "MasterMachine"
@@ -21,7 +21,7 @@
                     "arch": "X86_64",
                     "variant": "Server",
                     "keyvalue": ["DISKSPACE>=20000","HVM=1"],
-                    "hostrequire": ["arch=X86_64", "memory>=2000", "hostname=%.khw.%"],
+                    "hostrequire": ["arch=X86_64", "memory>=2000"],
                     "bkr_data": {
                         "role": "Slave",
                         "name": "SlaveMachine"
