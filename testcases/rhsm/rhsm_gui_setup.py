@@ -40,6 +40,12 @@ class rhsm_gui_setup(unittest.TestCase):
                 logger.info("Succeeded to install python-twisted tigervnc-server git")
             else:
                 raise FailException("Test Failed - Failed to install python-twisted tigervnc-server git")
+            cmd = "gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true; gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false; gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false; gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0"
+            ret, output = RHSMConstants().runcmd(cmd)
+            if ret == 0:
+                logger.info("Succeeded to setup system for gui testing")
+            else:
+                raise FailException("Test Failed - Failed to setup system for gui testing")
         install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
         ret, output = RHSMConstants().runcmd(install_ldtp_cmd)
         if ret == 0:
