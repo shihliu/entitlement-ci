@@ -20,12 +20,26 @@ class rhsm_gui_setup(unittest.TestCase):
     def rhsm_gui_sys_setup(self):
         # in rhel 6, run yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform' instead
         # yum install -y python-twisted tigervnc-server git
-        cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
-        ret, output = RHSMConstants().runcmd(cmd)
-        if ret == 0:
-            logger.info("Succeeded to install @gnome-desktop tigervnc-server pexpect pyatspi")
+        if RHSMConstants().get_os_serials() == "7":
+            cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
+            ret, output = RHSMConstants().runcmd(cmd)
+            if ret == 0:
+                logger.info("Succeeded to install @gnome-desktop tigervnc-server pexpect pyatspi")
+            else:
+                raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server pexpect pyatspi")
         else:
-            raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server pexpect pyatspi")
+            cmd = "yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'"
+            ret, output = RHSMConstants().runcmd(cmd)
+            if ret == 0:
+                logger.info("Succeeded to install 'X Window System' 'Desktop' 'Desktop Platform'")
+            else:
+                raise FailException("Test Failed - Failed to install 'X Window System' 'Desktop' 'Desktop Platform'")
+            cmd = "yum install -y python-twisted tigervnc-server git"
+            ret, output = RHSMConstants().runcmd(cmd)
+            if ret == 0:
+                logger.info("Succeeded to install python-twisted tigervnc-server git")
+            else:
+                raise FailException("Test Failed - Failed to install python-twisted tigervnc-server git")
         install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
         ret, output = RHSMConstants().runcmd(install_ldtp_cmd)
         if ret == 0:
