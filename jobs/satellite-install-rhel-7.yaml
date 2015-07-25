@@ -85,19 +85,19 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            #beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            #export REMOTE_IP=$beaker_ip
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
             export TEST_SERVER=SATELLITE
-            export REMOTE_IP=$EXISTING_NODES
+            #export REMOTE_IP=$EXISTING_NODES
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            #echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
-            #echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
-            echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
+            echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            #echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
+            #echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SAMSERVER.txt
