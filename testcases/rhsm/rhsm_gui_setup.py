@@ -47,12 +47,15 @@ EOF
             logger.info("Succeeded to start ldtp server")
         else:
             raise FailException("Test Failed - Failed to start ldtp server")
-        cmd = "service firewalld stop"
+        if RHSMConstants().get_os_serials() == "7":
+            cmd = "service firewalld stop"
+        else:
+            cmd = "service iptables stop"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
-            logger.info("Succeeded to stop firewalld")
+            logger.info("Succeeded to stop firewalld/iptables")
         else:
-            raise FailException("Test Failed - Failed to stop firewalld")
+            raise FailException("Test Failed - Failed to stop firewalld/iptables")
         cmd = "ps -ef | grep Xvnc | grep -v grep"
         ret, output = RHSMConstants().runcmd(cmd)
         if ret == 0:
@@ -64,24 +67,6 @@ EOF
                 logger.info("Succeeded to start vncserver")
             else:
                 raise FailException("Test Failed - Failed to start vncserver")
-
-    def rhsm_gui_slave_setup(self):
-        cmd = "yum install -y @gnome-desktop"
-        ret, output = RHSMConstants().runcmd(cmd)
-        if ret == 0:
-            logger.info("Succeeded to install desktop")
-        else:
-            raise FailException("Test Failed - Failed to install desktop")
-        install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
-        ret, output = RHSMConstants().runcmd(install_ldtp_cmd)
-        if ret == 0:
-            logger.info("Succeeded to install ldtp.")
-        else:
-            raise FailException("Test Failed - Failed to install ldtp.")
-
-#     def runcmd(self, cmd, timeout=None, showlogger=True):
-#         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-#         return commander.run(cmd, timeout, showlogger)
 
 if __name__ == "__main__":
     unittest.main()
