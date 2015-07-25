@@ -53,21 +53,3 @@ class VIRTWHOConstants(object):
 
     def get_constant(self, name):
         return self.virt_who_cons[name]
-
-    def get_command(self, command):
-        if self.os_serial >= 7:
-            return self.virt_who_commands[command + "_systemd"]
-        else:
-            return self.virt_who_commands[command]
-
-    def get_os_serials(self):
-        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = self.runcmd(cmd, showlogger=False)
-        if ret == 0:
-            return output.strip("\n").strip(" ")
-        else:
-            raise FailException("Failed to get os serials")
-
-    def runcmd(self, cmd, timeout=None, showlogger=True):
-        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, showlogger)

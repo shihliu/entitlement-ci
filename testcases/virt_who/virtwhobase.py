@@ -216,6 +216,20 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("System version is bellow 7 serials")
             return False
 
+    def service_command(self, command, targetmachine_ip=""):
+        if self.get_os_serials(targetmachine_ip) == 7:
+            return VIRTWHOConstants().virt_who_commands[command + "_systemd"]
+        else:
+            return VIRTWHOConstants().virt_who_commands[command]
+
+    def get_os_serials(self, targetmachine_ip=""):
+        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
+        (ret, output) = self.runcmd(cmd, "", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Failed to get os serials")
+
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
         cmd = "service virt-who restart"
