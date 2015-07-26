@@ -49,6 +49,8 @@ class VIRTWHOConstants(object):
     virt_who_commands = {
                     "restart_virtwho" : "service virt-who restart",
                     "restart_virtwho_systemd" : "systemctl restart virt-who.service",
+                    "restart_network" : "service network restart",
+                    "restart_network_systemd" : "systemctl restart network",
                     }
 
     def get_constant(self, name):

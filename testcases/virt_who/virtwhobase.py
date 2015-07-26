@@ -92,25 +92,31 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
-        if self.above_7_serials(targetmachine_ip):
-            cmd = "systemctl restart network"
-            ret, output = self.runcmd(cmd, "restart network service with systemctl the first time", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
-            else:
-                raise FailException("Test Failed - Failed to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
-            ret, output = self.runcmd(cmd, "restart network service with systemctl the second time", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart network service with systemctl the second time %s." % self.get_hg_info(targetmachine_ip))
-            else:
-                raise FailException("Test Failed - Failed to restart network service with systemctl the second time in %s." % self.get_hg_info(targetmachine_ip))
+#         if self.above_7_serials(targetmachine_ip):
+#             cmd = "systemctl restart network"
+#             ret, output = self.runcmd(cmd, "restart network service with systemctl the first time", targetmachine_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
+#             else:
+#                 raise FailException("Test Failed - Failed to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
+#             ret, output = self.runcmd(cmd, "restart network service with systemctl the second time", targetmachine_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to restart network service with systemctl the second time %s." % self.get_hg_info(targetmachine_ip))
+#             else:
+#                 raise FailException("Test Failed - Failed to restart network service with systemctl the second time in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             cmd = "service network restart"
+#             ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+#             else:
+#                 raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = self.service_command("restart_network", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
         else:
-            cmd = "service network restart"
-            ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-            else:
-                raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+            raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
@@ -217,7 +223,7 @@ class VIRTWHOBase(unittest.TestCase):
             return False
 
     def service_command(self, command, targetmachine_ip=""):
-        if self.get_os_serials(targetmachine_ip) == 7:
+        if self.get_os_serials(targetmachine_ip) == "7":
             return VIRTWHOConstants().virt_who_commands[command + "_systemd"]
         else:
             return VIRTWHOConstants().virt_who_commands[command]
