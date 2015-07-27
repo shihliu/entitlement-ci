@@ -111,12 +111,7 @@ class VIRTWHOBase(unittest.TestCase):
 #                 logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
 #             else:
 #                 raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = self.service_command("restart_network", targetmachine_ip)
-        ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
+        self.service_command("restart_network", targetmachine_ip)
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
@@ -224,9 +219,14 @@ class VIRTWHOBase(unittest.TestCase):
 
     def service_command(self, command, targetmachine_ip=""):
         if self.get_os_serials(targetmachine_ip) == "7":
-            return VIRTWHOConstants().virt_who_commands[command + "_systemd"]
+            cmd = VIRTWHOConstants().virt_who_commands[command + "_systemd"]
         else:
-            return VIRTWHOConstants().virt_who_commands[command]
+            cmd = VIRTWHOConstants().virt_who_commands[command]
+        ret, output = self.runcmd(cmd, "run cmd: %s" %cmd, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+        else:
+            raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
     def get_os_serials(self, targetmachine_ip=""):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
@@ -247,12 +247,78 @@ class VIRTWHOBase(unittest.TestCase):
 
     def check_virtwho_thread(self, targetmachine_ip=""):
         ''' check virt-who thread number '''
-        cmd = "ps -ef | grep -v grep | grep virt-who | wc -l"
+        cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
         ret, output = self.runcmd(cmd, "check virt-who thread", targetmachine_ip)
         if ret == 0 and output.strip() == "2":
             logger.info("Succeeded to check virt-who thread number is 2.")
         else:
             raise FailException("Test Failed - Failed to check virt-who thread number is 2.")
+
+    def config_virtwho_interval(self, interval_value, targetmachine_ip=""):
+        # clean # for VIRTWHO_INTERVAL 
+        cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
+        else:
+            raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
+
+        # set VIRTWHO_INTERVAL value
+        cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" %interval_value
+        (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" %interval_value, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" %interval_value)
+        else:
+            raise FailException("Failed to set VIRTWHO_INTERVAL=%s" %interval_value)
+
+    def unset_esx_conf(self, targetmachine_ip=""):
+        cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
+        ret, output = self.runcmd(cmd, "unset virt-who configure file for disable VIRTWHO_ESX", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to disable VIRTWHO_ESX.")
+        else:
+            raise FailException("Test Failed - Failed to disable VIRTWHO_ESX.")
+
+    def set_esx_conf(self, targetmachine_ip=""):
+        VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
+        VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
+        VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
+        VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
+        VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+
+        # clean # first
+        cmd = "sed -i -e 's/^#VIRTWHO_ESX/VIRTWHO_ESX/g' -e 's/^#VIRTWHO_ESX_OWNER/VIRTWHO_ESX_OWNER/g' -e 's/^#VIRTWHO_ESX_ENV/VIRTWHO_ESX_ENV/g' -e 's/^#VIRTWHO_ESX_SERVER/VIRTWHO_ESX_SERVER/g' -e 's/^#VIRTWHO_ESX_USERNAME/VIRTWHO_ESX_USERNAME/g' -e 's/^#VIRTWHO_ESX_PASSWORD/VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
+        ret, output = self.runcmd(cmd, "set virt-who configure file for enable VIRTWHO_ESX", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to enable VIRTWHO_ESX.")
+        else:
+            raise FailException("Test Failed - Failed to enable VIRTWHO_ESX.")
+
+        # set esx value
+        cmd = "sed -i -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
+        ret, output = self.runcmd(cmd, "setting value for esx conf.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set esx value.")
+        else:
+            raise FailException("Test Failed - Failed to set esx value.")
+
+    def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
+        cmd ='''cat > %s <<EOF
+%s 
+EOF''' %(file_name, file_data)
+        ret, output = self.runcmd(cmd, "create config file: %s" %file_name, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to create config file: %s" %file_name)
+        else:
+            raise FailException("Test Failed - Failed to create config file %s" %file_name)
+
+    def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
+        cmd = "rm -f %s" %file_name
+        ret, output = self.runcmd(cmd, "run cmd: %s" %cmd, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to remove %s" %file_name)
+        else:
+            raise FailException("Test Failed - Failed to remove %s" %file_name)
 
     def vw_stop_virtwho(self, targetmachine_ip=""):
         ''' stop virt-who service. '''
@@ -1503,8 +1569,6 @@ class VIRTWHOBase(unittest.TestCase):
 
     def esx_check_uuid_exist_in_rhsm_log(self, uuid, destination_ip=""):
         ''' esx_check_uuid_exist_in_rhsm_log '''
-        self.vw_restart_virtwho()
-        self.vw_restart_virtwho()
         time.sleep(10)
         cmd = "tail -3 /var/log/rhsm/rhsm.log"
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
