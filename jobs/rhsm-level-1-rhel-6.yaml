@@ -137,7 +137,7 @@
     jslave_execs:
      - 3
     jslaveimage:
-     - RHEL-6.7-Server-x86_64-released
+     - RHEL-6.6-Server-x86_64-released
     jslaveflavor:
      - m1.small
     jslaveusername:
