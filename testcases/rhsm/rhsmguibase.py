@@ -18,6 +18,7 @@ class RHSMGuiBase(unittest.TestCase):
     # eg get the value of lblOrganizationValue
     # input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
     def get_label_txt(self, window, label):
+        ldtp.wait()
         self.activate_window('main-window')
         logger.info("Retrieving label from %s" % label)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(label))
