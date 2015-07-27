@@ -113,6 +113,7 @@ class RHSMGuiBase(unittest.TestCase):
         return parsed_objects_list
 
     def activate_window(self, window):
+        ldtp.wait()
         logger.info('activate window %s' % window)
         ldtp.activatewindow(RHSMGuiLocator().get_locator(window))
 

@@ -49,6 +49,16 @@ class VIRTWHOConstants(object):
     virt_who_commands = {
                     "restart_virtwho" : "service virt-who restart",
                     "restart_virtwho_systemd" : "systemctl restart virt-who.service",
+
+                    "stop_virtwho" : "service virt-who stop",
+                    "stop_virtwho_systemd" : "systemctl stop virt-who.service",
+
+                    "status_virtwho" : "service status restart",
+                    "status_virtwho_systemd" : "systemctl status virt-who.service",
+
+                    "restart_libvirtd" : "service libvirtd restart",
+                    "restart_libvirtd_systemd" : "systemctl restart libvirtd.service",
+
                     "restart_network" : "service network restart",
                     "restart_network_systemd" : "systemctl restart network",
                     }
