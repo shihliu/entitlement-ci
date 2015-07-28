@@ -994,9 +994,18 @@ EOF''' %(file_name, file_data)
     def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.vw_restart_virtwho(targetmachine_ip)
-        cmd = "tail -3 %s | grep Sending" % rhsmlogfile 
-        ret, output = self.runcmd(cmd, "check output in rhsm.log")
+        if self.get_os_serials(targetmachine_ip) == "7":
+                cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+                ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+                # ignore restart virt-who serivce since virt-who -b -d will stop
+                self.vw_restart_virtwho(targetmachine_ip)
+                time.sleep(10)
+                cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+                ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+	else: 
+                self.vw_restart_virtwho(targetmachine_ip)
+                cmd = "tail -3 %s " % rhsmlogfile
+                ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
             if "Sending list of uuids: " in output:
@@ -1010,7 +1019,7 @@ EOF''' %(file_name, file_data)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")    
             else:
                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-            loglist = eval(log_uuid_list)
+            loglist =  eval(log_uuid_list[:log_uuid_list.rfind("]\n")+1].strip())
             for item in loglist:
                 if item['guestId'] == guestuuid:
                     attr_status = item['attributes']['active']
