@@ -41,6 +41,7 @@ class tc_ID155177_check_uuid_after_pause_shutdown_vm_restart_libvirtd(VIRTWHOBas
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.vw_stop_guests(guest_name)
             self.vw_define_all_guests()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
