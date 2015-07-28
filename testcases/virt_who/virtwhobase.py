@@ -950,11 +950,19 @@ EOF''' %(file_name, file_data)
     def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        # ignore restart virt-who serivce since virt-who -b -d will stop
-        # self.vw_restart_virtwho(targetmachine_ip)
-        cmd = "tail -3 %s " % rhsmlogfile
-        ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
-        if ret == 0:
+        if self.get_os_serials(targetmachine_ip) == "7":
+		cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+		ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+		# ignore restart virt-who serivce since virt-who -b -d will stop
+		self.vw_restart_virtwho(targetmachine_ip)
+		time.sleep(10)
+		cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+		ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+	else: 
+		self.vw_restart_virtwho(targetmachine_ip)
+		cmd = "tail -3 %s " % rhsmlogfile
+		ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+	if ret == 0:
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
@@ -963,6 +971,7 @@ EOF''' %(file_name, file_data)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
+		logger.info("log_uuid_list is %s" %log_uuid_list)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get uuid list from rhsm.log")
