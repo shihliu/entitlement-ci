@@ -9,6 +9,7 @@
             #!/bin/bash
             #maybe got brew rpm link here for yum install virt-who
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
+            echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
             properties-file: $WORKSPACE/CI_MESSAGE.txt
     publishers:
@@ -34,6 +35,7 @@
             #!/bin/bash
             #maybe got brew rpm link here for yum install virt-who
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
+            echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
             properties-file: $WORKSPACE/CI_MESSAGE.txt
     publishers:
