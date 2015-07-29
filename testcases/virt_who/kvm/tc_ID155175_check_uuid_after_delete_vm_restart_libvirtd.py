@@ -13,7 +13,6 @@ class tc_ID155175_check_uuid_after_delete_vm_restart_libvirtd(VIRTWHOBase):
             guestuuid = self.vw_get_uuid(guest_name)
 
             # (1)check if the uuid is exist before .
-            self.vw_restart_virtwho()
             self.vw_check_uuid(guestuuid, uuidexists=True)
             # (2) Restart libvirtd service  
             self.vw_restart_libvirtd()
