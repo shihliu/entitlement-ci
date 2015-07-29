@@ -222,7 +222,7 @@ class VIRTWHOBase(unittest.TestCase):
             cmd = VIRTWHOConstants().virt_who_commands[command + "_systemd"]
         else:
             cmd = VIRTWHOConstants().virt_who_commands[command]
-        ret, output = self.runcmd(cmd, "run cmd: %s" %cmd, targetmachine_ip)
+        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
         else:
@@ -264,12 +264,12 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
 
         # set VIRTWHO_INTERVAL value
-        cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" %interval_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" %interval_value, targetmachine_ip)
+        cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" % interval_value
+        (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" % interval_value, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" %interval_value)
+            logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" % interval_value)
         else:
-            raise FailException("Failed to set VIRTWHO_INTERVAL=%s" %interval_value)
+            raise FailException("Failed to set VIRTWHO_INTERVAL=%s" % interval_value)
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -303,22 +303,22 @@ class VIRTWHOBase(unittest.TestCase):
             raise FailException("Test Failed - Failed to set esx value.")
 
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
-        cmd ='''cat > %s <<EOF
+        cmd = '''cat > %s <<EOF
 %s 
-EOF''' %(file_name, file_data)
-        ret, output = self.runcmd(cmd, "create config file: %s" %file_name, targetmachine_ip)
+EOF''' % (file_name, file_data)
+        ret, output = self.runcmd(cmd, "create config file: %s" % file_name, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to create config file: %s" %file_name)
+            logger.info("Succeeded to create config file: %s" % file_name)
         else:
-            raise FailException("Test Failed - Failed to create config file %s" %file_name)
+            raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
     def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
-        cmd = "rm -f %s" %file_name
-        ret, output = self.runcmd(cmd, "run cmd: %s" %cmd, targetmachine_ip)
+        cmd = "rm -f %s" % file_name
+        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to remove %s" %file_name)
+            logger.info("Succeeded to remove %s" % file_name)
         else:
-            raise FailException("Test Failed - Failed to remove %s" %file_name)
+            raise FailException("Test Failed - Failed to remove %s" % file_name)
 
     def vw_stop_virtwho(self, targetmachine_ip=""):
         ''' stop virt-who service. '''
@@ -339,8 +339,8 @@ EOF''' %(file_name, file_data)
             raise FailException("Test Failed - Failed to restart libvirtd")
 
     def check_systemctl_service(self, keyword, targetmachine_ip=""):
-        cmd = "systemctl list-units|grep %s -i" %keyword
-        ret, output = self.runcmd(cmd, "check %s service by systemctl" %keyword, targetmachine_ip)
+        cmd = "systemctl list-units|grep %s -i" % keyword
+        ret, output = self.runcmd(cmd, "check %s service by systemctl" % keyword, targetmachine_ip)
         if ret == 0:
             return True
         return False
@@ -350,16 +350,16 @@ EOF''' %(file_name, file_data)
             cmd = "systemctl status virt-who.service; sleep 10"
             ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
             if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" %status)
+                logger.info("Succeeded to check virt-who is %s" % status)
             else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." %status)
+                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
         else:
             cmd = "service virt-who status; sleep 10"
             ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" %status)
+                logger.info("Succeeded to check virt-who is %s" % status)
             else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." %status)
+                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
 
     def vw_restart_virtwho_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("virt-who", targetmachine_ip):
@@ -488,20 +488,29 @@ EOF''' %(file_name, file_data)
             else:
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
-
-            cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e"
-            ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
-
-            cmd = "subscription-manager clean"
-            ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-
-
-            cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-            ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+            test_server = get_exported_param("TEST_SERVER")
+            if test_server == "SATELLITE":
+                cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
+                ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
+                cmd = "subscription-manager clean"
+                ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+                cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
+                ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
+                else:
+                    raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
             else:
-                raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e"
+                ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
+                cmd = "subscription-manager clean"
+                ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+                cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
+                ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                else:
+                    raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         elif samhostname == "subscription.rhn.stage.redhat.com":
             # configure /etc/rhsm/rhsm.conf to stage candlepin
             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
@@ -1019,7 +1028,7 @@ EOF''' %(file_name, file_data)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")    
             else:
                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-            loglist =  eval(log_uuid_list[:log_uuid_list.rfind("]\n")+1].strip())
+            loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
             for item in loglist:
                 if item['guestId'] == guestuuid:
                     attr_status = item['attributes']['active']
