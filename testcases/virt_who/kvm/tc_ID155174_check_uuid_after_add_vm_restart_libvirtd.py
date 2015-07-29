@@ -4,7 +4,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID155174_kvm_restart_libvirtd_check_uuid_after_add_vm(VIRTWHOBase):
+class tc_ID155174_check_uuid_after_add_vm_restart_libvirtd(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
