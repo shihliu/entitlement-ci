@@ -144,8 +144,8 @@ class VIRTWHOBase(unittest.TestCase):
         # unfinished, close firewall and iptables for ever 
 
     def esx_setup(self):
-        SAM_IP = get_exported_param("SAM_IP")
-        SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
+        SAM_IP = get_exported_param("SERVER_IP")
+        SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
         SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
         SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
@@ -177,8 +177,8 @@ class VIRTWHOBase(unittest.TestCase):
 #             raise FailException("ESX host:'%s' has not been added to vCenter yet, add it manually first!" % ESX_HOST)
 
     def kvm_setup(self):
-        SAM_IP = get_exported_param("SAM_IP")
-        SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
+        SAM_IP = get_exported_param("SERVER_IP")
+        SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
         SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
         SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
@@ -488,7 +488,7 @@ EOF''' % (file_name, file_data)
             else:
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
-            test_server = get_exported_param("TEST_SERVER")
+            test_server = get_exported_param("SERVER_TYPE")
             if test_server == "SATELLITE":
                 cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
                 ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)

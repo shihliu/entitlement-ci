@@ -14,7 +14,7 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
-                samhostname = get_exported_param("SAM_HOSTNAME")
+                samhostname = get_exported_param("SERVER_HOSTNAME")
                 server_url = samhostname + ":443" + "/sam/api"
                 self.click_register_button()
                 if self.check_server_url(server_url):

@@ -64,7 +64,7 @@ class VIRTWHOConstants(object):
                     }
 
     def get_constant(self, name):
-        if name == "VIRTWHO_ESX_OWNER" and get_exported_param("TEST_SERVER") == "SATELLITE":
+        if name == "VIRTWHO_ESX_OWNER" and get_exported_param("SERVER_TYPE") == "SATELLITE":
             return "Default_Organization"
         else:
             return self.virt_who_cons[name]

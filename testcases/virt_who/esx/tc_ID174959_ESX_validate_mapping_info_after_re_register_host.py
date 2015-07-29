@@ -8,8 +8,8 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SAM_IP")
-            SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
+            SAM_IP = get_exported_param("SERVER_IP")
+            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 

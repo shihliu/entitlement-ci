@@ -55,7 +55,7 @@ class RHSMConstants(object):
             "baseurl": "https://localcandlepin.redhat.com:8443",
             }
 
-    samhostip = get_exported_param("SAM_IP")
+    samhostip = get_exported_param("SERVER_IP")
 
     def runcmd(self, cmd, desc, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
@@ -106,11 +106,11 @@ class RHSMConstants(object):
             raise FailException("Failed to configure rhsm.conf for stage")
 
     def configure_testing_server(self):
-        test_server = get_exported_param("TEST_SERVER")
+        test_server = get_exported_param("SERVER_TYPE")
         if test_server == "SAM" :
-            RHSMConstants().configure_sam_host(get_exported_param("SAM_IP"), get_exported_param("SAM_HOSTNAME"))
+            RHSMConstants().configure_sam_host(get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"))
         if test_server == "SATELLITE" :
-            RHSMConstants().configure_satellite_host(get_exported_param("SAM_IP"), get_exported_param("SAM_HOSTNAME"))
+            RHSMConstants().configure_satellite_host(get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"))
         elif test_server == "STAGE_CANDLEPIN" :
             RHSMConstants().configure_stage_host("subscription.rhn.stage.redhat.com")
         elif test_server == "CUSTOMER_PORTAL" :
@@ -119,7 +119,7 @@ class RHSMConstants(object):
             raise FailException("Test Failed - Failed to configure rhsm testing server ... ")
 
     def get_constant(self, name):
-        test_server = get_exported_param("TEST_SERVER")
+        test_server = get_exported_param("SERVER_TYPE")
         if test_server == "SAM" or test_server == "SATELLITE":
             if self.get_os_serials() == "6":
                 return self.sam_cons6[name]

@@ -8,8 +8,8 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SAM_IP")
-            SAM_HOSTNAME = get_exported_param("SAM_HOSTNAME")
+            SAM_IP = get_exported_param("SERVER_IP")
+            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
