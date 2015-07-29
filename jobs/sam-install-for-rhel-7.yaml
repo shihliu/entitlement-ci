@@ -89,7 +89,8 @@
             nosetests sam_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            #echo SAM_IP=$beaker_ip > $WORKSPACE/SAMSERVER.txt
+            echo TEST_SERVER=SAM > $WORKSPACE/SAMSERVER.txt
+            #echo SAM_IP=$beaker_ip >> $WORKSPACE/SAMSERVER.txt
             #echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
             echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
             echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
