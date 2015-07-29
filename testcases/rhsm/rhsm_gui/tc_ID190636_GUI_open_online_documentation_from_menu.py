@@ -13,7 +13,7 @@ class tc_ID190636_GUI_open_online_documentation_from_menu(RHSMGuiBase):
             try:
                 self.open_subscription_manager()
                 self.click_onlinedocumentation_menu()
-                self.activate_window("onlinedocumentation-window")
+                self.activate_window(window)
                 if self.check_object_exist("onlinedocumentation-window", "onlinedocumentation-window"):
                     logger.info("It's successful to check open_online_documentation_from_menu.")
                 else:
