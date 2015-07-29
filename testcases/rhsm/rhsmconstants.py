@@ -57,7 +57,7 @@ class RHSMConstants(object):
 
     samhostip = get_exported_param("SAM_IP")
 
-    def runcmd(self, cmd, timeout=None, showlogger=True):
+    def runcmd(self, cmd, desc, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
@@ -120,7 +120,7 @@ class RHSMConstants(object):
 
     def get_constant(self, name):
         test_server = get_exported_param("TEST_SERVER")
-        if test_server == "SAM":
+        if test_server == "SAM" or test_server == "SATELLITE":
             if self.get_os_serials() == "6":
                 return self.sam_cons6[name]
             elif self.get_os_serials() == "7":
