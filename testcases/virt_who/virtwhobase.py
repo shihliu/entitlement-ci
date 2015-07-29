@@ -395,7 +395,7 @@ EOF''' %(file_name, file_data)
 
     def vw_check_virtwho_status(self, targetmachine_ip=""):
         ''' Check the virt-who status. '''
-        if self.above_7_serials():
+        if self.get_os_serials(targetmachine_ip) == "7":
             cmd = "systemctl status virt-who; sleep 10"
             ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
@@ -413,7 +413,7 @@ EOF''' %(file_name, file_data)
 
     def vw_check_libvirtd_status(self, targetmachine_ip=""):
         ''' Check the libvirtd status. '''
-        if self.above_7_serials():
+        if self.get_os_serials(targetmachine_ip) == "7":
             cmd = "systemctl status libvirtd; sleep 10"
             ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
             if ret == 0 and "running" in output:
@@ -949,20 +949,21 @@ EOF''' %(file_name, file_data)
 
     def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
+        ''' check if the guest attributions is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         if self.get_os_serials(targetmachine_ip) == "7":
-		cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-		ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-		# ignore restart virt-who serivce since virt-who -b -d will stop
-		self.vw_restart_virtwho(targetmachine_ip)
-		time.sleep(10)
-		cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-		ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-	else: 
-		self.vw_restart_virtwho(targetmachine_ip)
-		cmd = "tail -3 %s " % rhsmlogfile
-		ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
-	if ret == 0:
+            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+            # ignore restart virt-who serivce since virt-who -b -d will stop
+            self.vw_restart_virtwho(targetmachine_ip)
+            time.sleep(10)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        else: 
+            self.vw_restart_virtwho(targetmachine_ip)
+            cmd = "tail -3 %s " % rhsmlogfile
+            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        if ret == 0:
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
@@ -971,7 +972,6 @@ EOF''' %(file_name, file_data)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
-		logger.info("log_uuid_list is %s" %log_uuid_list)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get uuid list from rhsm.log")
@@ -995,17 +995,17 @@ EOF''' %(file_name, file_data)
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         if self.get_os_serials(targetmachine_ip) == "7":
-                cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-                ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-                # ignore restart virt-who serivce since virt-who -b -d will stop
-                self.vw_restart_virtwho(targetmachine_ip)
-                time.sleep(10)
-                cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-                ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-	else: 
-                self.vw_restart_virtwho(targetmachine_ip)
-                cmd = "tail -3 %s " % rhsmlogfile
-                ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+            # ignore restart virt-who serivce since virt-who -b -d will stop
+            self.vw_restart_virtwho(targetmachine_ip)
+            time.sleep(10)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        else: 
+            self.vw_restart_virtwho(targetmachine_ip)
+            cmd = "tail -3 %s " % rhsmlogfile
+            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
             if "Sending list of uuids: " in output:
@@ -1191,7 +1191,7 @@ EOF''' %(file_name, file_data)
         if not mac:
             raise FailException("Failed to get guest mac ...")
         cmd = "sh /root/ipget.sh %s" % mac
-        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to get ip address.")
             return output.strip("\n").strip(" ")
