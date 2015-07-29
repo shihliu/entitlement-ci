@@ -18,29 +18,24 @@ class RHSMGuiBase(unittest.TestCase):
     # eg get the value of lblOrganizationValue
     # input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
     def get_label_txt(self, window, label):
-        self.activate_window('main-window')
         logger.info("Retrieving label from %s" % label)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(label))
 
     def get_text_from_txtbox(self, window, txtbox):
-        self.activate_window('main-window')
         logger.info("Retrieving text from %s" % txtbox)
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
     def select_row_by_name(self, window, table, row_name):
-        self.activate_window('main-window')
         ldtp.wait()
         logger.info("Selecting table %s at row_name %s" % (table, row_name))
         ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
 
     def select_row(self, window, table, row):  # row is 0 indexed
-        self.activate_window('main-window')
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         ldtp.wait()
 
     def double_click_row(self, window, table, row_name):
-        self.activate_window('main-window')
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
         ldtp.doubleclickrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
         ldtp.wait()
@@ -73,13 +68,11 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("capture image: %s to runtime directory" % picture_name)
 
     def list_objects(self, window):
-        self.activate_window('main-window')
         logger.info("get objects list in window: %s" % window)
         all_objects_list = self.__parse_objects(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
         logger.info("sorted all_objects_list: %s" % all_objects_list)
 
     def __parse_objects(self, objects_list):
-        self.activate_window('main-window')
         logger.info("parse objects list")
         window_list = []
         tab_list = []
@@ -112,18 +105,11 @@ class RHSMGuiBase(unittest.TestCase):
                 others_list.append(item)
         return parsed_objects_list
 
-    def activate_window(self, window):
-        ldtp.wait()
-        logger.info('activate window %s' % window)
-        ldtp.activatewindow(RHSMGuiLocator().get_locator(window))
-
     def check_window_exist(self, window):
-        self.activate_window('main-window')
         logger.info('check_window_exist %s' % window)
         ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
 
     def close_window(self, window):
-        self.activate_window('main-window')
         ldtp.closewindow(RHSMGuiLocator().get_locator(window))
         self.check_window_closed(window)
 
@@ -140,29 +126,23 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.guiexist(RHSMGuiLocator().get_locator(window), type + name)
 
     def click_button(self, window, button_name):
-        self.activate_window('main-window')
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
 
     def click_menu(self, window, menu_name):
-        self.activate_window('main-window')
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
 
     def check_checkbox(self, window, checkbox_name):
-        self.activate_window('main-window')
         logger.info("Checking checkbox %s in window %s" % (checkbox_name, window))
         ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def uncheck_checkbox(self, window, checkbox_name):
-        self.activate_window('main-window')
         logger.info("Unchecking checkbox %s in window %s" % (checkbox_name, window))
         ldtp.uncheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def verifycheck_checkbox(self, window, checkbox_name):
-        self.activate_window('main-window')
         return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def get_table_row_index(self, window, table, row_name):
-        self.activate_window('main-window')
         logger.info('Retrieving row index from window %s on table %s with row_name %s' % (window, table, row_name))
         return ldtp.gettablerowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
 
