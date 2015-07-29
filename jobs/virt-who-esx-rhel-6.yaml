@@ -3,10 +3,6 @@
     defaults: virt-who-provision
     node: master
     builders:
-        - copyartifact:
-            project: 'sam-install-for-rhel-6-runtest'
-            filter: 'SERVER.txt'
-            target: $WORKSPACE
         - shell: |
             #!/bin/bash
             kinit -k -t $KEYTAB $PRINCIPAL
