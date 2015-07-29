@@ -8,13 +8,21 @@
             - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
               check-content:
                 - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "test" > BUILD.txt
+        - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-6-provision'
-            current-parameters: false
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -27,13 +35,21 @@
             - url: http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
               check-content:
                 - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "test" > BUILD.txt
+        - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-7-provision'
-            current-parameters: false
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -46,13 +62,21 @@
             - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
               check-content:
                 - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "test" > BUILD.txt
+        - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-6-provision'
-            current-parameters: false
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -65,13 +89,21 @@
             - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/COMPOSE_ID
               check-content:
                 - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "test" > BUILD.txt
+        - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite-install-rhel-7-provision'
-            current-parameters: false
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-group:
