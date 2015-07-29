@@ -3,10 +3,6 @@
     defaults: virt-who-provision
     node: master
     builders:
-        - copyartifact:
-            project: 'brew-sam-install-for-rhel-6-runtest'
-            filter: 'SERVER.txt'
-            target: $WORKSPACE
         - shell: |
             #!/bin/bash
             kinit -k -t $KEYTAB $PRINCIPAL
@@ -31,9 +27,9 @@
                 cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            echo "****************SERVER FILE****************"
-            cat $WORKSPACE/SERVER.txt | tee -a $WORKSPACE/RESOURCES.txt
-            echo "****************SERVER FILE****************"
+            echo "****************runtime env****************"
+            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|BREW-VIRT-WHO)' | xargs -i -d "\n" echo "export" {{}}
+            echo "****************runtime env****************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
