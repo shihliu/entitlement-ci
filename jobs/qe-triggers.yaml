@@ -13,7 +13,7 @@
             #!/bin/bash
             echo "test" > BUILD.txt
         - inject:
-        properties-file: $WORKSPACE/BUILD.txt
+            properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
@@ -40,7 +40,7 @@
             #!/bin/bash
             echo "test" > BUILD.txt
         - inject:
-        properties-file: $WORKSPACE/BUILD.txt
+            properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
@@ -67,7 +67,7 @@
             #!/bin/bash
             echo "test" > BUILD.txt
         - inject:
-        properties-file: $WORKSPACE/BUILD.txt
+            properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
@@ -94,7 +94,7 @@
             #!/bin/bash
             echo "test" > BUILD.txt
         - inject:
-        properties-file: $WORKSPACE/BUILD.txt
+            properties-file: $WORKSPACE/BUILD.txt
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
