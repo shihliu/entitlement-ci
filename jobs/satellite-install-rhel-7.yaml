@@ -5,9 +5,7 @@
     builders:
         - shell: |
             #!/bin/bash
-
             kinit -k -t $KEYTAB $PRINCIPAL
-
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
             if [ "$JSLAVENAME" != "master" ]
@@ -16,34 +14,26 @@
                 --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
                 --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
-
                 TR_STATUS=$?
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
-
             # Provision Test Resources
             #qeos provision
             #sam_compose=satellite-redhat-com
             #$WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
             #--topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=$sam_compose
-
             #beaker provision
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
             --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
-
             TR_STATUS=$?
-
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
             if [ -e "$files" ]
             then
                 cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
             fi
-
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-
     publishers:
       - archive:
           artifacts: '*.txt, *.json'
@@ -65,43 +55,30 @@
             project: 'satellite-install-rhel-7-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
-
         - shell: |
             #!/bin/bash
-            set -x
-
             export TOPOLOGY={topology}
             {testparams}
-
             echo "TOPOLOGY: {topology}"
-
             echo "Ping Jenkins Slave"
             ping -c 10 $JSLAVEIP
-
             echo "Jenkins machine info we are running on"
             ifconfig
-
             echo "Pinging Test Resources"
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
-
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
-            #export REMOTE_IP=$EXISTING_NODES
 
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            echo TEST_SERVER=SATELLITE > $WORKSPACE/SAMSERVER.txt
-            echo SAM_IP=$beaker_ip >> $WORKSPACE/SAMSERVER.txt
-            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
-            #echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
-            #echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
-
+            echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
+            echo SERVER_IP=$beaker_ip >> $WORKSPACE/SERVER.txt
+            echo SERVER_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
         - inject:
-            properties-file: $WORKSPACE/SAMSERVER.txt
-
+            properties-file: $WORKSPACE/SERVER.txt
     publishers:
       - archive:
           artifacts: '**/**'
@@ -111,22 +88,22 @@
           - project: 'virt-who-esx-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
+            property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
           - project: 'virt-who-kvm-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
+            property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
           - project: 'rhsm-level-1-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
+            property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
           - project: 'rhsm-gui-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
-            property-file: $WORKSPACE/SAMSERVER.txt
+            property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
       - default-virt-who-publishers
 
