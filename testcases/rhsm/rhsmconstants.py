@@ -57,7 +57,7 @@ class RHSMConstants(object):
 
     samhostip = get_exported_param("SERVER_IP")
 
-    def runcmd(self, cmd, desc, timeout=None, showlogger=True):
+    def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
