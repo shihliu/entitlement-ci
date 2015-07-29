@@ -85,6 +85,18 @@ class RHSMConstants(object):
         else:
             raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
 
+    def configure_satellite_host(self, satellitehostip, satellitehostname):
+        cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
+        ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.")
+        cmd = "subscription-manager clean"
+        ret, output = self.runcmd(cmd, "run subscription-manager clean")
+        cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (satellitehostip)
+        ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm")
+        if ret == 0:
+            logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration.")
+        else:
+            raise FailException("Failed to install candlepin cert and configure the system with satellite configuration.")
+
     def configure_stage_host(self, stage_name):
         cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
         ret, output = self.runcmd(cmd)
@@ -97,6 +109,8 @@ class RHSMConstants(object):
         test_server = get_exported_param("TEST_SERVER")
         if test_server == "SAM" :
             RHSMConstants().configure_sam_host(get_exported_param("SAM_IP"), get_exported_param("SAM_HOSTNAME"))
+        if test_server == "SATELLITE" :
+            RHSMConstants().configure_satellite_host(get_exported_param("SAM_IP"), get_exported_param("SAM_HOSTNAME"))
         elif test_server == "STAGE_CANDLEPIN" :
             RHSMConstants().configure_stage_host("subscription.rhn.stage.redhat.com")
         elif test_server == "CUSTOMER_PORTAL" :
