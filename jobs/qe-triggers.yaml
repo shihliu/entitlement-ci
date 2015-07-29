@@ -14,6 +14,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-6-provision'
+            current-parameters: false
       - default-virt-who-publishers
 
 - job-template:
@@ -32,6 +33,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-7-provision'
+            current-parameters: false
       - default-virt-who-publishers
 
 - job-template:
@@ -50,6 +52,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-6-provision'
+            current-parameters: false
       - default-virt-who-publishers
 
 - job-template:
@@ -68,6 +71,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite-install-rhel-7-provision'
+            current-parameters: false
       - default-virt-who-publishers
 
 - job-group:
