@@ -14,6 +14,16 @@ class SAM_Install_Base(unittest.TestCase):
             commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, cmddesc)
 
+    def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        if targetmachine_ip != None and targetmachine_ip != "":
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
+        else:
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run_interact(cmd, timeout, cmddesc)
+
     def install_sam(self, compose, server_ip=None, server_user=None, server_passwd=None):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
@@ -31,7 +41,7 @@ class SAM_Install_Base(unittest.TestCase):
         self.__add_satellite_repo(compose, server_ip, server_user, server_passwd)
         self.__install_satellite(server_ip, server_user, server_passwd)
         self.__deploy_satellite(server_ip, server_user, server_passwd)
-        self.__import_manifest(server_ip, server_user, server_passwd)
+        self.__import_manifest_satellite(server_ip, server_user, server_passwd)
 
     def __stop_iptables(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "service iptables stop"
@@ -205,6 +215,16 @@ class SAM_Install_Base(unittest.TestCase):
         self.__upload_manifest(server_ip, server_user, server_passwd)
         cmd = "headpin -u admin -p admin provider import_manifest --org=ACME_Corporation --name='Red Hat' --file=/root/sam_install_manifest.zip"
         ret, output = self.runcmd(cmd, "import menifest", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to import menifest.")
+        else:
+            raise FailException("Test Failed - Failed to import menifest.")
+
+    def __import_manifest_satellite(self, server_ip=None, server_user=None, server_passwd=None):
+        # only support remote run
+        self.__upload_manifest(server_ip, server_user, server_passwd)
+        cmd = "hammer subscription upload --organization-label Default_Organization --file /root/sam_install_manifest.zip"
+        ret, output = self.runcmd_interact(cmd, "hammer manifest upload", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to import menifest.")
         else:

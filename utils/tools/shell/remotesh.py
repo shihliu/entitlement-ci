@@ -127,6 +127,12 @@ class RemoteSH(object):
                 if data.strip().endswith('\'s password:'):
                     logger.debug("interactive input: red2015")
                     channel.send("red2015" + '\n')
+                if data.strip().endswith('[Foreman] Username:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('[Foreman] Password for admin:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
                 if channel.exit_status_ready():
                     break
         if channel.recv_ready():
