@@ -109,7 +109,7 @@ class RHSMConstants(object):
         test_server = get_exported_param("SERVER_TYPE")
         if test_server == "SAM" :
             RHSMConstants().configure_sam_host(get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"))
-        if test_server == "SATELLITE" :
+        elif test_server == "SATELLITE" :
             RHSMConstants().configure_satellite_host(get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"))
         elif test_server == "STAGE_CANDLEPIN" :
             RHSMConstants().configure_stage_host("subscription.rhn.stage.redhat.com")
