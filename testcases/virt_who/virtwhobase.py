@@ -1199,7 +1199,7 @@ EOF''' % (file_name, file_data)
         """
         if not mac:
             raise FailException("Failed to get guest mac ...")
-        cmd = "sh /root/ipget.sh %s" % mac
+        cmd = "sh /root/ipget.sh %s | grep -v nmap" % mac
         ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to get ip address.")
