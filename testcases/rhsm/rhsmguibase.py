@@ -14,6 +14,10 @@ class RHSMGuiBase(unittest.TestCase):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
+    def activate_window(self, window):
+        ldtp.wait()
+        ldtp.activatewindow(RHSMGuiLocator().get_locator(window))
+
     # used to get the text value at a label and returns the output as a string
     # eg get the value of lblOrganizationValue
     # input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
@@ -26,11 +30,12 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
     def select_row_by_name(self, window, table, row_name):
-        ldtp.wait()
+        self.check_element_exist(window, "", table)
         logger.info("Selecting table %s at row_name %s" % (table, row_name))
         ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
 
     def select_row(self, window, table, row):  # row is 0 indexed
+        self.check_element_exist(window, "", table)
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         ldtp.wait()
@@ -126,6 +131,7 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.guiexist(RHSMGuiLocator().get_locator(window), type + name)
 
     def click_button(self, window, button_name):
+        self.check_element_exist(window, "", button_name)
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
 
     def click_menu(self, window, menu_name):
@@ -663,6 +669,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_object_exist(self, window, object_name):
         logger.info("check_object_exist")
+        ldtp.wait()
         return ldtp.guiexist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(object_name))
 
     def check_menu_enabled(self, window, menu_name):
@@ -686,6 +693,7 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.verifyselect(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
 
     def check_object_status(self, window, object_name, status):
+        ldtp.wait()
         if status == "ENABLED":
             real_status = ldtp.state.ENABLED
         elif status == "VISIBLE":
@@ -707,6 +715,7 @@ class RHSMGuiBase(unittest.TestCase):
         ldtp.selecttab(RHSMGuiLocator().get_locator("main-window"), RHSMGuiLocator().get_locator("all-tabs"), RHSMGuiLocator().get_locator(tab_name))
 
     def get_table_row_count(self, window, table_name):
+        ldtp.wait()
         return ldtp.getrowcount(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table_name))
 
     def get_table_cell(self, window, table_name, row, colomn):
