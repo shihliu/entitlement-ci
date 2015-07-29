@@ -1,12 +1,8 @@
 - job-template:
-    name: 'brew-virt-who-kvm-rhel-6-provision'
+    name: 'satellite-install-rhel-6-provision'
     defaults: virt-who-provision
     node: master
     builders:
-        - copyartifact:
-            project: 'brew-sam-install-for-rhel-7-runtest'
-            filter: 'SAMSERVER.txt'
-            target: $WORKSPACE
         - shell: |
             #!/bin/bash
 
@@ -17,7 +13,7 @@
             if [ "$JSLAVENAME" != "master" ]
             then
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
                 --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
 
@@ -25,7 +21,13 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
 
-            # Provision Test Resources Master Machine And Slave Machine
+            # Provision Test Resources
+            #qeos provision
+            #sam_compose=satellite-redhat-com
+            #$WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
+            #--topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=$sam_compose
+
+            #beaker provision
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
             --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
 
@@ -39,8 +41,6 @@
 
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
 
-            cat $WORKSPACE/SAMSERVER.txt >> $WORKSPACE/RESOURCES.txt
-
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
 
@@ -49,7 +49,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'brew-virt-who-kvm-rhel-6-runtest'
+          - project: 'satellite-install-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -57,12 +57,12 @@
       - default-virt-who-publishers
 
 - job-template:
-    name: 'brew-virt-who-kvm-rhel-6-runtest'
+    name: 'satellite-install-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'brew-virt-who-kvm-rhel-6-provision'
+            project: 'satellite-install-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
 
@@ -85,47 +85,68 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
-            EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
-            beaker_ip_1=`ping $EXISTING_NODES_1 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip_1
-            export REMOTE_IP_2=$beaker_ip_2
-            export RUN_SERVER=$RUN_SERVER
-            export SAM_IP=$SAM_IP
-            export SAM_HOSTNAME=$SAM_HOSTNAME
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
+            #export REMOTE_IP=$EXISTING_NODES
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-            nosetests brew_virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
+            echo TEST_SERVER=SATELLITE > $WORKSPACE/SAMSERVER.txt
+            echo SAM_IP=$beaker_ip >> $WORKSPACE/SAMSERVER.txt
+            echo SAM_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SAMSERVER.txt
+            #echo SAM_IP=$EXISTING_NODES > $WORKSPACE/SAMSERVER.txt
+            #echo SAM_HOSTNAME=$LABEL >> $WORKSPACE/SAMSERVER.txt
+
+        - inject:
+            properties-file: $WORKSPACE/SAMSERVER.txt
 
     publishers:
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
+      - trigger-parameterized-builds:
+          - project: 'virt-who-esx-rhel-6-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'virt-who-kvm-rhel-6-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-level-1-rhel-6-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-gui-rhel-6-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SAMSERVER.txt
+            fail-on-missing: true
       - default-virt-who-publishers
 
 - job-group:
-    name: brew-virt-who-kvm-rhel-6-provision-runtest
+    name: satellite-install-rhel-6-provision-runtest
     jobs:
-      - 'brew-virt-who-kvm-rhel-6-provision'
-      - 'brew-virt-who-kvm-rhel-6-runtest'
+      - 'satellite-install-rhel-6-provision'
+      - 'satellite-install-rhel-6-runtest'
 
 - project:
-    name: brew-virt-who-kvm-rhel-6-jobs
+    name: satellite-install-rhel-6-jobs
     project:
-     - brew-virt-who-kvm-rhel-6
+     - satellite-install-rhel-6
     project_defaults:
      - entitlement-ci/config/project_defaults
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_virt-who_kvm_rhel_7
+     - bkr_sam_install
+     #- qeos_sam_install
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key
     tests_path:
@@ -133,13 +154,13 @@
     testparams:
      - echo "I am a test parameter"
     jobs:
-      - brew-virt-who-kvm-rhel-6-provision-runtest
+      - satellite-install-rhel-6-provision-runtest
     jslavename:
-     - jslave-brew-virt-who-kvm-rhel-6-slave
+     - jslave-satellite-install-rhel-6-slave
     jslave_execs:
      - 3
     jslaveimage:
-     - RHEL-6.6-Server-x86_64-released
+     - RHEL-6.7-Server-x86_64-released
     jslaveflavor:
      - m1.small
     jslaveusername:
