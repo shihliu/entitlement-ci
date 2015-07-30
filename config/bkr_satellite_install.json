@@ -6,7 +6,7 @@
 
             "recipesets": [
                 {
-                    "distro": "RHEL-7.0",
+                    "distro": "RHEL-7.1",
                     "arch": "X86_64",
                     "variant": "Server",
                     "hostrequire": ["arch=X86_64"]
