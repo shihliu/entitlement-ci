@@ -127,8 +127,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_element_exist(self, window, type, name):
         logger.info("check_element_exist")
-        logger.info(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
-        return ldtp.guiexist(RHSMGuiLocator().get_locator(window), type + name)
+        return ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window), type + name)
 
     def click_button(self, window, button_name):
         self.check_element_exist(window, "", button_name)
