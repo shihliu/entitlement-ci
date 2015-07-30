@@ -128,7 +128,7 @@ class SAM_Install_Base(unittest.TestCase):
             logger.info("Succeeded to disable all repo.")
         else:
             raise FailException("Test Failed - Failed to disable all repo.")
-        cmd = "subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms"
+        cmd = "subscription-manager repos --enable rhel-7-server-rpms --enable rhel-server-rhscl-7-rpms"
         ret, output = self.runcmd(cmd, "enable rhscl repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to enable rhscl repo.")

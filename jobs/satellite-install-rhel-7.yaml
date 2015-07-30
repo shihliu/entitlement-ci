@@ -122,7 +122,7 @@
     topology_path:
      - entitlement-ci/config
     topology:
-     - bkr_sam_install
+     - bkr_satellite_install
      #- qeos_sam_install
     ssh_keyfile:
      - entitlement-ci/config/keys/ent-key

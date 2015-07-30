@@ -1,0 +1,17 @@
+{
+    "resources": [
+        {
+            "count": "1",
+            "job_group": "Entitlement-QA",
+
+            "recipesets": [
+                {
+                    "distro": "RHEL-7.0",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "hostrequire": ["arch=X86_64"]
+                }
+                         ]
+        }
+   ]
+}
