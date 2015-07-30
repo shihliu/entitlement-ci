@@ -35,7 +35,7 @@ class SAM_Install_Base(unittest.TestCase):
         self.__import_manifest(server_ip, server_user, server_passwd)
 
     def install_satellite(self, compose, server_ip=None, server_user=None, server_passwd=None):
-        self.__stop_iptables(server_ip, server_user, server_passwd)
+#         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
         self.__satellite_subscribe(server_ip, server_user, server_passwd)
         self.__add_satellite_repo(compose, server_ip, server_user, server_passwd)
