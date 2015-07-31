@@ -16,7 +16,7 @@ class tc_ID115126_cleanlocaldata(RHSMBase):
                 # [A] - prepare test env
                 # get uuid of consumer
                 cmd = "subscription-manager identity | grep identity"
-                (ret, output) = self.runcmd(cmd)
+                (ret, output) = self.runcmd(cmd, "get identity")
                 uuid = output.split(':')[1].strip()
                 productid = RHSMConstants().get_constant("productid")
                 autosubprod = RHSMConstants().get_constant("autosubprod")

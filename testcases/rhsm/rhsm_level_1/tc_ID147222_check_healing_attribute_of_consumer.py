@@ -11,15 +11,16 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
-            baseurl = RHSMConstants().get_constant("baseurl")
-            samhostip = RHSMConstants().samhostip
             # get baseurl
-            if "8443" in baseurl:
-                baseurl = baseurl + "/candlepin"
-            elif samhostip == None:
-                baseurl = baseurl + "/subscription"
-            else:
-                baseurl = baseurl + "/sam/api"
+            sever_hostname = get_exported_param("SERVER_HOSTNAME")
+            samhostip = get_exported_param("SERVER_IP")
+            server_type = get_exported_param("SEVER_TYPE")
+
+            if server_type == "SAM":
+                baseurl = "https://" + sever_hostname + "/sam/api"
+            elif server_type == "SATELLITE":
+                baseurl = "https://" + sever_hostname + "/rhsm"
+
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
             (ret, output) = self.runcmd(cmd, "get consumerid")
