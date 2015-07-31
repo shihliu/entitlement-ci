@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID443910_ESX_run_virtwho_with_encrypted_password(VIRTWHOBase):
+class tc_ID476491_ESX_check_virtwho_support_offline_mode(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -32,18 +32,23 @@ class tc_ID443910_ESX_run_virtwho_with_encrypted_password(VIRTWHOBase):
             #2). disable esx config
             self.unset_esx_conf()
 
-            #3). create decrypt encrypted password
-            encrypted_password = self.run_virt_who_password(VIRTWHO_ESX_PASSWORD)
+            #3). create offline data
+            offline_data = "/tmp/offline.dat"
+            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" %(VIRTWHO_ESX_OWNER,VIRTWHO_ESX_ENV,VIRTWHO_ESX_SERVER,VIRTWHO_ESX_USERNAME,VIRTWHO_ESX_PASSWORD,offline_data)
+            ret, output = self.runcmd(cmd, "executing virt-who with -p -d for offline mode.")
+            if ret == 0:
+                logger.info("Succeeded to execute virt-who with -p -d for offline mode. ")
+            else:
+                raise FailException("Failed to execute virt-who with -o -d")
 
-            #4). creat /etc/virt-who.d/virt.esx file for esxi
-            conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-encrypted_password=%s
+            #4). creat /etc/virt-who.d/virt.fake file for offline mode
+            conf_file = "/etc/virt-who.d/virt.fake"
+            conf_data = '''[fake-virt]
+type=fake
+file=%s
+is_hypervisor=True
 owner=%s
-env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, encrypted_password, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
+env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
 
             self.set_virtwho_d_conf(conf_file, conf_data)
 
@@ -63,6 +68,10 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, encrypted_password, VIRTW
             self.assert_(False, case_name)
         finally:
             self.unset_virtwho_d_conf(conf_file)
+
+            cmd = "rm -f %s" % offline_data
+            self.runcmd(cmd, "run cmd: %s" % cmd)
+
             self.set_esx_conf()
             self.service_command("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

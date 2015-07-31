@@ -232,6 +232,7 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             if ret == 0:
                 logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return output
             else:
                 raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
