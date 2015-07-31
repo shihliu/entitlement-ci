@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID443910_ESX_run_virtwho_with_encrypted_password(VIRTWHOBase):
+class tc_ID443912_ESX_run_virtwho_with_wrong_encrypted_password(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -32,8 +32,8 @@ class tc_ID443910_ESX_run_virtwho_with_encrypted_password(VIRTWHOBase):
             #2). disable esx config
             self.unset_esx_conf()
 
-            #3). create decrypt encrypted password
-            encrypted_password = self.run_virt_who_password(VIRTWHO_ESX_PASSWORD)
+            #3). input an error decrypt encrypted password for testing
+            encrypted_password = "xxxxxxxx"
 
             #4). creat /etc/virt-who.d/virt.esx file for esxi
             conf_file = "/etc/virt-who.d/virt.esx"
@@ -45,16 +45,19 @@ encrypted_password=%s
 owner=%s
 env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, encrypted_password, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
+            if self.set_virtwho_d_conf(conf_file, conf_data):
+                raise FailException("Failed, virt-who shouldn't restart with an error encrypted_password.")
+            else:
+                logger.info("Succeeded, virt-who is not restarted with an error encrypted_password.")
 
             #5). virt-who restart
-            self.service_command("restart_virtwho")
+            print self.service_command("restart_virtwho", is_return=True)
 
             #6). check whether the host/guest association info has been sent to server
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) and self.esx_check_uuid_exist_in_rhsm_log(guestuuid):
-                logger.info("Succeeded to get uuid list from rhsm.log.")
+            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) or self.esx_check_uuid_exist_in_rhsm_log(guestuuid):
+                raise FailException("Failed to check uuid list, should be no uuid list found with an error encrypted_password.")
             else:
-                raise FailException("Failed to get uuid list from rhsm.log")
+                logger.info("Succeeded to check uuid list, no uuid list found with an error encrypted_password.")
 
             self.assert_(True, case_name)
 
