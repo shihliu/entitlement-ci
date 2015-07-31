@@ -12,13 +12,16 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
             # get baseurl
-            baseurl = RHSMConstants().get_constant("baseurl")
-            if "8443" in baseurl:
-                baseurl = baseurl + "/candlepin"
-            elif RHSMConstants().samhostip == None:
-                baseurl = baseurl + "/subscription"
-            else:
-                baseurl = baseurl + "/sam/api"
+            # get baseurl
+            sever_hostname = get_exported_param("SERVER_HOSTNAME")
+            samhostip = get_exported_param("SERVER_IP")
+            server_type = get_exported_param("SEVER_TYPE")
+
+            if server_type == "SAM":
+                baseurl = "https://" + sever_hostname + "/sam/api"
+            elif server_type == "SATELLITE":
+                baseurl = "https://" + sever_hostname + "/rhsm"
+
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
             (ret, output) = self.runcmd(cmd, "get consumerid")
