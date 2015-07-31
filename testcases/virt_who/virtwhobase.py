@@ -23,7 +23,7 @@ class VIRTWHOBase(unittest.TestCase):
         return commander.run(cmd, timeout, cmddesc)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwe123P", timeout, showlogger)
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
 
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         if targetmachine_ip != None and targetmachine_ip != "":
@@ -217,16 +217,23 @@ class VIRTWHOBase(unittest.TestCase):
             logger.info("System version is bellow 7 serials")
             return False
 
-    def service_command(self, command, targetmachine_ip=""):
+    def service_command(self, command, targetmachine_ip="", is_return=False):
         if self.get_os_serials(targetmachine_ip) == "7":
             cmd = VIRTWHOConstants().virt_who_commands[command + "_systemd"]
         else:
             cmd = VIRTWHOConstants().virt_who_commands[command]
         ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+        if is_return == True:
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return True
+            else:
+                return False
         else:
-            raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+            else:
+                raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
     def get_os_serials(self, targetmachine_ip=""):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
@@ -319,6 +326,43 @@ EOF''' % (file_name, file_data)
             logger.info("Succeeded to remove %s" % file_name)
         else:
             raise FailException("Test Failed - Failed to remove %s" % file_name)
+
+
+    def run_virt_who_password(self, input_password, timeout=None):
+        import paramiko
+        remote_ip = get_exported_param("REMOTE_IP")
+        username = get_exported_param("REMOTE_USER")
+        password = get_exported_param("REMOTE_PASSWD")
+        virt_who_password_cmd = "python /usr/share/virt-who/virtwhopassword.py" 
+        logger.info("run command %s in %s" % (virt_who_password_cmd, remote_ip))
+        
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(remote_ip, 22, username, password)
+        channel = ssh.get_transport().open_session()
+        channel.settimeout(600)
+        channel.get_pty()
+        channel.exec_command(virt_who_password_cmd)
+        output = ""
+        while True:
+            data = channel.recv(1048576)
+            output += data
+            if channel.send_ready():
+                if data.strip().endswith('Password:'):
+                    channel.send(input_password + '\n')
+                if channel.exit_status_ready():
+                    break
+        if channel.recv_ready():
+            data = channel.recv(1048576)
+            output += data
+
+        if channel.recv_exit_status() == 0 and output is not None:
+            logger.info("Succeeded to encode password: %s" % input_password)
+            encode_password =  output.split('\n')[2].strip()
+            return encode_password 
+        else:
+            raise FailException("Failed to encode virt-who-password.")
 
     def vw_stop_virtwho(self, targetmachine_ip=""):
         ''' stop virt-who service. '''
@@ -1601,6 +1645,7 @@ EOF''' % (file_name, file_data)
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
             ''' get uuid.list from rhsm.log '''
+
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
                 logger.info("Succeeded to get uuid.list from rhsm.log.")
@@ -1608,10 +1653,11 @@ EOF''' % (file_name, file_data)
                 log_uuid_list = output.split('Sending update to updateConsumer: ')[1]
                 logger.info("Succeeded to get uuid.list from rhsm.log.")
             elif "Sending update in hosts-to-guests mapping: " in output:
-                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
+                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
                 logger.info("Succeeded to get uuid.list from rhsm.log.")
             else:
-                raise FailException("Failed to get uuid.list from rhsm.log")
+                log_uuid_list = ""
+                logger.info("No uuid.list found from rhsm.log.")
             # check guest uuid in log_uuid_list
             return uuid in log_uuid_list
         else:

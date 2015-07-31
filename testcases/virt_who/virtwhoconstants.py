@@ -16,7 +16,7 @@ class VIRTWHOConstants(object):
                     "SAM_USER":"admin",
                     "SAM_PASS":"admin",
 
-                    "ESX_HOST":"10.66.128.77",
+                    "ESX_HOST":"10.66.128.10",
                     "ESX_GUEST_NAME":"ESX_7.1_Server_x86_64",
 
                     "VIRTWHO_ESX_OWNER" : "ACME_Corporation",
