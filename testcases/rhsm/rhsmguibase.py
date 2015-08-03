@@ -30,12 +30,10 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
 
     def select_row_by_name(self, window, table, row_name):
-        self.check_element_exist(window, "", table)
         logger.info("Selecting table %s at row_name %s" % (table, row_name))
         ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
 
     def select_row(self, window, table, row):  # row is 0 indexed
-        self.check_element_exist(window, "", table)
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         ldtp.wait()
