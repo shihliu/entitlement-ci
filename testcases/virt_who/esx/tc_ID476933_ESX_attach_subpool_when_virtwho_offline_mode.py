@@ -95,13 +95,8 @@ env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
             #11).subscribe to the bonus pool. 
             self.sub_subscribe_sku(bonus_sku_id, guestip)
 
-            #12).check the Status Details of consumed product
-            consumed_status_key = "StatusDetails"
-            consumed_status_value = "Subscription is current"
-            if self.check_consumed_status(bonus_sku_id, consumed_status_key, consumed_status_value, guestip):
-                logger.info("Succeeded to check the consumed Status Details: Subscription is current")
-            else:
-                raise FailException("Failed to check the consumed Status Details.")
+            #12).check the consumed product
+            self.sub_listconsumed(product_name, guestip)
 
             self.assert_(True, case_name)
 
@@ -116,6 +111,12 @@ env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
 
             self.set_esx_conf()
             self.service_command("restart_virtwho")
+
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            # Unregister the ESX host 
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
