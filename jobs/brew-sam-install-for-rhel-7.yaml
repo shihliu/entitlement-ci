@@ -19,7 +19,7 @@
             fi
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=brew-samserv-redhat-com
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=samserv-redhat-com
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
             if [ -e "$files" ]
