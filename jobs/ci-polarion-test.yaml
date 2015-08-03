@@ -1,0 +1,67 @@
+- job-template:
+    name: 'ci-polarion-test'
+    node: master
+    triggers:
+        - timed: "H(0-1) 9 * * *"
+    builders:
+        - shell: |
+            #!/bin/bash
+            rm -f *.xml
+            wget http://hp-z220-11.qe.lab.eng.nay.redhat.com/home/soliu/log/nosetests.xml
+
+- publisher:
+    name: ci-polarion-publishers
+    publishers:
+        - ci-polarion:
+            xunit-patterns: '*.xml'
+            include-failure: false
+            include-error: false
+            include-stdout: true
+            include-stderr: true
+            properties-file: $WORKSPACE/POLARION.txt
+            properties-list: |
+                polarion.project=SKU_Validation
+                polarion.run.prefix=sku_validation_automation
+                polarion.template=Jenkins/CI/FCoE
+                test_result=SKUV-109
+                test_attribute_download=SKUV-66
+                test_attribute_get_values=SKUV-76
+                test_attribute_l_arch=SKUV-101
+                test_attribute_l_cloud_access_enabled=SKUV-103
+                test_attribute_l_cores=SKUV-104
+                test_attribute_l_derived_sku=SKUV-100
+                test_attribute_l_enabled_consumer_types=SKUV-92
+                test_attribute_l_host_limited=SKUV-99
+                test_attribute_l_instance_multiplier=SKUV-96
+                test_attribute_l_jon_management=SKUV-94
+                test_attribute_l_management_enabled=SKUV-88
+                test_attribute_l_multiplier=SKUV-84
+                test_attribute_l_name=SKUV-80
+                test_attribute_l_ph_category=SKUV-77
+                test_attribute_l_ph_product_line=SKUV-78
+                test_attribute_l_ph_product_name=SKUV-79
+                test_attribute_l_product_family=SKUV-87
+                test_attribute_l_ram=SKUV-95
+                test_attribute_l_requires_consumer_type=SKUV-86
+                test_attribute_l_sockets=SKUV-82
+                test_attribute_l_stacking_id=SKUV-97
+                test_attribute_l_support_level=SKUV-90
+                test_attribute_l_support_type=SKUV-91
+                test_attribute_l_unlimited_product=SKUV-85
+                test_attribute_l_variant=SKUV-89
+                test_attribute_l_vcpu=SKUV-83
+                test_attribute_l_virt_limit=SKUV-81
+                test_attribute_l_virt_only=SKUV-93
+                test_attribute_mapping=SKUV-105
+
+- job-group:
+    name: ci-polarion-tests
+    jobs:
+      - 'ci-polarion-test'
+
+- project:
+    name: ci-polarion-test-jobs
+    project:
+     - ci-polarion-tests
+    jobs:
+     - ci-polarion-tests
