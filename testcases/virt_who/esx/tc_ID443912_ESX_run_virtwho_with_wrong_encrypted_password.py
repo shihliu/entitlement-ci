@@ -68,6 +68,11 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, encrypted_password, VIRTW
             self.unset_virtwho_d_conf(conf_file)
             self.set_esx_conf()
             self.service_command("restart_virtwho")
+
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            self.esx_stop_guest(guest_name, destination_ip)
+            
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

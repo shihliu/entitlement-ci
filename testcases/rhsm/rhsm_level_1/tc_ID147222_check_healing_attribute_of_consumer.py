@@ -14,7 +14,7 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
             # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
-            server_type = get_exported_param("SEVER_TYPE")
+            server_type = get_exported_param("SERVER_TYPE")
 
             if server_type == "SAM":
                 baseurl = "https://" + sever_hostname + "/sam/api"

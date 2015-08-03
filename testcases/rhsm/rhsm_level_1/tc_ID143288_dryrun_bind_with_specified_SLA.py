@@ -15,7 +15,7 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
-            server_type = get_exported_param("SEVER_TYPE")
+            server_type = get_exported_param("SERVER_TYPE")
 
             if server_type == "SAM":
                 baseurl = "https://" + sever_hostname + "/sam/api"

@@ -128,7 +128,6 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window), type + name)
 
     def click_button(self, window, button_name):
-        self.check_element_exist(window, "", button_name)
         ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
 
     def click_menu(self, window, menu_name):
@@ -413,6 +412,8 @@ class RHSMGuiBase(unittest.TestCase):
 
     def click_dialog_next_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6" or RHSMGuiLocator().get_os_serials() == "7":
+        ldtp.wait(60)
+        self.wait_until_button_enabled("register-dialog", "dialog-register-button")
         logger.info("click_dialog_next_button")
         self.click_button("register-dialog", "dialog-register-button")
         self.check_window_exist("register-dialog")
@@ -421,8 +422,8 @@ class RHSMGuiBase(unittest.TestCase):
 
     def click_dialog_register_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        self.click_button("register-dialog", "dialog-register-button")
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
+        self.click_button("register-dialog", "dialog-register-button")
 #         else:
 #             logger.info("click_dialog_register_button")
 #             self.click_button("register-dialog", "dialog-register-button")

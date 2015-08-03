@@ -776,7 +776,7 @@ EOF''' % (file_name, file_data)
         ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
         if ret == 0:
             if productexists:
-                if "No Consumed subscription pools to list" not in output:
+                if "No consumed subscription pools to list" not in output:
                     if productname in output:
                         logger.info("Succeeded to list the right consumed subscription %s." % self.get_hg_info(targetmachine_ip))
                     else:
