@@ -49,6 +49,7 @@ class tc_ID115179_GUI_unsubscribe_from_products(RHSMGuiBase):
                 while self.get_table_row_count('main-window','my-subscription-table') > 0:
                     if time.time() > timeout: raise FailException("unsubscription process timed out!")
                     self.click_button('main-window', 'remove-subscriptions-button')
+                    self.check_window_exist('question-dialog')
                     self.click_button('question-dialog', 'yes-button')
                     logger.info("SUCCESS: Unsubscribed from a product!")
                 logger.info("SUCCESS: Unsubscribed from all products!")

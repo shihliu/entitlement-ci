@@ -44,7 +44,7 @@ class tc_ID272155_GUI_subscription_name_comma_should_not_be_and(RHSMGuiBase):
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()
                 self.click_update_button()
-                #look trhough the entire table and find a subscription with a comma
+                #look through the entire table and find a subscription with a comma
                 for i in xrange(self.get_table_row_count('main-window','all-subscription-table')):
                     if "," in self.get_table_cell('main-window','all-subscription-table',i,0):
                         self.select_row('main-window','all-subscription-table', i)

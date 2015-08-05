@@ -13,7 +13,9 @@ class tc_ID190637_GUI_open_subscription_manager_about_from_menu(RHSMGuiBase):
             try:
                 self.open_subscription_manager()
                 self.click_about_menu()
-                if self.check_object_exist("about-subscription-manager-dialog", "about-subscription-manager-dialog"):
+                #for 7.1 uncomment the following line:
+                #if self.check_object_exist("about-subscription-manager-dialog", "about-subscription-manager-dialog"):
+                if self.check_object_exist("about-subscription-manager-dialog-7", "about-subscription-manager-dialog-7"):
                     logger.info("It's successful to check open_subscription_manager_about_from_menu.")
                 else:
                     raise FailException("Test Faild - Failed to check open_subscription_manager_about_from_menu!")

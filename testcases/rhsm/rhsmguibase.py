@@ -32,6 +32,7 @@ class RHSMGuiBase(unittest.TestCase):
     def select_row_by_name(self, window, table, row_name):
         logger.info("Selecting table %s at row_name %s" % (table, row_name))
         ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+        ldtp.wait()
 
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
@@ -145,6 +146,7 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
 
     def get_table_row_index(self, window, table, row_name):
+        ldtp.wait(15)
         logger.info('Retrieving row index from window %s on table %s with row_name %s' % (window, table, row_name))
         return ldtp.gettablerowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
 
@@ -412,7 +414,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def click_dialog_next_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6" or RHSMGuiLocator().get_os_serials() == "7":
-        ldtp.wait(60)
+        #ldtp.wait(60)
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
         logger.info("click_dialog_next_button")
         self.click_button("register-dialog", "dialog-register-button")
@@ -440,6 +442,7 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_closed("register-dialog")
 
     def click_dialog_cancel_button(self):
+        self.wait_until_button_enabled("register-dialog", "dialog-cancel-button")
         logger.info("click_dialog_cancel_button")
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
         self.click_button("register-dialog", "dialog-cancel-button")
@@ -657,10 +660,8 @@ class RHSMGuiBase(unittest.TestCase):
         raise FailException("Test Failed - Failed to get_facts_value_by_name.")
 
     def check_server_url(self, server_url):
-        if ldtp.gettextvalue(RHSMGuiLocator().get_locator("register-dialog"), RHSMGuiLocator().get_locator("server-url-text")) == server_url:
-            return True
-        else:
-            return False
+        print ldtp.gettextvalue(RHSMGuiLocator().get_locator("register-dialog"), RHSMGuiLocator().get_locator("server-url-text"))
+        return ldtp.gettextvalue(RHSMGuiLocator().get_locator("register-dialog"), RHSMGuiLocator().get_locator("server-url-text")) == server_url
 
     def check_table_value_exist(self, window, table, cellvalue):
         return ldtp.doesrowexist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), cellvalue)
@@ -699,9 +700,12 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(object_name), real_status)
 
     def wait_until_button_enabled(self, window, button_name):
-#         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
-            ldtp.wait(5)
+#       if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
+        ldtp.wait(90)
+        while not(ldtp.stateenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))):
+            ldtp.wait()
+        #while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
+        #    ldtp.wait(5)
 
     def input_text(self, window, text, text_value):
         ldtp.settextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(text), text_value)
