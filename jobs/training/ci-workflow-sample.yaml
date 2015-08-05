@@ -148,33 +148,19 @@
 
 - project:
     name: entitlement-ci-workflow-jobs
-    project:
-     - entitlement-ci
-    project_defaults:
-     - entitlement-ci/config/project_defaults
-    topology_path:
-     - entitlement-ci/config
-    topology:
-     - aio_RHEL6-5
-    ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
-    tests_path:
-     - entitlement-ci/tests
-    testparams:
-     - echo "I am a test parameter"
+    project: entitlement-ci
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: aio_RHEL6-5
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
     jobs:
      - ci-workflow-provision-runtest-teardown
-    jslavename:
-     - jslave-entitlement-ci-slave
-    jslave_execs:
-     - 10
-    jslaveimage:
-     - rhel-6.5_jeos
-    jslaveflavor:
-     - m1.large
-    jslaveusername:
-     - root
-    jslavepassword:
-     - redhat
-    jslaveteardown:
-     - True
+    jslavename: jslave-entitlement-ci-slave
+    jslave_execs: 10
+    jslaveimage: rhel-6.5_jeos
+    jslaveflavor: m1.large
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
