@@ -95,33 +95,19 @@
 
 - project:
     name: brew-virt-who-esx-rhel-7-jobs
-    project:
-     - brew-virt-who-esx-rhel-7
-    project_defaults:
-     - entitlement-ci/config/project_defaults
-    topology_path:
-     - entitlement-ci/config
-    topology:
-     - bkr_virt-who_esx_rhel_7
-    ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
-    tests_path:
-     - entitlement-ci/tests
-    testparams:
-     - echo "I am a test parameter"
+    project: brew-virt-who-esx-rhel-7
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_virt-who_esx_rhel_7
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
     jobs:
       - brew-virt-who-esx-rhel-7-provision-runtest
-    jslavename:
-     - jslave-brew-virt-who-esx-rhel-7-slave
-    jslave_execs:
-     - 3
-    jslaveimage:
-     - RHEL-6.6-Server-x86_64-released
-    jslaveflavor:
-     - m1.small
-    jslaveusername:
-     - root
-    jslavepassword:
-     - redhat
-    jslaveteardown:
-     - True
+    jslavename: jslave-brew-virt-who-esx-rhel-7-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True

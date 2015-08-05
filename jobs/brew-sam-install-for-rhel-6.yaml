@@ -102,33 +102,19 @@
 
 - project:
     name: brew-sam-install-for-rhel-6-jobs
-    project:
-     - brew-sam-install-for-rhel-6
-    project_defaults:
-     - entitlement-ci/config/project_defaults
-    topology_path:
-     - entitlement-ci/config
-    topology:
-     - qeos_sam_install
-    ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
-    tests_path:
-     - entitlement-ci/tests
-    testparams:
-     - echo "I am a test parameter"
+    project: brew-sam-install-for-rhel-6
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: qeos_sam_install
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
     jobs:
       - brew-sam-install-for-rhel-6-provision-runtest
-    jslavename:
-     - jslave-brew-sam-install-for-rhel-6-slave
-    jslave_execs:
-     - 3
-    jslaveimage:
-     - RHEL-6.6-Server-x86_64-released
-    jslaveflavor:
-     - m1.small
-    jslaveusername:
-     - root
-    jslavepassword:
-     - redhat
-    jslaveteardown:
-     - True
+    jslavename: jslave-brew-sam-install-for-rhel-6-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True

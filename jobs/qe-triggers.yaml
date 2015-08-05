@@ -116,7 +116,5 @@
 
 - project:
     name: qe-triggers-jobs
-    project:
-     - qe-triggers
-    jobs:
-     - qe-triggers
+    project: qe-triggers
+    jobs: qe-triggers

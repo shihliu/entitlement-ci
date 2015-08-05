@@ -116,33 +116,19 @@
 
 - project:
     name: satellite-install-rhel-6-jobs
-    project:
-     - satellite-install-rhel-6
-    project_defaults:
-     - entitlement-ci/config/project_defaults
-    topology_path:
-     - entitlement-ci/config
-    topology:
-     - bkr_satellite_install
-    ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
-    tests_path:
-     - entitlement-ci/tests
-    testparams:
-     - echo "I am a test parameter"
+    project: satellite-install-rhel-6
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_satellite_install
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
     jobs:
       - satellite-install-rhel-6-provision-runtest
-    jslavename:
-     - jslave-satellite-install-rhel-6-slave
-    jslave_execs:
-     - 3
-    jslaveimage:
-     - RHEL-6.7-Server-x86_64-released
-    jslaveflavor:
-     - m1.small
-    jslaveusername:
-     - root
-    jslavepassword:
-     - redhat
-    jslaveteardown:
-     - True
+    jslavename: jslave-satellite-install-rhel-6-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.7-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True

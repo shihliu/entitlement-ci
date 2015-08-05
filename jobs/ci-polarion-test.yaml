@@ -16,7 +16,5 @@
 
 - project:
     name: ci-polarion-test-jobs
-    project:
-     - ci-polarion-tests
-    jobs:
-     - ci-polarion-tests
+    project: ci-polarion-tests
+    jobs: ci-polarion-tests

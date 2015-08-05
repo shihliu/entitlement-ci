@@ -96,33 +96,19 @@
 
 - project:
     name: rhsm-level-1-rhel-6
-    project:
-     - rhsm-level-1-rhel-6
-    project_defaults:
-     - entitlement-ci/config/project_defaults
-    topology_path:
-     - entitlement-ci/config
-    topology:
-     - bkr_rhsm_rhel_6
-    ssh_keyfile:
-     - entitlement-ci/config/keys/ent-key
-    tests_path:
-     - entitlement-ci/tests
-    testparams:
-     - echo "I am a test parameter"
+    project: rhsm-level-1-rhel-6
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_rhsm_rhel_6
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
     jobs:
      - rhsm-level-1-rhel-6-provision-runtest
-    jslavename:
-     - jslave-rhsm-level-1-rhel-6-slave
-    jslave_execs:
-     - 3
-    jslaveimage:
-     - RHEL-6.6-Server-x86_64-released
-    jslaveflavor:
-     - m1.small
-    jslaveusername:
-     - root
-    jslavepassword:
-     - redhat
-    jslaveteardown:
-     - True
+    jslavename: jslave-rhsm-level-1-rhel-6-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
