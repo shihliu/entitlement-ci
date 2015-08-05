@@ -58,7 +58,9 @@ class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
                 #the search txt box is buggy with ldtp.  We will use a system of clicks in finder
                 #to search for new certificate
                 self.click_import_cert_menu()
-                self.select_row_by_name('import-cert-dialog', 'table-places','File System')
+                #for RHEL 7.1, uncomment this next line and comment out the line after that line!
+                #self.select_row_by_name('import-cert-dialog', 'table-places','File System')
+                self.double_click_row('import-cert-dialog', 'table-0','Computer')
                 self.select_row_by_name('import-cert-dialog', 'table-files','tmp')
                 self.click_button('import-cert-dialog', 'import-file-button')
                 self.select_row_by_name('import-cert-dialog', 'table-files','test.pem')

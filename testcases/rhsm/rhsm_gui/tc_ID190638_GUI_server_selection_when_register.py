@@ -14,8 +14,15 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
                 self.open_subscription_manager()
-                samhostname = get_exported_param("SERVER_HOSTNAME")
-                server_url = samhostname + ":443" + "/sam/api"
+                sever_hostname = get_exported_param("SERVER_HOSTNAME")
+                samhostip = get_exported_param("SERVER_IP")
+                server_type = get_exported_param("SERVER_TYPE")
+
+                if server_type == "SAM":
+                    server_url = sever_hostname + ":443/sam/api"
+                elif server_type == "SATELLITE":
+                    server_url = sever_hostname + ":443/rhsm"
+
                 self.click_register_button()
                 if self.check_server_url(server_url):
                     logger.info("It's successful to display server url %s" % server_url)
