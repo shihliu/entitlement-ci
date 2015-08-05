@@ -28,6 +28,7 @@ class RHSMGuiLocator(RHSMConstants):
     'onlinedocumentation-window':            'frmRedHatSubscriptionManagement-RedHatCustomerPortal-MozillaFireFox',
     'security-warning-dialog':               'dlgSecurityWarning',
     'about-subscription-manager-dialog':     'dlgAboutSubscriptionManager',
+    'about-subscription-manager-dialog-7':   'dlgAboutsubscription-manager-gui', #works only for 7.2, 7.1 uses above smDialog
     'rhsm-notification-dialog':              'dlgNotification',
     'filter-options-window':                 'frmFilterOptions',
     'error-cert-dialog':                     'dlgError',
@@ -109,6 +110,7 @@ class RHSMGuiLocator(RHSMConstants):
     'filters-button':                    'btnFilters',
 
     ######## Table Elements ########
+    'table-0':                               'tbl0',
     'table-places':                          'tblPlaces',
     'table-files':                           'tblFiles',
     'my-product-table-5':                    'Installed View',
