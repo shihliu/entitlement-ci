@@ -32,57 +32,36 @@ class tc_ID477582_ESX_run_virtwho_with_hypervisor_id_hwuuid(VIRTWHOBase):
             #2). disable esx config
             self.unset_esx_conf()
 
-            #3). creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser host-xxx info
-            conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-password=%s
-filter_host_parents=""
-owner=%s
-env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
-
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            #4). run virt-who one-shot with above config
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "executing virt-who with -o -d")
+            #3). check esxi hostname 
+            cmd = "hostname"
+            ret, output = self.runcmd_esx(cmd, "check esxi hostname", destination_ip)
             if ret == 0 and output is not None:
-                host_list = re.findall(r"'host-.*?'", output, re.I)
-                if len(host_list) > 0:
-                    logger.info("Succeeded to check hosts: %s" % host_list)
-                else:
-                    raise FailException("Failed, no domain host found.")
+                esxi_hostname = output.strip()
             else:
-                raise FailException("Failed to execute virt-who with -o -d")
+                raise FailException("Failed to get esxi hostname.")
 
-            #5). remove above /etc/virt-who.d/virt.esx
-            self.unset_virtwho_d_conf(conf_file)
-
-
-            #6). creat /etc/virt-who.d/virt.esx file for esxi with hypervisor_id=hwuuid 
+            #4). creat /etc/virt-who.d/virt.esx file for esxi with hypervisor_id=hostname 
             conf_file = "/etc/virt-who.d/virt.esx"
             conf_data = '''[test-esx1]
 type=esx
 server=%s
 username=%s
 password=%s
-hypervisor_id=hwuuid
+hypervisor_id=hostname
 owner=%s
 env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
 
             self.set_virtwho_d_conf(conf_file, conf_data)
 
-            #7). virt-who restart
+            #5). virt-who restart
             self.service_command("restart_virtwho")
 
-            #8). check whether the host/guest association info has been sent to server
-            for hwuuid in host_list:
-                hwuuid = hwuuid.strip("'| ") 
-                if self.esx_check_uuid_exist_in_rhsm_log(hwuuid) == False :
-                    raise FailException("Failed to check hwuuid, no hostname found from rhsm.log.")
-
+            #6). check whether the host/guest association info has been sent to server by hostname or IP
+            if self.esx_check_uuid_exist_in_rhsm_log(destination_ip) or self.esx_check_uuid_exist_in_rhsm_log(esxi_hostname):
+                logger.info("Succeeded to check hostname from host/guest association in rhsm.log.")
+            else:
+                raise FailException("Failed to check hostname from host/guest association in rhsm.log.")
+            
             self.assert_(True, case_name)
 
         except Exception, e:
