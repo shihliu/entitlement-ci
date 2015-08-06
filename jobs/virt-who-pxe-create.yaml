@@ -49,7 +49,6 @@
             python virtwhokickstart.py $COMPOSE
             popd
     publishers:
-      - default-virt-who-runtest-publishers
       - default-virt-who-publishers
 
 - job-group:
