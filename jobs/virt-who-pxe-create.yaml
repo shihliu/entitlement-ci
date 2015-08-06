@@ -1,0 +1,72 @@
+- job-template:
+    name: 'virt-who-pxe-create-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+            kinit -k -t $KEYTAB $PRINCIPAL
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - trigger-parameterized-builds:
+          - project: 'virt-who-pxe-create-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+      - default-virt-who-publishers
+
+- job-template:
+    name: 'virt-who-pxe-create-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - shell: |
+            echo "****************runtime env****************"
+            env | grep -E '(COMPOSE)' | xargs -i -d "\n" echo "export" {{}}
+            echo "****************runtime env****************"
+            pushd $WORKSPACE/entitlement-ci/utils/tools/
+            python virtwhokickstart.py $COMPOSE
+            popd
+    publishers:
+      - default-virt-who-runtest-publishers
+      - default-virt-who-publishers
+
+- job-group:
+    name: virt-who-pxe-create-provision-runtest
+    jobs:
+      - 'virt-who-pxe-create-provision'
+      - 'virt-who-pxe-create-runtest'
+
+- project:
+    name: virt-who-pxe-create-jobs
+    project: virt-who-pxe-create
+    project_defaults: entitlement-ci/config/project_defaults
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    jobs:
+      - virt-who-pxe-create-provision-runtest
+    jslavename: jslave-virt-who-pxe-create-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True

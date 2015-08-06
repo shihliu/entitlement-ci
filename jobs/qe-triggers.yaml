@@ -11,7 +11,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            echo "test" > BUILD.txt
+            compose=`curl -s -k http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            echo COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -20,6 +21,10 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-6-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-pxe-create-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -38,7 +43,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            echo "test" > BUILD.txt
+            compose=`curl -s -k http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            echo COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -47,6 +53,10 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'sam-install-for-rhel-7-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-pxe-create-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -65,7 +75,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            echo "test" > BUILD.txt
+            compose=`curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
+            echo COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -92,7 +103,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            echo "test" > BUILD.txt
+            compose=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/COMPOSE_ID`
+            echo COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:

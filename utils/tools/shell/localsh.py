@@ -44,3 +44,34 @@ class LocalSH(object):
             retcode = process.wait()
             stdout = process.communicate()
         return retcode, stdout
+
+    @classmethod
+    def run_pexpect(self, cmd, password=""):
+        """ run interactive command locally via pexpect """
+        import pexpect
+        logger.info(">>>Local Interactive Run: %s" % cmd)
+        child = pexpect.spawn(cmd, timeout=60, maxread=2000, logfile=None)
+        while True:
+#             print child.exitstatus, child.before
+            index = child.expect(['(yes\/no)', '(?i)password:', pexpect.EOF, pexpect.TIMEOUT])
+            if index == 0:
+                child.sendline("yes")
+            elif index == 1:
+                child.sendline(password)
+            elif index == 2:
+                retcode, stdout = child.exitstatus, child.before
+                logger.info("<<<Return Code: %s" % retcode)
+                logger.info("<<<Output:\n%s" % stdout)
+                return retcode, stdout
+            elif index == 3:
+                retcode, stdout = "-1", "Command terminated due to timeout ..."
+                logger.info("<<<Return Code: %s" % retcode)
+                logger.info("<<<Output:\n%s" % stdout)
+                return retcode, stdout
+
+    @classmethod
+    def run_git(self, git_cmd, git_dir, password="redhat"):
+        """ run git command """
+        if git_dir != "":
+            os.chdir(git_dir)
+        return self.run_pexpect(git_cmd, password)
