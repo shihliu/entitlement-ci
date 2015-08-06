@@ -9,14 +9,17 @@ class tc_ID413502_thread_not_increase_over_time(VIRTWHOBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.vw_undefine_all_guests()
-            self.setup_libvirtd_config()
-            self.vw_restart_libvirtd()
-            for i in range(3):
-                self.vw_restart_virtwho()
-                self.vw_check_message_in_rhsm_log("Too many active clients", message_exists=False)
-                self.list_vm()
-                self.check_virtwho_thread()
-                time.sleep(5)
+            if self.get_os_serials() == "6":
+                self.setup_libvirtd_config()
+                self.vw_restart_libvirtd()
+                for i in range(3):
+                    self.vw_restart_virtwho()
+                    self.vw_check_message_in_rhsm_log("Too many active clients", message_exists=False)
+                    self.list_vm()
+                    self.check_virtwho_thread()
+                    time.sleep(5)
+            else:
+                logger.info("Libvirtd config not support it here, it Only supported in rhel6")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

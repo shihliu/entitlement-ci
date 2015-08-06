@@ -15,7 +15,7 @@ class tc_ID322862_kvm_unregister_check_output(VIRTWHOBase):
             rhsmlogpath='/var/log/rhsm/rhsm.log'
             # Modify the virt-who refresh interval
             cmd = "sed -i 's/#VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=100/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(logger, cmd, "changing interval to 100s in virt-who config file")
+            (ret, output) = self.runcmd( cmd, "changing interval to 100s in virt-who config file")
             if ret == 0:
                 logger.info("Succeeded to set VIRTWHO_INTERVAL=100.")
             else:
@@ -26,9 +26,9 @@ class tc_ID322862_kvm_unregister_check_output(VIRTWHOBase):
             self.sub_unregister()
             # check virt-who log
             cmd = "tail -200 %s " % rhsmlogpath
-            ret, output = self.runcmd(logger, cmd, "check output in rhsm.log")
+            ret, output = self.runcmd(cmd, "check output in rhsm.log")
             if ret == 0:
-                if ("raise Disconnected" not in output) and ("Error while checking server version" not in output) and ("Connection refused" not in output):
+                if ("raise Disconnected" not in output) and ("Error while checking server version" not in output) and ("Connection refused" not in output) and ("Exception:" not in output):
                     logger.info("Success to check virt-who log normally after unregister system.")
                 else:
                     raise FailException("Failed to check virt-who log normally after unregister system.")
@@ -39,6 +39,9 @@ class tc_ID322862_kvm_unregister_check_output(VIRTWHOBase):
         finally:
             # register host
             self.sub_register(SAM_USER, SAM_PASS)
+            # move VIRTWHO_INTERVAL to default
+            cmd = "sed -i 's/.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/' /etc/sysconfig/virt-who"
+            (ret, output) = self.runcmd( cmd, "move interval to default in virt-who config file")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
