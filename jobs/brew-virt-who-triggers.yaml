@@ -59,4 +59,5 @@
 - project:
     name: brew-virt-who-triggers-jobs
     project: brew-virt-who-triggers
-    jobs: brew-virt-who-triggers
+    jobs:
+      - brew-virt-who-triggers
