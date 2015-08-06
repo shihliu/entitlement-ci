@@ -5,8 +5,8 @@ make sure repo/distros exist, add repo/profiles/ and repo/kickstarts/libvirt/RHE
 from utils import *
 from utils.tools.shell.localsh import LocalSH
 
-runtime_dir = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, "runtime/"))
-kickstart_repo_dir = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, "runtime/repo/"))
+runtime_dir = os.path.realpath("/root/runtime/")
+kickstart_repo_dir = os.path.realpath("/root/runtime/repo/")
 dir_sample_kickstart = os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "utils/data/kickstart/"))
 
 class VirtWhoKickstart():
