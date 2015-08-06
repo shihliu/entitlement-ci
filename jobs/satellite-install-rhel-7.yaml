@@ -44,7 +44,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-template:
     name: 'satellite-install-rhel-7-runtest'
@@ -105,7 +104,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-group:
     name: satellite-install-rhel-7-provision-runtest

@@ -43,7 +43,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-template:
     name: 'virt-who-esx-rhel-7-runtest'
