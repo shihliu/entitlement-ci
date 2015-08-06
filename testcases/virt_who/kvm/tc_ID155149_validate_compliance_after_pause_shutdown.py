@@ -43,6 +43,7 @@ class tc_ID155149_validate_compliance_after_pause_shutdown(VIRTWHOBase):
             self.shutdown_vm(guest_name)
             # (4)start a guest
             self.vw_start_guests(guest_name)
+            time.sleep(20)
             # Check consumed subscriptions on guest
             self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
             self.assert_(True, case_name)

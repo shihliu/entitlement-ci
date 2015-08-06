@@ -19,7 +19,7 @@ class tc_ID308833_check_uuid_after_add_large_number_guests(VIRTWHOBase):
                 guest_uuid = self.vw_get_uuid(guest_name + "_" + str(i))
                 guest_uuid_list.append(guest_uuid)
             # check all guest uuid is in rhsm.log
-            guest_uuid_list_in_log = self.get_uuid_list_in_rhsm_log(logger)
+            guest_uuid_list_in_log = self.get_uuid_list_in_rhsm_log()
             for i in range(0, guest_total):
                 if not guest_uuid_list[i] in guest_uuid_list_in_log:
                     raise FailException("Failed to check UUID of guest:%s exist in rhsm.log" % (guest_name + "_" + str(i)))
@@ -35,7 +35,7 @@ class tc_ID308833_check_uuid_after_add_large_number_guests(VIRTWHOBase):
             for i in range(0, guest_total):
                 self.vw_undefine_guest(guest_name + "_" + str(i))
             # self.shutdown_vm(guest_name)
-            self.vw_define_all_guests()
+            #self.vw_define_all_guests()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
