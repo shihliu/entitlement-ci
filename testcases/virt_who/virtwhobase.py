@@ -802,6 +802,7 @@ EOF''' % (file_name, file_data)
                 for line in range(0, len(consumed_lines)):
                     if key is not None and value is not None: 
                         if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
+                            logger.info("Succeeded to list the right consumed subscription %s." % self.get_hg_info(targetmachine_ip))
                             return True
                     else:
                         if consumed_lines[line]["SKU"] == sku_id:
