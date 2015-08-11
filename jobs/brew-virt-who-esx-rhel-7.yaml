@@ -77,7 +77,8 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests tc_ID155138_ESX_support_for_unlimited_guest_entitlements.py \
+            --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
       - archive:
