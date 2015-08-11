@@ -10,8 +10,8 @@ class brew_virtwho_kvm_setup(VIRTWHOBase):
         try:
             self.kvm_sys_setup()
             self.brew_virtwho_upgrate()
-            self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
-            self.brew_virtwho_upgrate(get_exported_param("REMOTE_IP_2"))
+#             self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
+#             self.brew_virtwho_upgrate(get_exported_param("REMOTE_IP_2"))
             self.kvm_setup()
             self.assert_(True, case_name)
         except Exception, e:
