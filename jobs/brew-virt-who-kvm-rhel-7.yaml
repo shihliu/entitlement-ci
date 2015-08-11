@@ -110,7 +110,7 @@
     project: brew-virt-who-kvm-rhel-7
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: bkr_virt-who_kvm_rhel_7
+    topology: bkr_brew_virt-who_kvm_rhel_7
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
