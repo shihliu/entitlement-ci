@@ -23,6 +23,7 @@
             #$WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
             #--topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=$sam_compose
             #beaker provision
+            sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
             --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
             TR_STATUS=$?
@@ -44,7 +45,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-template:
     name: 'satellite-install-rhel-7-runtest'
@@ -105,7 +105,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-group:
     name: satellite-install-rhel-7-provision-runtest

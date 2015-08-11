@@ -39,7 +39,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-template:
     name: 'brew-sam-install-for-rhel-6-runtest'
@@ -92,7 +91,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-group:
     name: brew-sam-install-for-rhel-6-provision-runtest

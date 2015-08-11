@@ -18,6 +18,7 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources Master Machine And Slave Machine
+            sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
             --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
             TR_STATUS=$?
@@ -42,7 +43,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-      - default-virt-who-publishers
 
 - job-template:
     name: 'brew-virt-who-kvm-rhel-7-runtest'
