@@ -27,9 +27,13 @@ class VIRTWHOConstants(object):
 
 
                     # limited subscription
-                    "productid_guest" : "RH0604852",
-                    "productname_guest" : "Red Hat Enterprise Linux Server for HPC Compute Node",
-                    "guestlimit" : "1",
+                    # ignore RH0604852 since it can't be exported 
+                    #"productid_guest" : "RH0604852",
+                    #"productname_guest" : "Red Hat Enterprise Linux Server for HPC Compute Node",
+                    #"guestlimit" : "1",
+                    "productid_guest" : "RH0103708",
+                    "productname_guest" : "Red Hat Enterprise Linux Server, Premium",
+                    "guestlimit" : "4",
                     # unlimited subscription
                     "productid_unlimited_guest" : "RH00060",
                     "productname_unlimited_guest" : "Resilient Storage for Unlimited Guests",
