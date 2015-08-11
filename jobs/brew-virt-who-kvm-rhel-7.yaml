@@ -81,7 +81,7 @@
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
             nosetests tc_ID155138_validate_unlimited_bonus_pool_creation.py \
-            tc_ID155146_validate_compliance_when_unregister_host
+                tc_ID155146_validate_compliance_when_unregister_host.py \
                 tc_ID155180_check_uuid_after_add_vm.py \
                 tc_ID174959_validate_mapping_info_after_re_register_host.py \
                 tc_ID174961_check_virtwho_b.py \
