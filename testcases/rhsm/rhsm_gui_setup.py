@@ -22,32 +22,32 @@ class rhsm_gui_setup(unittest.TestCase):
         # yum install -y python-twisted tigervnc-server git
         if RHSMConstants().get_os_serials() == "7":
             cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
-            ret, output = RHSMConstants().runcmd(cmd, showlogger=True)
+            ret, output = RHSMConstants().runcmd(cmd, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to install @gnome-desktop tigervnc-server pexpect pyatspi")
             else:
                 raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server pexpect pyatspi")
         else:
             cmd = "yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'"
-            ret, output = RHSMConstants().runcmd(cmd, showlogger=True)
+            ret, output = RHSMConstants().runcmd(cmd, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to install 'X Window System' 'Desktop' 'Desktop Platform'")
             else:
                 raise FailException("Test Failed - Failed to install 'X Window System' 'Desktop' 'Desktop Platform'")
             cmd = "yum install -y python-twisted tigervnc-server git"
-            ret, output = RHSMConstants().runcmd(cmd, showlogger=True)
+            ret, output = RHSMConstants().runcmd(cmd, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to install python-twisted tigervnc-server git")
             else:
                 raise FailException("Test Failed - Failed to install python-twisted tigervnc-server git")
             cmd = "gconftool-2 --set /desktop/gnome/interface/accessibility --type=boolean true; gconftool-2 -s /apps/gnome-session/options/show_root_warning --type=boolean false; gconftool-2 -s /apps/gnome-screensaver/idle_activation_enabled --type=boolean false; gconftool-2 -s /apps/gnome-power-manager/ac_sleep_display --type=int 0"
-            ret, output = RHSMConstants().runcmd(cmd, showlogger=True)
+            ret, output = RHSMConstants().runcmd(cmd, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to setup system for gui testing")
             else:
                 raise FailException("Test Failed - Failed to setup system for gui testing")
         install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
-        ret, output = RHSMConstants().runcmd(install_ldtp_cmd, showlogger=True)
+        ret, output = RHSMConstants().runcmd(install_ldtp_cmd, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to install ldtp.")
         else:
@@ -62,7 +62,7 @@ Name=ldtpd
 Comment=
 EOF
 '''
-        ret, output = RHSMConstants().runcmd(cmd, showlogger=True)
+        ret, output = RHSMConstants().runcmd(cmd, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to start ldtp server")
         else:
