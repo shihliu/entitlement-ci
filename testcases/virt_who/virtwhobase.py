@@ -360,7 +360,7 @@ EOF''' % (file_name, file_data)
 
         if channel.recv_exit_status() == 0 and output is not None:
             logger.info("Succeeded to encode password: %s" % input_password)
-            encode_password =  output.split('\n')[2].strip()
+            encode_password = output.split('\n')[2].strip()
             return encode_password 
         else:
             raise FailException("Failed to encode virt-who-password.")
@@ -534,28 +534,28 @@ EOF''' % (file_name, file_data)
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
             test_server = get_exported_param("SERVER_TYPE")
-            if test_server == "SATELLITE":
-                cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
-                ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
-                cmd = "subscription-manager clean"
-                ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-                cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
-                ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
-                else:
-                    raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
+#             if test_server == "SATELLITE":
+#                 cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
+#                 ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
+#                 cmd = "subscription-manager clean"
+#                 ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+#                 cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
+#                 ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
+#                 if ret == 0:
+#                     logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
+#                 else:
+#                     raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
+#             else:
+            cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e; rpm -qa | grep katello-ca-consumer | xargs rpm -e"
+            ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
+            cmd = "subscription-manager clean"
+            ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+            cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
+            ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
             else:
-                cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e"
-                ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
-                cmd = "subscription-manager clean"
-                ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-                cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-                ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-                else:
-                    raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         elif samhostname == "subscription.rhn.stage.redhat.com":
             # configure /etc/rhsm/rhsm.conf to stage candlepin
             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
@@ -1689,9 +1689,9 @@ EOF''' % (file_name, file_data)
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
-                #log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
+                # log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
                 log_uuid_list = output.split('Sending domain info: ')[1].strip()
-                logger.info("log_uuid_list is %s" %log_uuid_list)
+                logger.info("log_uuid_list is %s" % log_uuid_list)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get guest uuid.list from rhsm.log")
