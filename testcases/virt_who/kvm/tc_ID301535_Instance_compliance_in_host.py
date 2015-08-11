@@ -19,7 +19,7 @@ class tc_ID301535_Instance_compliance_in_host(VIRTWHOBase):
             sku_name = VIRTWHOConstants().get_constant("instancebase_name")
 
             # Set up guest facts
-            self.setup_custom_facts("cpu.cpu_socket(s)", "8")
+            self.setup_custom_facts("cpu.cpu_socket(s)", "6")
             # subscribe the registered host to 4 instance pool
             poolid = self.get_pool_by_SKU(test_sku)
             cmd = "subscription-manager subscribe --pool=%s --quantity=4" % poolid
@@ -41,19 +41,19 @@ class tc_ID301535_Instance_compliance_in_host(VIRTWHOBase):
             else:
                 raise FailException("Failed to check the installed Status is Partially Subscribed.")
 
-            if self.check_installed_status("StatusDetails", "Only supports 4 of 8 sockets."):
+            if self.check_installed_status("StatusDetails", "Only supports 4 of 6 sockets."):
                 logger.info("Succeeded to check the installed Status Details: Only supports 4 of 8 sockets")
             else:
                 raise FailException("Failed to check the installed Status Details: Only supports 4 of 8 sockets")
 
             # subscribe the registered host to 4 instance pool again
-            cmd = "subscription-manager subscribe --pool=%s --quantity=4" % poolid
-            ret, output = self.runcmd(cmd, "Check subscribe with 8 instance")
+            cmd = "subscription-manager subscribe --pool=%s --quantity=2" % poolid
+            ret, output = self.runcmd(cmd, "Check subscribe with 6 instance")
             if ret == 0 and "Successfully" in output:
-                logger.info("Succeeded to check subscribe with 8 instance")
+                logger.info("Succeeded to check subscribe with 6 instance")
                 
             else:
-                raise FailException("Failed to check subscribe with 8 instance")
+                raise FailException("Failed to check subscribe with 6 instance")
 
             # .check the Status of installed product, should be 'Partially Subscribed' status
             if self.check_installed_status("Status", "Subscribed"):
