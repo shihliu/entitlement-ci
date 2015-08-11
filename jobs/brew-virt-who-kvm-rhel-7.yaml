@@ -80,7 +80,17 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests tc_ID155138_validate_unlimited_bonus_pool_creation.py \
+            tc_ID155146_validate_compliance_when_unregister_host
+                tc_ID155180_check_uuid_after_add_vm.py \
+                tc_ID174959_validate_mapping_info_after_re_register_host.py \
+                tc_ID174961_check_virtwho_b.py \
+                tc_ID214402_check_virtwho_o.py \
+                tc_ID269395_Datacenter_guest_auto_attach_bonus_pool.py \
+                tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores.py \
+                tc_ID301665_Instance_host_autosubscribe_instance.py \
+                tc_ID414166_check_guest_attr_stat.py \
+                --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
       - archive:
