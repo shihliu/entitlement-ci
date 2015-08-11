@@ -66,14 +66,10 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
-            EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
-            beaker_ip_1=`ping $EXISTING_NODES_1 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip_1
-            export REMOTE_IP_2=$beaker_ip_2
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
             echo "****************runtime env****************"
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|BREW-VIRT-WHO)' | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|BREW-VIRT-WHO)' | xargs -i -d "\n" echo "export" {{}}
             echo "****************runtime env****************"
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
             nosetests brew_virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
