@@ -99,7 +99,7 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - default-virt-who-publishers
+      - default-rhsm-publishers
 
 - job-group:
     name: rhsm-gui-rhel-7-provision-runtest
