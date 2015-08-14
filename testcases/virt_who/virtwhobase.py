@@ -84,34 +84,18 @@ class VIRTWHOBase(unittest.TestCase):
         if ret == 0:
             network_dev = output.strip()
             logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
+            if not "switch" in output:
+                cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
+                ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                self.service_command("restart_network", targetmachine_ip)
+            else:
+                logger.info("Bridge already setup for virt-who testing, do nothing ...")
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
-        ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
-#         if self.above_7_serials(targetmachine_ip):
-#             cmd = "systemctl restart network"
-#             ret, output = self.runcmd(cmd, "restart network service with systemctl the first time", targetmachine_ip)
-#             if ret == 0:
-#                 logger.info("Succeeded to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
-#             else:
-#                 raise FailException("Test Failed - Failed to restart network service with systemctl the first time in %s." % self.get_hg_info(targetmachine_ip))
-#             ret, output = self.runcmd(cmd, "restart network service with systemctl the second time", targetmachine_ip)
-#             if ret == 0:
-#                 logger.info("Succeeded to restart network service with systemctl the second time %s." % self.get_hg_info(targetmachine_ip))
-#             else:
-#                 raise FailException("Test Failed - Failed to restart network service with systemctl the second time in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             cmd = "service network restart"
-#             ret, output = self.runcmd(cmd, "restart network service", targetmachine_ip)
-#             if ret == 0:
-#                 logger.info("Succeeded to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-#             else:
-#                 raise FailException("Test Failed - Failed to service network restart in %s." % self.get_hg_info(targetmachine_ip))
-        self.service_command("restart_network", targetmachine_ip)
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
