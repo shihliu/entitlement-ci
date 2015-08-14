@@ -701,7 +701,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def wait_until_button_enabled(self, window, button_name):
 #       if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-        ldtp.wait(90)
+#         ldtp.wait(90)
         while not(ldtp.stateenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))):
             ldtp.wait()
         #while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
