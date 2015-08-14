@@ -533,29 +533,25 @@ EOF''' % (file_name, file_data)
             else:
                 raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
             # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
-            test_server = get_exported_param("SERVER_TYPE")
-#             if test_server == "SATELLITE":
-#                 cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
-#                 ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
-#                 cmd = "subscription-manager clean"
-#                 ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-#                 cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
-#                 ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
-#                 if ret == 0:
-#                     logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
-#                 else:
-#                     raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
-#             else:
             cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e; rpm -qa | grep katello-ca-consumer | xargs rpm -e"
-            ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
+            ret, output = self.runcmd(cmd, "if sam or satellite cert package exist, remove it.", targetmachine_ip)
             cmd = "subscription-manager clean"
             ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-            cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-            ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+            test_server = get_exported_param("SERVER_TYPE")
+            if test_server == "SATELLITE":
+                cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
+                ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
+                else:
+                    raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
             else:
-                raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
+                ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+                else:
+                    raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         elif samhostname == "subscription.rhn.stage.redhat.com":
             # configure /etc/rhsm/rhsm.conf to stage candlepin
             cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
