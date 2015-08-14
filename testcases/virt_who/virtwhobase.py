@@ -52,7 +52,7 @@ class VIRTWHOBase(unittest.TestCase):
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
 #         cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
-        ret, output = self.runcmd(cmd, "install virt-who for esx testing")
+        ret, output = self.runcmd(cmd, "install virt-who for esx testing", showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
