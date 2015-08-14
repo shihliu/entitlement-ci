@@ -6,11 +6,11 @@ class RHSMConstants(object):
     sam_cons6 = {
             "username": "admin",
             "password": "admin",
-            "baseurl": "https://samserv.redhat.com:443",
-            "prefix": "/sam/api",
+
             "autosubprod": "CloudForms (10-pack)",
             "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "MCT2358",
+
             "pid": "69",
             "pkgtoinstall": "zsh",
             "productrepo": "rhel-6-server-rpms",
@@ -21,11 +21,11 @@ class RHSMConstants(object):
     sam_cons7 = {
             "username": "admin",
             "password": "admin",
-            "baseurl": "https://samserv.redhat.com:443",
-            "prefix": "/sam/api",
+
             "autosubprod": "CloudForms (10-pack)",
             "installedproductname": "Red Hat Enterprise Linux Server",
             "productid": "MCT2358",
+
             "pid": "69",
             "pkgtoinstall": "zsh",
             "productrepo": "rhel-7-server-rpms",
