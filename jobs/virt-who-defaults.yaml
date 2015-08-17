@@ -83,6 +83,21 @@
                 - recipients
 
 - publisher:
+    name: default-test-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
     name: default-virt-who-runtest-publishers
     publishers:
            - xunit:
