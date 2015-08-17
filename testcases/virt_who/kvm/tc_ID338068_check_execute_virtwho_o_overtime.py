@@ -12,46 +12,22 @@ class tc_ID338068_check_execute_virtwho_o_overtime(VIRTWHOBase):
             guestuuid = self.vw_get_uuid(guest_name)
             self.vw_stop_virtwho()
 
-            # The first time, run cmd virt-who with -o and -d option in the host
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
-                # check if the uuid is correctly monitored by virt-who.
-                if guestuuid in output:
-                    logger.info("Successed to check guest uuid when virt-who at one-shot mode")
+            # run cmd virt-who with -o and -d option in the host five times
+            for i in range(1,5):
+                cmd = "virt-who -o -d"
+                ret, output = self.runcmd(cmd, "run virt-who -o -d command")
+                if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
+                    logger.info("Succeeded to execute virt-who with one-shot mode.")
+                    # check if the uuid is correctly monitored by virt-who.
+                    if guestuuid in output:
+                        logger.info("Successed to check guest uuid when virt-who at one-shot mode")
+                    else:
+                        raise FailException("Failed to check guest uuid when virt-who at one-shot mode")
                 else:
-                    raise FailException("Failed to check guest uuid when virt-who at one-shot mode")
-            else:
-                raise FailException("Failed to run virt-who -o -d.")
-            #The second time, run cmd virt-who with -o and -d option in the host
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
-            else:
-                raise FailException("Failed to run virt-who -o -d.")
-            #The third time, run cmd virt-who with -o and -d option in the host
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
-            else:
-                raise FailException("Failed to run virt-who -o -d.")
-            #The fourth time, run cmd virt-who with -o and -d option in the host
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
-            else:
-                raise FailException("Failed to run virt-who -o -d.")
-            #The fifth time, run cmd virt-who with -o and -d option in the host
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
-            else:
-                raise FailException("Failed to run virt-who -o -d.")
+                    raise FailException("Failed to run virt-who -o -d.")
+                logger.info("Run virt-who at one-shot mode at the %s time" %i)
+                i = i + 1
+
             self.assert_(True, case_name)
 
         except Exception, e:
