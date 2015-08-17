@@ -90,7 +90,7 @@
     project: qeos-satellite-install-rhel-7
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: qeos_satellite_install.json
+    topology: qeos_satellite_install
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
