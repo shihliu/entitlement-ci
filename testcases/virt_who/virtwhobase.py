@@ -1,5 +1,5 @@
 from utils import *
-import time, random, commands
+import time, random, commands, paramiko
 from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
@@ -989,12 +989,12 @@ EOF''' % (file_name, file_data)
             cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
             ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
             # ignore restart virt-who serivce since virt-who -b -d will stop
-            self.vw_restart_virtwho(targetmachine_ip)
+            self.vw_restart_virtwho_new(targetmachine_ip)
             time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
         else: 
-            self.vw_restart_virtwho(targetmachine_ip)
+            self.vw_restart_virtwho_new(targetmachine_ip)
             cmd = "tail -3 %s " % rhsmlogfile
             ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         if ret == 0:
@@ -1006,6 +1006,9 @@ EOF''' % (file_name, file_data)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update in hosts-to-guests mapping" in output:
+                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get uuid list from rhsm.log")
@@ -1295,6 +1298,81 @@ EOF''' % (file_name, file_data)
             logger.info("Succeeded to mount images in the slave_machine.")
         else:
             raise FailException("Failed to mount images in the slave_machine.")
+
+
+    def set_remote_libvirt_conf(self, virtwho_remote_server_ip,targetmachine_ip=""):
+        VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
+        VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
+        VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
+        VIRTWHO_LIBVIRT_SERVER = "qemu+ssh:\/\/" + virtwho_remote_server_ip + "\/system"
+
+        cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/.*VIRTWHO_LIBVIRT=.*/VIRTWHO_LIBVIRT=1/g' -e 's/.*VIRTWHO_LIBVIRT_OWNER=.*/VIRTWHO_LIBVIRT_OWNER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_ENV=.*/VIRTWHO_LIBVIRT_ENV=%s/g' -e 's/.*VIRTWHO_LIBVIRT_SERVER=.*/VIRTWHO_LIBVIRT_SERVER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_USERNAME=.*/VIRTWHO_LIBVIRT_USERNAME=%s/g' -e 's/.*VIRTWHO_LIBVIRT_PASSWORD=.*/VIRTWHO_LIBVIRT_PASSWORD=/g' /etc/sysconfig/virt-who" % (VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV, VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME)
+        # set remote libvirt value
+        ret, output = self.runcmd(cmd, "setting value for remote libvirt conf.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set remote libvirt value.")
+        else:
+            raise FailException("Test Failed - Failed to set remote libvirt value.")
+
+    def clean_remote_libvirt_conf(self, targetmachine_ip=""):
+        cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/.*VIRTWHO_LIBVIRT=.*/#VIRTWHO_LIBVIRT=0/g' -e 's/.*VIRTWHO_LIBVIRT_OWNER=.*/#VIRTWHO_LIBVIRT_OWNER=/g' -e 's/.*VIRTWHO_LIBVIRT_ENV=.*/#VIRTWHO_LIBVIRT_ENV=/g' -e 's/.*VIRTWHO_LIBVIRT_SERVER=.*/#VIRTWHO_LIBVIRT_SERVER=/g' -e 's/.*VIRTWHO_LIBVIRT_USERNAME=.*/#VIRTWHO_LIBVIRT_USERNAME=/g' -e 's/.*VIRTWHO_LIBVIRT_PASSWORD=.*/#VIRTWHO_LIBVIRT_PASSWORD=/g' /etc/sysconfig/virt-who"
+        # set remote libvirt value
+        ret, output = self.runcmd(cmd, "Clean config of remote libvirt conf. reset to default", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to reset to defualt config.")
+        else:
+            raise FailException("Test Failed - Failed to reset to defualt config.")
+
+    def run_interact_sshkeygen(self, cmd, targetmachine_ip, username, password, timeout=None, comments=True):
+        ret, output = self.run_paramiko_interact_sshkeygen(cmd, targetmachine_ip, username, password, timeout)
+        return ret, output
+
+    def run_paramiko_interact_sshkeygen(self, cmd, remote_ip, username, password, timeout=None):
+        """Execute the given commands in an interactive shell."""
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(remote_ip, 22, username, password)
+        channel = ssh.get_transport().open_session()
+        channel.settimeout(600)
+        channel.get_pty()
+        channel.exec_command(cmd)
+        output = ""
+        while True:
+            data = channel.recv(1048576)
+            output += data
+            logger.debug("output: %s" % data)
+            if channel.send_ready():
+                if data.strip().endswith('yes/no)?'):
+                    logger.debug("interactive input: yes")
+                    channel.send("yes" + '\n')
+                if data.strip().endswith('\'s password:'):
+                    logger.debug("interactive input: red2015")
+                    channel.send("red2015" + '\n')
+                if data.strip().endswith('[Foreman] Username:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('[Foreman] Password for admin:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('(/root/.ssh/id_rsa):'):
+                    logger.debug("interactive input: enter")
+                    channel.send('\n')
+                if data.strip().endswith('y/n)?'):
+                    logger.debug("interactive input: yes")
+                    channel.send("y" + '\n')
+                if data.strip().endswith('(empty for no passphrase):'):
+                    logger.debug("empty for no passphrase input: enter")
+                    channel.send('\n')
+                if data.strip().endswith('same passphrase again:'):
+                    logger.debug("input same passphrase again: enter")
+                    channel.send('\n')
+                if channel.exit_status_ready():
+                    break
+        if channel.recv_ready():
+            data = channel.recv(1048576)
+            output += data
+        return channel.recv_exit_status(), output
 
     #========================================================
     #     ESX Functions

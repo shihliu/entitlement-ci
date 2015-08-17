@@ -25,6 +25,9 @@ class VIRTWHOConstants(object):
                     "VIRTWHO_ESX_USERNAME" : "administrator@vsphere.local",
                     "VIRTWHO_ESX_PASSWORD" : "qwer1234P!",
 
+                    "VIRTWHO_LIBVIRT_OWNER" : "ACME_Corporation",
+                    "VIRTWHO_LIBVIRT_ENV" : "Library",
+                    "VIRTWHO_LIBVIRT_USERNAME" : "root",
 
                     # limited subscription
                     # ignore RH0604852 since it can't be exported 
