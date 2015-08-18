@@ -1319,9 +1319,11 @@ EOF''' % (file_name, file_data)
         # set remote libvirt value
         ret, output = self.runcmd(cmd, "Clean config of remote libvirt conf. reset to default", targetmachine_ip)
         if ret == 0:
+            self.vw_restart_virtwho_new(targetmachine_ip)
             logger.info("Succeeded to reset to defualt config.")
         else:
             raise FailException("Test Failed - Failed to reset to defualt config.")
+
 
     def run_interact_sshkeygen(self, cmd, targetmachine_ip, username, password, timeout=None, comments=True):
         ret, output = self.run_paramiko_interact_sshkeygen(cmd, targetmachine_ip, username, password, timeout)

@@ -10,14 +10,12 @@ class tc_ID214402_check_virtwho_o(VIRTWHOBase):
         try:
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            self.vw_stop_virtwho()
+            self.vw_stop_virtwho_new()
 
             cmd = "virt-who -o -d"
             ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and "ERROR" not in output:
+            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and guestuuid in output and "ERROR" not in output:
                 logger.info("Succeeded to execute virt-who with one-shot mode.")
-                # check if the uuid is correctly monitored by virt-who.
-                self.vw_check_uuid(guestuuid, uuidexists=True)
             else:
                 raise FailException("Failed to run virt-who -o -d.")
             self.assert_(True, case_name)
