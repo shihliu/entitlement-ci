@@ -1,5 +1,5 @@
 - job-template:
-    name: 'qeos-satellite-install-rhel-7-provision'
+    name: 'qeos-satellite-install-rhel-6-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -35,19 +35,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'qeos-satellite-install-rhel-7-runtest'
+          - project: 'qeos-satellite-install-rhel-6-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'qeos-satellite-install-rhel-7-runtest'
+    name: 'qeos-satellite-install-rhel-6-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'qeos-satellite-install-rhel-7-provision'
+            project: 'qeos-satellite-install-rhel-6-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -78,36 +78,36 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-rhel-7-provision'
+          - project: 'virt-who-esx-rhel-6-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'virt-who-kvm-rhel-7-provision'
+          - project: 'virt-who-kvm-rhel-6-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhsm-level-1-rhel-7-provision'
+          - project: 'rhsm-level-1-rhel-6-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhsm-gui-rhel-7-provision'
+          - project: 'rhsm-gui-rhel-6-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
 
 - job-group:
-    name: qeos-satellite-install-rhel-7-provision-runtest
+    name: qeos-satellite-install-rhel-6-provision-runtest
     jobs:
-      - 'qeos-satellite-install-rhel-7-provision'
-      - 'qeos-satellite-install-rhel-7-runtest'
+      - 'qeos-satellite-install-rhel-6-provision'
+      - 'qeos-satellite-install-rhel-6-runtest'
 
 - project:
-    name: qeos-satellite-install-rhel-7-jobs
-    project: qeos-satellite-install-rhel-7
+    name: qeos-satellite-install-rhel-6-jobs
+    project: qeos-satellite-install-rhel-6
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: qeos_satellite_install
@@ -115,8 +115,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - qeos-satellite-install-rhel-7-provision-runtest
-    jslavename: jslave-qeos-satellite-install-rhel-7-slave
+      - qeos-satellite-install-rhel-6-provision-runtest
+    jslavename: jslave-qeos-satellite-install-rhel-6-slave
     jslave_execs: 3
     jslaveimage: RHEL-6.7-Server-x86_64-released
     jslaveflavor: m1.small
