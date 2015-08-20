@@ -510,6 +510,9 @@ EOF''' % (file_name, file_data)
         ''' configure the host machine. '''
         if samhostname != None and samhostip != None:
             # add sam hostip and hostname in /etc/hosts
+            if "satellite" in samhostname:
+                # for satellite installed in qeos
+                samhostname = samhostname + ".novalocal"
             cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
             ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
             if ret == 0:
@@ -1300,7 +1303,7 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to mount images in the slave_machine.")
 
 
-    def set_remote_libvirt_conf(self, virtwho_remote_server_ip,targetmachine_ip=""):
+    def set_remote_libvirt_conf(self, virtwho_remote_server_ip, targetmachine_ip=""):
         VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
         VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
         VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
