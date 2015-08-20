@@ -4,7 +4,7 @@ from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
-class tc_ID444448_check_use_another_configfile_when_no_config(VIRTWHOBase):
+class tc_ID475862_check_running_mode(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -20,6 +20,7 @@ class tc_ID444448_check_use_another_configfile_when_no_config(VIRTWHOBase):
             VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
             VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
             VIRTWHO_LIBVIRT_SERVER = "qemu+ssh://" + remote_ip + "/system"
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
 
             # stop virt-who service on host1
             self.vw_stop_virtwho_new()
@@ -37,8 +38,31 @@ env=%s''' % (VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME, VIRTWHO_LIBVIRT_O
 
             self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip=remote_ip_2)
 
-            # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
+            # configure remote libvirt mode on host2
+            self.set_remote_libvirt_conf(remote_ip, remote_ip_2)
+            # check running mode 
+            if self.get_os_serials(remote_ip_2) == "7":
+                cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+                ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", remote_ip_2)
+                # ignore restart virt-who serivce since virt-who -b -d will stop
+                self.vw_restart_virtwho_new(remote_ip_2)
+                time.sleep(10)
+                cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+                ret, output = self.runcmd(cmd, "get log number added to rhsm.log", remote_ip_2)
+            else: 
+                self.vw_restart_virtwho_new(remote_ip_2)
+                cmd = "tail -3 %s " % rhsmlogfile
+                ret, output = self.runcmd(cmd, "check output in rhsm.log", remote_ip_2)
+            if ret == 0:
+                if "Sending list of uuids: " in output or " Sending update in hosts-to-guests mapping:" in output:
+                    if ('Using configuration "remote_libvirt"') in output and ('Using configuration "env/cmdline" ("libvirt" mode)' in output):
+                        logger.info("Succeeded to check running mode from rhsm.log.")
+                    else:
+                        raise FailException("Test Failed - Failed check running mode from rhsm.log.")
+                else :
+                    raise FailException("Test Failed - Failed to run virt-who service")
+            else:
+                raise FailException("Failed to get rhsm.log")
 
             self.assert_(True, case_name)
 
@@ -47,6 +71,7 @@ env=%s''' % (VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME, VIRTWHO_LIBVIRT_O
             self.assert_(False, case_name)
         finally:
             self.unset_virtwho_d_conf(conf_file, remote_ip_2)
+            self.clean_remote_libvirt_conf(remote_ip_2)
             self.vw_restart_virtwho_new(remote_ip_2)
             self.vw_restart_virtwho_new()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
