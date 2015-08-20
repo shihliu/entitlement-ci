@@ -1335,6 +1335,24 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to reset to defualt config.")
 
+    def generate_ssh_key(self, targetmachine_ip=""):
+        remote_ip_2 = get_exported_param("REMOTE_IP_2")
+        remote_ip = get_exported_param("REMOTE_IP")
+        username = "root"
+        password = "red2015"
+        # generate pub-key in host2, then copy the key to host1
+        cmd = "ssh-keygen"
+        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
+        if ret == 0:
+            logger.info("Succeeded to generate ssh-keygen.")
+        else:
+            raise FailException("Test Failed - Failed to generate ssh-keygen.")
+        cmd = "ssh-copy-id -i ~/.ssh/id_rsa.pub %s" % remote_ip
+        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
+        if ret == 0:
+            logger.info("Succeeded to scp id_rsa.pub to remote host")
+        else:
+            raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
 
     def run_interact_sshkeygen(self, cmd, targetmachine_ip, username, password, timeout=None, comments=True):
         ret, output = self.run_paramiko_interact_sshkeygen(cmd, targetmachine_ip, username, password, timeout)

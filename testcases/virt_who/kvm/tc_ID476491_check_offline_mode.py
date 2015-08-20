@@ -22,20 +22,6 @@ class tc_ID476491_check_offline_mode(VIRTWHOBase):
             VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
             VIRTWHO_LIBVIRT_SERVER = "qemu+ssh://" + remote_ip + "/system"
             VIRTWHO_FAKE_FILE = "/home/fake"
-            # generate pub-key in host2, then copy the key to host1
-            cmd = "ssh-keygen"
-            # ret, output = self.run_interact_sshkeygen(cmd)
-            ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
-            if ret == 0:
-                logger.info("Succeeded to generate ssh-keygen.")
-            else:
-                raise FailException("Test Failed - Failed to generate ssh-keygen.")
-            cmd = "ssh-copy-id -i ~/.ssh/id_rsa.pub %s" % remote_ip
-            ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
-            if ret == 0:
-                logger.info("Succeeded to scp id_rsa.pub to remote host")
-            else:
-                raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
 
             # stop virt-who service on host1
             self.vw_stop_virtwho_new()
