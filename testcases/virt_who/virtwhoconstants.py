@@ -4,10 +4,9 @@ from utils.exception.failexception import FailException
 
 class VIRTWHOConstants(object):
     virt_who_cons = {
-                    "KVM_GUEST_NAME":"6.5_Server_x86_64",
+                    "KVM_GUEST_NAME":"6.7_Server_x86_64",
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
-#                     "local_image_path" : "/root/images",
                     "nfs_image_path" : "/root/images_nfs",
                     "local_mount_point" : "/tmp/images_mnt",
 
@@ -30,10 +29,6 @@ class VIRTWHOConstants(object):
                     "VIRTWHO_LIBVIRT_USERNAME" : "root",
 
                     # limited subscription
-                    # ignore RH0604852 since it can't be exported 
-                    #"productid_guest" : "RH0604852",
-                    #"productname_guest" : "Red Hat Enterprise Linux Server for HPC Compute Node",
-                    #"guestlimit" : "1",
                     "productid_guest" : "RH0103708",
                     "productname_guest" : "Red Hat Enterprise Linux Server, Premium",
                     "guestlimit" : "4",
