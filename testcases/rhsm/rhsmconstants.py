@@ -86,6 +86,15 @@ class RHSMConstants(object):
             raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname):
+        if "satellite" in satellitehostname:
+            # for satellite installed in qeos
+            samhostname = satellitehostname + ".novalocal"
+        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (satellitehostname, satellitehostip, satellitehostname)
+        ret, output = self.runcmd(cmd)
+        if ret == 0:
+            logger.info("Succeeded to configure /etc/hosts")
+        else:
+            raise FailException("Failed to configure /etc/hosts")
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.")
         cmd = "subscription-manager clean"
