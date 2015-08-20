@@ -13,7 +13,7 @@ class tc_ID308833_check_uuid_after_add_large_number_guests(VIRTWHOBase):
             guest_total = 100
             guest_uuid_list = []
 
-            # add 100 guests in vCenter
+            # add 100 guests in kvm
             for i in range(0, guest_total):
                 self.define_vm(guest_name + "_" + str(i), guest_path)
                 guest_uuid = self.vw_get_uuid(guest_name + "_" + str(i))
@@ -31,11 +31,11 @@ class tc_ID308833_check_uuid_after_add_large_number_guests(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            # whatever happened, remove the 100 guests added in vCenter
+            # whatever happened, remove the 100 guests added in kvm
             for i in range(0, guest_total):
-                self.vw_undefine_guest(guest_name + "_" + str(i))
-            # self.shutdown_vm(guest_name)
-            #self.vw_define_all_guests()
+                guest = guest_name + "_" + str(i)
+                self.vw_undefine_guest(guest)
+                self.define_xml_del(guest)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

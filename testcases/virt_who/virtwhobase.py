@@ -1171,6 +1171,14 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to generate virsh define xml in /root/%s.xml " % guest_name)
 
+    def define_xml_del(self, guest_xml, targetmachine_ip=""):
+        cmd = "rm -f /root/%s.xml" % guest_xml
+        ret, output = self.runcmd(cmd, "remove generated define xml", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to remove generated define xml: /root/%s.xml " % guest_xml)
+        else:
+            raise FailException("Test Failed - Failed to remove generated define xml: /root/%s.xml " % guest_xml)
+
     def list_vm(self, targetmachine_ip=""):
         cmd = "virsh list --all"
         ret, output = self.runcmd(cmd, "List all existing guests:", targetmachine_ip)
