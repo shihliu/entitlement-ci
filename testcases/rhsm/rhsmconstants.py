@@ -88,7 +88,7 @@ class RHSMConstants(object):
     def configure_satellite_host(self, satellitehostip, satellitehostname):
         if "satellite" in satellitehostname:
             # for satellite installed in qeos
-            samhostname = satellitehostname + ".novalocal"
+            satellitehostname = satellitehostname + ".novalocal"
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (satellitehostname, satellitehostip, satellitehostname)
         ret, output = self.runcmd(cmd)
         if ret == 0:
