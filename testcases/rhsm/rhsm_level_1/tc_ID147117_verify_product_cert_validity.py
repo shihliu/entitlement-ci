@@ -16,9 +16,9 @@ class tc_ID147117_verify_product_cert_validity(RHSMBase):
                 cert_start_gmt = output[output.find('Not Before') + len('Not Before') + 2:output.find('GMT') + 3]
                 cert_end_gmt1 = output[output.find('Not After ') + len('Not After ') + 2:output.find('Subject')]
                 cert_end_gmt = cert_end_gmt1[:cert_end_gmt1.find('\n')]
-                        # convert GMT time to datetime
+                # convert GMT time to datetime
                 cert_start_datetime = datetime.datetime.strptime(cert_start_gmt, GMT_FORMAT)
-                cert_end_datetime = datetime.datetime.strptime(cert_end_gmt, GMT_FORMAT)         
+                cert_end_datetime = datetime.datetime.strptime(cert_end_gmt, GMT_FORMAT)
                 logger.info('Product cert validity is from %s to %s' % (cert_start_datetime, cert_end_datetime))
                 # get current datetime
                 date_today = datetime.datetime.today()
@@ -41,7 +41,3 @@ class tc_ID147117_verify_product_cert_validity(RHSMBase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-                
