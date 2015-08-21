@@ -8,11 +8,7 @@ class tc_ID115181_install_one_package(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            test_server = get_exported_param("SERVER_TYPE")
-            if test_server == "SATELLITE" :
-                logger.info("satellite do not support, this test case is skipped ...")
-                self.assert_(True, case_name)
-            else:
+            if not self.skip_satellite():
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
                 self.sub_register(username, password)
