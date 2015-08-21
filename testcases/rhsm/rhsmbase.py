@@ -52,9 +52,9 @@ class RHSMBase(unittest.TestCase):
 
     def sub_register(self, username, password, subtype=""):
         if subtype == "":
-            cmd = "subscription-manager register --username=%s --password='%s'" % (username, password)
+            cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
         else:
-            cmd = "subscription-manager register --type=%s --username=%s --password='%s'" % (subtype, username, password)
+            cmd = "subscription-manager register --type=%s --username=%s --password=%s" % (subtype, username, password)
 
         if self.sub_isregistered():
             logger.info("The system is already registered, need to unregister first!")
