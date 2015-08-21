@@ -8,31 +8,36 @@ class tc_ID115181_install_one_package(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
-            self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
-            self.sub_autosubscribe(autosubprod)
-            # get variables form ent_env
-            repoid = RHSMConstants().get_constant("productrepo")
-            pid = RHSMConstants().get_constant("pid")
-            pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
-            # check repo exist
-            if self.is_enabled_repo(repoid):
-                # check package to be installed exist
-                self.check_givenpkg_avail(repoid, pkgtoinstall)
-                # install test-pkg
-                self.install_givenpkg(pkgtoinstall)
+            test_server = get_exported_param("SERVER_TYPE")
+            if test_server == "SATELLITE" :
+                logger.info("satellite do not support install package, this test case skipped ...")
+                self.assert_(True, case_name)
             else:
-                raise FailException("Test Failed - The product repoid is not exist.")
-            # check the cert file exist.
-            certfile = pid + ".pem"
-            self.check_cert_file(certfile)
-            # check productid cert
-            self.sub_checkproductcert(pid)
-            # uninstall test-pkg
-            self.uninstall_givenpkg(pkgtoinstall)
-            self.assert_(True, case_name)
+                username = RHSMConstants().get_constant("username")
+                password = RHSMConstants().get_constant("password")
+                self.sub_register(username, password)
+                autosubprod = RHSMConstants().get_constant("autosubprod")
+                self.sub_autosubscribe(autosubprod)
+                # get variables form ent_env
+                repoid = RHSMConstants().get_constant("productrepo")
+                pid = RHSMConstants().get_constant("pid")
+                pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
+                # check repo exist
+                if self.is_enabled_repo(repoid):
+                    # check package to be installed exist
+                    self.check_givenpkg_avail(repoid, pkgtoinstall)
+                    # install test-pkg
+                    self.install_givenpkg(pkgtoinstall)
+                else:
+                    raise FailException("Test Failed - The product repoid is not exist.")
+                # check the cert file exist.
+                certfile = pid + ".pem"
+                self.check_cert_file(certfile)
+                # check productid cert
+                self.sub_checkproductcert(pid)
+                # uninstall test-pkg
+                self.uninstall_givenpkg(pkgtoinstall)
+                self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
@@ -80,7 +85,7 @@ class tc_ID115181_install_one_package(RHSMBase):
         cmd = "ls -l /etc/pki/product/%s" % certfile
         (ret, output) = self.runcmd(cmd, "check the product cert file exists")
         if ret == 0 :
-            logger.info("It's successful to check product cert file exists.")            
+            logger.info("It's successful to check product cert file exists.")
         else:
             raise FailException("Test Failed - it's failed to check product cert file exists.")
 
