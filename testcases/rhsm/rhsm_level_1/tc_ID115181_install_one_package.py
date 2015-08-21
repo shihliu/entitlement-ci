@@ -10,7 +10,7 @@ class tc_ID115181_install_one_package(RHSMBase):
         try:
             test_server = get_exported_param("SERVER_TYPE")
             if test_server == "SATELLITE" :
-                logger.info("satellite do not support install package, this test case skipped ...")
+                logger.info("satellite do not support, this test case is skipped ...")
                 self.assert_(True, case_name)
             else:
                 username = RHSMConstants().get_constant("username")
