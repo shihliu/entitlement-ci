@@ -14,6 +14,22 @@ class RHSMGuiBase(unittest.TestCase):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger)
 
+    def skip_test_on_rhel7(self):
+        rhel_version = self.get_os_serials()
+        if rhel_version == "7" :
+            logger.info("rhel 7.x do not support, this test case is skipped ...")
+            return True
+        else:
+            return False
+
+    def get_os_serials(self):
+        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
+        (ret, output) = self.runcmd(cmd, showlogger=False)
+        if ret == 0:
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Failed to get os serials")
+
     def activate_window(self, window):
         ldtp.wait()
         ldtp.activatewindow(RHSMGuiLocator().get_locator(window))
