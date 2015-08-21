@@ -20,7 +20,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite-install-rhel-6-provision'
+          - project: 'qeos-satellite-install-rhel-6-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -52,7 +52,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite-install-rhel-7-provision'
+          - project: 'qeos-satellite-install-rhel-7-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
