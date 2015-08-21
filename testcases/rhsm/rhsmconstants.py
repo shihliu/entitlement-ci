@@ -3,7 +3,7 @@ from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 
 class RHSMConstants(object):
-    sam_cons6 = {
+    sam_cons = {
             "username": "admin",
             "password": "admin",
 
@@ -13,25 +13,19 @@ class RHSMConstants(object):
 
             "pid": "69",
             "pkgtoinstall": "zsh",
+            "servicelevel": "Premium",
+
+            "default_org":"ACME_Corporation",
+            "default_org_sat":"Default_Organization",
+
+            # rhel 6 constance
             "productrepo": "rhel-6-server-rpms",
             "betarepo": "rhel-6-server-beta-rpms",
-            "servicelevel": "Premium",
             "releaselist": "6.1,6.2,6.3,6.4,6.5,6.6,6Server",
-            }
-    sam_cons7 = {
-            "username": "admin",
-            "password": "admin",
-
-            "autosubprod": "CloudForms (10-pack)",
-            "installedproductname": "Red Hat Enterprise Linux Server",
-            "productid": "MCT2358",
-
-            "pid": "69",
-            "pkgtoinstall": "zsh",
-            "productrepo": "rhel-7-server-rpms",
-            "betarepo": "rhel-7-server-beta-rpms",
-            "servicelevel": "Premium",
-            "releaselist": "7.0,7Server",
+            # rhel 7 constance
+            "productrepo_el7": "rhel-7-server-rpms",
+            "betarepo_el7": "rhel-7-server-beta-rpms",
+            "releaselist_el7": "7.0,7Server",
             }
     stage_cons = {
             "username": "stage_test_12",
@@ -54,8 +48,6 @@ class RHSMConstants(object):
             # please install a localcandlepin whose hostname is localcandlepin.redhat.com
             "baseurl": "https://localcandlepin.redhat.com:8443",
             }
-
-    samhostip = get_exported_param("SERVER_IP")
 
     def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
@@ -129,11 +121,18 @@ class RHSMConstants(object):
 
     def get_constant(self, name):
         test_server = get_exported_param("SERVER_TYPE")
-        if test_server == "SAM" or test_server == "SATELLITE":
-            if self.get_os_serials() == "6":
-                return self.sam_cons6[name]
-            elif self.get_os_serials() == "7":
-                return self.sam_cons7[name]
+        if test_server == "SAM":
+            if self.get_os_serials() == "7" and name + "_el7" in self.sam_cons:
+                return self.sam_cons[name + "_el7"]
+            else:
+                return self.sam_cons[name]
+        if test_server == "SATELLITE":
+            if self.get_os_serials() == "7" and name + "_el7" in self.sam_cons:
+                return self.sam_cons[name + "_el7"]
+            elif name + "_sat" in self.sam_cons:
+                return self.sam_cons[name + "_sat"]
+            else:
+                return self.sam_cons[name]
         elif test_server == "STAGE_CANDLEPIN" :
             return self.stage_cons[name]
         elif test_server == "CUSTOMER_PORTAL" :

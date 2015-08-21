@@ -10,7 +10,7 @@ class tc_ID284088_register_with_env_should_not_be_supported_in_sam(RHSMBase):
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            org = 'ACME_Corporation'
+            org = RHSMConstants().get_constant("default_org")
             cmd = "subscription-manager register --username=%s --password=%s --org=%s --env=Library" % (username, password, org)
             (ret, output) = self.runcmd(cmd, "register with environments")
             if ret != 0 and "Error: Server does not support environments." in output:
