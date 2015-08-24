@@ -78,11 +78,6 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-rhel-6-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
           - project: 'virt-who-kvm-rhel-6-provision'
             current-parameters: false
             condition: 'SUCCESS'
