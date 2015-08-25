@@ -4,6 +4,8 @@ from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
+import json
+import requests
 
 class VIRTWHOBase(unittest.TestCase):
     # ========================================================
@@ -200,6 +202,66 @@ class VIRTWHOBase(unittest.TestCase):
         else:
             logger.info("System version is bellow 7 serials")
             return False
+
+    # ==============Satellite CLI=======================
+    # List system
+    def st_system_list(self):
+        server_ip = get_exported_param("SERVER_IP")
+        username = VIRTWHOConstants().get_constant("SAM_USER")
+        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        api_url = "https://%s/katello/api/v2/systems" %server_ip
+        res = requests.get(api_url, auth=(username, password), verify=False)
+        return res.json()
+
+    # List pool list
+    def st_pool_list(self, uuid):
+        server_ip = get_exported_param("SERVER_IP")
+        username = VIRTWHOConstants().get_constant("SAM_USER")
+        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
+        res = requests.get(api_url, auth=(username, password), verify=False)
+        return res.json()
+
+    # Attach pool_id 
+    def st_attach(self, uuid, pool_id):
+        server_ip = get_exported_param("SERVER_IP")
+        username = VIRTWHOConstants().get_constant("SAM_USER")
+        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
+        post_headers = {'content-type': 'application/json'}
+        json_data = json.dumps({"uuid":uuid,"subscriptions":[{"id":pool_id,"quantity":0}]})
+        res = requests.post(
+              api_url,
+              data=json_data,
+              auth=(username, password),
+              verify=False,
+              headers=post_headers)
+        return res.json()
+
+    # List consumed 
+    def st_consumed_list(self, uuid):
+        server_ip = get_exported_param("SERVER_IP")
+        username = VIRTWHOConstants().get_constant("SAM_USER")
+        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
+        res = requests.get(api_url, auth=(username, password), verify=False)
+        return res.json()
+
+    # Unattach poo_id
+    def st_unattach(self, uuid, pool_id):
+        server_ip = get_exported_param("SERVER_IP")
+        username = VIRTWHOConstants().get_constant("SAM_USER")
+        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
+        post_headers = {'content-type': 'application/json'}
+        json_data = json.dumps({"uuid":uuid,"subscriptions":[{"subscription_id":pool_id}]})
+        res = requests.put(
+              api_url,
+              data=json_data,
+              auth=(username, password),
+              verify=False,
+              headers=post_headers,)
+        return res.json()
 
     def service_command(self, command, targetmachine_ip="", is_return=False):
         if self.get_os_serials(targetmachine_ip) == "7":
