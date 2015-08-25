@@ -26,8 +26,10 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
             (ret, output) = self.runcmd(cmd, "get consumerid")
             consumerid = output.split(':')[1].strip()
             # call check consumer info by api
-            cmd = "curl -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s|grep 'heal'" % (baseurl, consumerid)
-            (ret, output) = self.runcmd(cmd, "check consumer info")
+            cmd = "curl --insecure --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s >/root/temp; sleep 10" % (baseurl, consumerid)
+            (ret, output) = self.runcmd(cmd, "get curl return to /root/temp")
+            cmd = "cat /root/temp"
+            (ret, output) = self.runcmd(cmd, "check curl return in /root/temp")
             if ret == 0 and '"autoheal":true' in output:
                 logger.info("It's successful to check the healing attribute of consumer is true.")
             else:
