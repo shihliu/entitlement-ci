@@ -26,6 +26,8 @@ class RHSMConstants(object):
             "productrepo_el7": "rhel-7-server-rpms",
             "betarepo_el7": "rhel-7-server-beta-rpms",
             "releaselist_el7": "7.0,7Server",
+
+            "proxy_server":"10.66.128.144:3128",
             }
     stage_cons = {
             "username": "stage_test_12",

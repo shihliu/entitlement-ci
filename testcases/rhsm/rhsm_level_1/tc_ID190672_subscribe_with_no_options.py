@@ -14,10 +14,10 @@ class tc_ID190672_subscribe_with_no_options(RHSMBase):
             self.sub_register(username, password)
             cmd = "subscription-manager subscribe"
             (ret, output) = self.runcmd(cmd, "running subscribe command with no options")
-            if ret != 0 and "Error: This command requires that you specify a pool with --pool or --file, or use --auto" in output :
-                logger.info("It's successful to check the error message when run subscribe with no options.")
+            if ret == 0 :
+                logger.info("It's successful to subscribe with no options.")
             else:
-                raise FailException("Test Failed - Failed to check the error message when run subscribe with no options.")
+                raise FailException("Test Failed - Failed to subscribe with no options.")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error(str(e))
