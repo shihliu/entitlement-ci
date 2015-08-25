@@ -34,7 +34,7 @@ class tc_ID301527_Instance_compliance_in_guest(VIRTWHOBase):
             else:
                 raise FailException("Failed to check the installed Status.")
             # check consumed subscription with Status Details: 'Subscription is current'
-            if self.check_consumed_status(test_sku, "StatusDetails", "", guestip):
+            if self.check_consumed_status(test_sku, "StatusDetails", "", guestip) or self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", guestip):
                 logger.info("Succeeded to check the consumed Status Details: Subscription is current")
             else:
                 raise FailException("Failed to check the consumed Status Details.")
