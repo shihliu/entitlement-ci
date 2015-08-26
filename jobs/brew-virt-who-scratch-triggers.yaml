@@ -1,5 +1,5 @@
 - job-template:
-    name: 'brew-virt-who-scratch-scratch-7-trigger'
+    name: 'brew-virt-who-scratch-7-trigger'
     node: master
     triggers:
         - ci-trigger:
