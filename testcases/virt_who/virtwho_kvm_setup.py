@@ -12,6 +12,7 @@ class virtwho_kvm_setup(VIRTWHOBase):
             self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
             self.kvm_setup()
             self.generate_ssh_key()
+            self.install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
