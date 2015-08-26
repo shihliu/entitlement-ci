@@ -14,8 +14,11 @@ class tc_ID214402_check_virtwho_o(VIRTWHOBase):
 
             cmd = "virt-who -o -d"
             ret, output = self.runcmd(cmd, "run virt-who -o -d command")
-            if ret == 0 and ("Sending domain info" in output or "Sending list of uuids" in output) and guestuuid in output and "ERROR" not in output:
-                logger.info("Succeeded to execute virt-who with one-shot mode.")
+            if ret == 0 :
+                if ("Sending domain info" in output or "Sending list of uuids" in output) and guestuuid in output and "ERROR" not in output:
+                    logger.info("Succeeded to check virt-who output when virt-who run at one-shot mode.")
+                else:
+                    raise FailException("Failed to check virt-who output when virt-who run at one-shot mode.")
             else:
                 raise FailException("Failed to run virt-who -o -d.")
             self.assert_(True, case_name)

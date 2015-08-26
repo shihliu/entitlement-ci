@@ -20,6 +20,8 @@ class tc_ID301535_Instance_compliance_in_host(VIRTWHOBase):
 
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "6")
+            #disable auto attach subscription
+            self.sub_disable_auto_subscribe()
             # subscribe the registered host to 4 instance pool
             poolid = self.get_pool_by_SKU(test_sku)
             cmd = "subscription-manager subscribe --pool=%s --quantity=4" % poolid
@@ -42,9 +44,9 @@ class tc_ID301535_Instance_compliance_in_host(VIRTWHOBase):
                 raise FailException("Failed to check the installed Status is Partially Subscribed.")
 
             if self.check_installed_status("StatusDetails", "Only supports 4 of 6 sockets."):
-                logger.info("Succeeded to check the installed Status Details: Only supports 4 of 8 sockets")
+                logger.info("Succeeded to check the installed Status Details: Only supports 4 of 6 sockets")
             else:
-                raise FailException("Failed to check the installed Status Details: Only supports 4 of 8 sockets")
+                raise FailException("Failed to check the installed Status Details: Only supports 4 of 6 sockets")
 
             # subscribe the registered host to 4 instance pool again
             cmd = "subscription-manager subscribe --pool=%s --quantity=2" % poolid
