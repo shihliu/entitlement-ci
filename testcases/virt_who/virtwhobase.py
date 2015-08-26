@@ -209,7 +209,7 @@ class VIRTWHOBase(unittest.TestCase):
         server_ip = get_exported_param("SERVER_IP")
         username = VIRTWHOConstants().get_constant("SAM_USER")
         password = VIRTWHOConstants().get_constant("SAM_PASS")
-        api_url = "https://%s/katello/api/v2/systems" %server_ip
+        api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
 
@@ -229,7 +229,7 @@ class VIRTWHOBase(unittest.TestCase):
         password = VIRTWHOConstants().get_constant("SAM_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
-        json_data = json.dumps({"uuid":uuid,"subscriptions":[{"id":pool_id,"quantity":0}]})
+        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
         res = requests.post(
               api_url,
               data=json_data,
@@ -254,7 +254,7 @@ class VIRTWHOBase(unittest.TestCase):
         password = VIRTWHOConstants().get_constant("SAM_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
-        json_data = json.dumps({"uuid":uuid,"subscriptions":[{"subscription_id":pool_id}]})
+        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
         res = requests.put(
               api_url,
               data=json_data,
@@ -373,7 +373,6 @@ EOF''' % (file_name, file_data)
             logger.info("Succeeded to remove %s" % file_name)
         else:
             raise FailException("Test Failed - Failed to remove %s" % file_name)
-
 
     def run_virt_who_password(self, input_password, timeout=None):
         import paramiko
@@ -987,13 +986,10 @@ EOF''' % (file_name, file_data)
     def mount_images(self):
         ''' mount the images prepared '''
         image_server = VIRTWHOConstants().get_constant("beaker_image_server")
-#         image_path = VIRTWHOConstants().get_constant("local_image_path")
         image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
         image_mount_path = VIRTWHOConstants().get_constant("local_mount_point")
         cmd = "mkdir %s" % image_mount_path
         self.runcmd(cmd, "create local images mount point")
-#         cmd = "mkdir %s" % image_path
-#         self.runcmd(cmd, "create local images directory")
         cmd = "mkdir %s" % image_nfs_path
         self.runcmd(cmd, "create local nfs images directory")
         cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
@@ -1002,19 +998,11 @@ EOF''' % (file_name, file_data)
             logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
         else:
             raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
-
         logger.info("Begin to copy guest images...")
-
         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
         ret, output = self.runcmd(cmd, "copy all kvm images")
-#         if ret == 0:
-#             logger.info("Succeeded to copy guest images to host machine.")
-#         else:
-#             raise FailException("Failed to copy guest images to host machine.")
-
         cmd = "umount %s" % (image_mount_path)
         ret, output = self.runcmd(cmd, "umount images in host")
-
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
         if ret == 0:
@@ -1138,7 +1126,6 @@ EOF''' % (file_name, file_data)
         else:
             logger.error("Failed to get uuids in rhsm.log")
             self.SET_RESULT(1)
-
 
     def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. '''
@@ -1597,14 +1584,29 @@ EOF''' % (file_name, file_data)
             else:
                 time.sleep(10)
 
-    def esx_remove_guest(self, guest_name, destination_ip):
-        ''' remove guest from esx '''
-        cmd = "vim-cmd vmsvc/unregister /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "remove guest '%s' from ESX" % guest_name, destination_ip)
+# orphan guest left in vCenter, use vmware-cmd instead
+#     def esx_remove_guest(self, guest_name, destination_ip):
+#         ''' remove guest from esx '''
+#         cmd = "vim-cmd vmsvc/unregister /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
+#         ret, output = self.runcmd_esx(cmd, "remove guest '%s' from ESX" % guest_name, destination_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to remove guest '%s' from ESX" % guest_name)
+#         else:
+#             raise FailException("Failed to remove guest '%s' from ESX" % guest_name)
+
+    def esx_remove_guest(self, guest_name, esx_host, vCenter="", vCenter_user="", vCenter_pass=""):
+        ''' remove guest from esx vCenter '''
+        vmware_cmd_ip = VIRTWHOConstants().get_constant("VMWARE_CMD_IP")
+        if vCenter == "" and vCenter_user == "" and vCenter_pass == "":
+            vCenter = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
+            vCenter_user = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
+            vCenter_pass = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+        cmd = "vmware-cmd -H %s -U %s -P %s --vihost %s -s unregister /vmfs/volumes/datastore1/%s/%s.vmx" % (vCenter, vCenter_user, vCenter_pass, esx_host, guest_name, guest_name)
+        ret, output = self.runcmd(cmd, "remove guest '%s' from vCenter" % guest_name, targetmachine_ip=vmware_cmd_ip)
         if ret == 0:
-            logger.info("Succeeded to remove guest '%s' from ESX" % guest_name)
+            logger.info("Succeeded to remove guest '%s' from vCenter" % guest_name)
         else:
-            raise FailException("Failed to remove guest '%s' from ESX" % guest_name)
+            raise FailException("Failed to remove guest '%s' from vCenter" % guest_name)
 
     def esx_destroy_guest(self, guest_name, esx_host):
         ''' destroy guest from esx'''

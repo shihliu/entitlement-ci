@@ -17,6 +17,7 @@ class VIRTWHOConstants(object):
 
                     "ESX_HOST":"10.66.128.10",
                     "ESX_GUEST_NAME":"ESX_7.1_Server_x86_64",
+                    "VMWARE_CMD_IP":"10.66.78.89",
 
                     "VIRTWHO_ESX_OWNER" : "ACME_Corporation",
                     "VIRTWHO_ESX_ENV" : "Library",
