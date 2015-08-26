@@ -1,0 +1,51 @@
+- job-template:
+    name: 'brew-virt-who-scratch-scratch-7-trigger'
+    node: master
+    triggers:
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el7'"
+    builders:
+        - shell: |
+            #!/bin/bash
+            #maybe got brew rpm link here for yum install virt-who
+            echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
+            echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
+        - inject:
+            properties-file: $WORKSPACE/CI_MESSAGE.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - default-test-publishers
+
+- job-template:
+    name: 'brew-virt-who-scratch-6-trigger'
+    node: master
+    triggers:
+        - ci-trigger:
+            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
+    builders:
+        - shell: |
+            #!/bin/bash
+            #maybe got brew rpm link here for yum install virt-who
+            echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
+            echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
+        - inject:
+            properties-file: $WORKSPACE/CI_MESSAGE.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - default-test-publishers
+
+- job-group:
+    name: brew-virt-who-scratch-triggers
+    jobs:
+      - 'brew-virt-who-scratch-7-trigger'
+      - 'brew-virt-who-scratch-6-trigger'
+
+- project:
+    name: brew-virt-who-scratch-triggers-jobs
+    project: brew-virt-who-scratch-triggers
+    jobs:
+      - brew-virt-who-scratch-triggers
