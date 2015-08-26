@@ -829,6 +829,15 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to subscribe to a pool %s." % self.get_hg_info(targetmachine_ip))
 
+    def sub_disable_auto_subscribe(self, targetmachine_ip=""):
+        ''' Disable subscribe subscribe  '''
+        cmd = "subscription-manager auto-attach --disable"
+        ret, output = self.runcmd(cmd, "Disable auto-attach", targetmachine_ip)
+        if ret == 0 and "disabled" in output:
+            logger.info("Succeeded to Disable auto-attach %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to Disable auto-attach %s." % self.get_hg_info(targetmachine_ip))
+
     def sub_auto_subscribe(self, targetmachine_ip=""):
         ''' subscribe to a pool by auto '''
         cmd = "subscription-manager subscribe --auto"
