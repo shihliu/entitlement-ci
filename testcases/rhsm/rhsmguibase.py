@@ -430,13 +430,12 @@ class RHSMGuiBase(unittest.TestCase):
 
     def click_dialog_next_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6" or RHSMGuiLocator().get_os_serials() == "7":
-        #ldtp.wait(60)
+        # ldtp.wait(60)
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
+        ldtp.wait(10)
         logger.info("click_dialog_next_button")
         self.click_button("register-dialog", "dialog-register-button")
         self.check_window_exist("register-dialog")
-        # logger.info(ldtp.getwindowlist())
-
 
     def click_dialog_register_button(self):
 #         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
