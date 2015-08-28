@@ -42,7 +42,7 @@ class VIRTWHOBase(unittest.TestCase):
 
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
-        brew_virt_who = get_exported_param("BREW-VIRT-WHO")
+        brew_virt_who = get_exported_param("BREW_VIRTWHO")
         cmd = "yum -y upgrade %s" % brew_virt_who
         ret, output = self.runcmd(cmd, "upgrade virt-who via brew", targetmachine_ip)
 #         if ret == 0:
