@@ -93,7 +93,7 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - default-virt-who-publishers
+      - default-brew-publishers
 
 - job-group:
     name: brew-virt-who-kvm-rhel-6-provision-runtest
