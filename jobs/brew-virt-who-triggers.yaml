@@ -10,7 +10,7 @@
             #if you want to rerun brew trigger, change brew virt-who link
             BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
-            echo $BREW_VIRTWHO >> $WORKSPACE/CI_MESSAGE.txt
+            echo BREW_VIRTWHO=$BREW_VIRTWHO >> $WORKSPACE/CI_MESSAGE.txt
             echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
             properties-file: $WORKSPACE/CI_MESSAGE.txt
@@ -38,7 +38,7 @@
             #if you want to rerun brew trigger, change brew virt-who link
             BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
-            echo $BREW_VIRTWHO >> $WORKSPACE/CI_MESSAGE.txt
+            echo BREW_VIRTWHO=$BREW_VIRTWHO >> $WORKSPACE/CI_MESSAGE.txt
             echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
             properties-file: $WORKSPACE/CI_MESSAGE.txt
