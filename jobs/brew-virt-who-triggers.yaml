@@ -7,7 +7,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            #maybe got brew rpm link here for yum install virt-who
+            #if you want to rerun brew trigger, copy CI_MESSAGE to follow ''
+            #CI_MESSAGE=''
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
             echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
@@ -33,7 +34,8 @@
     builders:
         - shell: |
             #!/bin/bash
-            #maybe got brew rpm link here for yum install virt-who
+            #if you want to rerun brew trigger, copy CI_MESSAGE to follow ''
+            #CI_MESSAGE=''
             echo $CI_MESSAGE | tee $WORKSPACE/CI_MESSAGE.txt
             echo TRIGGER=BREW >> $WORKSPACE/CI_MESSAGE.txt
         - inject:
