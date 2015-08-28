@@ -71,7 +71,6 @@
             echo SERVER_TYPE=SAM > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
-            echo BREW-VIRT-WHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm >> $WORKSPACE/SERVER.txt
 
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
