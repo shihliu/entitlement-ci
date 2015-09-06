@@ -90,7 +90,7 @@
             nosetests rhsm_gui_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            export LDTP_SERVER_ADDR=$beaker_ip
+            export LDTP_SERVER_ADDR=$REMOTE_IP
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_gui/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
