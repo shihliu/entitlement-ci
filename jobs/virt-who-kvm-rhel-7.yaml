@@ -29,11 +29,11 @@
             if [ "$RHEL_COMPOSE" != "" ]
             then
                 sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_double_provision.json
-	            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-	            --topology={topology_path}/bkr_build_double_provision --ssh_keyfile={ssh_keyfile} --name={project}
-	        else
-	            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-	            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/bkr_build_double_provision --ssh_keyfile={ssh_keyfile} --name={project}
+            else
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
             fi
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
