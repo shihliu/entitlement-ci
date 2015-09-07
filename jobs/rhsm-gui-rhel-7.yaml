@@ -4,6 +4,13 @@
     node: master
     builders:
         - shell: |
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
             #!/bin/bash
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
@@ -29,9 +36,10 @@
                 cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            echo "****************runtime env****************"
-            env | grep -E '(SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | xargs -i -d "\n" echo "export" {{}}
-            echo "****************runtime env****************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
@@ -82,9 +90,16 @@
             beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip
 
-            echo "****************runtime env****************"
-            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | xargs -i -d "\n" echo "export" {{}}
-            echo "****************runtime env****************"
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export REMOTE_IP=
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
             nosetests rhsm_gui_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml

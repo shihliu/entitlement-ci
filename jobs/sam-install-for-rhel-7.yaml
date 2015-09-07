@@ -71,6 +71,7 @@
             echo SERVER_TYPE=SAM > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
     publishers:

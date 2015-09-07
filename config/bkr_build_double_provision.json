@@ -1,0 +1,29 @@
+{
+    "resources": [
+        {
+            "job_group": "Entitlement-QA",
+            "recipesets": [
+                {
+                    "distro": "12121212",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "hostrequire": ["arch=X86_64"],
+                    "bkr_data": {
+                        "role": "Master",
+                        "name": "MasterMachine"
+                    }
+                },
+                {
+                    "distro": "12121212",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "hostrequire": ["arch=X86_64"],
+                    "bkr_data": {
+                        "role": "Slave",
+                        "name": "SlaveMachine"
+                    }
+                }
+            ]
+        }
+   ]
+}

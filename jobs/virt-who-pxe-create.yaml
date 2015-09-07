@@ -40,12 +40,12 @@
     builders:
         - shell: |
             #!/bin/bash
-            echo "****************runtime env****************"
-            env | grep -E '(COMPOSE)' | xargs -i -d "\n" echo "export" {{}}
-            echo "****************runtime env****************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE)' | xargs -i -d "\n" echo "export" {{}}
+            echo "********************************runtime env********************************"
             export PYTHONPATH=$PYTHONPATH:$WORKSPACE/entitlement-ci/
             pushd $WORKSPACE/entitlement-ci/utils/tools/
-            python virtwhokickstart.py $COMPOSE
+            python virtwhokickstart.py $RHEL_COMPOSE
             popd
     publishers:
       - default-virt-who-publishers
