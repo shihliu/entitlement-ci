@@ -95,6 +95,11 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
+          - project: 'rhsm-level-2-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
           - project: 'rhsm-gui-rhel-7-provision'
             current-parameters: false
             condition: 'SUCCESS'
