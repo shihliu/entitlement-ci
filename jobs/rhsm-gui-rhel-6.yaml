@@ -4,6 +4,7 @@
     node: master
     builders:
         - shell: |
+            #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export RHEL_COMPOSE= (optional)
@@ -11,7 +12,6 @@
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
-            #!/bin/bash
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
