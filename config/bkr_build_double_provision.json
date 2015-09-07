@@ -4,7 +4,7 @@
             "job_group": "Entitlement-QA",
             "recipesets": [
                 {
-                    "distro": "12121212",
+                    "distro": "url_compose",
                     "arch": "X86_64",
                     "variant": "Server",
                     "hostrequire": ["arch=X86_64"],
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "distro": "12121212",
+                    "distro": "url_compose",
                     "arch": "X86_64",
                     "variant": "Server",
                     "hostrequire": ["arch=X86_64"],
