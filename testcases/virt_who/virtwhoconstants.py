@@ -23,6 +23,9 @@ class VIRTWHOConstants(object):
 
                     "RHEVM_HOST":"10.66.79.83",
                     "RHEL_RHEVM_GUEST_NAME":"RHEL_RHEVM_7.1_Server_x86_64",
+                    "NFSserver_ip_test" : "10.66.129.9",
+                    "NFS_DIR_FOR_storage" : "/home/NFS2",
+                    "NFS_DIR_FOR_export" : "/home/NFS3",
 
                     "VIRTWHO_RHEVM_OWNER": "ACME_Corporation",
                     "VIRTWHO_RHEVM_ENV" : "Library",
