@@ -16,10 +16,10 @@ class tc_ID115141_GUI_list_products_and_subscriptions_info(RHSMGuiBase):
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 productid = RHSMConstants().get_constant("productid")
-#                 self.click_my_installed_products_tab()
-#                 for item in self.sub_listinstalledpools():
-#                     if not self.check_content_in_my_installed_products_table(item["SubscriptionName"]):
-#                         raise FailException("Test Faild - Failed to list %s in all-subscription-table" % item["SubscriptionName"])
+                self.click_my_installed_products_tab()
+                for item in self.sub_listinstalledpools():
+                    if not self.check_content_in_my_installed_products_table(item["SubscriptionName"]):
+                        raise FailException("Test Faild - Failed to list %s in all-subscription-table" % item["SubscriptionName"])
                 self.click_my_subscriptions_tab()
                 for item in self.sub_listconsumedpools():
                     if not self.check_content_in_my_subscriptions_table(item["SubscriptionName"]):
