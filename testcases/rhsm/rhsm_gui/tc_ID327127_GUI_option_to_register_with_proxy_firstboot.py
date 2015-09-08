@@ -28,7 +28,7 @@ from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID324127_GUI_option_to_register_with_proxy_firstboot(RHSMGuiBase):
+class tc_ID327127_GUI_option_to_register_with_proxy_firstboot(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
