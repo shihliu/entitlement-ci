@@ -4,7 +4,7 @@ from utils.exception.failexception import FailException
 
 class VIRTWHOConstants(object):
     virt_who_cons = {
-                    "KVM_GUEST_NAME":"7.1_Server_x86_64",
+                    "KVM_GUEST_NAME":"6.7_Server_x86_64",
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
                     "nfs_image_path" : "/root/images_nfs",
