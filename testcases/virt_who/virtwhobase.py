@@ -2071,6 +2071,105 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to run rhevm-shell cmd.")
 
+    # parse rhevm-result to dict
+    def rhevm_info_dict(self, output, targetmachine_ip=""):
+        rhevm_info_dict = {}
+        if output is not "":
+            datalines = output.splitlines()
+            for line in datalines:
+                if ":" in line:
+                    key = line.strip().split(":")[0].strip()
+                    value = line.strip().split(":")[1].strip()
+                    print key + "==" + value
+                    rhevm_info_dict[key] = value
+            return rhevm_info_dict
+        else:
+            raise FailException("Failed to get output in rhevm-result file.")
+
+    # wait for a while until expect status shown in /tmp/rhevm-result file
+    def wait_for_status(self, cmd, status_key, status_value, targetmachine_ip, timeout=600):
+        timout = 0
+        while True:
+            timout = timout + 1
+            # cmd = "list hosts --show-all; exit"
+            ret, output = self.runcmd(cmd, "list info updating in rhevm.", targetmachine_ip)
+            rhevm_info = self.rhevm_info_dict(output)
+            if status_value == "NotExist":
+                if not status_key in rhevm_info.keys():
+                    logger.info("Succeded to check %s not exist." % status_key)
+                    return True
+            elif status_key in rhevm_info.keys() and rhevm_info[status_key] == status_value:
+                logger.info("Succeeded to get %s value %s in rhevm." % (status_key, status_value))
+                return True
+            elif status_key in rhevm_info.keys() and rhevm_info[status_key] != status_value:
+                logger.info("Succeeded to remove %s" % status_value)
+                return True
+            elif timout > 60:
+                logger.info("Time out, running rhevm-shell command in server failed.")
+                return False
+            else:
+                logger.info("sleep 10 in wait_for_status.")
+                time.sleep(10)
+
+    # Add storagedomain in rhevm
+    def add_storagedomain_to_rhevm(self, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, targetmachine_ip): 
+        # Create storage nfs folder and active it
+        cmd = "mkdir %s" % storage_dir
+        self.runcmd(cmd, "create storage nfs folder", NFS_server)
+        cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (storage_dir.replace('/', '\/'), storage_dir)
+        ret, output = self.runcmd(cmd, "set /etc/exports for nfs", NFS_server)
+        if ret == 0:
+            logger.info("Succeeded to add '%s *(rw,no_root_squash)' to /etc/exports file." % storage_dir)
+        else:
+            raise FailException("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % storage_dir)
+        cmd = "service nfs restart"
+        ret, output = self.runcmd(cmd, "restarting nfs service", NFS_server)
+        if ret == 0 :
+            logger.info("Succeeded to restart service nfs.")
+        else:
+            raise FailException("Failed to restart service nfs.")
+
+        cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+        ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
+        if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "unattached", targetmachine_ip):
+            logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
+        else:
+            raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
+        cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+        ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
+        if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
+            logger.info("Succeeded to maintenance storagedomains %s in rhevm." % storage_name)
+        else:
+            raise FailException("Failed to maintenance storagedomains %s in rhevm." % storage_name)
+
+#     # activate storagedomain in rhevm
+#     def activate_storagedomain(self, storage_name, targetmachine_ip): 
+#         cmd = "rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' " % (storage_name)
+#         ret, output = self.runcmd(cmd, "activate storagedomain in rhevm.", targetmachine_ip)
+#         if "complete" in output:
+#             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
+#         #if self.wait_for_status("rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' % (storage_name)", "status-state", "complete", targetmachine_ip):
+#                 logger.info("Succeeded to activate storagedomains %s in rhevm." % storage_name)
+#             else:
+#                 raise FailException("Failed to list activate storagedomains %s in rhevm." % storage_name)
+#         else:
+#             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
+
+    def install_virtV2V(self, targetmachine_ip=""):
+        '''install virt-V2V'''
+        cmd = "rpm -q virt-v2v"
+        ret, output = self.runcmd(cmd, "check whether virt-V2V exist", targetmachine_ip)
+        if ret == 0:
+            logger.info("virt-V2V has already exist, needn't to install it.")
+        else:
+            logger.info("virt-V2V hasn't been installed.")
+            cmd = "yum install virt-v2v -y"
+            ret, output = self.runcmd(cmd, "install vdsm", targetmachine_ip)
+            if ret == 0 and "Complete!" in output:
+                logger.info("Succeeded to install virt-V2V.")
+            else:
+                raise FailException("Failed to install virt-V2V")
+
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
 
         # system setup for RHEL+RHEVM testing env
@@ -2090,7 +2189,6 @@ EOF''' % (file_name, file_data)
             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
 
-
     def rhel_rhevm_setup(self):
         SAM_IP = get_exported_param("SERVER_IP")
         SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
@@ -2098,20 +2196,27 @@ EOF''' % (file_name, file_data)
         SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
         SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-        RHEVM_HOST = VIRTWHOConstants().get_constant("RHEVM_HOST")
+        RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
         RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
 
         VIRTWHO_RHEVM_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_OWNER")
         VIRTWHO_RHEVM_ENV = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_ENV")
-        #VIRTWHO_RHEVM_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_SERVER")
+        # VIRTWHO_RHEVM_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_SERVER")
         VIRTWHO_RHEVM_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_USERNAME")
         VIRTWHO_RHEVM_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_PASSWORD")
-        
+
+        NFSserver_ip = VIRTWHOConstants().get_constant("NFSserver_ip_test")
+        nfs_dir_for_storage = VIRTWHOConstants().get_constant("NFS_DIR_FOR_storage")
+        nfs_dir_for_export = VIRTWHOConstants().get_constant("NFS_DIR_FOR_export")
+
         REMOTE_IP_NAME = self.get_hostname()
-        #self.conf_rhevm_shellrc(RHEVM_HOST)
-        #self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_HOST)
+        self.conf_rhevm_shellrc(RHEVM_IP)
+        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 
-
+        self.install_virtV2V(RHEVM_IP)
+        
     def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
         ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
         cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_RHEVM/VIRTWHO_RHEVM/g' -e 's/^#VIRTWHO_RHEVM_OWNER/VIRTWHO_RHEVM_OWNERs/g' -e 's/^#VIRTWHO_RHEVM_ENV/VIRTWHO_RHEVM_ENV/g' -e 's/^#VIRTWHO_RHEVM_SERVER/VIRTWHO_RHEVM_SERVER/g' -e 's/^#VIRTWHO_RHEVM_USERNAME/VIRTWHO_RHEVM_USERNAME/g' -e 's/^#VIRTWHO_RHEVM_PASSWORD/VIRTWHO_RHEVM_PASSWORD/g' /etc/sysconfig/virt-who" 
