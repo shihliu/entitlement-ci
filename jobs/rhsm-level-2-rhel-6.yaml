@@ -25,7 +25,7 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources
-            sleep 120
+            sleep 240
             sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             if [ "$RHEL_COMPOSE" != "" ]
             then
