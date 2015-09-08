@@ -1957,3 +1957,166 @@ EOF''' % (file_name, file_data)
             return poolid
         else:
             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
+
+    #========================================================
+    #     RHEL + RHEVM Functions
+    #========================================================
+    def get_hostname(self, targetmachine_ip=""):
+        cmd = "hostname"
+        ret, output = self.runcmd(cmd, "geting the machine's hostname", targetmachine_ip)
+        if ret == 0:
+            hostname = output.strip(' \r\n').strip('\r\n') 
+            logger.info("Succeeded to get the machine's hostname %s." % hostname) 
+            return hostname
+        else:
+            raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
+
+    def configure_rhel_host_bridge(self, targetmachine_ip=""):
+        # Configure rhevm bridge on RHEL host
+        network_dev = ""
+        cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
+        ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
+        if ret == 0:
+            network_dev = output.strip()
+            logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
+            if not "rhevm" in output:
+                cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=rhevm\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=rhevm\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
+                ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                self.service_command("restart_network", targetmachine_ip)
+            else:
+                logger.info("Bridge already setup for virt-who testing, do nothing ...")
+        else:
+            raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
+
+    def get_rhevm_repo_file(self, targetmachine_ip=""):
+        ''' wget rhevm repo file and add to rhel host '''
+        cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.2.repo"
+        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+
+    def conf_rhevm_shellrc(self, targetmachine_ip=""):
+        ''' Config the env to login to rhevm_rhell '''
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "echo -e '[ovirt-shell]\nusername = admin@internal\nca_file = /etc/pki/ovirt-engine/ca.pem\nurl = https://%s:443/api\ninsecure = False\nno_paging = False\nfilter = False\ntimeout = -1\npassword = redhat' > /root/.rhevmshellrc" % tagetmachine_hostname
+        ret, output = self.runcmd(cmd, "config rhevm_shell env on rhevm", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to config rhevm_shell env on rhevm in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to config rhevm_shell env on rhevm in %s." % self.get_hg_info(targetmachine_ip))
+
+    # Add host to rhevm
+    def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
+        cmd = " rhevm-shell -c -E 'add host --name \"%s\" --address \"%s\" --root_password redhat'" % (rhevm_host_name, rhevm_host_ip)
+        ret, output = self.runcmd(cmd, "add host to rhevm.", targetmachine_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = " rhevm-shell -c -E 'list hosts --show-all'"
+                ret, output = self.runcmd(cmd, "list hosts in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0 and rhevm_host_name in output:
+                    logger.info("Succeeded to list host %s." % rhevm_host_name)
+                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
+                    if "up" in status:
+                        logger.info("Succeeded to add new host %s to rhevm" % rhevm_host_name)
+                        break
+                    else :
+                        logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
+                time.sleep(10)
+                if runtime > 120:
+                    raise FailException("%s status has problem,status is %s." % (rhevm_host_name, status))
+
+    # parse rhevm-shell result to dict
+    def get_key_rhevm(self, output, non_key_value, key_value, find_value, targetmachine_ip=""):
+        pool_dict = {}
+        if output is not "":
+            datalines = output.splitlines()
+            values1 = False
+            values2 = False
+            ERROR_VALUE = "-1"
+            for line in datalines:
+                line = line.strip()
+                if line.find(non_key_value) == 0:
+                    result_values1 = line[(line.find(':') + 1):].strip()
+                    logger.info("Succeeded to find the non_key_value %s's result_values1 %s" % (non_key_value, result_values1))
+                    values1 = True
+                elif line.find(key_value) == 0:
+                    result_values2 = line[(line.find(':') + 1):].strip()
+                    logger.info("Succeeded to find the key_value %s's result_values2 %s" % (key_value, result_values2))
+                    values2 = True
+                elif (line == "") and (values2 == True) and (values1 == False):
+                    pool_dict[result_values2] = ERROR_VALUE
+                    values2 = False
+                if (values1 == True) and (values2 == True):
+                    pool_dict[result_values2] = result_values1
+                    values1 = False
+                    values2 = False
+            if find_value in pool_dict:
+                findout_value = pool_dict[find_value]
+                if findout_value == ERROR_VALUE:
+                    logger.info("Failed to get the %s's %s, no value" % (find_value, non_key_value))
+                    return ERROR_VALUE
+                else:
+                    logger.info("Succeeded to get the %s's %s." % (find_value, non_key_value))
+                    return findout_value
+            else:
+                raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
+        else:
+            raise FailException("Failed to run rhevm-shell cmd.")
+
+    def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
+
+        # system setup for RHEL+RHEVM testing env
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.configure_rhel_host_bridge(targetmachine_ip)
+        self.get_rhevm_repo_file(targetmachine_ip)
+        cmd = "yum install -y vdsm"
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
+
+
+    def rhel_rhevm_setup(self):
+        SAM_IP = get_exported_param("SERVER_IP")
+        SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+
+        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
+        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+
+        RHEVM_HOST = VIRTWHOConstants().get_constant("RHEVM_HOST")
+        RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
+
+        VIRTWHO_RHEVM_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_OWNER")
+        VIRTWHO_RHEVM_ENV = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_ENV")
+        #VIRTWHO_RHEVM_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_SERVER")
+        VIRTWHO_RHEVM_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_USERNAME")
+        VIRTWHO_RHEVM_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_PASSWORD")
+        
+        REMOTE_IP_NAME = self.get_hostname()
+        #self.conf_rhevm_shellrc(RHEVM_HOST)
+        #self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_HOST)
+
+
+    def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
+        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
+        cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_RHEVM/VIRTWHO_RHEVM/g' -e 's/^#VIRTWHO_RHEVM_OWNER/VIRTWHO_RHEVM_OWNERs/g' -e 's/^#VIRTWHO_RHEVM_ENV/VIRTWHO_RHEVM_ENV/g' -e 's/^#VIRTWHO_RHEVM_SERVER/VIRTWHO_RHEVM_SERVER/g' -e 's/^#VIRTWHO_RHEVM_USERNAME/VIRTWHO_RHEVM_USERNAME/g' -e 's/^#VIRTWHO_RHEVM_PASSWORD/VIRTWHO_RHEVM_PASSWORD/g' /etc/sysconfig/virt-who" 
+        ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_RHEVM")
+        if ret == 0:
+            logger.info("Succeeded to enable VIRTWHO_RHEVM.")
+        else:
+            raise FailException("Test Failed - Failed to enable VIRTWHO_RHEVM.")

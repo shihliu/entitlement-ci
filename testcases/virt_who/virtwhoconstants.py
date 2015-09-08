@@ -4,7 +4,7 @@ from utils.exception.failexception import FailException
 
 class VIRTWHOConstants(object):
     virt_who_cons = {
-                    "KVM_GUEST_NAME":"6.7_Server_x86_64",
+                    "KVM_GUEST_NAME":"7.1_Server_x86_64",
 
                     "beaker_image_server" : "10.16.96.131:/home/samdata",
                     "nfs_image_path" : "/root/images_nfs",
@@ -14,6 +14,21 @@ class VIRTWHOConstants(object):
 
                     "SAM_USER":"admin",
                     "SAM_PASS":"admin",
+
+                    # virt-who configure for rhevm mode
+                    "NFSserver_ip" : "10.16.96.131",
+                    "proxy_ip" : "proxy=https:\/\/squid.corp.redhat.com:3128",
+                    "nfs_dir_for_storage" : "/home/vol/data5",
+                    "nfs_dir_for_export" : "/home/vol/data7",
+
+                    "RHEVM_HOST":"10.66.79.83",
+                    "RHEL_RHEVM_GUEST_NAME":"RHEL_RHEVM_7.1_Server_x86_64",
+
+                    "VIRTWHO_RHEVM_OWNER": "ACME_Corporation",
+                    "VIRTWHO_RHEVM_ENV" : "Library",
+                    "VIRTWHO_RHEVM_SERVER ": "10.66.79.83",
+                    "VIRTWHO_RHEVM_USERNAME" : "admin@internal",
+                    "VIRTWHO_RHEVM_PASSWORD" : "redhat",
 
                     "ESX_HOST":"10.66.128.10",
                     "ESX_GUEST_NAME":"ESX_7.1_Server_x86_64",
