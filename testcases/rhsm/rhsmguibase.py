@@ -52,8 +52,9 @@ class RHSMGuiBase(unittest.TestCase):
 
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
+        ldtp.wait(
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
-        ldtp.wait()
+        #dtp.wait()
 
     def double_click_row(self, window, table, row_name):
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
