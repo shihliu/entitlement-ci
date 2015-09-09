@@ -34,22 +34,27 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 self.input_password(password)
                 self.check_manual_attach_checkbox()
                 self.click_dialog_register_button_without_autoattach()
+                # After registration, the register button disappear and auto-attach button appear
+                # Check the auto-attach button in main window existance
                 if self.check_object_exist("main-window", "auto-subscribe-button") :
                     logger.info("It's successful to check auto subscribe button exist")
                 else:
                     raise FailException("Test Faild - Failed to check auto subscribe button exist")
-                if self.check_object_status("main-window", "register-button", "VISIBLE") == 0:
-                    logger.info("It's successful to check register-button is not visible")
+                # Check the register button in main window does not exist anymore
+                if self.check_element_exist("main-window", "btn", "RegisterSystem"):
+                    logger.info("It's successful to check register-button in main window deos not exist anymore after registration")
                 else:
-                    raise FailException("Test Faild - Failed to check register-button is not visible")
-                if self.check_object_status("main-window", "register-menu", "VISIBLE") == 0:
-                    logger.info("It's successful to check register-menu is not visible")
+                    raise FailException("Test Faild - Failed to check register-button in main window deos not exist anymore after registration")
+                # The register-menu in System-drop-down is disabled after registration
+                if self.check_object_status("main-window", "register-menu", "ENABLED") == 0:
+                    logger.info("It's successful to check register-menu is DISABLED")
                 else:
-                    raise FailException("Test Faild - Failed to check register-menu is not visible")
-                if self.check_object_status("main-window", "unregister-menu", "VISIBLE") == 1:
-                    logger.info("It's successful to check unregister-menu is visible")
+                    raise FailException("Test Faild - Failed to check register-menu is DISABLED")
+                # The Unregister-menu in System-drop-down is enabled after registration
+                if self.check_object_status("main-window", "unregister-menu", "ENABLED") == 1:
+                    logger.info("It's successful to check unregister-menu is ENABLED")
                 else:
-                    raise FailException("Test Faild - Failed to check unregister-menu is visible")
+                    raise FailException("Test Faild - Failed to check unregister-menu is enabled")
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))
