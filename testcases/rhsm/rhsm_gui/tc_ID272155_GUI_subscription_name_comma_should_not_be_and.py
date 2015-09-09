@@ -40,6 +40,7 @@ class tc_ID272155_GUI_subscription_name_comma_should_not_be_and(RHSMGuiBase):
             try:
                 username = RHSMConstants().get_constant("username")
                 password = RHSMConstants().get_constant("password")
+                old_comma_name=''
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()
@@ -51,10 +52,13 @@ class tc_ID272155_GUI_subscription_name_comma_should_not_be_and(RHSMGuiBase):
                         old_comma_name = self.get_table_cell('main-window','all-subscription-table', i, 0)
                         self.click_button('main-window','attach-subscription')
                         break
-                self.click_my_subscriptions_tab()
-                sub_index = self.get_table_row_index('main-window','my-subscription-table',old_comma_name)
-                if sub_index == -1:
-                    raise FailException('FAILED: Unable to find the subscribed product with comma in name')
+                if old_comma_name:
+                    self.click_my_subscriptions_tab()
+                    sub_index = self.get_table_row_index('main-window','my-subscription-table',old_comma_name)
+                    if sub_index == -1:
+                        raise FailException('FAILED: Unable to find the subscribed product with comma in name')
+                else:
+                    logger.info('No available subscripion name with comma!')
                 #we found the exact name, therefore, the 'and' could not have been added in! and so we must pass!
                 self.assert_(True, case_name)
             except Exception, e:
