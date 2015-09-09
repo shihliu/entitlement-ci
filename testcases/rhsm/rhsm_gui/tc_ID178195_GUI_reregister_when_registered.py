@@ -21,14 +21,16 @@ class tc_ID178195_GUI_reregister_when_registered(RHSMGuiBase):
                 self.check_manual_attach_checkbox()
                 self.click_dialog_register_button_without_autoattach()
                 self.check_consumer_cert_files(exist=True)
-                if self.check_object_status("main-window", "register-menu", "VISIBLE") == 0:
-                    logger.info("It's successful to check register-menu is not visible")
+                #if self.check_object_status("main-window", "register-menu", "VISIBLE") == 0:
+                if self.check_object_status("main-window", "register-menu", "ENABLED") == 0:
+                    logger.info("It's successful to check register-menu is not enabled")
                 else:
-                    raise FailException("Test Faild - Failed to check register-menu is not visible")
-                if self.check_object_status("main-window", "unregister-menu", "VISIBLE") == 1:
-                    logger.info("It's successful to check unregister-menu is visible")
+                    raise FailException("Test Faild - Failed to check register-menu is not enabled")
+                #if self.check_object_status("main-window", "unregister-menu", "VISIBLE") == 1:
+                if self.check_object_status("main-window", "unregister-menu", "ENABLED") == 1:
+                    logger.info("It's successful to check unregister-menu is enabled")
                 else:
-                    raise FailException("Test Faild - Failed to check unregister-menu is visible")
+                    raise FailException("Test Faild - Failed to check unregister-menu is enabled")
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))
