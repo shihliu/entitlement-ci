@@ -694,6 +694,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("check_combo_item")
         # do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
         ldtp.showlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox)) 
+        ldtp.wait(10)
         return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
 
     def select_combo_item(self, window, combobox, item_name):
