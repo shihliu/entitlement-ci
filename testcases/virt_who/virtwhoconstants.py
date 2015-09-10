@@ -39,7 +39,7 @@ class VIRTWHOConstants(object):
 
                     "VIRTWHO_ESX_OWNER" : "ACME_Corporation",
                     "VIRTWHO_ESX_ENV" : "Library",
-                    "VIRTWHO_ESX_SERVER" : "10.66.78.89",
+                    "VIRTWHO_ESX_SERVER" : "10.66.79.5",
                     "VIRTWHO_ESX_USERNAME" : "administrator@vsphere.local",
                     "VIRTWHO_ESX_PASSWORD" : "qwer1234P!",
 
