@@ -19,8 +19,8 @@ class RemoteSH(object):
         """
         Executes SSH command on remote machine.
         """
+        logger.info("Command run in: %s, purpose: %s" % (remote_ip, comments))
         if showlogger:
-            logger.info("Command run in: %s, purpose: %s" % (remote_ip, comments))
             logger.info(">>>Remote Run: %s" % cmd)
         retcode, stdout = self.run_paramiko(cmd, remote_ip, username, password, timeout)
         if showlogger:
