@@ -25,6 +25,9 @@ class VIRTWHOBase(unittest.TestCase):
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
 
+    def runcmd_sam(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
+
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         if targetmachine_ip != None and targetmachine_ip != "":
             if targetmachine_user != None and targetmachine_user != "":
@@ -1760,7 +1763,7 @@ EOF''' % (file_name, file_data)
                     logger.info("Time out to esx_check_ip_accessable")
                     break
                 else:
-                    time.sleep(10)
+                    time.sleep(20)
             else:
                 time.sleep(30)
                 if self.esx_get_guest_ip(guest_name, destination_ip) == "unset":
@@ -1769,7 +1772,7 @@ EOF''' % (file_name, file_data)
                     logger.info("Time out to esx_check_ip_accessable")
                     break
                 else:
-                    time.sleep(10)
+                    time.sleep(20)
 
     def esx_get_guest_uuid(self, guest_name, destination_ip):
         ''' get guest uuid in esx host '''
@@ -1894,7 +1897,7 @@ EOF''' % (file_name, file_data)
     def esx_check_host_in_samserv(self, esx_uuid, destination_ip):
         ''' check esx host exist in sam server '''
         cmd = "headpin -u admin -p admin system list --org=ACME_Corporation --environment=Library"
-        ret, output = self.runcmd(cmd, "check esx host exist in sam server", destination_ip)
+        ret, output = self.runcmd_sam(cmd, "check esx host exist in sam server", destination_ip)
         if ret == 0 and esx_uuid in output:
         # if ret == 0 and output.find(esx_uuid) >= 0:
             logger.info("Succeeded to check esx host %s exist in sam server" % esx_uuid)
@@ -1904,7 +1907,7 @@ EOF''' % (file_name, file_data)
     def esx_remove_host_in_samserv(self, esx_uuid, destination_ip):
         ''' remove esx host in sam server '''
         cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % esx_uuid
-        ret, output = self.runcmd(cmd, "remove esx host in sam server", destination_ip)
+        ret, output = self.runcmd_sam(cmd, "remove esx host in sam server", destination_ip)
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to remove esx host %s in sam server" % esx_uuid)
         else:
@@ -1913,7 +1916,7 @@ EOF''' % (file_name, file_data)
     def esx_remove_deletion_record_in_samserv(self, esx_uuid, destination_ip):
         ''' remove deletion record in sam server '''
         cmd = "headpin -u admin -p admin system remove_deletion --uuid=%s" % esx_uuid
-        ret, output = self.runcmd(cmd, "remove deletion record in sam server", destination_ip)
+        ret, output = self.runcmd_sam(cmd, "remove deletion record in sam server", destination_ip)
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to remove deletion record %s in sam server" % esx_uuid)
         else:
@@ -1922,7 +1925,7 @@ EOF''' % (file_name, file_data)
     def esx_subscribe_host_in_samserv(self, esx_uuid, poolid, destination_ip):
         ''' subscribe host in sam server '''
         cmd = "headpin -u admin -p admin system subscribe --name=%s --org=ACME_Corporation --pool=%s " % (esx_uuid, poolid)
-        ret, output = self.runcmd(cmd, "subscribe host in sam server", destination_ip)
+        ret, output = self.runcmd_sam(cmd, "subscribe host in sam server", destination_ip)
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to subscribe host %s in sam server" % esx_uuid)
         else:
@@ -1931,7 +1934,7 @@ EOF''' % (file_name, file_data)
     def esx_unsubscribe_all_host_in_samserv(self, esx_uuid, destination_ip):
         ''' unsubscribe host in sam server '''
         cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % esx_uuid
-        ret, output = self.runcmd(cmd, "unsubscribe host in sam server", destination_ip)
+        ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
         if ret == 0 and esx_uuid in output:
             logger.info("Succeeded to unsubscribe host %s in sam server" % esx_uuid)
         else:
