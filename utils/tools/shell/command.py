@@ -17,11 +17,11 @@ class Command(object):
             self.password = "red2015"
             # logger.info("command run in: %s" % self.remote_ip)
 
-    def run(self, cmd, timeout=None, comments=True):
+    def run(self, cmd, timeout=None, comments=None, showlogger=True):
         if self.remote_ip == None:
-            ret, output = LocalSH.local_run(cmd, timeout, comments)
+            ret, output = LocalSH.local_run(cmd, timeout, comments, showlogger)
         else:
-            ret, output = RemoteSH.remote_run(cmd, self.remote_ip, self.username, self.password, timeout, comments)
+            ret, output = RemoteSH.remote_run(cmd, self.remote_ip, self.username, self.password, timeout, comments, showlogger)
         return ret, output
 
     def run_interact(self, cmd, timeout=None, comments=True):

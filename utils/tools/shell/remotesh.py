@@ -15,15 +15,15 @@ class RemoteSH(object):
     Run shell in remote machine via paramiko
     """
     @classmethod
-    def remote_run(self, cmd, remote_ip, username, password, timeout, comments):
+    def remote_run(self, cmd, remote_ip, username, password, timeout, comments, showlogger=True):
         """
         Executes SSH command on remote machine.
         """
-        if comments:
-            logger.info("command run in: %s" % remote_ip)
+        if showlogger:
+            logger.info("Command run in: %s, purpose: %s" % (remote_ip, comments))
             logger.info(">>>Remote Run: %s" % cmd)
         retcode, stdout = self.run_paramiko(cmd, remote_ip, username, password, timeout)
-        if comments:
+        if showlogger:
             logger.info("<<<Return Code: %s" % retcode)
             logger.info("<<<Output:\n%s" % stdout)
         return retcode, stdout

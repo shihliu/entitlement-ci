@@ -20,9 +20,7 @@ class VIRTWHOBase(unittest.TestCase):
                 commander = Command(targetmachine_ip, "root", "red2015")
         else:
             commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-#         else:
-#             commander = Command(get_exported_param("REMOTE_IP"), username=get_exported_param("REMOTE_USER"), password=get_exported_param("REMOTE_PASSWD"))
-        return commander.run(cmd, timeout, cmddesc)
+        return commander.run(cmd, timeout, cmddesc, showlogger)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
@@ -64,7 +62,7 @@ class VIRTWHOBase(unittest.TestCase):
         # system setup for virt-who testing
         # cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
