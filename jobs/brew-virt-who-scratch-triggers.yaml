@@ -23,7 +23,7 @@
     node: master
     triggers:
         - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who'"
+            jms-selector: "CI_TYPE = 'build' AND name = 'virt-who'"
     builders:
         - shell: |
             #!/bin/bash
