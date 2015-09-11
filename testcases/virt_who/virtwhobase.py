@@ -2171,8 +2171,105 @@ EOF''' % (file_name, file_data)
             else:
                 raise FailException("Failed to install virt-V2V")
 
-    def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
 
+    def rhevm_define_guest(self, targetmachine_ip=""):
+        ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
+        cmd = "test -d /tmp/rhevm_guest/ && echo presence || echo absence"
+        ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
+        if "presence" in output:
+            logger.info("guest has already exist")
+        else:
+            #cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
+            cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64"
+            ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
+            if ret == 0:
+                logger.info("Succeeded to wget kvm img file")
+            else:
+                raise FailException("Failed to wget kvm img file")
+        #cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64.xml"
+        ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to wget xml img file")
+        else:
+            raise FailException("Failed to wget xml img file")
+        #cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        cmd = "virsh define /tmp/rhevm_guest/xml/7.1_Server_x86_64.xml"
+        ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to define kvm guest")
+        else:
+            raise FailException("Failed to define kvm guest")
+
+    # create_storage_pool
+    def create_storage_pool(self, targetmachine_ip=""):
+        ''' wget autotest_pool.xml '''
+        cmd = "wget -P /tmp/ http://10.66.100.116/projects/sam-virtwho/autotest_pool.xml"
+        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to wget autotest_pool.xml")
+        else:
+            raise FailException("Failed to wget autotest_pool.xml")
+        # check whether pool exist, if yes, destroy it
+        cmd = "virsh pool-list"
+        ret, output = self.runcmd(cmd, "check whether autotest_pool exist", targetmachine_ip)
+        if ret == 0 and "autotest_pool" in output:
+            logger.info("autotest_pool exist.")
+            cmd = "virsh pool-destroy autotest_pool"
+            ret, output = self.runcmd(cmd, "destroy autotest_pool", targetmachine_ip)
+            if ret == 0 and "autotest_pool destroyed" in output:
+                logger.info("Succeeded to destroy autotest_pool")
+            else:
+                raise FailException("Failed to destroy autotest_pool")
+
+        cmd = "virsh pool-create /tmp/autotest_pool.xml"
+        ret, output = self.runcmd(cmd, "import vm to rhevm.")
+        if ret == 0 and "autotest_pool created" in output:
+            logger.info("Succeeded to create autotest_pool.")
+        else:
+            raise FailException("Failed to create autotest_pool.")
+
+    # convert_guest_to_nfs with v2v tool
+    def convert_guest_to_nfs(self, NFS_server, NFS_export_dir, vm_hostname):
+        cmd = "virt-v2v -i libvirt -ic qemu:///system -o rhev -os %s:%s --network rhevm %s" % (NFS_server, NFS_export_dir, vm_hostname)
+        ret, output = self.runcmd(cmd, "convert_guest_to_nfs with v2v tool")
+        if ret == 0:
+            logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
+        else:
+            raise FailException("Failed to convert_guest_to_nfs with v2v tool")
+        # convert the second guest
+        cmd = "virt-v2v -i libvirt -ic qemu:///system -o rhev -os %s:%s --network rhevm %s -on \"Sec_%s\"" % (NFS_server, NFS_export_dir, vm_hostname, vm_hostname)
+        ret, output = self.runcmd(cmd, "convert_guest_to_nfs with v2v tool")
+        if ret == 0:
+            logger.info("Succeeded to convert the second guest to nfs with v2v tool")
+        else:
+            raise FailException("Failed to convert the second guest to nfs with v2v tool")
+
+    # import guest to rhevm
+    def import_vm_to_rhevm(self, guest_name, nfs_dir_for_storage, nfs_dir_for_export, rhevm_host_ip):
+        # action vm "7.1_Server_x86_64" import_vm --storagedomain-identifier export_storage  --cluster-name Default --storage_domain-name data_storage
+        cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-name %s' " % (guest_name, nfs_dir_for_export, nfs_dir_for_storage)
+        ret, output = self.runcmd(cmd, "import guest %s in rhevm." % guest_name, rhevm_host_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = "rhevm-shell -c -E 'list vms --show-all' "
+                ret, output = self.runcmd(cmd, "list VMS in rhevm.", rhevm_host_ip)
+                runtime = runtime + 1
+                if ret == 0 and guest_name in output:
+                    logger.info("Succeeded to list vm %s." % guest_name)
+                    status = self.get_key_rhevm(output, "status-state", "name", guest_name, rhevm_host_ip)
+                    if "down" in status:
+                        logger.info("Succeeded to import new vm %s to rhevm" % guest_name)
+                        break
+                    else :
+                        logger.info("vm %s status-state is %s" % (guest_name, status))
+                time.sleep(10)
+                if runtime > 120:
+                    raise FailException("%s status has problem,status is %s." % (guest_name, status))
+
+
+    def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         # system setup for RHEL+RHEVM testing env
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
@@ -2211,13 +2308,16 @@ EOF''' % (file_name, file_data)
         nfs_dir_for_export = VIRTWHOConstants().get_constant("NFS_DIR_FOR_export")
 
         REMOTE_IP_NAME = self.get_hostname()
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        #self.conf_rhevm_shellrc(RHEVM_IP)
+        #self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        #self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        #self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        ##self.rhevm_define_guest()
+        ##self.create_storage_pool()
+        #self.install_virtV2V()
+        self.convert_guest_to_nfs(NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME)
+        self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, "data_storage", "export_storage", RHEVM_IP)
 
-        self.install_virtV2V(RHEVM_IP)
-        
     def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
         ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
         cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_RHEVM/VIRTWHO_RHEVM/g' -e 's/^#VIRTWHO_RHEVM_OWNER/VIRTWHO_RHEVM_OWNERs/g' -e 's/^#VIRTWHO_RHEVM_ENV/VIRTWHO_RHEVM_ENV/g' -e 's/^#VIRTWHO_RHEVM_SERVER/VIRTWHO_RHEVM_SERVER/g' -e 's/^#VIRTWHO_RHEVM_USERNAME/VIRTWHO_RHEVM_USERNAME/g' -e 's/^#VIRTWHO_RHEVM_PASSWORD/VIRTWHO_RHEVM_PASSWORD/g' /etc/sysconfig/virt-who" 
