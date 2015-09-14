@@ -52,7 +52,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
-        ldtp.wait(
+        ldtp.wait()
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
         #dtp.wait()
 
