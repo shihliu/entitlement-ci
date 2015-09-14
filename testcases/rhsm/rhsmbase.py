@@ -8,9 +8,18 @@ class RHSMBase(unittest.TestCase):
     #       0. Basic Functions
     # ========================================================
 
-    def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
-        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, desc, showlogger)
+    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        if targetmachine_ip != None and targetmachine_ip != "":
+            if targetmachine_user != None and targetmachine_user != "":
+                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+            else:
+                commander = Command(targetmachine_ip, "root", "red2015")
+        else:
+            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+        return commander.run(cmd, timeout, cmddesc, showlogger)
+
+    def runcmd_sam(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
     def check_ip(self, ip_address):
         pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
