@@ -12,8 +12,8 @@ class tc_ID178111_register_with_auto_when_no_compatible_subscription(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        samhostip = get_exported_param("SERVER_IP")
         try:
-            samhostip = RHSMConstants().samhostip
             if samhostip == None:
                 logger.info("This case is just for SAM, no need to test against other servers!")
             else:
@@ -41,7 +41,7 @@ class tc_ID178111_register_with_auto_when_no_compatible_subscription(RHSMBase):
 
     def create_sam_org(self, samhostip, neworgname):
         cmd_create = "headpin -u admin -p admin org create --name=%s" % neworgname
-        (ret, output) = self.runcmd_remote(samhostip, "root", "redhat", cmd_create)
+        (ret, output) = self.runcmd_sam(cmd_create, '', samhostip)
         if ret == 0 and "Successfully created org" in output:
             logger.info("It's successful to create a new org in SAM server:%s" % neworgname)
         else:
@@ -49,7 +49,7 @@ class tc_ID178111_register_with_auto_when_no_compatible_subscription(RHSMBase):
 
     def delete_sam_org(self, samhostip, orgname):
         cmd_delete = "headpin -u admin -p admin org delete --name=%s" % orgname
-        (ret, output) = self.runcmd_remote(samhostip, "root", "redhat", cmd_delete)
+        (ret, output) = self.runcmd_sam(cmd_delete, '', samhostip)
         if ret == 0 and "Successfully deleted org" in output:
             logger.info("It's successful to delete the org in SAM")
         else:

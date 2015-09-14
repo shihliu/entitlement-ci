@@ -53,7 +53,7 @@ class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
 
     def create_sam_account(self, samhostip, username, password, email):
         cmd_create = "headpin -u admin -p admin user create --username=%s --password=%s --email=%s;headpin -u admin -p admin user assign_role --username=%s --role=Administrator" % (username, password, email, username)
-        (ret, output) = self.runcmd_remote(cmd_create, '', samhostip)
+        (ret, output) = self.runcmd_sam(cmd_create, '', samhostip)
         if ret == 0 and "Successfully created user" in output:
             logger.info("It's successful to create a new account in SAM server:username=%s password=%s" % (username, password))
         else:
@@ -61,7 +61,7 @@ class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
 
     def delete_sam_account(self, samhostip, username):
         cmd_delete = "headpin -u admin -p admin user delete --username=%s" % username
-        (ret, output) = self.runcmd_remote(cmd_delete, '', samhostip)
+        (ret, output) = self.runcmd_sam(cmd_delete, '', samhostip)
         if ret == 0 and "Successfully deleted user [ test456 ]" in output:
             logger.info("It's successful to delete the username and password in SAM")
         else:
