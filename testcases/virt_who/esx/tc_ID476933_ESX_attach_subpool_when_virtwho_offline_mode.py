@@ -61,41 +61,55 @@ env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
 
             self.set_virtwho_d_conf(conf_file, conf_data)
 
-            #5). virt-who restart
+
+            #5). after stop virt-who, start to monitor the rhsm.log 
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
+
+            #6). virt-who restart
             self.service_command("restart_virtwho")
-
-            #6). check whether the host/guest association info has been sent to server
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) and self.esx_check_uuid_exist_in_rhsm_log(guestuuid):
-                logger.info("Succeeded to get uuid list from rhsm.log.")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running when offline mode.")
             else:
-                raise FailException("Failed to get uuid list from rhsm.log")
+                raise FailException("Failed to check, virt-who is not running or active when offline mode.")
 
-            #7).check DataCenter is exist on host/hpyervisor
+            #7). after restart virt-who, stop to monitor the rhsm.log
+            time.sleep(5)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if "ERROR" not in output and host_uuid in output and guestuuid in output:
+                logger.info("Succeeded to check, can find uuid and no error when offline mode.")
+            else:
+                raise FailException("Failed to check, can not find uuid and no error when offline mode.")
+
+            #8).check DataCenter is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
             if host_pool_id is not None or host_pool_id !="":
                  logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
                 raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
-            #8).register guest to SAM/Candlepin server with same username and password
+            #9).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
-            #9).subscribe successfully to the DataCenter subscription pool on host
+            #10).subscribe successfully to the DataCenter subscription pool on host
             self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SAM_IP)
 
-            #10).check the bonus pool is available
+            #11).check the bonus pool is available
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to find the bonus pool of product '%s'" % product_name)
                 self.assert_(True, case_name)
             else:
                 raise FailException("Failed to find the bonus pool from guest.")
 
-            #11).subscribe to the bonus pool. 
+            #12).subscribe to the bonus pool. 
             self.sub_subscribe_sku(bonus_sku_id, guestip)
 
-            #12).check the consumed product
+            #13).check the consumed product
             self.sub_listconsumed(product_name, guestip)
 
             self.assert_(True, case_name)

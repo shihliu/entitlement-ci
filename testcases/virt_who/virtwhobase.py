@@ -297,6 +297,66 @@ class VIRTWHOBase(unittest.TestCase):
               headers=post_headers,)
         return res.json()
 
+    # only return CLI for virt-who esx mode, don't run cli 
+    def virtwho_cli(self, mode):
+        esx_owner = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
+        esx_env = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
+        esx_server = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
+        esx_username = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
+        esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+
+        if mode == "esx":
+            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
+        else:
+            raise FailException("Failed to execute virt-who with one shot")
+        return cmd
+
+    # run virt-who oneshot by cli, return the output
+    def virtwho_oneshot(self, mode, targetmachine_ip=""):
+        cmd = self.virtwho_cli(mode) + " -o -d "
+        self.service_command("stop_virtwho")
+        ret, output = self.runcmd(cmd, "executing virt-who with one shot")
+        self.service_command("restart_virtwho")
+        if ret == 0:
+            logger.info("Succeeded to execute virt-who with one shot ")
+            return ret, output
+        else:
+            raise FailException("Failed to execute virt-who with one shot")
+    
+    # check uuid from oneshot output 
+    def check_uuid_oneshot(self, uuid, mode, targetmachine_ip=""):
+        output = self.virtwho_oneshot(mode, targetmachine_ip)
+        if uuid in output:
+            return True
+        else:
+            return False 
+
+    # check systemd service is exist or not
+    def check_systemctl_service(self, keyword, targetmachine_ip=""):
+        cmd = "systemctl list-units|grep %s -i" % keyword
+        ret, output = self.runcmd(cmd, "check %s service by systemctl" % keyword, targetmachine_ip)
+        if ret == 0:
+            return True
+        return False
+
+    # check virt-who servcie status, rhel7:"active" "failed" "unknown", rhel6:"running" "stopped"
+    def check_virtwho_status(self, targetmachine_ip=""):
+        if self.check_systemctl_service("virt-who", targetmachine_ip):
+            # will feedback "active" "failed" "unknow"
+            cmd = "systemctl is-active virt-who"
+            ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
+            return output.strip()
+        else:
+            # will feedback "running" "stopped" "failed"
+            cmd = "service virt-who status"
+            ret, output = self.runcmd(cmd, "check virt-who service status by sysvinit", targetmachine_ip)
+            if "running" in output:
+                return "running"
+            elif "stopped" in output:
+                return "stopped"
+            else:
+                return "failed"
+
     def service_command(self, command, targetmachine_ip="", is_return=False):
         if self.get_os_serials(targetmachine_ip) == "7":
             cmd = VIRTWHOConstants().virt_who_commands[command + "_systemd"]

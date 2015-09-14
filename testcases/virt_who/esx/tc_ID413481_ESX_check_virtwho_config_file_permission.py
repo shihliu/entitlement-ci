@@ -14,7 +14,7 @@ class tc_ID413481_ESX_check_virtwho_config_file_permission(VIRTWHOBase):
             cmd = "ls -lah %s; sleep 5" % virtwho_conf 
             ret, output = self.runcmd(cmd,"run cmd: %s" %cmd)
             if ret == 0 and output is not None:
-                if output.strip().split()[0].strip() == "-rw-------":
+                if output.strip().split()[0].strip() == "-rw-------.":
                     logger.info("Succeeded to check the virt-who config file's permission.")
                 else:
                     raise FailException("Failed to check the virt-who config file's permission.")
