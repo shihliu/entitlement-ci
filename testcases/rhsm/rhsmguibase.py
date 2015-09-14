@@ -12,7 +12,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def runcmd(self, cmd, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, showlogger)
+        return commander.run(cmd, timeout, showlogger=showlogger)
 
     def skip_test_on_rhel7(self):
         rhel_version = self.get_os_serials()

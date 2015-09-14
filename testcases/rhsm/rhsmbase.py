@@ -10,7 +10,7 @@ class RHSMBase(unittest.TestCase):
 
     def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, showlogger)
+        return commander.run(cmd, timeout, desc, showlogger)
 
     def check_ip(self, ip_address):
         pattern = r"\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"

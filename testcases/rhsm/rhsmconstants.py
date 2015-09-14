@@ -53,7 +53,7 @@ class RHSMConstants(object):
 
     def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, showlogger)
+        return commander.run(cmd, timeout, desc, showlogger)
 
     def configure_sam_host(self, samhostip, samhostname):
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
