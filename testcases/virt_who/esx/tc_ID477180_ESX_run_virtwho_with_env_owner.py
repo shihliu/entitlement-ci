@@ -72,20 +72,58 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(VIRTWHOBase):
             #7). update vrit-who config with an wrong esx_owner, esx_env 
             self.update_esx_vw_configure("xxxxxx", "xxxxxx", esx_server, esx_username, esx_password)
 
-            #8). restart virt-who and check rhsm.log
-            self.service_command("restart_virtwho")
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) == False or self.esx_check_uuid_exist_in_rhsm_log(guestuuid) == False:
-                logger.info("Succeeded to check, no host/guest association found in rhsm.log.")
-            else:
-                raise FailException("Failed to check, host/guest association should not be found in rhsm.log.")
+            #7.1). after stop virt-who, start to monitor the rhsm.log 
+            self.service_command("stop_virtwho")
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
 
-            #9). update vrit-who config with an right esx_owner, esx_env 
-            self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
+            #7.2). virt-who restart
             self.service_command("restart_virtwho")
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) and self.esx_check_uuid_exist_in_rhsm_log(guestuuid):
-                logger.info("Succeeded to check, host/guest association can be found in rhsm.log.")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running whit an wrong esx_owner, esx_env.")
             else:
-                raise FailException("Failed to check, host/guest association can't be found in rhsm.log.")
+                raise FailException("Failed to check, virt-who is not running or active with an wrong esx_owner, esx_env.")
+
+            #7.3). after restart virt-who, stop to monitor the rhsm.log
+            time.sleep(5)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if ret == 0 and output is not None and "ERROR" in output:
+                logger.info("Succeeded to check, can find the Error info in rhsm.log with an wrong env and owner.")
+            else:
+                raise FailException("Failed to check, no Error info found in rhsm.log with an wrong env and owner")
+
+            #8). update vrit-who config with an right esx_owner, esx_env 
+            self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
+
+            #8.1). after stop virt-who, start to monitor the rhsm.log 
+            self.service_command("stop_virtwho")
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
+
+            #8.2). virt-who restart
+            self.service_command("restart_virtwho")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running whit an wrong esx_owner, esx_env.")
+            else:
+                raise FailException("Failed to check, virt-who is not running or active with an wrong esx_owner, esx_env.")
+
+            #8.3). after restart virt-who, stop to monitor the rhsm.log
+            time.sleep(5)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if ret == 0 and output is not None and "ERROR" not in output:
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
+                if len(rex.findall(output))>0:
+                    mapping_info = rex.findall(output)[0]
+                    if host_uuid in mapping_info and guestuuid in mapping_info:
+                        logger.info("Succeeded to check uuid list, can find host/guest association info from rhsm.log.")
+            else:
+                raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
 
             self.assert_(True, case_name)
 

@@ -3,7 +3,7 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID477177_ESX_run_virtwho_with_filter_host_uuids(VIRTWHOBase):
+class tc_ID477177_ESX_run_virtwho_with_exclude_host_uuids(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -45,15 +45,33 @@ exclude_host_uuids="%s"''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_
 
             self.set_virtwho_d_conf(conf_file, conf_data)
 
-            #5). virt-who restart
+
+            #5). after stop virt-who, start to monitor the rhsm.log 
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
+
+            #6). virt-who restart
             self.service_command("restart_virtwho")
-
-            #6). check whether the host/guest association info has been sent to server
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) == False:
-                logger.info("Succeeded to check uuid list, no host/guest association info found from rhsm.log.")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running with exclude_host_uuids.")
             else:
-                raise FailException("Failed to check uuid list, host/guest association info shouldn't be found from rhsm.log.")
+                raise FailException("Failed to check, virt-who is not running or active with exclude_host_uuids.")
 
+            #7). after restart virt-who, stop to monitor the rhsm.log
+            time.sleep(5)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if ret == 0 and output is not None:
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
+                if len(rex.findall(output))>0:
+                    mapping_info = rex.findall(output)[0]
+                    if host_uuid not in mapping_info and guestuuid not in mapping_info:
+                        logger.info("Succeeded to check uuid list, no host/guest association info found from rhsm.log.")
+                else:
+                    raise FailException("Failed to check uuid list, host/guest association info shouldn't be found from rhsm.log.")
+            
             self.assert_(True, case_name)
 
         except Exception, e:

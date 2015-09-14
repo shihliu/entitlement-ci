@@ -45,14 +45,31 @@ filter_host_uuids=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX
 
             self.set_virtwho_d_conf(conf_file, conf_data)
 
-            #5). virt-who restart
-            self.service_command("restart_virtwho")
+            #5). after stop virt-who, start to monitor the rhsm.log 
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
 
-            #6). check whether the host/guest association info has been sent to server
-            if self.esx_check_uuid_exist_in_rhsm_log(host_uuid) and self.esx_check_uuid_exist_in_rhsm_log(guestuuid):
-                logger.info("Succeeded to check uuid list, host/guest association info can be found from rhsm.log.")
+            #6). virt-who restart
+            self.service_command("restart_virtwho")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running when filter_host_uuids.")
             else:
-                raise FailException("Failed to check uuid list, host/guest association info should not be found from rhsm.log.")
+                raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
+
+            #7). after restart virt-who, stop to monitor the rhsm.log
+            time.sleep(5)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if ret == 0 and  "ERROR" not in output:
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
+                if len(rex.findall(output))>0:
+                    mapping_info = rex.findall(output)[0]
+                    if host_uuid in mapping_info and guestuuid in mapping_info:
+                        logger.info("Succeeded to check, can find uuid and no error with filter_host_uuids.")
+                else:
+                    raise FailException("Failed to check, can not find uuid and no error with filter_host_uuids.")
 
             self.assert_(True, case_name)
 
