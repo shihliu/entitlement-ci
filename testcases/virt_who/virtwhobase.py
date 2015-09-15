@@ -203,10 +203,10 @@ class VIRTWHOBase(unittest.TestCase):
         SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
         SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-        # configure and register the host
-        if not self.sub_isregistered():
-            self.configure_host(SAM_HOSTNAME, SAM_IP)
-            self.sub_register(SAM_USER, SAM_PASS)
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_host(SAM_HOSTNAME, SAM_IP)
+        self.sub_register(SAM_USER, SAM_PASS)
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
