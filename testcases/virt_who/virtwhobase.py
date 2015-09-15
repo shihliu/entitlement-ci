@@ -218,10 +218,10 @@ class VIRTWHOBase(unittest.TestCase):
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
-            # configure and register the host
-            if not self.sub_isregistered(slave_machine_ip):
-                self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
-                self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
+            self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
