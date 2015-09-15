@@ -76,7 +76,7 @@ env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
                 raise FailException("Failed to check, virt-who is not running or active when offline mode.")
 
             #7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(5)
+            time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")
             if "ERROR" not in output and host_uuid in output and guestuuid in output:

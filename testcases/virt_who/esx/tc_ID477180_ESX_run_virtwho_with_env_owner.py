@@ -113,7 +113,7 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(VIRTWHOBase):
                 raise FailException("Failed to check, virt-who is not running or active with an wrong esx_owner, esx_env.")
 
             #8.3). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(5)
+            time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")
             if ret == 0 and output is not None and "ERROR" not in output:
@@ -122,6 +122,10 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(VIRTWHOBase):
                     mapping_info = rex.findall(output)[0]
                     if host_uuid in mapping_info and guestuuid in mapping_info:
                         logger.info("Succeeded to check uuid list, can find host/guest association info from rhsm.log.")
+                    else:
+                        raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
+                else:
+                    raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
             else:
                 raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
 

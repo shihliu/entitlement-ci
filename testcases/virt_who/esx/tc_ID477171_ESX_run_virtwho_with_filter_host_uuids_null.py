@@ -59,7 +59,7 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIR
                 raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
 
             #7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(5)
+            time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")
             if ret == 0 and output is not None and "ERROR" not in output:
@@ -68,6 +68,10 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIR
                     mapping_info = rex.findall(output)[0]
                     if host_uuid not in mapping_info and guestuuid not in mapping_info:
                         logger.info("Succeeded to check uuid list, no host/guest association info found from rhsm.log.")
+                    else:
+                        raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
+                else:
+                    raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
             else:
                 raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
             
