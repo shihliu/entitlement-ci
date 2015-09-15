@@ -325,7 +325,7 @@ class VIRTWHOBase(unittest.TestCase):
     
     # check uuid from oneshot output 
     def check_uuid_oneshot(self, uuid, mode, targetmachine_ip=""):
-        output = self.virtwho_oneshot(mode, targetmachine_ip)
+        ret, output = self.virtwho_oneshot(mode, targetmachine_ip)
         if uuid in output:
             return True
         else:

@@ -101,6 +101,8 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIR
                             logger.info("Succeeded to check hwuuid, can find hostname: %s from rhsm.log." %hwuuid)
                         else:
                             raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
+                else:
+                    raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
             else:
                 raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
 

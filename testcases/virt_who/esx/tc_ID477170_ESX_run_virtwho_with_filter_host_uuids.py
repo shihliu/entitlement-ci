@@ -59,17 +59,21 @@ filter_host_uuids=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX
                 raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
 
             #7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(5)
+            time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")
-            if ret == 0 and  "ERROR" not in output:
+            if ret == 0 and output is not None and  "ERROR" not in output:
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
                 if len(rex.findall(output))>0:
                     mapping_info = rex.findall(output)[0]
                     if host_uuid in mapping_info and guestuuid in mapping_info:
                         logger.info("Succeeded to check, can find uuid and no error with filter_host_uuids.")
+                    else:
+                        raise FailException("Failed to check, can not find uuid with filter_host_uuids.")
                 else:
-                    raise FailException("Failed to check, can not find uuid and no error with filter_host_uuids.")
+                    raise FailException("Failed to check, can not find uuid with filter_host_uuids.")
+            else:
+                raise FailException("Failed to check, can not find uuid with filter_host_uuids.")
 
             self.assert_(True, case_name)
 

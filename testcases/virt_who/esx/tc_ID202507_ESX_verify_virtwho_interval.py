@@ -8,7 +8,11 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            # config the virt-who config file
+
+            #1). stop virt-who firstly 
+            self.service_command("stop_virtwho")
+
+            #2). config the virt-who config file
             cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
             (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file")
             if ret == 0:
@@ -23,18 +27,34 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
             else:
                 raise FailException("Failed to set VIRTWHO_INTERVAL=5.")
 
-            # restart virt-who service
-            self.vw_restart_virtwho_new()
-            cmd = "nohup tail -f -n 0 /var/log/rhsm/rhsm.log > /tmp/tail.rhsm.log 2>&1 &"
-            self.runcmd(cmd, "got temp file /tmp/tail.rhsm.log")
+            #3). after stop virt-who, start to monitor the rhsm.log 
+            rhsmlogfile = "/var/log/rhsm/rhsm.log"
+            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            self.runcmd(cmd, "generate nohup.out file by tail -f")
+
+            #4). virt-who restart
+            self.service_command("restart_virtwho")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running with interval time 5.")
+            else:
+                raise FailException("Failed to check, virt-who is not running or active with interval time 5.")
+
+            #5). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(20)
-            cmd = "killall -9 tail ; grep 'Sending update in hosts-to-guests mapping' /tmp/tail.rhsm.log | wc -l "
-            (ret, output) = self.runcmd(cmd, "get log number added to rhsm.log")
-            if ret == 0 and int(output) == 4:
-                logger.info("Succeeded to check the log added.")
-                self.assert_(True, case_name)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if ret == 0 and output is not None and  "ERROR" not in output:
+                count = re.findall(r'Sending update in hosts-to-guests mapping:', output)
+                if len(count) >= 3 and len(count) <=5:
+                    logger.info("Succeeded to check the log added.")
+                else:
+                    raise FailException("Failed to check the log added.")
             else:
                 raise FailException("Failed to check the log added.")
+
+            self.assert_(True, case_name)
+
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
@@ -47,8 +67,3 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-
-

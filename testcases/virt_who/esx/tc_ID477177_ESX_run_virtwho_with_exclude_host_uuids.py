@@ -69,8 +69,12 @@ exclude_host_uuids="%s"''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_
                     mapping_info = rex.findall(output)[0]
                     if host_uuid not in mapping_info and guestuuid not in mapping_info:
                         logger.info("Succeeded to check uuid list, no host/guest association info found from rhsm.log.")
+                    else:
+                        raise FailException("Failed to check uuid list, host/guest association info shouldn't be found from rhsm.log.")
                 else:
                     raise FailException("Failed to check uuid list, host/guest association info shouldn't be found from rhsm.log.")
+            else:
+                raise FailException("Failed to check uuid list, host/guest association info shouldn't be found from rhsm.log.")
             
             self.assert_(True, case_name)
 
