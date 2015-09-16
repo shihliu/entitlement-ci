@@ -1,0 +1,131 @@
+- job-template:
+    name: 'rhsm-stage-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            #export SERVER_TYPE=STAGE
+            echo "*********************************setup env*********************************"
+            kinit -k -t $KEYTAB $PRINCIPAL
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+            # Provision Test Resources
+            sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
+            if [ "$RHEL_COMPOSE" != "" ]
+            then
+                sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_single_provision.json
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/bkr_build_single_provision --ssh_keyfile={ssh_keyfile} --name={project}
+            else
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+            fi
+            TR_STATUS=$?
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'rhsm-stage-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+- job-template:
+    name: 'rhsm-stage-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'rhsm-stage-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            export TOPOLOGY={topology}
+            {testparams}
+            echo "TOPOLOGY: {topology}"
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+            echo "Jenkins machine info we are running on"
+            ifconfig
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip
+
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export REMOTE_IP=
+            #export SERVER_TYPE=
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            echo "********************************runtime env********************************"
+
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
+            nosetests rhsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - default-rhsm-publishers
+
+- job-group:
+    name: rhsm-stage-provision-runtest
+    jobs:
+      - 'rhsm-stage-provision'
+      - 'rhsm-stage-runtest'
+
+- project:
+    name: rhsm-stage
+    project: rhsm-stage
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_rhsm_rhel_7
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
+    jobs:
+     - rhsm-stage-provision-runtest
+    jslavename: jslave-rhsm-stage-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
