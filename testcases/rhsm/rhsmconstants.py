@@ -30,7 +30,7 @@ class RHSMConstants(object):
             "proxy_server":"10.66.128.144:3128",
             }
     stage_cons = {
-            "username": "stage_test_12",
+            "username": "stage_test_12_new",
             "password": "redhat",
             "baseurl": "https://subscription.rhn.stage.redhat.com:443",
             "prefix": "/subscription",
