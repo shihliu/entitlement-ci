@@ -679,7 +679,7 @@ EOF''' % (file_name, file_data)
 
     def configure_host(self, samhostname="", samhostip="", targetmachine_ip="", server_type=""):
         ''' configure the host machine. '''
-        if samhostname != None and samhostip != None:
+        if samhostname != None and samhostname != "" and samhostip != None and samhostip != "":
             # add sam hostip and hostname in /etc/hosts
             if "satellite" in samhostname:
                 # for satellite installed in qeos
