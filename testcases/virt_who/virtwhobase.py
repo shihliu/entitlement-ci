@@ -322,7 +322,7 @@ class VIRTWHOBase(unittest.TestCase):
         esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
 
         if mode == "esx":
-            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
+            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
         else:
             raise FailException("Failed to execute virt-who with one shot")
         return cmd
@@ -677,7 +677,7 @@ EOF''' % (file_name, file_data)
             host_guest_info = "in guest machine %s" % targetmachine_ip
         return host_guest_info
 
-    def configure_host(self, samhostname, samhostip, targetmachine_ip="", server_type=""):
+    def configure_host(self, samhostname="", samhostip="", targetmachine_ip="", server_type=""):
         ''' configure the host machine. '''
         if samhostname != None and samhostip != None:
             # add sam hostip and hostname in /etc/hosts
@@ -2255,21 +2255,21 @@ EOF''' % (file_name, file_data)
         if "presence" in output:
             logger.info("guest has already exist")
         else:
-            #cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
+            # cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
             cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64"
             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to wget kvm img file")
             else:
                 raise FailException("Failed to wget kvm img file")
-        #cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        # cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64.xml"
         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to wget xml img file")
         else:
             raise FailException("Failed to wget xml img file")
-        #cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "virsh define /tmp/rhevm_guest/xml/7.1_Server_x86_64.xml"
         ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
         if ret == 0:
@@ -2384,13 +2384,13 @@ EOF''' % (file_name, file_data)
         nfs_dir_for_export = VIRTWHOConstants().get_constant("NFS_DIR_FOR_export")
 
         REMOTE_IP_NAME = self.get_hostname()
-        #self.conf_rhevm_shellrc(RHEVM_IP)
-        #self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        #self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        #self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        ##self.rhevm_define_guest()
-        ##self.create_storage_pool()
-        #self.install_virtV2V()
+        # self.conf_rhevm_shellrc(RHEVM_IP)
+        # self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        # self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        # self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        # #self.rhevm_define_guest()
+        # #self.create_storage_pool()
+        # self.install_virtV2V()
         self.convert_guest_to_nfs(NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME)
         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, "data_storage", "export_storage", RHEVM_IP)
 
