@@ -10,7 +10,7 @@ class tc_ID115122_check_uuid_with_none_guest(VIRTWHOBase):
         try:
             self.vw_undefine_all_guests()
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.vw_check_uuid("", uuidexists=True)
             self.assert_(True, case_name)
         except Exception, e:
