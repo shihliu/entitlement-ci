@@ -197,16 +197,24 @@ class VIRTWHOBase(unittest.TestCase):
 #             raise FailException("ESX host:'%s' has not been added to vCenter yet, add it manually first!" % ESX_HOST)
 
     def kvm_setup(self):
-        SAM_IP = get_exported_param("SERVER_IP")
-        SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+        SERVER_TYPE = get_exported_param("SERVER_TYPE")
+        if SERVER_TYPE == "STAGE":
+            STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
+            STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister()
+            self.configure_host(server_type="STAGE")
+            self.sub_register(STAGE_USER, STAGE_PASS)
+        else:
+            SAM_IP = get_exported_param("SERVER_IP")
+            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
+            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
-
-        # if host already registered, unregister it first, then configure and register it
-        self.sub_unregister()
-        self.configure_host(SAM_HOSTNAME, SAM_IP)
-        self.sub_register(SAM_USER, SAM_PASS)
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister()
+            self.configure_host(SAM_HOSTNAME, SAM_IP)
+            self.sub_register(SAM_USER, SAM_PASS)
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
@@ -218,10 +226,18 @@ class VIRTWHOBase(unittest.TestCase):
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister(slave_machine_ip)
-            self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
-            self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
+            if SERVER_TYPE == "STAGE":
+                STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
+                STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
+                # if host already registered, unregister it first, then configure and register it
+                self.sub_unregister(slave_machine_ip)
+                self.configure_host(targetmachine_ip=slave_machine_ip, server_type="STAGE")
+                self.sub_register(STAGE_USER, STAGE_PASS, slave_machine_ip)
+            else:
+                # if host already registered, unregister it first, then configure and register it
+                self.sub_unregister(slave_machine_ip)
+                self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
+                self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
@@ -661,7 +677,7 @@ EOF''' % (file_name, file_data)
             host_guest_info = "in guest machine %s" % targetmachine_ip
         return host_guest_info
 
-    def configure_host(self, samhostname, samhostip, targetmachine_ip=""):
+    def configure_host(self, samhostname, samhostip, targetmachine_ip="", server_type=""):
         ''' configure the host machine. '''
         if samhostname != None and samhostip != None:
             # add sam hostip and hostname in /etc/hosts
@@ -694,10 +710,10 @@ EOF''' % (file_name, file_data)
                     logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
                 else:
                     raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-        elif samhostname == "subscription.rhn.stage.redhat.com":
+        elif server_type == "STAGE":
             # configure /etc/rhsm/rhsm.conf to stage candlepin
-            cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % samhostname
-            ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf", targetmachine_ip)
+            cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf"
+            ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf for stage testing", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
             else:

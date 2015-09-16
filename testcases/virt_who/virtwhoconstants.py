@@ -47,6 +47,10 @@ class VIRTWHOConstants(object):
                     "VIRTWHO_LIBVIRT_ENV" : "Library",
                     "VIRTWHO_LIBVIRT_USERNAME" : "root",
 
+                    # virt-who constants for stage testing
+                    "STAGE_USER":"stage_virtwho_test",
+                    "STAGE_PASS":"redhat",
+
                     # limited subscription
                     "productid_guest" : "RH0103708",
                     "productname_guest" : "Red Hat Enterprise Linux Server, Premium",
