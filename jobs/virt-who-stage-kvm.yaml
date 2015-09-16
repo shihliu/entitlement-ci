@@ -8,7 +8,7 @@
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export RHEL_COMPOSE= (optional)
-            #export SERVER_TYPE=STAGE
+            export SERVER_TYPE=STAGE
             echo "*********************************setup env*********************************"
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
