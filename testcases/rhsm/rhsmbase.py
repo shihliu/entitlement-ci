@@ -338,20 +338,20 @@ class RHSMBase(unittest.TestCase):
             data_list.append(data_dict)
         return data_list
 
-    def sam_remote_create_org(self, samserverIP, username, password, orgname):
+    def sam_remote_create_org(self, samhostip, orgname):
         # create organization with orgname
         cmd = "headpin -u admin -p admin org create --name=%s" % (orgname)
-        (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
         if ret == 0 and "Successfully created org" in output:
             logger.info("It's successful to create organization %s." % orgname)
         else:
             raise FailException("Test Failed - Failed to create organization %s." % orgname)
 
-    def sam_remote_delete_org(self, samserverIP, username, password, orgname):
+    def sam_remote_delete_org(self, samhostip, orgname):
         # delete an existing organization
-        if self.sam_remote_is_org_exist(samserverIP, username, password, orgname):
+        if self.sam_remote_is_org_exist(samhostip, orgname):
             cmd = "headpin -u admin -p admin org delete --name=%s" % (orgname)
-            (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+            (ret, output) = self.runcmd_sam(cmd, '', samhostip)
             if ret == 0 and "Successfully deleted org" in output:
                 logger.info("It's successful to delete organization %s." % orgname)
             else:
@@ -359,10 +359,10 @@ class RHSMBase(unittest.TestCase):
         else:
             logger.info("Org %s to be deleted does not exist." % (orgname))
 
-    def sam_remote_is_org_exist(self, samserverIP, username, password, orgname):
+    def sam_remote_is_org_exist(self, samhostip, orgname):
         # check an organization existing or not
         cmd = "headpin -u admin -p admin org list"
-        (ret, output) = self.runcmd_remote(samserverIP, username, password, cmd)
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
         if ret == 0 and orgname in output:
             logger.info("Organization %s exists." % orgname)
             return True
