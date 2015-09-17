@@ -40,16 +40,19 @@ class tc_ID178500_bind_and_unbind_action_in_syslog(RHSMBase):
                 logger.error("Test Failed - error happened when do subscribe to a pool")
 
             # get the entitlement cert name
-            cmd = "ls /etc/pki/entitlement/*.pem | grep -v key.pem"
-            (ret, certname0) = self.runcmd(cmd, "get the entitlement cert name")
-            if (ret == 0) and (certname0 != None):
-                logger.info("It's successful to get the entitlement cert name")
-                certname = certname0.strip('\n')
-            else:
-                raise FailException("Test Failed - Failed to get the entitlement cert name")
+            #cmd = "ls /etc/pki/entitlement/*.pem | grep -v key.pem"
+            #(ret, certname0) = self.runcmd(cmd, "get the entitlement cert name")
+            #if (ret == 0) and (certname0 != None):
+            #    logger.info("It's successful to get the entitlement cert name")
+            #    certname = certname0.strip('\n')
+            #else:
+            #    raise FailException("Test Failed - Failed to get the entitlement cert name")
 
+            # not entitlement cert but serial number in rhsm.log for new rhel
+            # get serial number from consumed subscription
+            serial = self.get_subscription_serialnumlist()[0]
             # check the syslog for subscribe info
-            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -B10 |grep Added -A10 | grep '%s'" % certname
+            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -B10 |grep Added -A10 | grep '%s'" % serial
             (ret, loginfo) = self.runcmd(cmd, "check the syslog for subscribe info")
             if ret == 0 and loginfo != None:
                 logger.info("It's successful to check the syslog for subscribe info")
@@ -60,7 +63,7 @@ class tc_ID178500_bind_and_unbind_action_in_syslog(RHSMBase):
             self.sub_unsubscribe()
 
             # check the syslog for unsubscribe info
-            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -A10 | grep '%s'" % certname
+            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -A10 | grep '%s'" % serial
             (ret, loginfo) = self.runcmd(cmd, "check the syslog for subscribe info")
             if ret == 0 and loginfo != None:
                 logger.info("It's successful to check the syslog for unsubscribe info")
