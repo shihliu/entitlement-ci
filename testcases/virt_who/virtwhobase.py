@@ -527,29 +527,6 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to restart libvirtd")
 
-    def check_systemctl_service(self, keyword, targetmachine_ip=""):
-        cmd = "systemctl list-units|grep %s -i" % keyword
-        ret, output = self.runcmd(cmd, "check %s service by systemctl" % keyword, targetmachine_ip)
-        if ret == 0:
-            return True
-        return False
-
-    def vw_check_virtwho_status_new(self, status, targetmachine_ip=""):
-        if self.check_systemctl_service("virt-who", targetmachine_ip):
-            cmd = "systemctl status virt-who.service; sleep 10"
-            ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
-            if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" % status)
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
-        else:
-            cmd = "service virt-who status; sleep 10"
-            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
-            if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" % status)
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
-
     def vw_restart_virtwho_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("virt-who", targetmachine_ip):
             cmd = "systemctl restart virt-who.service; sleep 10"

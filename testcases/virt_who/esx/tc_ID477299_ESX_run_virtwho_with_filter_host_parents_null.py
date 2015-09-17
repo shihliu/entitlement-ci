@@ -61,19 +61,19 @@ filter_host_parents=""''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_E
             #7). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            ret, output = self.runcmd(cmd, "feedback tail log for parsing")
             if ret == 0 and output is not None and "ERROR" not in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {}', re.S)
                 if len(rex.findall(output))>0:
                     mapping_info = rex.findall(output)[0]
                     if host_uuid not in mapping_info and guestuuid not in mapping_info:
-                        logger.info("Succeeded to check uuid list, no host/guest association info found from rhsm.log.")
+                        logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." %(host_uuid, guestuuid))
                     else:
-                        raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
+                        raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." %(host_uuid, guestuuid))
                 else:
-                    raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
+                    raise FailException("Failed to check uuid list, no 'Sending update in hosts-to-guests mapping' keyword found.")
             else:
-                raise FailException("Failed to check uuid list, should be no host/guest association info found from rhsm.log.")
+                raise FailException("Failed to check uuid list, there is an error message found or no data output.")
 
             self.assert_(True, case_name)
 

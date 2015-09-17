@@ -23,7 +23,13 @@ class tc_ID332956_ESX_list_consumed_after_virtwho_restart(VIRTWHOBase):
 
             
             #0). restart virt-who to register esxi hypervisor to sam
-            self.vw_restart_virtwho_new() 
+            self.service_command("restart_virtwho")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running when filter_host_uuids.")
+            else:
+                raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
+
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
             #1).check the guest is power off or not, if power_on, stop it
@@ -54,7 +60,12 @@ class tc_ID332956_ESX_list_consumed_after_virtwho_restart(VIRTWHOBase):
             self.sub_listconsumed(product_name, guestip)
 
             #7). restart virt-who again
-            self.vw_restart_virtwho_new() 
+            self.service_command("restart_virtwho")
+            virtwho_status = self.check_virtwho_status()
+            if virtwho_status == "running" or virtwho_status == "active":
+                logger.info("Succeeded to check, virt-who is running when filter_host_uuids.")
+            else:
+                raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
 
             #8). list consumed subscriptions again on the guest
             self.sub_refresh(guestip)

@@ -88,23 +88,28 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIR
                 raise FailException("Failed to check, virt-who is not running or active with filter_host_uuids.")
 
             #7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(5)
+            time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            ret, output = self.runcmd(cmd, "feedback tail log for parsing")
             if ret == 0 and output is not None and "ERROR" not in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
-                if len(rex.findall(output))>0:
-                    mapping_info = rex.findall(output)[0]
-                    for hwuuid in host_list:
-                        hwuuid = hwuuid.strip("'| ") 
-                        if hwuuid in mapping_info:
-                            logger.info("Succeeded to check hwuuid, can find hostname: %s from rhsm.log." %hwuuid)
-                        else:
-                            raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
+                rex7 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+                rex6 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?]}\n', re.S)
+                if len(rex7.findall(output)) > 0:
+                    mapping_info = rex7.findall(output)[0]
+                    logger.info(mapping_info)
+                elif len(rex6.findall(output)) > 0:
+                    mapping_info = rex6.findall(output)[0]
                 else:
-                    raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
+                    raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
+                logger.info("Check uuid from following data: \n%s" % mapping_info)
+                for hwuuid in host_list:
+                    hwuuid = hwuuid.strip("'| ") 
+                    if hwuuid in mapping_info:
+                        logger.info("Succeeded to check, can find hwuuid: %s" %hwuuid)
+                    else:
+                        raise FailException("Failed to check hwuuid, no hwuuid %s found." %hwuuid)
             else:
-                raise FailException("Failed to check hwuuid, no %s found from rhsm.log." %hwuuid)
+                raise FailException("Failed to check, there is an error message found or no output data.")
 
             self.assert_(True, case_name)
 

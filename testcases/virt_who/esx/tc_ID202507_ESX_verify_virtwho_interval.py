@@ -8,50 +8,55 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
+            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #1). stop virt-who firstly 
+            #0).check the hostuuid and guestuuid
+            host_uuid = self.esx_get_host_uuid(destination_ip)
+            guestip = self.esx_get_guest_ip(guest_name, destination_ip)
+            guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
+
+            #1). stop virt-who first
             self.service_command("stop_virtwho")
 
-            #2). config the virt-who config file
-            cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file")
-            if ret == 0:
-                logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
-            else:
-                raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
+            #2). fetch virt-who cmd with  -i 3 -d 
+            cmd = "nohup " + self.virtwho_cli("esx") + " -i 3 -d >/tmp/tail.rhsm.log 2>&1 &"
+            self.runcmd(cmd, "start to run virt-who")
 
-            cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=5/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(cmd, "changing interval time in virt-who config file")
-            if ret == 0:
-                logger.info("Succeeded to set VIRTWHO_INTERVAL=5.")
-            else:
-                raise FailException("Failed to set VIRTWHO_INTERVAL=5.")
+            #3). kill virtwho pid after 15s
+            time.sleep(15)
+            cmd = "ps -ef | grep virtwho.py -i | grep -v grep | awk '{print $2}'"
+            ret, output = self.runcmd(cmd, "start to check virt-who pid")
+            if ret ==0 and output is not None:
+                pids = output.strip().split('\n')
+                for pid in pids:
+                    kill_cmd = "kill -9 %s" %pid
+                    self.runcmd(kill_cmd, "kill virt-who pid %s" %pid)
 
-            #3). after stop virt-who, start to monitor the rhsm.log 
-            rhsmlogfile = "/var/log/rhsm/rhsm.log"
-            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-            self.runcmd(cmd, "generate nohup.out file by tail -f")
-
-            #4). virt-who restart
-            self.service_command("restart_virtwho")
-            virtwho_status = self.check_virtwho_status()
-            if virtwho_status == "running" or virtwho_status == "active":
-                logger.info("Succeeded to check, virt-who is running with interval time 5.")
-            else:
-                raise FailException("Failed to check, virt-who is not running or active with interval time 5.")
-
-            #5). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(20)
-            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            #4). check host_uuid and guest_uuid from log file
+            cmd = "cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parsing")
             if ret == 0 and output is not None and  "ERROR" not in output:
-                count = re.findall(r'Sending update in hosts-to-guests mapping:', output)
-                if len(count) >= 3 and len(count) <=5:
-                    logger.info("Succeeded to check the log added.")
+                rex7 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+                rex6 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?]}\n', re.S)
+                if len(rex7.findall(output)) > 0:
+                    mapping_info = rex7.findall(output)[0]
+                    logger.info(mapping_info)
+                elif len(rex6.findall(output)) > 0:
+                    mapping_info = rex6.findall(output)[0]
                 else:
-                    raise FailException("Failed to check the log added.")
+                    raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
+                logger.info("Check uuid from following data: \n%s" % mapping_info)
+                if host_uuid in mapping_info and guestuuid in mapping_info:
+                    logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" %(host_uuid, guestuuid))
+                else:
+                    raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" %(host_uuid, guestuuid))
             else:
-                raise FailException("Failed to check the log added.")
+                raise FailException("Failed to check, there is an error message found or no output data.")
+
+            #5). recover virt-who service 
+            self.service_command("restart_virtwho")
 
             self.assert_(True, case_name)
 
@@ -59,10 +64,6 @@ class tc_ID202507_ESX_verify_virtwho_interval(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            cmd = "sed -i 's/VIRTWHO_INTERVAL=5/#VIRTWHO_INTERVAL=0/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(cmd, "restoring the interval time as default setting in virt-who config file")
-            cmd = "rm /tmp/tail.rhsm.log"
-            (ret, output) = self.runcmd(cmd, "remove /tmp/tail.rhsm.log file generated")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

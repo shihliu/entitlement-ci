@@ -8,30 +8,38 @@ class tc_ID214402_ESX_execute_virtwho_o(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            esx_owner = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-            esx_env = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-            esx_server = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-            esx_username = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-            esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
+            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #1). stop virt-who service
-            self.vw_stop_virtwho_new()
+            #0).check the hostuuid and guestuuid
+            host_uuid = self.esx_get_host_uuid(destination_ip)
+            guestip = self.esx_get_guest_ip(guest_name, destination_ip)
+            guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            #2). Execute virt-who in the -b -d.
-            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -o -d" %(esx_owner,esx_env,esx_server,esx_username,esx_password)
-            ret, output = self.runcmd(cmd, "executing virt-who with -o -d")
-            if ret == 0:
-                logger.info("Succeeded to execute virt-who with -o -d ")
+            #1). stop virt-who before run oneshot 
+            self.service_command("stop_virtwho")
+
+            #2). fetch virt-who cmd with oneshot
+            cmd = self.virtwho_cli("esx") + " -o -d "
+
+            #3). run virt-who oneshot cmd
+            ret, output = self.runcmd(cmd, "executing virt-who with one shot")
+            if ret == 0 and output is not None and "ERROR" not in output and host_uuid in output and guestuuid in output:
+                logger.info("Succeeded to run virt-who with -o -d,  can find uuid from oneshot log message.")
             else:
-                raise FailException("Failed to execute virt-who with -o -d")
+                raise FailException("Failed to run virt-who with -o -d, can't find uuid from oneshot log meesage.")
 
-            #3). check the status of virt-who, shoud no any virt-who process because the one-shot mode! 
+            #4). check the status of virt-who, shoud no any virt-who process because the one-shot mode! 
             cmd = "ps -ef | grep -E 'virtwho|virt-who' |grep -v grep"
             ret, output = self.runcmd(cmd, "check the process of virt-who with background mode")
             if ret != 0 and "virtwho.py" not in output and "virt-who.py" not in output:
                 logger.info("All the virt-who processes exit successfully!")
             else:
                 raise FailException("Failed to stop virt-who process.")
+
+            #5). recover virt-who service 
+            self.service_command("restart_virtwho")
 
             self.assert_(True, case_name)
 
