@@ -87,7 +87,7 @@
                 tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest.py \
                 tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host.py \
                 tc_ID289675_ESX_Datacenter_repos_in_guest.py \
-                tc_ID301083_ESX_Instance_one_instance_for_one_guest.py \ 
+                tc_ID301083_ESX_Instance_one_instance_for_one_guest.py \
                 tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores.py \
                 tc_ID301527_ESX_Instance_compliance_in_guest.py \
                 tc_ID338068_ESX_run_virtwho_one_shot_double.py \
