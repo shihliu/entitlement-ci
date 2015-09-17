@@ -12,17 +12,17 @@ class tc_ID183444_display_orgs_available(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
+        samhostip = get_exported_param("SERVER_IP")
+        orgname2 = 'ACME_Corporation2'
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
-            samhostip = RHSMConstants().samhostip
             # check if the org ACME_Corporation2 exist on samserver
-            orgname2 = 'ACME_Corporation2'
-            is_multi_orgs = self.sam_remote_is_org_exist(samhostip, 'root', 'redhat', orgname2)
+            is_multi_orgs = self.sam_remote_is_org_exist(samhostip, orgname2)
             # create another org if no multi-orgs env
             if not is_multi_orgs:
-                self.sam_remote_create_org(samhostip, 'root', 'redhat', orgname2)
+                self.sam_remote_create_org(samhostip, orgname2)
             # check the orgs in client
             cmd_display_orgs = "subscription-manager orgs --username=%s --password=%s" % (username, password)
             # step1:display the orgs available for a user
@@ -37,7 +37,7 @@ class tc_ID183444_display_orgs_available(RHSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.sam_remote_delete_org(samhostip, 'root', 'redhat', orgname2)
+            self.sam_remote_delete_org(samhostip, orgname2)
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
