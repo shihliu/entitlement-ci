@@ -198,23 +198,20 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_setup(self):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
+        SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
         if SERVER_TYPE == "STAGE":
-            STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-            STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister()
-            self.configure_host(server_type="STAGE")
-            self.sub_register(STAGE_USER, STAGE_PASS)
+            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
         else:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_USER = VIRTWHOConstants().get_constant("SAM_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister()
-            self.configure_host(SAM_HOSTNAME, SAM_IP)
-            self.sub_register(SAM_USER, SAM_PASS)
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_host(SERVER_HOSTNAME, SERVER_IP)
+        self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
@@ -226,18 +223,10 @@ class VIRTWHOBase(unittest.TestCase):
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
-            if SERVER_TYPE == "STAGE":
-                STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-                STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
-                # if host already registered, unregister it first, then configure and register it
-                self.sub_unregister(slave_machine_ip)
-                self.configure_host(targetmachine_ip=slave_machine_ip, server_type="STAGE")
-                self.sub_register(STAGE_USER, STAGE_PASS, slave_machine_ip)
-            else:
-                # if host already registered, unregister it first, then configure and register it
-                self.sub_unregister(slave_machine_ip)
-                self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
-                self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_host(SERVER_HOSTNAME, SERVER_IP, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
@@ -677,9 +666,10 @@ EOF''' % (file_name, file_data)
             host_guest_info = "in guest machine %s" % targetmachine_ip
         return host_guest_info
 
-    def configure_host(self, samhostname="", samhostip="", targetmachine_ip="", server_type=""):
+    def configure_host(self, samhostname, samhostip, targetmachine_ip=""):
         ''' configure the host machine. '''
-        if samhostname != None and samhostname != "" and samhostip != None and samhostip != "":
+        server_type = get_exported_param("SERVER_TYPE")
+        if server_type == "SAM" or  server_type == "SATELLITE":
             # add sam hostip and hostname in /etc/hosts
             if "satellite" in samhostname:
                 # for satellite installed in qeos
@@ -695,8 +685,7 @@ EOF''' % (file_name, file_data)
             ret, output = self.runcmd(cmd, "if sam or satellite cert package exist, remove it.", targetmachine_ip)
             cmd = "subscription-manager clean"
             ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-            test_server = get_exported_param("SERVER_TYPE")
-            if test_server == "SATELLITE":
+            if server_type == "SATELLITE":
                 cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
                 ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
                 if ret == 0:
