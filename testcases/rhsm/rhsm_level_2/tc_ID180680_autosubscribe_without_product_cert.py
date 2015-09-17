@@ -16,7 +16,7 @@ class tc_ID180680_autosubscribe_without_product_cert(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # Move the product cert to other dir
-            cmd = "mv /etc/pki/product/*  /etc/pki/"
+            cmd = "mv /etc/pki/product-default/*  /etc/pki/"
             (ret, output) = self.runcmd(cmd, "Move the product cert to other dir")    
             if ret == 0:
                 logger.info(" It's successful to move the product cert.")
@@ -56,7 +56,7 @@ class tc_ID180680_autosubscribe_without_product_cert(RHSMBase):
 
     def move_back_cert(self):
         # Move the product cert back to /etc/pki/product
-        cmd = "mv /etc/pki/*.pem  /etc/pki/product/"
+        cmd = "mv /etc/pki/*.pem  /etc/pki/product-default/"
         (ret, output) = self.runcmd(cmd, "Move the product cert back to the right dir")    
         if ret == 0:
             logger.info(" It's successful to move the product cert back.")
