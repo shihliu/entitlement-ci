@@ -91,9 +91,9 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(VIRTWHOBase):
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")
             if ret == 0 and output is not None and "ERROR" in output:
-                logger.info("Succeeded to check, can find the Error info in rhsm.log with an wrong env and owner.")
+                logger.info("Succeeded to check, can find the ERROR info in rhsm.log with an wrong env and owner.")
             else:
-                raise FailException("Failed to check, no Error info found in rhsm.log with an wrong env and owner")
+                raise FailException("Failed to check, no ERROR info found in rhsm.log with an wrong env and owner")
 
             #8). update vrit-who config with an right esx_owner, esx_env 
             self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
@@ -115,20 +115,25 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(VIRTWHOBase):
             #8.3). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(10)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parse")
-            if ret == 0 and output is not None and "ERROR" not in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\d{4}-\d{1,2}-\d{1,2}', re.S)
-                if len(rex.findall(output))>0:
-                    mapping_info = rex.findall(output)[0]
-                    if host_uuid in mapping_info and guestuuid in mapping_info:
-                        logger.info("Succeeded to check uuid list, can find host/guest association info from rhsm.log.")
-                    else:
-                        raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
+            ret, output = self.runcmd(cmd, "feedback tail log for parsing")
+            if ret == 0 and output is not None and  "ERROR" not in output:
+                rex7 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+                rex6 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?]}\n', re.S)
+                if len(rex7.findall(output)) > 0:
+                    mapping_info = rex7.findall(output)[0]
+                    logger.info(mapping_info)
+                elif len(rex6.findall(output)) > 0:
+                    mapping_info = rex6.findall(output)[0]
                 else:
-                    raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
+                    raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
+                logger.info("Check uuid from following data: \n%s" % mapping_info)
+                if host_uuid in mapping_info and guestuuid in mapping_info:
+                    logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" %(host_uuid, guestuuid))
+                else:
+                    raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" %(host_uuid, guestuuid))
             else:
-                raise FailException("Failed to check uuid list, no host/guest association info found from rhsm.log.")
-
+                raise FailException("Failed to check, there is an error message found or no output data.")
+            
             self.assert_(True, case_name)
 
         except Exception, e:
