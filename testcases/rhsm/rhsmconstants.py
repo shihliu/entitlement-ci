@@ -121,15 +121,18 @@ class RHSMConstants(object):
         else:
             raise FailException("Test Failed - Failed to configure rhsm testing server ... ")
 
+    global OS_VERSION
     def get_constant(self, name):
         test_server = get_exported_param("SERVER_TYPE")
+        if OS_VERSION == "" or OS_VERSION == None:
+            OS_VERSION == self.get_os_serials()
         if test_server == "SAM":
-            if self.get_os_serials() == "7" and name + "_el7" in self.sam_cons:
+            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             else:
                 return self.sam_cons[name]
         if test_server == "SATELLITE":
-            if self.get_os_serials() == "7" and name + "_el7" in self.sam_cons:
+            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             elif name + "_sat" in self.sam_cons:
                 return self.sam_cons[name + "_sat"]
