@@ -124,8 +124,9 @@ class RHSMConstants(object):
     global OS_VERSION
     def get_constant(self, name):
         test_server = get_exported_param("SERVER_TYPE")
+        global OS_VERSION
         if OS_VERSION == "" or OS_VERSION == None:
-            OS_VERSION == self.get_os_serials()
+            OS_VERSION = self.get_os_serials()
         if test_server == "SAM":
             if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
