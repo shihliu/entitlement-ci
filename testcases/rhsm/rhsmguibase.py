@@ -11,7 +11,7 @@ class RHSMGuiBase(unittest.TestCase):
     # ========================================================
 
     def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
-        command.runcmd(cmd, cmddesc, timeout=timeout, showlogger=showlogger)
+        return command.runcmd(cmd, cmddesc, timeout=timeout, showlogger=showlogger)
 
     def skip_test_on_rhel7(self):
         rhel_version = command.get_os_serials()
