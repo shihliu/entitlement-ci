@@ -10,7 +10,7 @@ class RHSMGuiBase(unittest.TestCase):
     #     0. LDTP GUI Common Functions
     # ========================================================
 
-    def runcmd(self, cmd, timeout=None, showlogger=True):
+    def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
         return commander.run(cmd, timeout, showlogger=showlogger)
 
@@ -24,7 +24,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def get_os_serials(self):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = self.runcmd(cmd, showlogger=False)
+        (ret, output) = self.runcmd(cmd, "check system version", showlogger=False)
         if ret == 0:
             return output.strip("\n").strip(" ")
         else:
@@ -54,7 +54,7 @@ class RHSMGuiBase(unittest.TestCase):
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.wait()
         ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
-        #dtp.wait()
+        # dtp.wait()
 
     def double_click_row(self, window, table, row_name):
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
@@ -67,14 +67,14 @@ class RHSMGuiBase(unittest.TestCase):
 
     def close_rhsm_gui(self):
         cmd = "killall -9 subscription-manager-gui"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "kill all subscription-manager-gui")
         if ret == 0:
             logger.info("It's successful to close subscription-manager-gui.")
 
     def unregister(self):
         # close subscription-manager-gui
         cmd = "subscription-manager unregister"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "unregister system")
         if ret == 0:
             logger.info("It's successful to unregister system.")
 
@@ -173,9 +173,9 @@ class RHSMGuiBase(unittest.TestCase):
 
     def restore_firstboot_environment(self):
         cmd = "sed -i '/RUN_FIRSTBOOT=NO/c\RUN_FIRSTBOOT=YES' /etc/sysconfig/firstboot"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "firstboot setup")
         cmd = "killall -9  firstboot"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "kill all firstboot gui")
         logger.info("SUCCESS: firstboot restored in /etc/sysconfig/firstboot!")
 
     def click_firstboot_fwd_button(self):
@@ -191,11 +191,11 @@ class RHSMGuiBase(unittest.TestCase):
         virt_isguest_gui = self.get_table_cell('system-facts-dialog', 'facts-view-table', virt_is_guest_index, 1)
 
         cmd = "subscription-manager facts --list | grep ^virt.host"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list subscription-manager facts and  get virt.host")
         real_output_host = output.split(':')[1].strip()
 
         cmd = "subscription-manager facts --list | grep ^virt.is_guest"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list subscription-manager facts and  get virt.is_guest")
         real_output_guest = output.split(':')[1].strip()
 
         if real_output_host != virt_hostype_gui:
@@ -206,7 +206,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager_by_cmd_check_output(self):
         cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "set display and open subscription-manager-gui")
         if ret == 0:
             logger.info("It's successful to run subscription-manager-gui the second time.")
             return output == 'subscription-manager-gui is already running\n'
@@ -215,7 +215,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_org_and_id_displayed_in_facts_match(self, username, password):
         cmd = "subscription-manager orgs --user=%s --password=%s | grep Key" % (username, password)
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "get orgs via command line")
         org_in_cml = output.split(":")[1].strip()
         if ret == 0:
             logger.info("SUCCESS: org in CML is %s" % org_in_cml)
@@ -302,13 +302,13 @@ class RHSMGuiBase(unittest.TestCase):
 
     def move_ca_to_tmp(self):
         cmd = "mkdir -p /root/tmp"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "create temp directory")
         if ret == 0:
             logger.info("SUCCESS: Made /root/tmp")
         else:
             raise FailException("FAILED: Unable to make /root/tmp")
         cmd = "mv /etc/rhsm/ca/* /root/tmp"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "move rhsm cert to temp dir")
         if ret == 0:
             logger.info("SUCCESS: Moved CA to /root/tmp")
         else:
@@ -316,7 +316,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def move_ca_back(self):
         cmd = "mv /root/tmp/* /etc/rhsm/ca"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "move back rhsm cert from temp dir")
         if ret == 0:
             logger.info("SUCCESS: Moved CA back to /etc/rhsm/ca")
         else:
@@ -338,7 +338,7 @@ class RHSMGuiBase(unittest.TestCase):
     def close_firstboot(self):
         logger.info("close_firstboot")
         cmd = "killall -9 firstboot"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "kill all firstboot gui")
         if ret == 0:
             logger.info("It's successful to close firstboot-gui.")
 
@@ -630,18 +630,18 @@ class RHSMGuiBase(unittest.TestCase):
 #             if RHSMGuiLocator().get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
 #                 logger.info("%s is listed in my_subscriptions_table" % content)
 #                 return True
-         return False
+        return False
 
     def check_item_in_list(self, window, list, item):
 #         for row in range(self.get_all_subscription_table_row_count()):
 #             if RHSMGuiLocator().get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
 #                 logger.info("%s is listed in my_subscriptions_table" % content)
 #                 return True
-         return False
+        return False
 
     def check_org_displayed_in_facts(self, username, password):
         cmd = "subscription-manager orgs --user=%s --password=%s | grep Key" % (username, password)
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "get rhsm orgs")
         org_in_cml = output.split(":")[1].strip()
         if ret == 0:
             logger.info("It's successful to get org %s by CML" % org_in_cml)
@@ -656,7 +656,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_system_uuid_displayed_in_facts(self):
         cmd = "subscription-manager identity | grep 'Current identity is'"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "get system identity")
         if ret == 0:
             system_uuid = output.split(":")[1].strip()
             logger.info("It's successful to get system identity %s by CML" % system_uuid)
@@ -721,7 +721,7 @@ class RHSMGuiBase(unittest.TestCase):
 #         ldtp.wait(90)
         while not(ldtp.stateenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))):
             ldtp.wait()
-        #while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
+        # while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
         #    ldtp.wait(5)
 
     def input_text(self, window, text, text_value):
@@ -992,24 +992,24 @@ class RHSMGuiBase(unittest.TestCase):
 
     def unregister_rhn_classic(self):
         cmd = "subscription-manager identity"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check system register status")
         if ret == 0 and "server type: RHN Classic" in output:
             logger.info("It's successful to check the system has been registered with rhn_classic mode, and begin to unregister now")
         else:
             raise FailException("TestFailed - TestFailed to check if the system has been registered with rhn_classic mode")
 
         cmd = "rm -f /etc/sysconfig/rhn/systemid"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "remove systemid for rhn unregister")
         if ret == 0:
             logger.info("It's successful to remove /etc/sysconfig/rhn/systemid")
 
         cmd = "sed -i 's/enabled =.*/enabled = 0/g' /etc/yum/pluginconf.d/rhnplugin.conf"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "set rhnplugin.conf for rhn unregister")
         if ret == 0:
             logger.info("It's successful to configure /etc/yum/pluginconf.d/rhnplugin.conf")
 
         cmd = "subscription-manager identity"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check system register status")
         if "server type: RHN Classic" not in output:
             logger.info("It's successful to unregister rhn_classic")
         else:
@@ -1017,7 +1017,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_consumer_cert_files(self, exist=True):
         cmd = "ls /etc/pki/consumer"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check cert in /etc/pki/consumer")
         if exist:
             if ret == 0 and "cert.pem" in output and "key.pem" in output:
                 logger.info("It is successful to check certificate files in /etc/pki/consumer!")
@@ -1031,7 +1031,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_entitlement_cert_files(self, exist=True):
         cmd = "ls /etc/pki/entitlement"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check cert in /etc/pki/entitlement")
         if exist:
             if ret == 0 and "pem" in output and "key.pem" in output:
                 logger.info("It is successful to check certificate files in /etc/pki/entitlement")
@@ -1046,7 +1046,7 @@ class RHSMGuiBase(unittest.TestCase):
     def get_service_level_menu(self):
         # bolished due to GUI change
         cmd = "subscription-manager service-level --show"
-        (result, output) = self.runcmd(cmd)
+        (result, output) = self.runcmd(cmd, "get system service level list via command line")
         if result == 0:
             if "Service level preference not set" in output:
                 service_level_menu = "sl-notset-menu"
@@ -1059,7 +1059,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def get_service_level(self):
         cmd = "subscription-manager service-level --show"
-        (result, output) = self.runcmd(cmd)
+        (result, output) = self.runcmd(cmd, "get system service level via command line")
         if result == 0:
             if "Current service level:" in output:
                 service_level = output.split(":")[1].strip(" ")
@@ -1070,7 +1070,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def set_service_level(self, servicelevel):
         cmd = "subscription-manager service-level --set=%s" % servicelevel
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "set system service level via command line")
         if ret == 0 and "Service level set to: %s" % servicelevel in output:
             logger.info("It's successful to set service level %s." % servicelevel)
         else:
@@ -1078,7 +1078,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def sub_listinstalledpools(self):
         cmd = "subscription-manager list --installed"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list installed product")
         if ret == 0:
             logger.info("The right installed pools are listed successfully.")
             pool_list = self.__parse_listavailable_output(output)
@@ -1088,7 +1088,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def sub_listconsumedpools(self):
         cmd = "subscription-manager list --consumed"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list consumed pool")
         if ret == 0:
             logger.info("The right consumed pools are listed successfully.")
             pool_list = self.__parse_listavailable_output(output)
@@ -1098,7 +1098,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def sub_listavailpools(self, productid):
         cmd = "subscription-manager list --available"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list available pool")
         if ret == 0:
             if "no available subscription pools to list" not in output.lower():
                 if productid in output:
@@ -1143,7 +1143,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def remove_proxy(self):
         cmd = "sed -i -e 's/proxy_hostname =.*/proxy_hostname =/g' -e 's/proxy_port =.*/proxy_port =/g' /etc/rhsm/rhsm.conf"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "remove proxy")
         if ret == 0:
             logger.info("It's successful to remove proxy.")
         else:
@@ -1151,7 +1151,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def get_available_release(self):
         cmd = "subscription-manager release --list"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "list release")
         if ret == 0:
             logger.info("It's successful to list available releases.")
             return output.strip().split('\n')[3:]
@@ -1160,7 +1160,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager_by_cmd(self):
         cmd = "subscription-manager-gui &"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "open rhsm gui via command line")
         if ret == 0:
             logger.info("It's successful to run subscription-manager-gui the first time.")
         else:
@@ -1168,7 +1168,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager_first(self):
         cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui &"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "open rhsm gui first via command line")
         if ret == 0:
             logger.info("It's successful to open_subscription_manager_first.")
         else:
@@ -1176,7 +1176,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager_twice(self):
         cmd = "export DISPLAY=`hostname`:1; subscription-manager-gui"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "open rhsm gui twice via command line")
         if ret == 0 and "subscription-manager-gui is already running" in output:
             logger.info("It's successful to check message when run_subscription_manager_gui_twice.")
         else:
@@ -1184,7 +1184,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def set_hostname(self, hostname):
         cmd = "hostname %s" % hostname
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "set system hostname")
         if ret == 0:
             logger.info("It's successful to restore hostname to %s." % hostname)
         else:
@@ -1192,7 +1192,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def get_hostname(self):
         cmd = "hostname"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "get system hostname")
         if ret == 0:
             logger.info("It's successful to get system hostname")
             return output
@@ -1201,7 +1201,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def generate_cert(self):
         cmd = "cat /etc/pki/entitlement/* > /tmp/test.pem"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "generate cert file")
         if ret == 0:
             logger.info("It's successful to generate entitlement cert")
             return "/tmp/test.pem"
@@ -1213,7 +1213,7 @@ class RHSMGuiBase(unittest.TestCase):
             cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do rct cat-cert /etc/pki/entitlement/$i; done | grep %s" % (productid)
         else:
             cmd = "for i in $(ls /etc/pki/entitlement/ | grep -v key.pem); do openssl x509 -text -noout -in /etc/pki/entitlement/$i; done | grep %s" % (productid)
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check entitlement certificates")
         if ret == 0:
             if productid in output:
                 logger.info("It's successful to check entitlement certificates.")
@@ -1224,7 +1224,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def check_rct(self):
         cmd = "rct cat-cert --help"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "check tct cat-cert --help")
         if ret == 0:
             logger.info("rct cat-cert command can be used in the system")
             return True
@@ -1235,7 +1235,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def sub_unregister(self):
         cmd = "subscription-manager unregister"
-        (ret, output) = self.runcmd(cmd)
+        (ret, output) = self.runcmd(cmd, "unregister via command line")
         if ret == 0:
             if ("System has been unregistered." in output) or ("System has been un-registered." in output):
                 logger.info("It's successful to unregister.")
