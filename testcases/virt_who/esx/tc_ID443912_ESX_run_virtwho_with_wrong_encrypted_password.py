@@ -53,12 +53,15 @@ env=%s''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, encrypted_password, VIRTW
             self.runcmd(cmd, "generate nohup.out file by tail -f")
 
             #6). virt-who restart
-            self.service_command("restart_virtwho")
-            virtwho_status = self.check_virtwho_status()
-            if virtwho_status == "failed" or virtwho_status == "stopped" or virtwho_status == "unknown":
-                logger.info("Succeeded to check, virt-who is failed with an error encrypted_password.")
+            if self.service_command("restart_virtwho", is_return=True) == False:
+                logger.info("Succeeded to check, virt-who restart failed with an error encrypted_password.")
+                virtwho_status = self.check_virtwho_status()
+                if virtwho_status == "failed" or virtwho_status == "stopped" or virtwho_status == "unknown":
+                    logger.info("Succeeded to check, virt-who status is failed with an error encrypted_password.")
+                else:
+                    raise FailException("Failed to check, virt-who shouldn't become running or active with an error encrypted_password.")
             else:
-                raise FailException("Failed to check, virt-who shouldn't become running or active with an error encrypted_password.")
+                raise FailException("Failed to check, virt-who service should not be restarted with an wrong encrypted_password.")
 
             #7). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(5)
