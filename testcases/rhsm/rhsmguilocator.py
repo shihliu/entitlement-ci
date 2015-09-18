@@ -28,7 +28,7 @@ class RHSMGuiLocator(RHSMConstants):
     'onlinedocumentation-window':            'frmRedHatSubscriptionManagement-RedHatCustomerPortal-MozillaFireFox',
     'security-warning-dialog':               'dlgSecurityWarning',
     'about-subscription-manager-dialog':     'dlgAboutSubscriptionManager',
-    'about-subscription-manager-dialog-7':   'dlgAboutsubscription-manager-gui', #works only for 7.2, 7.1 uses above smDialog
+    'about-subscription-manager-dialog-7':   'dlgAboutsubscription-manager-gui',  # works only for 7.2, 7.1 uses above smDialog
     'rhsm-notification-dialog':              'dlgNotification',
     'filter-options-window':                 'frmFilterOptions',
     'error-cert-dialog':                     'dlgError',
@@ -235,11 +235,13 @@ class RHSMGuiLocator(RHSMConstants):
 
     os_serial = ""
     def __init__(self):
-        if self.os_serial == "":
-            self.os_serial = self.get_os_serials()
+        global os_serial
+        if os_serial == "":
+            os_serial = self.get_os_serials()
 
     def get_locator(self, name):
-        if name + "-" + self.os_serial in self.element_locators.keys():
-            return self.element_locators[name + "-" + self.os_serial]
+        global os_serial
+        if name + "-" + os_serial in self.element_locators.keys():
+            return self.element_locators[name + "-" + os_serial]
         else:
             return self.element_locators[name]
