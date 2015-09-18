@@ -51,29 +51,29 @@ class RHSMConstants(object):
             "baseurl": "https://localcandlepin.redhat.com:8443",
             }
 
-    def runcmd(self, cmd, desc=None, timeout=None, showlogger=True):
+    def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, desc, showlogger)
+        return commander.run(cmd, timeout, cmddesc, showlogger=showlogger)
 
     def configure_sam_host(self, samhostip, samhostname):
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "configure /etc/hosts")
         if ret == 0:
             logger.info("Succeeded to configure /etc/hosts")
         else:
             raise FailException("Failed to configure /etc/hosts")
         cmd = "rpm -qa | grep candlepin-cert-consumer"
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "check candlepin cert")
         if ret == 0:
             logger.info("candlepin-cert-consumer-%s-1.0-1.noarch has already exist, remove it first." % samhostname)
             cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
-            ret, output = self.runcmd(cmd)
+            ret, output = self.runcmd(cmd, "uninstall candlepin cert")
             if ret == 0:
                 logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
             else:
                 raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
         cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "install candlepin cert")
         if ret == 0:
             logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         else:
@@ -84,7 +84,7 @@ class RHSMConstants(object):
             # for satellite installed in qeos
             satellitehostname = satellitehostname + ".novalocal"
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (satellitehostname, satellitehostip, satellitehostname)
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "configure /etc/hosts")
         if ret == 0:
             logger.info("Succeeded to configure /etc/hosts")
         else:
@@ -102,7 +102,7 @@ class RHSMConstants(object):
 
     def configure_stage_host(self, stage_name):
         cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
-        ret, output = self.runcmd(cmd)
+        ret, output = self.runcmd(cmd, "configure rhsm.conf for stage")
         if ret == 0:
             logger.info("Succeeded to configure rhsm.conf for stage")
         else:
@@ -142,7 +142,7 @@ class RHSMConstants(object):
 
     def get_os_serials(self):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = self.runcmd(cmd, showlogger=False)
+        (ret, output) = self.runcmd(cmd, "get system version", showlogger=False)
         if ret == 0:
             return output.strip("\n").strip(" ")
         else:
