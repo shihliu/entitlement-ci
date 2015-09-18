@@ -233,12 +233,6 @@ class RHSMGuiLocator(RHSMConstants):
     'register-progressbar':                      'pbarregisterprogressbar',
     }
 
-    os_serial = ""
-    def __init__(self):
-        global os_serial
-        if os_serial == "":
-            os_serial = self.get_os_serials()
-
     def get_locator(self, name):
         if name + "-" + self.os_serial in self.element_locators.keys():
             return self.element_locators[name + "-" + self.os_serial]

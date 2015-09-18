@@ -124,12 +124,12 @@ class RHSMConstants(object):
     def get_constant(self, name):
         test_server = get_exported_param("SERVER_TYPE")
         if test_server == "SAM":
-            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
+            if self.os_serial == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             else:
                 return self.sam_cons[name]
         if test_server == "SATELLITE":
-            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
+            if self.os_serial == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             elif name + "_sat" in self.sam_cons:
                 return self.sam_cons[name + "_sat"]
@@ -140,11 +140,8 @@ class RHSMConstants(object):
         elif test_server == "CUSTOMER_PORTAL" :
             return self.customer_portal_cons[name]
 
-    OS_VERSION = ""
     def __init__(self):
-        global OS_VERSION
-        if OS_VERSION == "":
-            OS_VERSION = self.get_os_serials()
+        self.os_serial = self.get_os_serials()
 
     def get_os_serials(self):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
