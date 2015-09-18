@@ -360,12 +360,7 @@ class VIRTWHOBase(unittest.TestCase):
                 raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
     def get_os_serials(self, targetmachine_ip=""):
-        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = self.runcmd(cmd, "", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            return output.strip("\n").strip(" ")
-        else:
-            raise FailException("Failed to get os serials")
+        return command.get_os_serials(targetmachine_ip)
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''

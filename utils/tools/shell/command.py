@@ -50,9 +50,9 @@ def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
     return commander.run_interact(cmd, timeout, cmddesc)
 
-def get_os_serials():
+def get_os_serials(targetmachine_ip=None):
     cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-    (ret, output) = runcmd(cmd, "get system version", showlogger=False)
+    (ret, output) = runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
     if ret == 0:
         return output.strip("\n").strip(" ")
     else:
