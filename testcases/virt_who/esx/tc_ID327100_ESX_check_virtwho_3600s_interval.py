@@ -72,9 +72,8 @@ class tc_ID327100_ESX_check_virtwho_3600s_interval(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            cmd = "sed -i 's/VIRTWHO_INTERVAL.*/VIRTWHO_INTERVAL=5/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(cmd, "restoring the interval time as default setting in virt-who config file")
-
+            self.config_virtwho_interval(5)
+            self.service_command("restart_virtwho")
             cmd = "rm /tmp/tail.rhsm.log"
             (ret, output) = self.runcmd(cmd, "remove /tmp/tail.rhsm.log file generated")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

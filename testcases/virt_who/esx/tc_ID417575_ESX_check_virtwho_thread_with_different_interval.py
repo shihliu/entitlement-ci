@@ -57,6 +57,8 @@ class tc_ID417575_ESX_check_virtwho_thread_with_different_interval(VIRTWHOBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.config_virtwho_interval(5)
+            self.service_command("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
