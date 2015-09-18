@@ -121,19 +121,15 @@ class RHSMConstants(object):
         else:
             raise FailException("Test Failed - Failed to configure rhsm testing server ... ")
 
-    OS_VERSION = ""
     def get_constant(self, name):
         test_server = get_exported_param("SERVER_TYPE")
-        global OS_VERSION
-        if OS_VERSION == "" or OS_VERSION == None:
-            OS_VERSION = self.get_os_serials()
         if test_server == "SAM":
-            if OS_VERSION == "7" and name + "_el7" in self.sam_cons:
+            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             else:
                 return self.sam_cons[name]
         if test_server == "SATELLITE":
-            if OS_VERSION == "7" and name + "_el7" in self.sam_cons:
+            if self.OS_VERSION == "7" and name + "_el7" in self.sam_cons:
                 return self.sam_cons[name + "_el7"]
             elif name + "_sat" in self.sam_cons:
                 return self.sam_cons[name + "_sat"]
@@ -143,6 +139,12 @@ class RHSMConstants(object):
             return self.stage_cons[name]
         elif test_server == "CUSTOMER_PORTAL" :
             return self.customer_portal_cons[name]
+
+    OS_VERSION = ""
+    def __init__(self):
+        global OS_VERSION
+        if OS_VERSION == "":
+            OS_VERSION = self.get_os_serials()
 
     def get_os_serials(self):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"

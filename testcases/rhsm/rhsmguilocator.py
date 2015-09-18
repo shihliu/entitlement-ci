@@ -240,8 +240,7 @@ class RHSMGuiLocator(RHSMConstants):
             os_serial = self.get_os_serials()
 
     def get_locator(self, name):
-        global os_serial
-        if name + "-" + os_serial in self.element_locators.keys():
-            return self.element_locators[name + "-" + os_serial]
+        if name + "-" + self.os_serial in self.element_locators.keys():
+            return self.element_locators[name + "-" + self.os_serial]
         else:
             return self.element_locators[name]
