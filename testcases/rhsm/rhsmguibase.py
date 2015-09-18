@@ -317,10 +317,10 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager(self):
         logger.info("open_subscription_manager")
-        if int(command.get_os_serials()) == "5":
-            ldtp.launchapp2("subscription-manager-gui")
-        else:
-            ldtp.launchapp("subscription-manager-gui")
+#         if int(command.get_os_serials()) == "5":
+#             ldtp.launchapp2("subscription-manager-gui")
+#         else:
+        ldtp.launchapp("subscription-manager-gui")
         self.check_window_exist("main-window")
 
     def open_firstboot(self):

@@ -1,5 +1,4 @@
 from utils import *
-from utils.tools.shell.command import Command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 
