@@ -8,8 +8,8 @@ class virtwho_rhel_rhevm_setup(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            #self.rhel_rhevm_sys_setup()
-            #self.rhel_rhevm_sys_setup(get_exported_param("REMOTE_IP_2"))
+            self.rhel_rhevm_sys_setup()
+            self.rhel_rhevm_sys_setup(get_exported_param("REMOTE_IP_2"))
             self.rhel_rhevm_setup()
             #self.generate_ssh_key()
             #self.install_desktop()
