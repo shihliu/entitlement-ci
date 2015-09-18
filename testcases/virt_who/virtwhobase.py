@@ -176,23 +176,20 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_setup(self):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
+        SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
         if SERVER_TYPE == "STAGE":
-            STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-            STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister()
-            self.configure_host(server_type="STAGE")
-            self.sub_register(STAGE_USER, STAGE_PASS)
+            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
         else:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_USER = VIRTWHOConstants().get_constant("SAM_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister()
-            self.configure_host(SAM_HOSTNAME, SAM_IP)
-            self.sub_register(SAM_USER, SAM_PASS)
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_host(SERVER_HOSTNAME, SERVER_IP)
+        self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
@@ -204,18 +201,10 @@ class VIRTWHOBase(unittest.TestCase):
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
-            if SERVER_TYPE == "STAGE":
-                STAGE_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-                STAGE_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
-                # if host already registered, unregister it first, then configure and register it
-                self.sub_unregister(slave_machine_ip)
-                self.configure_host(targetmachine_ip=slave_machine_ip, server_type="STAGE")
-                self.sub_register(STAGE_USER, STAGE_PASS, slave_machine_ip)
-            else:
-                # if host already registered, unregister it first, then configure and register it
-                self.sub_unregister(slave_machine_ip)
-                self.configure_host(SAM_HOSTNAME, SAM_IP, slave_machine_ip)
-                self.sub_register(SAM_USER, SAM_PASS, slave_machine_ip)
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_host(SERVER_HOSTNAME, SERVER_IP, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
@@ -511,29 +500,6 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to restart libvirtd")
 
-    def check_systemctl_service(self, keyword, targetmachine_ip=""):
-        cmd = "systemctl list-units|grep %s -i" % keyword
-        ret, output = self.runcmd(cmd, "check %s service by systemctl" % keyword, targetmachine_ip)
-        if ret == 0:
-            return True
-        return False
-
-    def vw_check_virtwho_status_new(self, status, targetmachine_ip=""):
-        if self.check_systemctl_service("virt-who", targetmachine_ip):
-            cmd = "systemctl status virt-who.service; sleep 10"
-            ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
-            if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" % status)
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
-        else:
-            cmd = "service virt-who status; sleep 10"
-            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
-            if ret == 0 and status in output:
-                logger.info("Succeeded to check virt-who is %s" % status)
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is %s." % status)
-
     def vw_restart_virtwho_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("virt-who", targetmachine_ip):
             cmd = "systemctl restart virt-who.service; sleep 10"
@@ -650,9 +616,10 @@ EOF''' % (file_name, file_data)
             host_guest_info = "in guest machine %s" % targetmachine_ip
         return host_guest_info
 
-    def configure_host(self, samhostname="", samhostip="", targetmachine_ip="", server_type=""):
+    def configure_host(self, samhostname, samhostip, targetmachine_ip=""):
         ''' configure the host machine. '''
-        if samhostname != None and samhostname != "" and samhostip != None and samhostip != "":
+        server_type = get_exported_param("SERVER_TYPE")
+        if server_type == "SAM" or  server_type == "SATELLITE":
             # add sam hostip and hostname in /etc/hosts
             if "satellite" in samhostname:
                 # for satellite installed in qeos
@@ -668,8 +635,7 @@ EOF''' % (file_name, file_data)
             ret, output = self.runcmd(cmd, "if sam or satellite cert package exist, remove it.", targetmachine_ip)
             cmd = "subscription-manager clean"
             ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-            test_server = get_exported_param("SERVER_TYPE")
-            if test_server == "SATELLITE":
+            if server_type == "SATELLITE":
                 cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
                 ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
                 if ret == 0:
@@ -2077,7 +2043,7 @@ EOF''' % (file_name, file_data)
                     if "up" in status:
                         logger.info("Succeeded to add new host %s to rhevm" % rhevm_host_name)
                         break
-                    #elif "install_failed":
+                    # elif "install_failed":
                     #    raise FailException("Failed to add host since status is %s" % (rhevm_host_name, status))
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
@@ -2229,14 +2195,14 @@ EOF''' % (file_name, file_data)
         if "presence" in output:
             logger.info("guest has already exist")
         else:
-            #cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
+            # cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
             cmd = "wget -P /home/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64"
             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to wget kvm img file")
             else:
                 raise FailException("Failed to wget kvm img file")
-        #cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        # cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "wget -P /home/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64.xml"
         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
         if ret == 0:
@@ -2250,7 +2216,7 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to Disable auth_unix_rw.")
         self.vw_restart_libvirtd()
-        #cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "virsh define /home/rhevm_guest/xml/7.1_Server_x86_64.xml"
         ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
         if ret == 0:
@@ -2259,7 +2225,7 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to define kvm guest")
 
     def rhevm_undefine_guest(self, targetmachine_ip=""):
-        #cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+        # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "virsh undefine 7.1_Server_x86_64.xml"
         ret, output = self.runcmd(cmd, "undefine kvm guest", targetmachine_ip)
         if ret == 0:
@@ -2317,7 +2283,7 @@ EOF''' % (file_name, file_data)
         if ret == 0 and storagedomain_name in output:
             logger.info("Succeeded to list storagedomains %s in rhevm." % storagedomain_name)
             storagedomain_id = self.get_key_rhevm(output, "id", "name", storagedomain_name, rhevm_host_ip)
-            logger.info("%s id is %s" %(storagedomain_name, storagedomain_id))
+            logger.info("%s id is %s" % (storagedomain_name, storagedomain_id))
             return storagedomain_id
         else :
             raise FailException("Failed to list storagedomains %s in rhevm." % storagedomain_name)
@@ -2325,7 +2291,7 @@ EOF''' % (file_name, file_data)
     # import guest to rhevm
     def import_vm_to_rhevm(self, guest_name, nfs_dir_for_storage_id, nfs_dir_for_export_id, rhevm_host_ip):
         # action vm "7.1_Server_x86_64" import_vm --storagedomain-identifier export_storage  --cluster-name Default --storage_domain-name data_storage
-        #cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-name %s' " % (guest_name, nfs_dir_for_export, nfs_dir_for_storage)
+        # cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-name %s' " % (guest_name, nfs_dir_for_export, nfs_dir_for_storage)
         cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-id %s' " % (guest_name, nfs_dir_for_export_id, nfs_dir_for_storage_id)
         ret, output = self.runcmd(cmd, "import guest %s in rhevm." % guest_name, rhevm_host_ip)
         if ret == 0:
@@ -2353,7 +2319,7 @@ EOF''' % (file_name, file_data)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "rhevm-shell -c -E 'show vm %s'" %rhevm_vm_name
+                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
                 ret, output = self.runcmd(cmd, "list vms in rhevm.", rhevm_host_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -2380,8 +2346,8 @@ EOF''' % (file_name, file_data)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "rhevm-shell -c -E 'show vm %s'" %rhevm_vm_name
-                ret, output = self.runcmd( cmd, "list vms in rhevm.", targetmachine_ip)
+                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
+                ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
                     logger.info("Succeeded to list vms")
@@ -2401,7 +2367,7 @@ EOF''' % (file_name, file_data)
 
     # get guest ip
     def rhevm_get_guest_ip(self, vm_name, targetmachine_ip):
-        cmd = "rhevm-shell -c -E 'show vm %s'" %vm_name
+        cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
         ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to list vm %s." % vm_name)
