@@ -1,6 +1,8 @@
-from testcases.rhsm.rhsmconstants import RHSMConstants
+from utils import *
+from utils.tools.shell import command
+from utils.exception.failexception import FailException
 
-class RHSMGuiLocator(RHSMConstants):
+class RHSMGuiLocator(object):
 
     # ========================================================
     #       RHSM GUI test elements
@@ -238,3 +240,17 @@ class RHSMGuiLocator(RHSMConstants):
             return self.element_locators[name + "-" + self.os_serial]
         else:
             return self.element_locators[name]
+
+    __instance = None
+    def __new__(cls):
+        if cls.__instance is None:
+            cls.__instance = super(RHSMGuiLocator, cls).__new__(cls)
+            cls.__instance.__initialized = False
+        return cls.__instance
+
+    def __init__(self):
+        if(self.__initialized):
+            return
+        else:
+            self.os_serial = command.get_os_serials()
+            self.__initialized = True

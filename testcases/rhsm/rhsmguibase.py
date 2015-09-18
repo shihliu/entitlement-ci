@@ -1,5 +1,6 @@
 import ldtp, time
 from utils import *
+from utils.tools.shell import command
 from utils.tools.shell.command import Command
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
@@ -15,20 +16,12 @@ class RHSMGuiBase(unittest.TestCase):
         return commander.run(cmd, timeout, cmddesc, showlogger=showlogger)
 
     def skip_test_on_rhel7(self):
-        rhel_version = self.get_os_serials()
+        rhel_version = command.get_os_serials()
         if rhel_version == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
             return True
         else:
             return False
-
-    def get_os_serials(self):
-        cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = self.runcmd(cmd, "check system version", showlogger=False)
-        if ret == 0:
-            return output.strip("\n").strip(" ")
-        else:
-            raise FailException("Failed to get os serials")
 
     def activate_window(self, window):
         ldtp.wait()
@@ -324,7 +317,7 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager(self):
         logger.info("open_subscription_manager")
-        if int(RHSMGuiLocator().get_os_serials()) == "5":
+        if int(command.get_os_serials()) == "5":
             ldtp.launchapp2("subscription-manager-gui")
         else:
             ldtp.launchapp("subscription-manager-gui")
