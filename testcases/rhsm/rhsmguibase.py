@@ -1,7 +1,6 @@
 import ldtp, time
 from utils import *
 from utils.tools.shell import command
-from utils.tools.shell.command import Command
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
 
@@ -12,8 +11,7 @@ class RHSMGuiBase(unittest.TestCase):
     # ========================================================
 
     def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
-        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, cmddesc, showlogger=showlogger)
+        command.runcmd(cmd, cmddesc, timeout=timeout, showlogger=showlogger)
 
     def skip_test_on_rhel7(self):
         rhel_version = command.get_os_serials()
@@ -216,7 +214,7 @@ class RHSMGuiBase(unittest.TestCase):
             raise FailException("FAILED: Can't get org by CML.")
 
         cmd2 = "subscription-manager identity | grep system"
-        (ret2, output2) = Command().run(cmd2)
+        (ret2, output2) = self.runcmd.run(cmd2, "get identity via command line")
         id_in_cml = output2.split(":")[1].strip()
         if ret == 0:
             logger.info("SUCCESS: ID in CML is %s" % org_in_cml)
@@ -317,9 +315,6 @@ class RHSMGuiBase(unittest.TestCase):
 
     def open_subscription_manager(self):
         logger.info("open_subscription_manager")
-#         if int(command.get_os_serials()) == "5":
-#             ldtp.launchapp2("subscription-manager-gui")
-#         else:
         ldtp.launchapp("subscription-manager-gui")
         self.check_window_exist("main-window")
 
@@ -423,8 +418,6 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_exist("information-dialog")
 
     def click_dialog_next_button(self):
-#         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6" or RHSMGuiLocator().get_os_serials() == "7":
-        # ldtp.wait(60)
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
         ldtp.wait(10)
         logger.info("click_dialog_next_button")
@@ -432,13 +425,8 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_exist("register-dialog")
 
     def click_dialog_register_button(self):
-#         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
         self.click_button("register-dialog", "dialog-register-button")
-#         else:
-#             logger.info("click_dialog_register_button")
-#             self.click_button("register-dialog", "dialog-register-button")
-#             self.check_window_exist("subscribe-dialog")
 
     def click_dialog_register_button_without_autoattach(self):
         logger.info("click_dialog_register_button_without_autoattach")
@@ -453,12 +441,8 @@ class RHSMGuiBase(unittest.TestCase):
     def click_dialog_cancel_button(self):
         self.wait_until_button_enabled("register-dialog", "dialog-cancel-button")
         logger.info("click_dialog_cancel_button")
-#         if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
         self.click_button("register-dialog", "dialog-cancel-button")
         self.check_window_closed("register-dialog")
-#         else:
-#             self.click_button("subscribe-dialog", 'dialog-cancel-button')
-#             self.check_window_closed("subscribe-dialog")
 
     def click_proxy_close_button(self):
         logger.info("click_proxy_close_button")
@@ -525,42 +509,36 @@ class RHSMGuiBase(unittest.TestCase):
         return self.get_table_row_count("main-window", 'my-subscription-table')
 
     def click_view_system_facts_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_view_system_facts_menu")
         self.click_menu("main-window", "system-menu")
         self.click_menu("main-window", "viewsystemfacts-menu")
         self.check_window_exist("system-facts-dialog")
 
     def click_import_cert_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_import_cert_menu")
         self.click_menu("main-window", "system-menu")
         self.click_menu("main-window", "importcert-menu")
         self.check_window_exist("import-cert-dialog")
 
     def click_preferences_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_preferences_menu")
         self.click_menu("main-window", "system-menu")
         self.click_menu("main-window", "preferences-menu")
         self.check_window_exist("system-preferences-dialog")
 
     def click_gettingstarted_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_gettingstarted_menu")
         self.click_menu("main-window", "help-menu")
         self.click_menu("main-window", "gettingstarted-menu")
         self.check_window_exist("subscription-manager-manual-window")
 
     def click_onlinedocumentation_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_onlinedocumentation_menu")
         self.click_menu("main-window", "help-menu")
         self.click_menu("main-window", "onlinedocumentation-menu")
         self.check_window_exist("onlinedocumentation-window")
 
     def click_about_menu(self):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_about_menu")
         self.click_menu("main-window", "help-menu")
         self.click_menu("main-window", "about-menu")
@@ -574,7 +552,6 @@ class RHSMGuiBase(unittest.TestCase):
         self.check_window_closed("question-dialog")
 
     def click_facts_view_tree(self, branch):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         logger.info("click_facts_view_tree")
         ldtp.doubleclickrow(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"), branch)
         ldtp.wait(5)
@@ -590,7 +567,6 @@ class RHSMGuiBase(unittest.TestCase):
     def check_HTTP_proxy_checkbox(self):
         logger.info("check_HTTP_proxy_checkbox")
         self.check_checkbox("proxy-configuration-dialog", "proxy-checkbox")
-
 
     def get_my_subscriptions_table_my_subscriptions(self):
         for row in range(self.get_my_subscriptions_table_row_count()):
@@ -661,7 +637,6 @@ class RHSMGuiBase(unittest.TestCase):
             return False
 
     def get_facts_value_by_name(self, facts_name):
-#         if RHSMGuiLocator().get_os_serials() == "6":
         for row in range(ldtp.getrowcount(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"))):
             if(ldtp.getcellvalue(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"), row, 0).strip() == facts_name):
                 logger.info("get_facts_value_by_name")
@@ -710,12 +685,8 @@ class RHSMGuiBase(unittest.TestCase):
         return ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(object_name), real_status)
 
     def wait_until_button_enabled(self, window, button_name):
-#       if RHSMGuiLocator().get_os_serials() == "5" or RHSMGuiLocator().get_os_serials() == "6":
-#         ldtp.wait(90)
         while not(ldtp.stateenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))):
             ldtp.wait()
-        # while ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name), ldtp.state.ENABLED) == 0:
-        #    ldtp.wait(5)
 
     def input_text(self, window, text, text_value):
         ldtp.settextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(text), text_value)
@@ -746,7 +717,7 @@ class RHSMGuiBase(unittest.TestCase):
     def wait_seconds(self, seconds):
         ldtp.wait(seconds)
 
-     # ## firstboot gui
+    # firstboot gui
     def welcome_forward_click(self):
         self.click_button('firstboot-main-window', 'firstboot-fwd-button')
         if self.check_object_exist('firstboot-main-window', 'firstboot-agr-button'):
@@ -1224,7 +1195,6 @@ class RHSMGuiBase(unittest.TestCase):
         else:
             logger.info("rct cat-cert command can not be used in the system")
             return False
-
 
     def sub_unregister(self):
         cmd = "subscription-manager unregister"

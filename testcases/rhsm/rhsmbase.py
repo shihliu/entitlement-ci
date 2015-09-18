@@ -1,6 +1,6 @@
 from utils import *
 import time, random
-from utils.tools.shell.command import Command
+from utils.tools.shell import command
 from utils.exception.failexception import FailException
 
 class RHSMBase(unittest.TestCase):
@@ -9,14 +9,7 @@ class RHSMBase(unittest.TestCase):
     # ========================================================
 
     def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        if targetmachine_ip != None and targetmachine_ip != "":
-            if targetmachine_user != None and targetmachine_user != "":
-                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
-            else:
-                commander = Command(targetmachine_ip, "root", "red2015")
-        else:
-            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, cmddesc, showlogger)
+        command.runcmd(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def runcmd_sam(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
@@ -155,7 +148,7 @@ class RHSMBase(unittest.TestCase):
 
     def check_rct(self):
         cmd = "rct cat-cert --help"
-        (ret, output) = Command().run(cmd)
+        (ret, output) = self.runcmd(cmd, "run rct cat-cert --help")
         if ret == 0:
             logger.info("rct cat-cert command can be used in the system")
             return True
@@ -181,10 +174,9 @@ class RHSMBase(unittest.TestCase):
     def sub_getcurrentversion(self):
         version = None
         platform = None
-        currentversion = None
         # get version
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-        (ret, output) = Command().run(cmd, comments=False)
+        (ret, output) = self.runcmd(cmd, showlogger=False)
         if ret == 0:
             version = output.strip("\n").strip(" ")
             logger.info("It's successful to get system version.")
@@ -192,7 +184,7 @@ class RHSMBase(unittest.TestCase):
             logger.info("It's failed to get system version.")
         # get paltform
         cmd = "lsb_release -i"
-        (ret, output) = Command().run(cmd, comments=False)
+        (ret, output) = self.runcmd(cmd, showlogger=False)
         if ret == 0:
             platform = output.split("Enterprise")[1].strip(" ")
             logger.info("It's successful to get system platform")
@@ -203,7 +195,7 @@ class RHSMBase(unittest.TestCase):
 
     def sub_listavailpools(self, productid):
         cmd = "subscription-manager list --available"
-        (ret, output) = Command().run(cmd)
+        (ret, output) = self.runcmd(cmd)
         if ret == 0:
             if "no available subscription pools to list" not in output.lower():
                 if productid in output:
@@ -387,7 +379,7 @@ class RHSMBase(unittest.TestCase):
                 data_segs.append(segs)
                 segs = []
         '''
-         # new way
+        # new way
         for line in datalines:
             if ("Product Name:" in line) or ("ProductName" in line) or ("Subscription Name" in line):
                 tmpline = line
@@ -415,9 +407,9 @@ class RHSMBase(unittest.TestCase):
         for seg in data_segs:
             data_dict = {}
         for item in seg:
-           keyitem = item.split(":")[0].replace(' ', '')
-           valueitem = item.split(":")[1].strip()
-           data_dict[keyitem] = valueitem
+            keyitem = item.split(":")[0].replace(' ', '')
+            valueitem = item.split(":")[1].strip()
+            data_dict[keyitem] = valueitem
         data_list.append(data_dict)
         return data_list
 

@@ -7,15 +7,17 @@ class Command(object):
     remote_ip = username = password = ""
     def __init__(self, remote_ip=None, username=None, password=None):
         if remote_ip != "" and remote_ip != None:
+            # if remote ip provided, run on it
             self.remote_ip = remote_ip
             self.username = username
             self.password = password
-            # logger.info("command run in: %s" % self.remote_ip)
-        else:
+        elif get_exported_param("REMOTE_IP") != "":
+            # by default, run on env remote ip
             self.remote_ip = get_exported_param("REMOTE_IP")
             self.username = "root"
             self.password = "red2015"
-            # logger.info("command run in: %s" % self.remote_ip)
+        else:
+            raise FailException("REMOTE_IP not provided, failed to run ...")
 
     def run(self, cmd, timeout=None, comments=None, showlogger=True):
         if self.remote_ip == None:
@@ -28,9 +30,25 @@ class Command(object):
         ret, output = RemoteSH.run_paramiko_interact(cmd, self.remote_ip, self.username, self.password, timeout)
         return ret, output
 
-def runcmd(cmd, cmddesc=None, timeout=None, showlogger=True):
-    commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-    return commander.run(cmd, timeout, cmddesc, showlogger=showlogger)
+def runcmd(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+    if targetmachine_ip != None and targetmachine_ip != "":
+        if targetmachine_user != None and targetmachine_user != "":
+            commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+        else:
+            commander = Command(targetmachine_ip, "root", "red2015")
+    else:
+        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+    return commander.run(cmd, timeout, cmddesc, showlogger)
+
+def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+    if targetmachine_ip != None and targetmachine_ip != "":
+        if targetmachine_user != None and targetmachine_user != "":
+            commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+        else:
+            commander = Command(targetmachine_ip, "root", "red2015")
+    else:
+        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+    return commander.run_interact(cmd, timeout, cmddesc)
 
 def get_os_serials():
     cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"

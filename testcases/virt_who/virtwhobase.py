@@ -1,6 +1,6 @@
 from utils import *
 import time, random, commands, paramiko
-from utils.tools.shell.command import Command
+from utils.tools.shell import command
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
@@ -13,14 +13,7 @@ class VIRTWHOBase(unittest.TestCase):
     # ========================================================
 
     def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        if targetmachine_ip != None and targetmachine_ip != "":
-            if targetmachine_user != None and targetmachine_user != "":
-                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
-            else:
-                commander = Command(targetmachine_ip, "root", "red2015")
-        else:
-            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run(cmd, timeout, cmddesc, showlogger)
+        command.runcmd(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
@@ -29,27 +22,13 @@ class VIRTWHOBase(unittest.TestCase):
         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
 
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        if targetmachine_ip != None and targetmachine_ip != "":
-            if targetmachine_user != None and targetmachine_user != "":
-                commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
-            else:
-                commander = Command(targetmachine_ip, "root", "red2015")
-        else:
-            commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
-        return commander.run_interact(cmd, timeout, cmddesc)
-
-#     def runcmd_guest(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
-#         return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
+        command.runcmd_interact(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
         brew_virt_who = get_exported_param("BREW_VIRTWHO")
         cmd = "yum -y upgrade %s" % brew_virt_who
         ret, output = self.runcmd(cmd, "upgrade virt-who via brew", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to upgrade virt-who via brew.")
-#         else:
-#             raise FailException("Test Failed - Failed to upgrade virt-who via brew.")
 
     def sys_setup(self):
         # system setup for virt-who testing
@@ -63,7 +42,6 @@ class VIRTWHOBase(unittest.TestCase):
 
     def kvm_sys_setup(self, targetmachine_ip=""):
         # system setup for virt-who testing
-        # cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
         if ret == 0:

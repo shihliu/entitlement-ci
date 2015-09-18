@@ -1,7 +1,5 @@
 from utils import *
 from testcases.virt_who.virtwhobase import VIRTWHOBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
-from utils.exception.failexception import FailException
 
 class virtwho_kvm_setup(VIRTWHOBase):
     def test_run(self):
