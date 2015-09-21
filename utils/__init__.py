@@ -27,5 +27,9 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
+# turn off paramiko log off
+paramiko_logger = logging.getLogger("paramiko.transport")
+paramiko_logger.disabled = True
+
 def get_exported_param(param_name):
     return os.getenv(param_name)
