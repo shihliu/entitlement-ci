@@ -77,7 +77,7 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
-            nosetests tc_ID155117_ESX_check_guest_uuid.py \ 
+            nosetests tc_ID155117_ESX_check_guest_uuid.py \
                 tc_ID155138_ESX_support_for_unlimited_guest_entitlements.py \
                 tc_ID155146_ESX_validate_compliance_status_when_unregister_host.py \
                 tc_ID202507_ESX_verify_virtwho_interval.py \
