@@ -224,7 +224,7 @@ class Base(unittest.TestCase):
         else:
             return False
 
-    def skip_satellite(self):
+    def against_satellite(self):
         test_server = get_exported_param("SERVER_TYPE")
         if test_server == "SATELLITE" :
             logger.info("satellite do not support, this test case is skipped ...")
