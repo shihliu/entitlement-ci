@@ -37,7 +37,7 @@ class tc_ID267324_access_cdn_without_entitlement_cert(RHSMBase):
     def register_and_autosubscribe(self, username, password, autosubprod):
         cmd = "subscription-manager register --username=%s --password=%s --auto-attach" % (username, password)
         (ret, output) = self.runcmd(cmd, "register_and_autosubscribe")
-        if (ret == 0) and ("The system has been registered with ID:" in output) and (autosubprod in output) and ("Subscribed" in output):
+        if (ret == 0) and ("The system has been registered with ID:" in output) and ('Not Subscribed' not in output) and ("Subscribed" in output):
             logger.info("It's successful to register and auto-attach")
         else:
             raise FailException("Test Failed - failed to register or auto-attach.")
