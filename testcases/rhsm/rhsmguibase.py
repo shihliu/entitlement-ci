@@ -10,14 +10,6 @@ class RHSMGuiBase(Base):
     #     0. LDTP GUI Common Functions
     # ========================================================
 
-    def skip_on_rhel7(self):
-        rhel_version = self.get_os_serials()
-        if rhel_version == "7" :
-            logger.info("rhel 7.x do not support, this test case is skipped ...")
-            return True
-        else:
-            return False
-
     def activate_window(self, window):
         ldtp.wait()
         ldtp.activatewindow(RHSMGuiLocator().get_locator(window))

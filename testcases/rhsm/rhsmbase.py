@@ -22,14 +22,6 @@ class RHSMBase(Base):
     def restore_environment(self):
         self.sub_unregister()
 
-    def skip_satellite(self):
-        test_server = get_exported_param("SERVER_TYPE")
-        if test_server == "SATELLITE" :
-            logger.info("satellite do not support, this test case is skipped ...")
-            return True
-        else:
-            return False
-
     # ========================================================
     #       1. Keyword Functions
     # ========================================================

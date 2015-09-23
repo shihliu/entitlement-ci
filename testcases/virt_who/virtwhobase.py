@@ -125,8 +125,8 @@ class VIRTWHOBase(Base):
         # unfinished, close firewall and iptables for ever 
 
     def esx_setup(self):
-        SAM_IP = get_exported_param("SERVER_IP")
-        SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+        SERVER_IP = get_exported_param("SERVER_IP")
+        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
         SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
         SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
@@ -144,7 +144,7 @@ class VIRTWHOBase(Base):
         self.vw_restart_virtwho()
         # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
         self.sub_unregister()
-        self.configure_host(SAM_HOSTNAME, SAM_IP)
+        self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SAM_USER, SAM_PASS)
         guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
@@ -171,7 +171,7 @@ class VIRTWHOBase(Base):
 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
-        self.configure_host(SERVER_HOSTNAME, SERVER_IP)
+        self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
         self.update_vw_configure()
@@ -186,7 +186,7 @@ class VIRTWHOBase(Base):
         if slave_machine_ip != None and slave_machine_ip != "":
             # if host already registered, unregister it first, then configure and register it
             self.sub_unregister(slave_machine_ip)
-            self.configure_host(SERVER_HOSTNAME, SERVER_IP, slave_machine_ip)
+            self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
@@ -595,50 +595,6 @@ EOF''' % (file_name, file_data)
         else:
             host_guest_info = "in guest machine %s" % targetmachine_ip
         return host_guest_info
-
-    def configure_host(self, samhostname, samhostip, targetmachine_ip=""):
-        ''' configure the host machine. '''
-        server_type = get_exported_param("SERVER_TYPE")
-        if server_type == "SAM" or  server_type == "SATELLITE":
-            # add sam hostip and hostname in /etc/hosts
-            if "satellite" in samhostname:
-                # for satellite installed in qeos
-                samhostname = samhostname + ".novalocal"
-            cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
-            ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
-            else:
-                raise FailException("Failed to add sam hostip %s and hostname %s %s." % (samhostip, samhostname, self.get_hg_info(targetmachine_ip)))
-            # config hostname, prefix, port, baseurl and repo_ca_crt by installing candlepin-cert
-            cmd = "rpm -qa | grep candlepin-cert-consumer| xargs rpm -e; rpm -qa | grep katello-ca-consumer | xargs rpm -e"
-            ret, output = self.runcmd(cmd, "if sam or satellite cert package exist, remove it.", targetmachine_ip)
-            cmd = "subscription-manager clean"
-            ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
-            if server_type == "SATELLITE":
-                cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (samhostip)
-                ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
-                else:
-                    raise FailException("Failed to install candlepin cert and configure the system with satellite configuration as %s." % samhostip)
-            else:
-                cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-                ret, output = self.runcmd(cmd, "install candlepin-cert-consumer..rpm", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-                else:
-                    raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
-        elif server_type == "STAGE":
-            # configure /etc/rhsm/rhsm.conf to stage candlepin
-            cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf"
-            ret, output = self.runcmd(cmd, "configure /etc/rhsm/rhsm.conf for stage testing", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
-            else:
-                raise FailException("Failed to configure rhsm.conf for stage in %s" % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Failed to configure the host")
 
     def sub_listavailpools(self, productid, targetmachine_ip="", showlog=True):
         ''' list available pools.'''

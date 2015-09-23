@@ -1,4 +1,5 @@
 from utils import *
+from testcases.base import Base
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 
@@ -7,7 +8,7 @@ class rhsm_setup(unittest.TestCase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            RHSMConstants().configure_testing_server()
+            Base().configure_testing_server()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
