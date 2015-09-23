@@ -25,7 +25,7 @@ class tc_ID155138_VDSM_validate_unlimited_bonus_pool_creation(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             self.sub_subscribe_sku(test_sku)
 

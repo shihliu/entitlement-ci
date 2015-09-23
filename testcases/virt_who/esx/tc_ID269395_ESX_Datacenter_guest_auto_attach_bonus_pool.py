@@ -39,7 +39,7 @@ class tc_ID269395_ESX_Datacenter_guest_auto_attach_bonus_pool(VIRTWHOBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #3).subscribe the DataCenter subscription pool on host

@@ -25,7 +25,7 @@ class tc_ID155117_ESX_check_guest_uuid(VIRTWHOBase):
 
             #1).register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #2).check virt uuid in facts list

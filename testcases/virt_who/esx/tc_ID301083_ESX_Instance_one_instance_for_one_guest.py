@@ -30,7 +30,7 @@ class tc_ID301083_ESX_Instance_one_instance_for_one_guest(VIRTWHOBase):
 
             #1).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_host(SAM_HOSTNAME, SAM_IP, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #2).check the instance pool Available on guest before subscribed
