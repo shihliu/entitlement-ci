@@ -1,29 +1,13 @@
 from utils import *
-import time, random, commands, paramiko
-from utils.tools.shell import command
+from testcases.base import Base
 from utils.exception.failexception import FailException
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
-import json
-import requests
 
-class VIRTWHOBase(unittest.TestCase):
+class VIRTWHOBase(Base):
     # ========================================================
     #       Basic Functions
     # ========================================================
-
-    def runcmd(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        return command.runcmd(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
-
-    def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
-
-    def runcmd_sam(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
-
-    def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        return command.runcmd_interact(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
-
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
         brew_virt_who = get_exported_param("BREW_VIRTWHO")
@@ -33,7 +17,6 @@ class VIRTWHOBase(unittest.TestCase):
     def sys_setup(self):
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
-#         cmd = "yum install -y @base @core @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization @desktop-debugging @dial-up @fonts @gnome-desktop @guest-desktop-agents @input-methods @internet-browser @multimedia @print-client @x11 nmap bridge-utils tunctl rpcbind qemu-kvm-tools expect pexpect git make gcc tigervnc-server"
         ret, output = self.runcmd(cmd, "install virt-who for esx testing", showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
@@ -358,9 +341,6 @@ class VIRTWHOBase(unittest.TestCase):
                 return output
             else:
                 raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
-
-    def get_os_serials(self, targetmachine_ip=""):
-        return command.get_os_serials(targetmachine_ip)
 
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''

@@ -1,20 +1,17 @@
-import ldtp, time
+import ldtp
 from utils import *
-from utils.tools.shell import command
+from testcases.base import Base
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
 
-class RHSMGuiBase(unittest.TestCase):
+class RHSMGuiBase(Base):
 
     # ========================================================
     #     0. LDTP GUI Common Functions
     # ========================================================
 
-    def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
-        return command.runcmd(cmd, cmddesc, timeout=timeout, showlogger=showlogger)
-
     def skip_on_rhel7(self):
-        rhel_version = command.get_os_serials()
+        rhel_version = self.get_os_serials()
         if rhel_version == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
             return True

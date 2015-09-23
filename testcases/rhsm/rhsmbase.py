@@ -1,9 +1,9 @@
 from utils import *
-import time, random
+from testcases.base import Base
 from utils.tools.shell import command
 from utils.exception.failexception import FailException
 
-class RHSMBase(unittest.TestCase):
+class RHSMBase(Base):
     # ========================================================
     #       0. Basic Functions
     # ========================================================
