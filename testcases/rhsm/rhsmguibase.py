@@ -13,7 +13,7 @@ class RHSMGuiBase(unittest.TestCase):
     def runcmd(self, cmd, cmddesc=None, timeout=None, showlogger=True):
         return command.runcmd(cmd, cmddesc, timeout=timeout, showlogger=showlogger)
 
-    def skip_test_on_rhel7(self):
+    def skip_on_rhel7(self):
         rhel_version = command.get_os_serials()
         if rhel_version == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
