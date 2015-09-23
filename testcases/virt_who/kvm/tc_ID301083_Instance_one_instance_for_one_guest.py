@@ -23,7 +23,7 @@ class tc_ID301083_Instance_one_instance_for_one_guest(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             # check the instance pool Available on guest before subscribed

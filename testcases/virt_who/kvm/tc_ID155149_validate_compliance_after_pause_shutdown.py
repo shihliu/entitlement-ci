@@ -24,7 +24,7 @@ class tc_ID155149_validate_compliance_after_pause_shutdown(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             # subscribe the host to the physical pool which can generate bonus pool

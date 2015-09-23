@@ -38,7 +38,7 @@ class tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host(VIRTWHOBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #3).subscribe the DataCenter subscription pool on host

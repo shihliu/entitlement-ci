@@ -25,7 +25,7 @@ class tc_ID289139_Datacenter_subpool_quantity_unlimited(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             # host subscribe datacenter pool on host
             self.sub_subscribe_sku(host_test_sku)

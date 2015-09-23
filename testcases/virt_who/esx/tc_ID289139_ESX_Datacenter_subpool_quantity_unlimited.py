@@ -38,7 +38,7 @@ class tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited(VIRTWHOBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #3).subscribe successfully to the DataCenter subscription pool on host

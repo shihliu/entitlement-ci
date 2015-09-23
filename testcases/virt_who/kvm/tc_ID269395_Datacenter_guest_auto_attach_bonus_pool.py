@@ -25,7 +25,7 @@ class tc_ID269395_Datacenter_guest_auto_attach_bonus_pool(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             # subscribe the host to the physical pool which can generate bonus pool
             self.sub_subscribe_sku(test_sku)

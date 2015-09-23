@@ -47,7 +47,7 @@ class tc_ID332956_ESX_list_consumed_after_virtwho_restart(VIRTWHOBase):
 
             #3).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #4).subscribe the DataCenter pool on host
