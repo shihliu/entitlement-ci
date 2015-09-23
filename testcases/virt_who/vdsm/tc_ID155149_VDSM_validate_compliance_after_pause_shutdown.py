@@ -8,8 +8,8 @@ class tc_ID155149_VDSM_validate_compliance_after_pause_shutdown(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -25,7 +25,7 @@ class tc_ID155149_VDSM_validate_compliance_after_pause_shutdown(VIRTWHOBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             # subscribe the host to the physical pool which can generate bonus pool

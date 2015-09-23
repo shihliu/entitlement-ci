@@ -8,8 +8,8 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -30,13 +30,13 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(VIRTWHOBase):
             
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             
             # check only physical subscription in guest
             
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku), SAM_IP)
+            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             
             # list available pools of guest, check related bonus pool generated.
             new_available_poollist = self.sub_listavailpools(test_sku, guestip)
@@ -58,7 +58,7 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

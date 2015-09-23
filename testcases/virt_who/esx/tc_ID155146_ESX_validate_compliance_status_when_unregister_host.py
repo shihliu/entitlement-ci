@@ -8,8 +8,8 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(VIRTWHOBas
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -30,16 +30,16 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(VIRTWHOBas
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SAM_IP)
+            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
             # refresh the guest
             self.sub_refresh(guestip)
             # list available subscriptions on guest

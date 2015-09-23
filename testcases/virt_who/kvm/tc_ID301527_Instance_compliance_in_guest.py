@@ -8,8 +8,8 @@ class tc_ID301527_Instance_compliance_in_guest(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -23,7 +23,7 @@ class tc_ID301527_Instance_compliance_in_guest(VIRTWHOBase):
             
             # register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
             # subscribe instance pool by --quantity=1 on guest  
             pool_id = self.get_poolid_by_SKU(test_sku, guestip)

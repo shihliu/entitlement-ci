@@ -8,8 +8,8 @@ class tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -38,11 +38,11 @@ class tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited(VIRTWHOBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SAM_IP, SAM_HOSTNAME, guestip)
+                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SAM_USER, SAM_PASS, guestip)
 
             #3).subscribe successfully to the DataCenter subscription pool on host
-            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SAM_IP)
+            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SERVER_IP)
 
             #4).check the bonus pool's quantity is unlimited
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
@@ -58,7 +58,7 @@ class tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

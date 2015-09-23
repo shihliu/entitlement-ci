@@ -8,8 +8,8 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+            SERVER_IP = get_exported_param("SERVER_IP")
+            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
             SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
             SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
 
@@ -35,11 +35,11 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
 
             #2). check esxi host is registered or not on sam
             time.sleep(10)
-            self.esx_check_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_check_host_in_samserv(host_uuid, SERVER_IP)
 
             #3). unregister or remove esxi host from sam 
             self.service_command("stop_virtwho")
-            self.esx_remove_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_remove_host_in_samserv(host_uuid, SERVER_IP)
 
             #4). after stop virt-who, start to monitor the rhsm.log 
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
@@ -56,7 +56,7 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
 
             #6). check esxi host is registered or not on sam again, and check guest uuid from rhsm.log
             time.sleep(10)
-            self.esx_check_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_check_host_in_samserv(host_uuid, SERVER_IP)
 
             #7). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(10)
@@ -89,7 +89,7 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SAM_IP)
+            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
