@@ -10,12 +10,12 @@ class tc_ID190639_register_selected_server(RHSMBase):
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            baseurl = RHSMConstants().get_constant("baseurl")
-            samhostip = RHSMConstants().samhostip
+            baseurl = get_exported_param("SERVER_HOSTNAME")
+            samhostip = get_exported_param("SERVER_IP")
             # register to sam candlepin server
             if samhostip != None:
-                serverurl = baseurl + '/sam/api'
-                cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=ACME_Corporation" % (username, password, serverurl)
+                serverurl = baseurl + ':443/sam/api'
+                cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=ACME_Corporation --force" % (username, password, serverurl)
             # register to stage/product candlepin server
             else:
                 serverurl = baseurl + '/subscription'
