@@ -15,14 +15,14 @@ class tc_ID183445_register_with_org(RHSMBase):
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            samhostip = RHSMConstants().samhostip
+            samhostip = get_exported_param("SERVER_IP")
             # unregister a system
             self.sub_unregister()
             # set up the multi-orgs env
             orgname2 = 'ACME_Corporation2'
-            is_multi_orgs = self.sam_remote_is_org_exist(samhostip, 'root', 'redhat', orgname2)
+            is_multi_orgs = self.sam_remote_is_org_exist(samhostip, orgname2)
             if not is_multi_orgs:
-                self.sam_remote_create_org(samhostip, 'root', 'redhat', orgname2)
+                self.sam_remote_create_org(samhostip, orgname2)
             # register with specified an org
             cmd_register_with_orgs = "subscription-manager register --org=ACME_Corporation --username=%s --password=%s" % (username, password)
             # step1:display the orgs available for a user
@@ -37,7 +37,7 @@ class tc_ID183445_register_with_org(RHSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.sam_remote_delete_org(samhostip, 'root', 'redhat', orgname2)
+            self.sam_remote_delete_org(samhostip, orgname2)
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
