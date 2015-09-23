@@ -77,7 +77,36 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests tc_ID155117_ESX_check_guest_uuid.py \
+                tc_ID155138_ESX_support_for_unlimited_guest_entitlements.py \
+                tc_ID155146_ESX_validate_compliance_status_when_unregister_host.py \
+                tc_ID202507_ESX_verify_virtwho_interval.py \
+                tc_ID248787_ESX_validate_limited_bonus_pool_creation.py \
+                tc_ID269395_ESX_Datacenter_guest_auto_attach_bonus_pool.py \
+                tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited.py \
+                tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest.py \
+                tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host.py \
+                tc_ID289675_ESX_Datacenter_repos_in_guest.py \
+                tc_ID301083_ESX_Instance_one_instance_for_one_guest.py \
+                tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores.py \
+                tc_ID301527_ESX_Instance_compliance_in_guest.py \
+                tc_ID338068_ESX_run_virtwho_one_shot_double.py \
+                tc_ID413481_ESX_check_virtwho_config_file_permission.py \
+                tc_ID417575_ESX_check_virtwho_thread_with_different_interval.py \
+                tc_ID443910_ESX_run_virtwho_with_encrypted_password.py \
+                tc_ID443912_ESX_run_virtwho_with_wrong_encrypted_password.py \
+                tc_ID476491_ESX_check_virtwho_support_offline_mode.py \
+                tc_ID476933_ESX_attach_subpool_when_virtwho_offline_mode.py \
+                tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode.py \ 
+                tc_ID477170_ESX_run_virtwho_with_filter_host_uuids.py \
+                tc_ID477171_ESX_run_virtwho_with_filter_host_uuids_null.py \
+                tc_ID477177_ESX_run_virtwho_with_exclude_host_uuids.py \
+                tc_ID477178_ESX_run_virtwho_with_exclude_host_uuids_null.py \
+                tc_ID477180_ESX_run_virtwho_with_env_owner.py \
+                tc_ID477183_ESX_run_virtwho_with_rhsm_username_password.py \
+                tc_ID477581_ESX_run_virtwho_with_hypervisor_id_hostname.py \
+                tc_ID477582_ESX_run_virtwho_with_hypervisor_id_hwuuid.py \
+            --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
     publishers:

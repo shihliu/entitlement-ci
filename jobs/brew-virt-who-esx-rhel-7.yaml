@@ -91,7 +91,6 @@
                 tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores.py \
                 tc_ID301527_ESX_Instance_compliance_in_guest.py \
                 tc_ID338068_ESX_run_virtwho_one_shot_double.py \
-                tc_ID327100_ESX_check_virtwho_3600s_interval.py \
                 tc_ID413481_ESX_check_virtwho_config_file_permission.py \
                 tc_ID417575_ESX_check_virtwho_thread_with_different_interval.py \
                 tc_ID443910_ESX_run_virtwho_with_encrypted_password.py \
