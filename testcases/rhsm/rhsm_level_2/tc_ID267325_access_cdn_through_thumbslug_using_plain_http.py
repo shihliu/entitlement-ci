@@ -12,7 +12,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             password = RHSMConstants().get_constant("password")
             autosubprod = RHSMConstants().get_constant("autosubprod")
             pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
-            if not self.against_satellite():
+            if not self.skip_satellite():
                 self.check_and_backup_yum_repos()
                 # register to and auto-attach
                 self.register_and_autosubscribe(username, password, autosubprod)
