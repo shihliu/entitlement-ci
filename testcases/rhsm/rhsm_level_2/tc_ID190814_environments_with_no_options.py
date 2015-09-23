@@ -11,10 +11,10 @@ class tc_ID190814_environments_with_no_options(RHSMBase):
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
             self.sub_register(username, password)
-            samhostip = RHSMConstants().samhostip
+            samhostip = get_exported_param("SERVER_IP")
             cmd = "subscription-manager environments --username=%s --password=%s" % (username, password)
             (ret, output) = self.runcmd(cmd, "running environments command with no options")
-            if samhostip != None and ret == 0 and "Error: Server does not support environments" in output:
+            if samhostip != None and ret == 69 and "Error: Server does not support environments" in output:
                 logger.info("It's successful to verify that SAM does not support environments")
             elif ret != 0 and "Error: This command requires that you specify an organization with --org" in output :
                 logger.info("It's successful to check the error message when run environments with no options.")

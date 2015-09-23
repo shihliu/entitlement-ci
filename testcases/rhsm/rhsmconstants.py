@@ -15,9 +15,8 @@ class RHSMConstants(object):
             "pkgtoinstall": "zsh",
             "servicelevel": "Premium",
 
-            "default_org":"ACME_Corporation",
-            "default_org_sat":"Default_Organization",
-
+            "default_org": "ACME_Corporation",
+            "default_org_sat": "Default_Organization",
             # rhel 6 constance
             "productrepo": "rhel-6-server-rpms",
             "betarepo": "rhel-6-server-beta-rpms",
@@ -25,7 +24,7 @@ class RHSMConstants(object):
             # rhel 7 constance
             "productrepo_el7": "rhel-7-server-rpms",
             "betarepo_el7": "rhel-7-server-beta-rpms",
-            "releaselist_el7": "7.0,7Server",
+            "releaselist_el7": "7.0,7.1,7Server",
 
             "proxy_server":"10.66.128.144:3128",
             }
