@@ -2327,12 +2327,12 @@ EOF''' % (file_name, file_data)
                     status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, rhevm_host_ip)
                     if status.find("up") >= 0 and status.find("powering") < 0 and output.find("guest_info-ips-ip-address") > 0:
                         logger.info("Succeeded to up vm %s in rhevm" % rhevm_vm_name)
-                        time.sleep(10)
+                        time.sleep(20)
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(10)
-                    if runtime > 100:
+                    time.sleep(20)
+                    if runtime > 50:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -2357,8 +2357,34 @@ EOF''' % (file_name, file_data)
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
+                    time.sleep(20)
+                    if runtime > 50:
+                        raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+                else:
+                    raise FailException("Failed to list vm %s" % rhevm_vm_name)
+        else:
+            raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
+
+# Stop VM on RHEVM
+    def rhevm_pause_vm(self, rhevm_vm_name, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'action vm \"%s\" suspend'" % rhevm_vm_name
+        ret, output = self.runcmd(cmd, "stop vm on rhevm.", targetmachine_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
+                ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0:
+                    logger.info("Succeeded to list vms")
+                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, targetmachine_ip)
+                    if status.find("suspended") >= 0 and status.find("saving_state") < 0:
+                        logger.info("Succeeded to stop vm %s in rhevm" % rhevm_vm_name)
+                        break
+                    else :
+                        logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
                     time.sleep(10)
-                    if runtime > 120:
+                    if runtime > 20:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -2389,6 +2415,31 @@ EOF''' % (file_name, file_data)
             logger.info("Succeeded to update virt-who configure file.")
         else:
             raise FailException("Failed to update virt-who configure file.")
+
+
+    def vdsm_get_vm_uuid(self, vm_name, targetmachine_ip=""):
+        ''' get the guest uuid. '''
+        cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
+        ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to list vm %s." % vm_name)
+            guestid = self.get_key_rhevm(output, "id", "name", vm_name, targetmachine_ip)
+            if guestid is not "":
+                logger.info("Succeeded to get guest %s id is %s" % (vm_name, guestid))
+                return guestid
+            else:
+                logger.error("Failed to get guest %s id is %s" % (vm_name, guestid))
+        else:
+            raise FailException("Failed to list VM %s." % vm_name) 
+
+    def vw_restart_vdsm(self, targetmachine_ip=""):
+        ''' restart vdsmd service. '''
+        cmd = "service vdsmd restart"
+        ret, output = self.runcmd(cmd, "restart vdsmd", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to restart vdsmd service.")
+        else:
+            raise FailException("Test Failed - Failed to restart vdsmd")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         # system setup for RHEL+RHEVM testing env
@@ -2441,6 +2492,8 @@ EOF''' % (file_name, file_data)
         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
+        self.update_rhevm_vdsm_configure(5)
+        self.vw_restart_virtwho_new()
 
 
     def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
