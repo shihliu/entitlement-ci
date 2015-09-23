@@ -10,8 +10,8 @@ class tc_ID322662_restart_libvirtd_unregister_check_virtwho(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             # restart virtwho service
             self.vw_restart_virtwho()
@@ -30,7 +30,7 @@ class tc_ID322662_restart_libvirtd_unregister_check_virtwho(VIRTWHOBase):
             self.assert_(False, case_name)
         finally:
             # register host
-            self.sub_register(SAM_USER, SAM_PASS)
+            self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

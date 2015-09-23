@@ -10,8 +10,8 @@ class tc_ID322862_validate_unregister_check_output(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
             rhsmlogpath='/var/log/rhsm/rhsm.log'
             # Modify the virt-who refresh interval
             cmd = "sed -i 's/#VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=100/' /etc/sysconfig/virt-who"
@@ -38,7 +38,7 @@ class tc_ID322862_validate_unregister_check_output(VIRTWHOBase):
             self.assert_(False, case_name)
         finally:
             # register host
-            self.sub_register(SAM_USER, SAM_PASS)
+            self.sub_register(SERVER_USER, SERVER_PASS)
             # move VIRTWHO_INTERVAL to default
             cmd = "sed -i 's/.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/' /etc/sysconfig/virt-who"
             (ret, output) = self.runcmd( cmd, "move interval to default in virt-who config file")

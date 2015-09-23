@@ -128,8 +128,8 @@ class VIRTWHOBase(Base):
         SERVER_IP = get_exported_param("SERVER_IP")
         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
-        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+        SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+        SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
         ESX_HOST = VIRTWHOConstants().get_constant("ESX_HOST")
 
@@ -145,7 +145,7 @@ class VIRTWHOBase(Base):
         # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
         self.sub_unregister()
         self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SAM_USER, SAM_PASS)
+        self.sub_register(SERVER_USER, SERVER_PASS)
         guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
         self.wget_images(VIRTWHOConstants().get_constant("esx_guest_url"), guest_name, ESX_HOST)
@@ -166,8 +166,8 @@ class VIRTWHOBase(Base):
         else:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
@@ -207,8 +207,8 @@ class VIRTWHOBase(Base):
     # List system
     def st_system_list(self):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = VIRTWHOConstants().get_constant("SERVER_USER")
+        password = VIRTWHOConstants().get_constant("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -216,8 +216,8 @@ class VIRTWHOBase(Base):
     # List pool list
     def st_pool_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = VIRTWHOConstants().get_constant("SERVER_USER")
+        password = VIRTWHOConstants().get_constant("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -225,8 +225,8 @@ class VIRTWHOBase(Base):
     # Attach pool_id 
     def st_attach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = VIRTWHOConstants().get_constant("SERVER_USER")
+        password = VIRTWHOConstants().get_constant("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
@@ -241,8 +241,8 @@ class VIRTWHOBase(Base):
     # List consumed 
     def st_consumed_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = VIRTWHOConstants().get_constant("SERVER_USER")
+        password = VIRTWHOConstants().get_constant("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -250,8 +250,8 @@ class VIRTWHOBase(Base):
     # Unattach poo_id
     def st_unattach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = VIRTWHOConstants().get_constant("SERVER_USER")
+        password = VIRTWHOConstants().get_constant("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
@@ -2399,8 +2399,8 @@ EOF''' % (file_name, file_data)
         SAM_IP = get_exported_param("SERVER_IP")
         SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
-        SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-        SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+        SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+        SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
         RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
         RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")

@@ -10,8 +10,8 @@ class tc_ID301083_ESX_Instance_one_instance_for_one_guest(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
@@ -31,7 +31,7 @@ class tc_ID301083_ESX_Instance_one_instance_for_one_guest(VIRTWHOBase):
             #1).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #2).check the instance pool Available on guest before subscribed
             instance_quantity_before = self.get_SKU_attribute(sku_id, "Available", guestip)

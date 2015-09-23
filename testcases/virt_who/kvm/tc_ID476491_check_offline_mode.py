@@ -15,8 +15,8 @@ class tc_ID476491_check_offline_mode(VIRTWHOBase):
             password = "red2015"
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
             VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
             VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
             VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
@@ -61,7 +61,7 @@ env=%s''' % (VIRTWHO_FAKE_FILE, VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV)
         finally:
             self.unset_virtwho_d_conf(conf_file, remote_ip_2)
             self.vw_restart_virtwho_new(remote_ip_2)
-            self.sub_register(SAM_USER, SAM_PASS)
+            self.sub_register(SERVER_USER, SERVER_PASS)
             self.vw_restart_virtwho_new()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

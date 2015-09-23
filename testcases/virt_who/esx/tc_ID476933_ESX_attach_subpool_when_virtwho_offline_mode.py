@@ -10,8 +10,8 @@ class tc_ID476933_ESX_attach_subpool_when_virtwho_offline_mode(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
             VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
@@ -94,7 +94,7 @@ env=%s''' % (offline_data, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV)
             #9).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #10).subscribe successfully to the DataCenter subscription pool on host
             self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SERVER_IP)

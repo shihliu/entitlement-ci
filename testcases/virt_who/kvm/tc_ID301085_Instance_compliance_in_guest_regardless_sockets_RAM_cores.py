@@ -10,8 +10,8 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
 
@@ -24,7 +24,7 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRT
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)

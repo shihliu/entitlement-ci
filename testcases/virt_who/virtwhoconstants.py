@@ -13,6 +13,11 @@ class VIRTWHOConstants(object):
 
                     "SAM_USER":"admin",
                     "SAM_PASS":"admin",
+                    "SATELLITE_USER":"admin",
+                    "SATELLITE_PASS":"admin",
+                    # virt-who constants for stage testing
+                    "STAGE_USER":"stage_virtwho_test",
+                    "STAGE_PASS":"redhat",
 
                     # virt-who configure for rhevm mode
                     "NFSserver_ip" : "10.16.96.131",
@@ -45,10 +50,6 @@ class VIRTWHOConstants(object):
                     "VIRTWHO_LIBVIRT_OWNER" : "ACME_Corporation",
                     "VIRTWHO_LIBVIRT_ENV" : "Library",
                     "VIRTWHO_LIBVIRT_USERNAME" : "root",
-
-                    # virt-who constants for stage testing
-                    "STAGE_USER":"stage_virtwho_test",
-                    "STAGE_PASS":"redhat",
 
                     # limited subscription
                     "productid_guest" : "RH0103708",
@@ -88,7 +89,13 @@ class VIRTWHOConstants(object):
                     }
 
     def get_constant(self, name):
-        if name == "VIRTWHO_ESX_OWNER" and get_exported_param("SERVER_TYPE") == "SATELLITE":
-            return "Default_Organization"
+        if name == "SERVER_USER" or name == "SERVER_PASS":
+            test_server = get_exported_param("SERVER_TYPE")
+            if test_server == "SAM":
+                return self.virt_who_cons[name.replace("SERVER", "SAM")]
+            elif test_server == "SATELLITE":
+                return self.virt_who_cons[name.replace("SERVER", "SATELLITE")]
+            elif test_server == "STAGE":
+                return self.virt_who_cons[name.replace("SERVER", "STAGE")]
         else:
             return self.virt_who_cons[name]

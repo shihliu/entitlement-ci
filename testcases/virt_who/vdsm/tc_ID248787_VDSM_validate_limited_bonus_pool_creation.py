@@ -10,8 +10,8 @@ class tc_ID248787_VDSM_validate_limited_bonus_pool_creation(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = VIRTWHOConstants().get_constant("RHEVM_HOST")
@@ -27,7 +27,7 @@ class tc_ID248787_VDSM_validate_limited_bonus_pool_creation(VIRTWHOBase):
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             self.sub_subscribe_sku(test_sku)
 
             # list available pools of guest, check related bonus pool generated.

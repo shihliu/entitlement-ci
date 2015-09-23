@@ -10,8 +10,8 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase)
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
@@ -39,7 +39,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(VIRTWHOBase)
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #3).set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)

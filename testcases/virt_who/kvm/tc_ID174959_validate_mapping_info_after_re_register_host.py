@@ -10,8 +10,8 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
@@ -32,7 +32,7 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(VIRTWHOBase):
             else:
                 raise FailException("failed to unregister host")
             # Check guest uuid after re-register
-            self.sub_register(SAM_USER, SAM_PASS)
+            self.sub_register(SERVER_USER, SERVER_PASS)
             self.vw_restart_virtwho()
             self.vw_check_uuid(guestuuid, uuidexists=True)
 
@@ -42,7 +42,7 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(VIRTWHOBase):
             self.assert_(False, case_name)
         finally:
             # register host
-            self.sub_register(SAM_USER, SAM_PASS)
+            self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -10,8 +10,8 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(VIRTWHOBase):
         try:
             SERVER_IP = get_exported_param("SERVER_IP")
             SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
 
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
@@ -41,7 +41,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(VIRTWHOBase):
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SAM_USER, SAM_PASS, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #3).before subscribe host, check the bonus pool is not available and the system type is Virtual 
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
