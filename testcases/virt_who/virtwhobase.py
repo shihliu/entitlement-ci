@@ -169,10 +169,7 @@ class VIRTWHOBase(Base):
             SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
             SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
         else:
-            SERVER_IP = get_exported_param("SERVER_IP")
-            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()

@@ -8,10 +8,7 @@ class tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP = get_exported_param("SERVER_IP")
-            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
             VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")

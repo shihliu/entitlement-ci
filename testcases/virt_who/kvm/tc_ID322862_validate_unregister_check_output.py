@@ -8,10 +8,7 @@ class tc_ID322862_validate_unregister_check_output(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP = get_exported_param("SERVER_IP")
-            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             rhsmlogpath='/var/log/rhsm/rhsm.log'
             # Modify the virt-who refresh interval
             cmd = "sed -i 's/#VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=100/' /etc/sysconfig/virt-who"

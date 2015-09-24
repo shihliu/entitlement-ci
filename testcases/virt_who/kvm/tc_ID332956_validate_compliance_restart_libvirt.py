@@ -8,10 +8,7 @@ class tc_ID332956_validate_compliance_restart_libvirt(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP = get_exported_param("SERVER_IP")
-            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
 
