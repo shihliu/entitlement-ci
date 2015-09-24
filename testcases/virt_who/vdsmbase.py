@@ -465,7 +465,8 @@ class VDSMBase(VIRTWHOBase):
         RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
         RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
         REMOTE_IP_NAME = self.get_hostname()
-
+#         REMOTE_IP_2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        
         VIRTWHO_RHEVM_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_OWNER")
         VIRTWHO_RHEVM_ENV = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_ENV")
         # VIRTWHO_RHEVM_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_SERVER")
@@ -492,7 +493,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
-
+        #configure env on rhevm(add host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
@@ -524,14 +525,14 @@ class VDSMBase(VIRTWHOBase):
         self.vw_restart_virtwho_new()
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
-#         if slave_machine_ip != None and slave_machine_ip != "":
-#             # if host already registered, unregister it first, then configure and register it
-#             self.sub_unregister(slave_machine_ip)
-#             self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
-#             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
-#             # update virt-who configure file
-#             self.update_rhevm_vdsm_configure(5, slave_machine_ip)
-#             self.vw_restart_virtwho_new(slave_machine_ip)
+        if slave_machine_ip != None and slave_machine_ip != "":
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
+            # update virt-who configure file
+            self.update_rhevm_vdsm_configure(5, slave_machine_ip)
+            self.vw_restart_virtwho_new(slave_machine_ip)
 
 
     def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
