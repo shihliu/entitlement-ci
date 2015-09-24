@@ -8,10 +8,7 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP = get_exported_param("SERVER_IP")
-            SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
             destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
@@ -22,7 +19,7 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
             
-            #0).check the guest is power off or not, if power_on, stop it
+            # 0).check the guest is power off or not, if power_on, stop it
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)

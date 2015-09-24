@@ -8,6 +8,11 @@ class VIRTWHOBase(Base):
     # ========================================================
     #       Basic Functions
     # ========================================================
+
+    def get_server_info(self):
+        # usage: SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), VIRTWHOConstants().get_constant("SERVER_USER"), VIRTWHOConstants().get_constant("SERVER_PASS")
+
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
         brew_virt_who = get_exported_param("BREW_VIRTWHO")
