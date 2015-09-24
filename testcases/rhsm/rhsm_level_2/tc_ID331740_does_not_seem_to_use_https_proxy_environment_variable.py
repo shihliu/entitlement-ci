@@ -10,7 +10,7 @@ class tc_ID331740_does_not_seem_to_use_https_proxy_environment_variable(RHSMBase
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            samhostip = RHSMConstants().samhostip
+            samhostip = get_exported_param("SERVER_IP")
             if samhostip != None:
                 logger.info("sam not test proxy")
             else:

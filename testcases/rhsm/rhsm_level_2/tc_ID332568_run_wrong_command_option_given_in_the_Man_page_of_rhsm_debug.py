@@ -9,10 +9,10 @@ class tc_ID332568_run_wrong_command_option_given_in_the_Man_page_of_rhsm_debug(R
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # check the man page header
-            cmd = 'man rhsm-debug | egrep "Certificate Information Tool"'
+            cmd = 'man rhsm-debug | egrep "RHSM Debug Tool"'
             (ret, output) = self.runcmd(cmd, "check the man page header")
             outputb = output.strip().split(" ")
-            if ret == 0 and outputb[0] == outputb[len(outputb) - 1] == "rhsm-debug(8)":
+            if ret == 0 and outputb[0] == outputb[len(outputb) - 1] == "RHSM-DEBUG(8)":
                 logger.info("It's successful to check the man page header.") 
             else:
                 raise FailException("Test Failed - Failed to check the man page header.")
