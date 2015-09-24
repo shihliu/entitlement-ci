@@ -33,12 +33,7 @@ class Base(unittest.TestCase):
     # ========================================================
 
     def configure_sam_host(self, samhostip, samhostname, targetmachine_ip=""):
-        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
-        ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to configure /etc/hosts")
-        else:
-            raise FailException("Failed to configure /etc/hosts")
+        self.configure_host_file(samhostip, samhostname, targetmachine_ip)
         cmd = "rpm -qa | grep candlepin-cert-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
         cmd = "subscription-manager clean"
@@ -54,12 +49,7 @@ class Base(unittest.TestCase):
         if "satellite" in satellitehostname:
             # for satellite installed in qeos
             satellitehostname = satellitehostname + ".novalocal"
-        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (satellitehostname, satellitehostip, satellitehostname)
-        ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to configure /etc/hosts")
-        else:
-            raise FailException("Failed to configure /etc/hosts")
+        self.configure_host_file(satellitehostip, satellitehostname, targetmachine_ip)
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
         cmd = "subscription-manager clean"
@@ -71,6 +61,14 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to install candlepin cert and configure the system with satellite configuration.")
 
+    def configure_host_file(self, server_ip, server_hostname, targetmachine_ip=""):
+        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (server_ip, server_ip, server_hostname)
+        ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to configure /etc/hosts")
+        else:
+            raise FailException("Failed to configure /etc/hosts")
+
     def configure_stage_host(self, stage_name, targetmachine_ip=""):
         cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
         ret, output = self.runcmd(cmd, "configure rhsm.conf for stage", targetmachine_ip)
@@ -78,6 +76,8 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to configure rhsm.conf for stage")
         else:
             raise FailException("Failed to configure rhsm.conf for stage")
+        cmd = "subscription-manager clean"
+        ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
         test_server = get_exported_param("SERVER_TYPE")
