@@ -1,9 +1,9 @@
 from utils import *
-from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who.vdsmbase import VDSMBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VIRTWHOBase):
+class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

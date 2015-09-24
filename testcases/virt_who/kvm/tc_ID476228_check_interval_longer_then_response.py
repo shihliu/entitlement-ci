@@ -1,10 +1,10 @@
 from utils import *
-from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who.kvmbase import KVMBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
-class tc_ID476228_check_interval_longer_then_response(VIRTWHOBase):
+class tc_ID476228_check_interval_longer_then_response(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

@@ -1,9 +1,9 @@
 from utils import *
-from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who.esxbase import ESXBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(VIRTWHOBase):
+class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

@@ -1,9 +1,9 @@
 from utils import *
-from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who.esxbase import ESXBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode(VIRTWHOBase):
+class tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
