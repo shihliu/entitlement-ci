@@ -27,7 +27,7 @@ class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(
 
             #1).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #2).set up guest facts

@@ -85,7 +85,7 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to configure rhsm.conf for stage")
 
-    def configure_testing_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
+    def configure_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
         test_server = get_exported_param("SERVER_TYPE")
         if test_server == "STAGE" :
             self.configure_stage_host("subscription.rhn.stage.redhat.com", targetmachine_ip)

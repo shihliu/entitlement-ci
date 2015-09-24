@@ -10,7 +10,7 @@ class rhsm_gui_setup(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.rhsm_gui_sys_setup()
-            self.configure_testing_server()
+            self.configure_server()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

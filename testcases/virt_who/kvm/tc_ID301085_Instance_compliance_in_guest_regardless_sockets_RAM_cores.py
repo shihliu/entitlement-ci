@@ -20,7 +20,7 @@ class tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores(KVMB
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # Set up guest facts

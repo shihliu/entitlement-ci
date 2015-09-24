@@ -22,7 +22,7 @@ class tc_ID289138_Datacenter_subpool_creation(KVMBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # Check bonus pool not generated yet
             if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is False:

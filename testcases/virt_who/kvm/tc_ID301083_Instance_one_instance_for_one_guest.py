@@ -20,7 +20,7 @@ class tc_ID301083_Instance_one_instance_for_one_guest(KVMBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # check the instance pool Available on guest before subscribed

@@ -27,7 +27,7 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # before subscribe esx host with limited subscription, need to clean all the old subscribed pool from SAM

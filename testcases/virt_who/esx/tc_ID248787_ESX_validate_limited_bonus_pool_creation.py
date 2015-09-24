@@ -37,7 +37,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #3).before subscribe host, check the bonus pool is not available and the system type is Virtual 

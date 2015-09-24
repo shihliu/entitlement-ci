@@ -35,7 +35,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
 
             #2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #3).set up guest facts

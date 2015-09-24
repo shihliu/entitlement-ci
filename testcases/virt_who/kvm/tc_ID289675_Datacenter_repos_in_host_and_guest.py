@@ -22,7 +22,7 @@ class tc_ID289675_Datacenter_repos_in_host_and_guest(KVMBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             self.sub_subscribe_sku(host_test_sku)

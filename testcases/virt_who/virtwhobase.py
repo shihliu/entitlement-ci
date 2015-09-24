@@ -149,7 +149,7 @@ class VIRTWHOBase(Base):
         self.vw_restart_virtwho()
         # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
         self.sub_unregister()
-        self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
@@ -173,7 +173,7 @@ class VIRTWHOBase(Base):
 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
-        self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
         self.update_vw_configure()
@@ -188,7 +188,7 @@ class VIRTWHOBase(Base):
         if slave_machine_ip != None and slave_machine_ip != "":
             # if host already registered, unregister it first, then configure and register it
             self.sub_unregister(slave_machine_ip)
-            self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)

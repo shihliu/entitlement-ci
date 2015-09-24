@@ -21,7 +21,7 @@ class tc_ID332956_validate_compliance_restart_libvirt(KVMBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # subscribe the host to the physical pool which can generate bonus pool

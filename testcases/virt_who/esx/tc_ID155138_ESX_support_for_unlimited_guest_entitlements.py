@@ -27,7 +27,7 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(ESXBase):
             
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             
             # check only physical subscription in guest
