@@ -8,7 +8,7 @@ class tc_ID284092_register_without_env_in_sam(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            samhostip = RHSMConstants().samhostip
+            samhostip = get_exported_param("SERVER_IP")
             if samhostip == None:
                 logger.info("It's not sam test, so skip this case")
             else:

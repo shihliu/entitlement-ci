@@ -11,9 +11,8 @@ class tc_ID327120_consumer_folder_moved_to_consumer_old_after_deleting_the_consu
         try:
             username = RHSMConstants().get_constant("username")
             password = RHSMConstants().get_constant("password")
-            baseurl = RHSMConstants().get_constant("baseurl")
-            prefix = RHSMConstants().get_constant("prefix")
-            baseurl = baseurl + prefix
+            baseurl = get_exported_param("SERVER_HOSTNAME")
+            baseurl = baseurl + ':443/sam/api'
             # remove the consumer related files
             cmd = "rm -rf /etc/pki/consumer*"
             (ret, output) = self.runcmd(cmd, "remove the consumer related files before testing")
