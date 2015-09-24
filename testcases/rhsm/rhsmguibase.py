@@ -57,6 +57,8 @@ class RHSMGuiBase(Base):
         (ret, output) = self.runcmd(cmd, "unregister system")
         if ret == 0:
             logger.info("It's successful to unregister system.")
+        cmd = "subscription-manager clean"
+        (ret, output) = self.runcmd(cmd, "run subscription-manager clean")
 
     def capture_image(self, image_name="", window=""):
         # capture image and name it by time
