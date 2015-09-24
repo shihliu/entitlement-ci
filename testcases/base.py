@@ -34,23 +34,17 @@ class Base(unittest.TestCase):
 
     def configure_sam_host(self, samhostip, samhostname, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (samhostname, samhostip, samhostname)
-        ret, output = command.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure /etc/hosts")
         else:
             raise FailException("Failed to configure /etc/hosts")
-        cmd = "rpm -qa | grep candlepin-cert-consumer"
-        ret, output = command.runcmd(cmd, "check candlepin cert", targetmachine_ip)
-        if ret == 0:
-            logger.info("candlepin-cert-consumer-%s-1.0-1.noarch has already exist, remove it first." % samhostname)
-            cmd = "rpm -e candlepin-cert-consumer-%s-1.0-1.noarch" % samhostname
-            ret, output = command.runcmd(cmd, "uninstall candlepin cert", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
-            else:
-                raise FailException("Failed to uninstall candlepin-cert-consumer-%s-1.0-1.noarch." % samhostname)
+        cmd = "rpm -qa | grep candlepin-cert-consumer | xargs rpm -e"
+        ret, output = self.runcmd(cmd, "if candlepin-cert-consumer package exist, remove it.", targetmachine_ip)
+        cmd = "subscription-manager clean"
+        ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
         cmd = "rpm -ivh http://%s/pub/candlepin-cert-consumer-%s-1.0-1.noarch.rpm" % (samhostip, samhostname)
-        ret, output = command.runcmd(cmd, "install candlepin cert", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "install candlepin cert", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         else:
@@ -61,17 +55,17 @@ class Base(unittest.TestCase):
             # for satellite installed in qeos
             satellitehostname = satellitehostname + ".novalocal"
         cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (satellitehostname, satellitehostip, satellitehostname)
-        ret, output = command.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure /etc/hosts")
         else:
             raise FailException("Failed to configure /etc/hosts")
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
-        ret, output = command.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
         cmd = "subscription-manager clean"
-        ret, output = command.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
         cmd = "rpm -ivh http://%s/pub/katello-ca-consumer-latest.noarch.rpm" % (satellitehostip)
-        ret, output = command.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "install katello-ca-consumer-latest.noarch.rpm", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to install candlepin cert and configure the system with satellite configuration.")
         else:
@@ -79,7 +73,7 @@ class Base(unittest.TestCase):
 
     def configure_stage_host(self, stage_name, targetmachine_ip=""):
         cmd = "sed -i -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
-        ret, output = command.runcmd(cmd, "configure rhsm.conf for stage", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "configure rhsm.conf for stage", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure rhsm.conf for stage")
         else:
