@@ -28,24 +28,6 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
-    def kvm_sys_setup(self, targetmachine_ip=""):
-        # system setup for virt-who testing
-        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.kvm_bridge_setup(targetmachine_ip)
-        self.kvm_permission_setup(targetmachine_ip)
-        cmd = "service libvirtd start"
-        ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
-        self.stop_firewall(targetmachine_ip)
-
     def install_desktop(self, targetmachine_ip=""):
         if self.get_os_serials() == "7":
             cmd = "yum install -y @gnome-desktop tigervnc-server"
