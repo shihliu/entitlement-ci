@@ -192,40 +192,6 @@ class KVMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
         return self.__check_vm_available(guest_name, targetmachine_ip=targetmachine_ip)
 
-    def kvm_setup(self):
-        SERVER_TYPE = get_exported_param("SERVER_TYPE")
-        SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
-        if SERVER_TYPE == "STAGE":
-            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
-        else:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-
-        # if host already registered, unregister it first, then configure and register it
-        self.sub_unregister()
-        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who configure file
-        self.update_vw_configure()
-        # restart virt-who service
-        self.vw_restart_virtwho()
-        # mount all needed guests
-        self.mount_images()
-        # add guests in host machine.
-        self.vw_define_all_guests()
-        # configure slave machine
-        slave_machine_ip = get_exported_param("REMOTE_IP_2")
-        if slave_machine_ip != None and slave_machine_ip != "":
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister(slave_machine_ip)
-            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
-            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
-            image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
-            self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
-            self.update_vw_configure(slave_machine_ip)
-            self.vw_restart_virtwho(slave_machine_ip)
-
-
     def shutdown_vm(self, guest_name, targetmachine_ip=""):
         cmd = "virsh destroy %s" % (guest_name)
         ret, output = self.runcmd(cmd, "destroy guest", targetmachine_ip)
@@ -386,3 +352,54 @@ class KVMBase(VIRTWHOBase):
             data = channel.recv(1048576)
             output += data
         return channel.recv_exit_status(), output
+
+    def kvm_setup(self):
+        SERVER_TYPE = get_exported_param("SERVER_TYPE")
+        SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
+        if SERVER_TYPE == "STAGE":
+            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
+            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
+        else:
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who configure file
+        self.update_vw_configure()
+        # restart virt-who service
+        self.vw_restart_virtwho()
+        # mount all needed guests
+        self.mount_images()
+        # add guests in host machine.
+        self.vw_define_all_guests()
+        # configure slave machine
+        slave_machine_ip = get_exported_param("REMOTE_IP_2")
+        if slave_machine_ip != None and slave_machine_ip != "":
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
+            image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
+            self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
+            self.update_vw_configure(slave_machine_ip)
+            self.vw_restart_virtwho(slave_machine_ip)
+
+    def kvm_sys_setup(self, targetmachine_ip=""):
+        # system setup for virt-who testing
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.kvm_bridge_setup(targetmachine_ip)
+        self.kvm_permission_setup(targetmachine_ip)
+        cmd = "service libvirtd start"
+        ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
