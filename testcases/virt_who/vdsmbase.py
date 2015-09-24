@@ -436,7 +436,6 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to update virt-who configure file.")
 
-
     def vdsm_get_vm_uuid(self, vm_name, targetmachine_ip=""):
         ''' get the guest uuid. '''
         cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
@@ -460,6 +459,22 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to restart vdsmd service.")
         else:
             raise FailException("Test Failed - Failed to restart vdsmd")
+
+    def vw_restart_vdsm_new(self, targetmachine_ip=""):
+        if self.check_systemctl_service("vdsmd", targetmachine_ip):
+            cmd = "systemctl restart vdsmd service; sleep 10"
+            ret, output = self.runcmd(cmd, "restart vdsmd service by systemctl.", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restsart vdsmd")
+            else:
+                raise FailException("Test Failed - Failed to restart vdsmd")
+        else:
+            cmd = "service vdsmd restart; sleep 10"
+            ret, output = self.runcmd(cmd, "restart vdsmd by service", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restsart vdsmd")
+            else:
+                raise FailException("Test Failed - Failed to restart vdsmd")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
