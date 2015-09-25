@@ -5,6 +5,7 @@ from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class KVMBase(VIRTWHOBase):
+
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
         cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
@@ -403,3 +404,52 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
+
+    def __check_vm_available(self, guest_name, timeout=600, targetmachine_ip=""):
+        terminate_time = time.time() + timeout
+        guest_mac = self.__get_dom_mac_addr(guest_name, targetmachine_ip)
+        self.__generate_ipget_file(targetmachine_ip)
+        while True:
+            guestip = self.__mac_to_ip(guest_mac, targetmachine_ip)
+            if guestip != "" and (not "can not get ip by mac" in guestip):
+                return guestip
+            if terminate_time < time.time():
+                raise FailException("Process timeout has been reached")
+            logger.debug("Check guest IP, wait 10 seconds ...")
+            time.sleep(10)
+
+    def __generate_ipget_file(self, targetmachine_ip=""):
+        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh"
+        ret, output = self.runcmd(generate_ipget_cmd, "wget ipget file", targetmachine_ip)
+        if ret == 0 or "already there" in output:
+            logger.info("Succeeded to wget ipget.sh to /root/.")
+        else:
+            raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
+
+    def __get_dom_mac_addr(self, domname, targetmachine_ip=""):
+        """
+        Get mac address of a domain
+        Return mac address on SUCCESS or None on FAILURE
+        """
+        cmd = "virsh dumpxml " + domname + " | grep 'mac address' | awk -F'=' '{print $2}' | tr -d \"[\'/>]\""
+        ret, output = self.runcmd(cmd, "get mac address", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to get mac address of domain %s." % domname)
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get mac address of domain %s." % domname)
+
+    def __mac_to_ip(self, mac, targetmachine_ip=""):
+        """
+        Map mac address to ip, need nmap installed and ipget.sh in /root/ target machine
+        Return None on FAILURE and the mac address on SUCCESS
+        """
+        if not mac:
+            raise FailException("Failed to get guest mac ...")
+        cmd = "sh /root/ipget.sh %s | grep -v nmap" % mac
+        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to get ip address.")
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get ip address.")
