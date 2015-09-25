@@ -5,7 +5,9 @@ from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class KVMBase(VIRTWHOBase):
-
+    # ========================================================
+    #       KVM - system basic Functions
+    # ========================================================
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
         cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
@@ -33,15 +35,6 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to set /etc/libvirt/qemu.conf in %s." % self.get_hg_info(targetmachine_ip))
-
-    def update_vw_configure(self, background=1, debug=1, targetmachine_ip=""):
-        ''' update virt-who configure file /etc/sysconfig/virt-who. '''
-        cmd = "sed -i -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' /etc/sysconfig/virt-who" % (debug)
-        ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to update virt-who configure file.")
-        else:
-            raise FailException("Failed to update virt-who configure file.")
 
     def mount_images(self):
         ''' mount the images prepared '''
@@ -83,6 +76,87 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to export dir '%s' as nfs." % image_nfs_path)
         else:
             raise FailException("Failed to export dir '%s' as nfs." % image_nfs_path)
+
+    def mount_images_in_slave_machine(self, targetmachine_ip, imagenfspath, imagepath):
+        ''' mount images in master machine to slave_machine. '''
+        cmd = "test -d %s" % (imagepath)
+        ret, output = self.runcmd(cmd, "check images dir exist", targetmachine_ip)
+        if ret == 1:
+            cmd = "mkdir -p %s" % (imagepath)
+            ret, output = self.runcmd(cmd, "create image path in the slave_machine", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to create imagepath in the slave_machine.")
+            else:
+                raise FailException("Failed to create imagepath in the slave_machine.")
+        # mount image path of source machine into just created image path in slave_machine
+        master_machine_ip = get_exported_param("REMOTE_IP")
+        cmd = "mount %s:%s %s" % (master_machine_ip, imagenfspath, imagepath)
+        ret, output = self.runcmd(cmd, "mount images in the slave_machine", targetmachine_ip)
+        if ret == 0 or "is busy or already mounted" in output:
+            logger.info("Succeeded to mount images in the slave_machine.")
+        else:
+            raise FailException("Failed to mount images in the slave_machine.")
+
+    def __check_vm_available(self, guest_name, timeout=600, targetmachine_ip=""):
+        terminate_time = time.time() + timeout
+        guest_mac = self.__get_dom_mac_addr(guest_name, targetmachine_ip)
+        self.__generate_ipget_file(targetmachine_ip)
+        while True:
+            guestip = self.__mac_to_ip(guest_mac, targetmachine_ip)
+            if guestip != "" and (not "can not get ip by mac" in guestip):
+                return guestip
+            if terminate_time < time.time():
+                raise FailException("Process timeout has been reached")
+            logger.debug("Check guest IP, wait 10 seconds ...")
+            time.sleep(10)
+
+    def __generate_ipget_file(self, targetmachine_ip=""):
+        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh"
+        ret, output = self.runcmd(generate_ipget_cmd, "wget ipget file", targetmachine_ip)
+        if ret == 0 or "already there" in output:
+            logger.info("Succeeded to wget ipget.sh to /root/.")
+        else:
+            raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
+
+    def __get_dom_mac_addr(self, domname, targetmachine_ip=""):
+        """
+        Get mac address of a domain
+        Return mac address on SUCCESS or None on FAILURE
+        """
+        cmd = "virsh dumpxml " + domname + " | grep 'mac address' | awk -F'=' '{print $2}' | tr -d \"[\'/>]\""
+        ret, output = self.runcmd(cmd, "get mac address", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to get mac address of domain %s." % domname)
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get mac address of domain %s." % domname)
+
+    def __mac_to_ip(self, mac, targetmachine_ip=""):
+        """
+        Map mac address to ip, need nmap installed and ipget.sh in /root/ target machine
+        Return None on FAILURE and the mac address on SUCCESS
+        """
+        if not mac:
+            raise FailException("Failed to get guest mac ...")
+        cmd = "sh /root/ipget.sh %s | grep -v nmap" % mac
+        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to get ip address.")
+            return output.strip("\n").strip(" ")
+        else:
+            raise FailException("Test Failed - Failed to get ip address.")
+
+    # ========================================================
+    #       KVM - virt-who test basic Functions
+    # ========================================================
+    def update_vw_configure(self, background=1, debug=1, targetmachine_ip=""):
+        ''' update virt-who configure file /etc/sysconfig/virt-who. '''
+        cmd = "sed -i -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' /etc/sysconfig/virt-who" % (debug)
+        ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update virt-who configure file.")
+        else:
+            raise FailException("Failed to update virt-who configure file.")
 
     def vw_get_uuid(self, guest_name, targetmachine_ip=""):
         ''' get the guest uuid. '''
@@ -238,27 +312,6 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
 
-    def mount_images_in_slave_machine(self, targetmachine_ip, imagenfspath, imagepath):
-        ''' mount images in master machine to slave_machine. '''
-        cmd = "test -d %s" % (imagepath)
-        ret, output = self.runcmd(cmd, "check images dir exist", targetmachine_ip)
-        if ret == 1:
-            cmd = "mkdir -p %s" % (imagepath)
-            ret, output = self.runcmd(cmd, "create image path in the slave_machine", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to create imagepath in the slave_machine.")
-            else:
-                raise FailException("Failed to create imagepath in the slave_machine.")
-        # mount image path of source machine into just created image path in slave_machine
-        master_machine_ip = get_exported_param("REMOTE_IP")
-        cmd = "mount %s:%s %s" % (master_machine_ip, imagenfspath, imagepath)
-        ret, output = self.runcmd(cmd, "mount images in the slave_machine", targetmachine_ip)
-        if ret == 0 or "is busy or already mounted" in output:
-            logger.info("Succeeded to mount images in the slave_machine.")
-        else:
-            raise FailException("Failed to mount images in the slave_machine.")
-
-
     def set_remote_libvirt_conf(self, virtwho_remote_server_ip, targetmachine_ip=""):
         VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
         VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
@@ -282,7 +335,6 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to reset to defualt config.")
         else:
             raise FailException("Test Failed - Failed to reset to defualt config.")
-
 
     def generate_ssh_key(self, targetmachine_ip=""):
         remote_ip_2 = get_exported_param("REMOTE_IP_2")
@@ -354,6 +406,9 @@ class KVMBase(VIRTWHOBase):
             output += data
         return channel.recv_exit_status(), output
 
+    # ========================================================
+    #       KVM - test env set up function
+    # ========================================================
     def kvm_setup(self):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
         SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
@@ -404,52 +459,3 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
-
-    def __check_vm_available(self, guest_name, timeout=600, targetmachine_ip=""):
-        terminate_time = time.time() + timeout
-        guest_mac = self.__get_dom_mac_addr(guest_name, targetmachine_ip)
-        self.__generate_ipget_file(targetmachine_ip)
-        while True:
-            guestip = self.__mac_to_ip(guest_mac, targetmachine_ip)
-            if guestip != "" and (not "can not get ip by mac" in guestip):
-                return guestip
-            if terminate_time < time.time():
-                raise FailException("Process timeout has been reached")
-            logger.debug("Check guest IP, wait 10 seconds ...")
-            time.sleep(10)
-
-    def __generate_ipget_file(self, targetmachine_ip=""):
-        generate_ipget_cmd = "wget -nc http://10.66.100.116/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh"
-        ret, output = self.runcmd(generate_ipget_cmd, "wget ipget file", targetmachine_ip)
-        if ret == 0 or "already there" in output:
-            logger.info("Succeeded to wget ipget.sh to /root/.")
-        else:
-            raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
-
-    def __get_dom_mac_addr(self, domname, targetmachine_ip=""):
-        """
-        Get mac address of a domain
-        Return mac address on SUCCESS or None on FAILURE
-        """
-        cmd = "virsh dumpxml " + domname + " | grep 'mac address' | awk -F'=' '{print $2}' | tr -d \"[\'/>]\""
-        ret, output = self.runcmd(cmd, "get mac address", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to get mac address of domain %s." % domname)
-            return output.strip("\n").strip(" ")
-        else:
-            raise FailException("Test Failed - Failed to get mac address of domain %s." % domname)
-
-    def __mac_to_ip(self, mac, targetmachine_ip=""):
-        """
-        Map mac address to ip, need nmap installed and ipget.sh in /root/ target machine
-        Return None on FAILURE and the mac address on SUCCESS
-        """
-        if not mac:
-            raise FailException("Failed to get guest mac ...")
-        cmd = "sh /root/ipget.sh %s | grep -v nmap" % mac
-        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            logger.info("Succeeded to get ip address.")
-            return output.strip("\n").strip(" ")
-        else:
-            raise FailException("Test Failed - Failed to get ip address.")
