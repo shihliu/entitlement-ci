@@ -25,7 +25,7 @@ class tc_ID155202_VDSM_check_uuid_after_pause_shutdown_vm_restart_vdsm(VDSMBase)
             # (2) pause guest    
             self.rhevm_pause_vm(guest_name, rhevm_ip)
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
+            self.vw_check_uuid(guestuuid, uuidexists=False)
             self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 3, guestuuid)
             # (3) resume guest    
             self.rhevm_start_vm(guest_name, rhevm_ip)
@@ -35,7 +35,7 @@ class tc_ID155202_VDSM_check_uuid_after_pause_shutdown_vm_restart_vdsm(VDSMBase)
             # (4) stop guest    
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
+            self.vw_check_uuid(guestuuid, uuidexists=False)
             self.vw_check_attr(guest_name, 0, 'vdsm', 'qemu', 5, guestuuid)
 
             self.assert_(True, case_name)
