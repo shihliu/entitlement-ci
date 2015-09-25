@@ -4,7 +4,7 @@ from testcases.virt_who.vdsmbase import VDSMBase
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
-class tc_ID155202_VDSM_check_uuid_after_pause_shutdown_vm_restart_vdsm(VDSMBase):
+class tc_ID155207_VDSM_check_uuid_after_pause_shutdown_vm_restart_virtwho(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -17,8 +17,7 @@ class tc_ID155202_VDSM_check_uuid_after_pause_shutdown_vm_restart_vdsm(VDSMBase)
 
             # (1) Restart virt-who and libvirtd service.
             self.vw_restart_virtwho_new()
-            self.vw_restart_vdsm_new()
-            time.sleep(60)
+
             # Check guest's uuid and guest's attribute 
             self.vw_check_uuid(guestuuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid)
