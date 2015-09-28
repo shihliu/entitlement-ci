@@ -32,7 +32,8 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         finally:
             self.uninstall_givenpkg(pkgtoinstall)
             self.restore_repos()
-            self.restore_conf(RHSMConstants().samhostip)
+            if not self.skip_satellite():
+                self.restore_conf(get_exported_param("SERVER_IP"))
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
