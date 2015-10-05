@@ -8,7 +8,7 @@ class tc_ID147117_verify_product_cert_validity(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            cmd = 'for i in $(ls /etc/pki/product/*); do openssl x509 -text -noout -in $i; done | grep -A 3 "Validity"'
+            cmd = 'for i in $(ls /etc/pki/product-default/*); do openssl x509 -text -noout -in $i; done | grep -A 3 "Validity"'
             (ret, output) = self.runcmd(cmd, "check product's cert validity!")
             if ret == 0 and ("Not Before" and "Not After" in output):
                 GMT_FORMAT = '%b %d %H:%M:%S %Y GMT'

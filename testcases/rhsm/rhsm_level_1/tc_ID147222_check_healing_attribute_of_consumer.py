@@ -10,14 +10,15 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            # get baseurl
-            sever_hostname = get_exported_param("SERVER_HOSTNAME")
-            samhostip = get_exported_param("SERVER_IP")
 
+            # get baseurl
+            server_hostname = get_exported_param("SERVER_HOSTNAME")
+            if "satellite" in server_hostname:
+                server_hostname = server_hostname + '.novalocal'
             if self.test_server == "SAM":
-                baseurl = "https://" + sever_hostname + "/sam/api"
+                baseurl = "https://" + server_hostname + "/sam/api"
             elif self.test_server == "SATELLITE":
-                baseurl = "https://" + sever_hostname + "/rhsm"
+                baseurl = "https://" + server_hostname + "/rhsm"
 
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
