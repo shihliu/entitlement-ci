@@ -16,7 +16,7 @@ class tc_ID331758_improve_unfriendly_message_of_instance_multiplier(RHSMBase):
             if is_physical == False:
                 self.virt_to_phy()
             # list an instance-based subscription pool
-            cmd = 'subscription-manager list --available | egrep "Subscription Name:|Pool ID:|Suggested:"| grep "Red Hat Enterprise Linux High Touch Beta" -A2 | grep "Pool"'
+            cmd = 'subscription-manager list --available | egrep "Subscription Name:|Pool ID:|Suggested:"| grep "Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)" -A2 | grep "Pool"'
             (ret, output) = self.runcmd(cmd, "list an instance-based subscription and get it's pool")
             if ret == 0 and output != '':
                 poolid = output.split(":")[1].strip()
