@@ -17,6 +17,8 @@ class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
             (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
+            self.rhevm_start_vm(guest_name, rhevm_ip)
+
             # Check guest uuid before unregister
             self.vw_restart_virtwho()
             self.vw_check_uuid(guestuuid, uuidexists=True)
@@ -44,6 +46,8 @@ class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
         finally:
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
+            # stop guest    
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
