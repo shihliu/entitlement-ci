@@ -208,7 +208,7 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to install virt-V2V")
 
-    def rhevm_define_guest(self, targetmachine_ip=""):
+    def rhevm_define_guest(self, vm_name, targetmachine_ip=""):
         ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
         cmd = "test -d /home/rhevm_guest/ && echo presence || echo absence"
         ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
@@ -216,20 +216,25 @@ class VDSMBase(VIRTWHOBase):
             logger.info("guest has already exist")
         else:
             # cmd = "wget -P /tmp/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/6.4_Server_x86_64"
-            cmd = "wget -P /home/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64"
+            cmd = "wget -P /home/rhevm_guest/ http://10.66.100.116/projects/sam-virtwho/%s" % vm_name
             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to wget kvm img file")
             else:
                 raise FailException("Failed to wget kvm img file")
+        cmd = "chmod -R 777 /home/rhevm/"
+        if ret == 0:
+            logger.info("Success to add excute to /home/rhevm")
+        else:
+            logger.info("Failed to add excute to /home/rhevm")
         # cmd = "wget -P /tmp/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"
-        cmd = "wget -P /home/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/7.1_Server_x86_64.xml"
+        cmd = "wget -P /home/rhevm_guest/xml/ http://10.66.100.116/projects/sam-virtwho/%s.xml" % vm_name
         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to wget xml img file")
         else:
             raise FailException("Failed to wget xml img file")
-        cmd = "sed -i 's/^auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
+        cmd = "sed -i 's/^.*auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
         (ret, output) = self.runcmd(cmd, "Disable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to Disable auth_unix_rw.")
@@ -237,16 +242,16 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to Disable auth_unix_rw.")
         self.vw_restart_libvirtd()
         # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
-        cmd = "virsh define /home/rhevm_guest/xml/7.1_Server_x86_64.xml"
+        cmd = "virsh define /home/rhevm_guest/xml/%s.xml" % vm_name
         ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to define kvm guest")
         else:
             raise FailException("Failed to define kvm guest")
 
-    def rhevm_undefine_guest(self, targetmachine_ip=""):
+    def rhevm_undefine_guest(self, vm_name, targetmachine_ip=""):
         # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
-        cmd = "virsh undefine 7.1_Server_x86_64.xml"
+        cmd = "virsh undefine %s.xml" % vm_name
         ret, output = self.runcmd(cmd, "undefine kvm guest", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to undefine kvm guest")
@@ -282,19 +287,28 @@ class VDSMBase(VIRTWHOBase):
 
     # convert_guest_to_nfs with v2v tool
     def convert_guest_to_nfs(self, origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, targetmachine_ip=""):
+        cmd = "sed -i 's/^.*auth_unix_rw/auth_unix_rw/' /etc/libvirt/libvirtd.conf"
+        (ret, output) = self.runcmd(cmd, "Enable auth_unix_rw firstly in libvirtd config file", origin_machine_ip)
+        if ret == 0:
+            logger.info("Succeeded to enable auth_unix_rw.")
+        else:
+            raise FailException("Failed to enable auth_unix_rw.")
+        self.vw_restart_libvirtd(origin_machine_ip)
+        time.sleep(120)
         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
-        if ret == 0:
+        if "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
+            time.sleep(600)
         else:
             raise FailException("Failed to convert_guest_to_nfs with v2v tool")
-        # convert the second guest
-        cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s -on \"Sec_%s\"" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, vm_hostname)
-        ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to convert the second guest to nfs with v2v tool")
-        else:
-            raise FailException("Failed to convert the second guest to nfs with v2v tool")
+#         # convert the second guest
+#         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s -on \"Sec_%s\"" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, vm_hostname)
+#         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to convert the second guest to nfs with v2v tool")
+#         else:
+#             raise FailException("Failed to convert the second guest to nfs with v2v tool")
 
     # Get storagedomain id 
     def get_domain_id(self, storagedomain_name, rhevm_host_ip):
@@ -480,7 +494,7 @@ class VDSMBase(VIRTWHOBase):
         RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
         RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
         REMOTE_IP_NAME = self.get_hostname()
-#         REMOTE_IP_2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        # REMOTE_IP_2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
         
         VIRTWHO_RHEVM_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_OWNER")
         VIRTWHO_RHEVM_ENV = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_ENV")
@@ -493,34 +507,34 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = VIRTWHOConstants().get_constant("NFS_DIR_FOR_export")
 
         # system setup for RHEL+RHEVM testing env
-        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.configure_rhel_host_bridge(targetmachine_ip)
-        self.get_rhevm_repo_file(targetmachine_ip)
-        cmd = "yum install -y vdsm"
-        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        self.stop_firewall(targetmachine_ip)
-        #configure env on rhevm(add host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.rhevm_define_guest()
+#         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+#         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+#         self.configure_rhel_host_bridge(targetmachine_ip)
+#         self.get_rhevm_repo_file(targetmachine_ip)
+#         cmd = "yum install -y vdsm"
+#         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+#         self.stop_firewall(targetmachine_ip)
+#         #configure env on rhevm(add host,storage,guest)
+#         self.conf_rhevm_shellrc(RHEVM_IP)
+#         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
         self.create_storage_pool()
-        self.install_virtV2V(RHEVM_IP)
-        self.convert_guest_to_nfs(NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-        self.rhevm_undefine_guest()
-        data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
-        export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
-        self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
+#         self.install_virtV2V(RHEVM_IP)
+        self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+#         self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
+#         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
+#         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
+#         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
@@ -533,7 +547,7 @@ class VDSMBase(VIRTWHOBase):
 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
-        self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME)
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
         self.update_rhevm_vdsm_configure(5)
@@ -543,7 +557,7 @@ class VDSMBase(VIRTWHOBase):
         if slave_machine_ip != None and slave_machine_ip != "":
             # if host already registered, unregister it first, then configure and register it
             self.sub_unregister(slave_machine_ip)
-            self.configure_testing_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             # update virt-who configure file
             self.update_rhevm_vdsm_configure(5, slave_machine_ip)
