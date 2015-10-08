@@ -1,5 +1,5 @@
 ##############################################################################
-## Test Description
+# # Test Description
 ##############################################################################
 """
 Setup:
@@ -37,7 +37,7 @@ from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
-class tc_ID272161_GUI_filter_options_should_be_saved(RHSMGuiBase):
+class tc_ID191583_GUI_filter_options_should_be_saved(RHSMGuiBase):
 
     def test_run(self):
         case_name = self.__class__.__name__
@@ -53,17 +53,17 @@ class tc_ID272161_GUI_filter_options_should_be_saved(RHSMGuiBase):
                 self.check_checkbox("filter-options-window", "match-installed-checkbox")
                 self.uncheck_checkbox("filter-options-window", "match-system-checkbox")
                 self.uncheck_checkbox("filter-options-window", "do-not-overlap-checkbox")
-                
-                #input garbage in the filter box
-                self.input_text('filter-options-window','filter-subscriptions-text','This is testy-test-mactest') 
+
+                # input garbage in the filter box
+                self.input_text('filter-options-window', 'filter-subscriptions-text', 'This is testy-test-mactest') 
                 self.click_filter_close_button()
                 self.click_filters_button()
 
-                #check if filter settings saved!
+                # check if filter settings saved!
                 if (not(self.verifycheck_checkbox("filter-options-window", "match-installed-checkbox") and 
                     not(self.verifycheck_checkbox("filter-options-window", "match-system-checkbox")) and
                     not(self.verifycheck_checkbox("filter-options-window", "do-not-overlap-checkbox"))) and
-                    self.get_text_from_txtbox("filter-options-window","filter-subscriptions-text") == 'This is testy-test-mactest'):
+                    self.get_text_from_txtbox("filter-options-window", "filter-subscriptions-text") == 'This is testy-test-mactest'):
                     raise FailException("FAILED: Filter settings not saved!")
                 logger.info("SUCCESS: Filter settings saved!")
                 self.assert_(True, case_name)
