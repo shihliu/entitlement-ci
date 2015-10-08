@@ -1,8 +1,8 @@
 from utils import *
-from utils.tools.shell import command
+from testcases.base import Base
 from utils.exception.failexception import FailException
 
-class RHSMConstants(object):
+class RHSMConstants(Base):
     sam_cons = {
             "username": "admin",
             "password": "admin",
@@ -80,5 +80,5 @@ class RHSMConstants(object):
         if(self.__initialized):
             return
         else:
-            self.os_serial = command.get_os_serials()
+            self.os_serial = self.get_os_serials()
             self.__initialized = True

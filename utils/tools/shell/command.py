@@ -50,14 +50,6 @@ def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
     return commander.run_interact(cmd, timeout, cmddesc)
 
-def get_os_serials(targetmachine_ip=None):
-    cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
-    (ret, output) = runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
-    if ret == 0:
-        return output.strip("\n").strip(" ")
-    else:
-        raise FailException("Failed to get os serials")
-
 if __name__ == "__main__":
     commander = Command("10.34.35.76", "root", "red2015")
 #     cmd = "virsh migrate --live 5.10_Server_x86_64 qemu+ssh://10.16.67.184/system --undefinesource"
