@@ -68,6 +68,7 @@ class RHSMGuiLocator(Base):
     # button in register dialog
     'dialog-register-button-5':              'register_button',
     'dialog-register-button':                'btnregisterbutton',
+    'dialog-cancel-button-7':                'btnclosebutton',
     'dialog-cancel-button-5':                'cancel_button',
     'dialog-cancel-button':                  'btncancelbutton',
     # button in subscribe dialog
