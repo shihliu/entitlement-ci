@@ -17,7 +17,7 @@ class tc_ID115130_listorgs(RHSMBase):
             elif ret == 0 and "Name" in output and "Key" in output:
                 logging.info("It's successful to list orgs info.")
             else:
-                raise error.TestFail("Test Failed - Failed to list orgs info.")
+                raise FailException("Test Failed - Failed to list orgs info.")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

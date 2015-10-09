@@ -14,11 +14,10 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
-            server_type = get_exported_param("SERVER_TYPE")
 
-            if server_type == "SAM":
+            if self.test_server == "SAM":
                 baseurl = "https://" + sever_hostname + "/sam/api"
-            elif server_type == "SATELLITE":
+            elif self.test_server == "SATELLITE":
                 baseurl = "https://" + sever_hostname + "/rhsm"
 
             # get consumerid

@@ -536,9 +536,8 @@ class VDSMBase(VIRTWHOBase):
 #         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
-        SERVER_TYPE = get_exported_param("SERVER_TYPE")
         SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
-        if SERVER_TYPE == "STAGE":
+        if self.test_server == "STAGE":
             SERVER_USER = self.get_vw_cons("STAGE_USER")
             SERVER_PASS = self.get_vw_cons("STAGE_PASS")
         else:

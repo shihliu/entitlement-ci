@@ -8,7 +8,7 @@ class tc_ID413502_thread_not_increase_over_time(KVMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.vw_undefine_all_guests()
-            if self.get_os_serials() == "6":
+            if self.os_serial == "6":
                 self.setup_libvirtd_config()
                 self.vw_restart_libvirtd()
                 for i in range(3):

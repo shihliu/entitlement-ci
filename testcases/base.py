@@ -29,8 +29,34 @@ class Base(unittest.TestCase):
             return output.strip("\n").strip(" ")
         else: raise FailException("Failed to get os serials")
 
+    def service_command(self, command, targetmachine_ip="", is_return=False):
+        virtwho_cons = VIRTWHOConstants()
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = virtwho_cons.virt_who_commands[command + "_systemd"]
+        else:
+            cmd = virtwho_cons.virt_who_commands[command]
+        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
+        if is_return == True:
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return True
+            else:
+                return False
+        else:
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return output
+            else:
+                raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+
+    def get_hg_info(self, targetmachine_ip):
+        if targetmachine_ip == "":
+            host_guest_info = "in host machine"
+        else:
+            host_guest_info = "in guest machine %s" % targetmachine_ip
+        return host_guest_info
+
     def get_rhsm_cons(self, name):
-#         test_server = get_exported_param("SERVER_TYPE")
         rhsm_cons = RHSMConstants()
         if self.test_server == "SAM":
             if self.os_serial == "7" and name + "_el7" in rhsm_cons.sam_cons:
@@ -51,7 +77,6 @@ class Base(unittest.TestCase):
 
     def get_vw_cons(self, name):
         virtwho_cons = VIRTWHOConstants()
-#         test_server = get_exported_param("SERVER_TYPE")
         if self.test_server == "SAM":
             return virtwho_cons.virtwho_sam_cons[name]
         elif self.test_server == "SATELLITE":
@@ -120,7 +145,6 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
-#         test_server = get_exported_param("SERVER_TYPE")
         if self.test_server == "STAGE" :
             self.configure_stage_host("subscription.rhn.stage.redhat.com", targetmachine_ip)
         else:
@@ -251,14 +275,12 @@ class Base(unittest.TestCase):
     # ========================================================
 
     def skip_on_rhel7(self):
-#         rhel_version = self.get_os_serials()
         if self.os_serial == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
             return True
         else: return False
 
     def skip_satellite(self):
-#         test_server = get_exported_param("SERVER_TYPE")
         if self.test_server == "SATELLITE" :
             logger.info("satellite do not support, this test case is skipped ...")
             return True
@@ -272,5 +294,11 @@ class Base(unittest.TestCase):
         self.os_serial = self.get_os_serials()
         self.test_server = get_exported_param("SERVER_TYPE")
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
+        SERVER_IP = get_exported_param("SERVER_IP")
+        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+        REMOTE_IP = get_exported_param("REMOTE_IP")
+        REMOTE_IP_2 = get_exported_param("REMOTE_IP_2")
+        RHEL_COMPOSE = get_exported_param("RHEL_COMPOSE")
+        BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
         logger.info("********************************************************************************")
 

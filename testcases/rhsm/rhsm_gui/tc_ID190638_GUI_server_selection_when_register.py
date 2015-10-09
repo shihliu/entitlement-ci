@@ -13,11 +13,10 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 sever_hostname = get_exported_param("SERVER_HOSTNAME")
-                server_type = get_exported_param("SERVER_TYPE")
 
-                if server_type == "SAM":
+                if self.test_server == "SAM":
                     server_url = sever_hostname + ":443/sam/api"
-                elif server_type == "SATELLITE":
+                elif self.test_server == "SATELLITE":
                     if "satellite" in sever_hostname:
                         sever_hostname = sever_hostname + ".novalocal"
                     server_url = sever_hostname + ":443/rhsm"

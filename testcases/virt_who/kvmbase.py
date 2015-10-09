@@ -409,9 +409,8 @@ class KVMBase(VIRTWHOBase):
     #       KVM - test env set up function
     # ========================================================
     def kvm_setup(self):
-        SERVER_TYPE = get_exported_param("SERVER_TYPE")
         SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
-        if SERVER_TYPE == "STAGE":
+        if self.test_server == "STAGE":
             SERVER_USER = self.get_vw_cons("STAGE_USER")
             SERVER_PASS = self.get_vw_cons("STAGE_PASS")
         else:

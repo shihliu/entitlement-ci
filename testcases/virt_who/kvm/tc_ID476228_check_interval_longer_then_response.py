@@ -22,7 +22,7 @@ class tc_ID476228_check_interval_longer_then_response(KVMBase):
                 logger.error("Failed to set VIRTWHO_INTERVAL=30.")
 
             # check if the guest uuid is correctly monitored by virt-who. '''
-            if self.get_os_serials() == "7":
+            if self.os_serial == "7":
                 cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
                 ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f")
                 # ignore restart virt-who serivce since virt-who -b -d will stop

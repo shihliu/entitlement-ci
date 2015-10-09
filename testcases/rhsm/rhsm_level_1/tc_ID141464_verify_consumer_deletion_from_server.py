@@ -15,18 +15,17 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
-            server_type = get_exported_param("SERVER_TYPE")
 
-            if server_type == "SAM":
+            if self.test_server == "SAM":
                 baseurl = "https://" + sever_hostname + "/sam/api"
-            elif server_type == "SATELLITE":
+            elif self.test_server == "SATELLITE":
                 baseurl = "https://" + sever_hostname + "/rhsm"
 
-            #if "8443" in baseurl:
+            # if "8443" in baseurl:
              #   baseurl = baseurl + "/candlepin"
-            #elif samhostip == None:
+            # elif samhostip == None:
             #    baseurl = baseurl + "/subscription"
-            #else:
+            # else:
             #    baseurl = baseurl + "/sam/api"
 
             # get consumerid

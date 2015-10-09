@@ -19,7 +19,7 @@ class rhsm_gui_setup(RHSMGuiBase):
     def rhsm_gui_sys_setup(self):
         # in rhel 6, run yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform' instead
         # yum install -y python-twisted tigervnc-server git
-        if self.get_os_serials() == "7":
+        if self.os_serial == "7":
             cmd = "yum install -y @gnome-desktop tigervnc-server pexpect pyatspi"
             ret, output = self.runcmd(cmd, "install gui related packages", showlogger=False)
             if ret == 0:
@@ -66,7 +66,7 @@ EOF
             logger.info("Succeeded to start ldtp server")
         else:
             raise FailException("Test Failed - Failed to start ldtp server")
-        if self.get_os_serials() == "7":
+        if self.os_serial == "7":
             cmd = "service firewalld stop"
         else:
             cmd = "service iptables stop"

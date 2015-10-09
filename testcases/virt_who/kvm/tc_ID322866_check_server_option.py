@@ -15,7 +15,6 @@ class tc_ID322866_check_server_option(KVMBase):
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
-            test_server = get_exported_param("SERVER_TYPE")
             VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
             VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
             VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
@@ -26,7 +25,7 @@ class tc_ID322866_check_server_option(KVMBase):
             self.vw_stop_virtwho_new(remote_ip_2)
 
             # check option of --satellite6 and --sam
-            if test_server == "SATELLITE":
+            if self.test_server == "SATELLITE":
                 cmd = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password= --satellite6 -o -d" % (VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV, VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME)
                 ret, output = self.runcmd(cmd, "run --satellite6 in CLI", targetmachine_ip=remote_ip_2)
                 if ret == 0 and guestuuid in output:
