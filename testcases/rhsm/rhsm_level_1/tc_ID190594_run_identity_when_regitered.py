@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID190594_run_identity_when_regitered(RHSMBase):
@@ -9,8 +8,8 @@ class tc_ID190594_run_identity_when_regitered(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # register the system
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             cmd = 'subscription-manager identity'
             (ret, output) = self.runcmd(cmd, "running identity command")

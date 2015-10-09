@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # get baseurl
             # get baseurl
@@ -26,7 +25,7 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             cmd = "subscription-manager identity | grep identity"
             (ret, output) = self.runcmd(cmd, "get consumerid")
             consumerid = output.split(':')[1].strip()
-            service_level = RHSMConstants().get_constant("servicelevel")
+            service_level = self.get_rhsm_cons("servicelevel")
             # call dry run bind to products by api
             cmd = "curl -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s/entitlements/dry-run?service_level=%s && echo \"\r\"" % (baseurl, consumerid, service_level)
             (ret, output) = self.runcmd(cmd, "dry run bind by products api")

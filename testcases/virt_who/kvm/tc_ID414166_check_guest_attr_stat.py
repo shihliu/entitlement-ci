@@ -1,7 +1,6 @@
 import time
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID414166_check_guest_attr_stat(KVMBase):
@@ -9,7 +8,7 @@ class tc_ID414166_check_guest_attr_stat(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             # Start guest and check guest's uuid and guest's attribute 

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID166454_subscription_manager_register_help_manual(RHSMBase):

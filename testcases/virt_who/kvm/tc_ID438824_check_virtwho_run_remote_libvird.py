@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
@@ -13,7 +12,7 @@ class tc_ID438824_check_virtwho_run_remote_libvird(KVMBase):
             remote_ip = get_exported_param("REMOTE_IP")
             username = "root"
             password = "red2015"
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             # stop virt-who service on host1

@@ -1,7 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115139_GUI_list_available_pools(RHSMGuiBase):
@@ -11,8 +9,8 @@ class tc_ID115139_GUI_list_available_pools(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()
@@ -23,7 +21,7 @@ class tc_ID115139_GUI_list_available_pools(RHSMGuiBase):
                 self.click_filter_close_button()
                 self.click_update_button()
                 # check sub_listavailpools are all shown in gui
-                productid = RHSMConstants().get_constant("productid")
+                productid = self.get_rhsm_cons("productid")
                 for item in self.sub_listavailpools(productid):
                     print item
                     if not self.check_content_in_all_subscription_table(item["SubscriptionName"]):

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 import time
 
@@ -12,18 +11,18 @@ class tc_ID143330_configure_to_remove_redhatrepo(RHSMBase):
             if not self.skip_satellite():
                 # [A] - prepare test env
                 # register to server
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
                 # auto subscribe to a pool
-                autosubprod = RHSMConstants().get_constant("autosubprod")
+                autosubprod = self.get_rhsm_cons("autosubprod")
                 self.sub_autosubscribe(autosubprod)
                 # [B] - run the test
                 # list available repos
                 cmd = "subscription-manager repos --list"
                 (ret, output) = self.runcmd(cmd, "list available repos")
-                productrepo = RHSMConstants().get_constant("productrepo")
-                betarepo = RHSMConstants().get_constant("betarepo")
+                productrepo = self.get_rhsm_cons("productrepo")
+                betarepo = self.get_rhsm_cons("betarepo")
                 if ret == 0 and productrepo in output and betarepo in output:
                     logger.info("It's successful to list available repos.")
                 else:

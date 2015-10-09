@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID155173_ESX_check_uuid_when_guest_paused_or_shutdown(ESXBase):
@@ -8,8 +7,8 @@ class tc_ID155173_ESX_check_uuid_when_guest_paused_or_shutdown(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            destination_ip = self.get_vw_cons("ESX_HOST")
 
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 

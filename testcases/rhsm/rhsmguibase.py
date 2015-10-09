@@ -1,7 +1,6 @@
 import ldtp
 from utils import *
 from testcases.base import Base
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from utils.exception.failexception import FailException
 
 class RHSMGuiBase(Base):
@@ -12,33 +11,30 @@ class RHSMGuiBase(Base):
 
     def activate_window(self, window):
         ldtp.wait()
-        ldtp.activatewindow(RHSMGuiLocator().get_locator(window))
+        ldtp.activatewindow(self.get_locator(window))
 
-    # used to get the text value at a label and returns the output as a string
-    # eg get the value of lblOrganizationValue
-    # input as the args the name of the window the label is in and the name we gave the label.  Can be gound in the guilocator.
     def get_label_txt(self, window, label):
         logger.info("Retrieving label from %s" % label)
-        return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(label))
+        return ldtp.gettextvalue(self.get_locator(window), self.get_locator(label))
 
     def get_text_from_txtbox(self, window, txtbox):
         logger.info("Retrieving text from %s" % txtbox)
-        return ldtp.gettextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(txtbox))
+        return ldtp.gettextvalue(self.get_locator(window), self.get_locator(txtbox))
 
     def select_row_by_name(self, window, table, row_name):
         logger.info("Selecting table %s at row_name %s" % (table, row_name))
-        ldtp.selectrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+        ldtp.selectrow(self.get_locator(window), self.get_locator(table), row_name)
         ldtp.wait()
 
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
         ldtp.wait()
-        ldtp.selectrowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row)
+        ldtp.selectrowindex(self.get_locator(window), self.get_locator(table), row)
         # dtp.wait()
 
     def double_click_row(self, window, table, row_name):
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
-        ldtp.doubleclickrow(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+        ldtp.doubleclickrow(self.get_locator(window), self.get_locator(table), row_name)
         ldtp.wait()
 
     def restore_gui_environment(self):
@@ -57,8 +53,6 @@ class RHSMGuiBase(Base):
         (ret, output) = self.runcmd(cmd, "unregister system")
         if ret == 0:
             logger.info("It's successful to unregister system.")
-        cmd = "subscription-manager clean"
-        (ret, output) = self.runcmd(cmd, "run subscription-manager clean")
 
     def capture_image(self, image_name="", window=""):
         # capture image and name it by time
@@ -72,7 +66,7 @@ class RHSMGuiBase(Base):
 
     def list_objects(self, window):
         logger.info("get objects list in window: %s" % window)
-        all_objects_list = self.__parse_objects(ldtp.getobjectlist(RHSMGuiLocator().get_locator(window)))
+        all_objects_list = self.__parse_objects(ldtp.getobjectlist(self.get_locator(window)))
         logger.info("sorted all_objects_list: %s" % all_objects_list)
 
     def __parse_objects(self, objects_list):
@@ -110,44 +104,44 @@ class RHSMGuiBase(Base):
 
     def check_window_exist(self, window):
         logger.info('check_window_exist %s' % window)
-        ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window))
+        ldtp.waittillguiexist(self.get_locator(window))
 
     def close_window(self, window):
-        ldtp.closewindow(RHSMGuiLocator().get_locator(window))
+        ldtp.closewindow(self.get_locator(window))
         self.check_window_closed(window)
 
     def check_window_closed(self, window):
-        ldtp.waittillguinotexist(RHSMGuiLocator().get_locator(window))
+        ldtp.waittillguinotexist(self.get_locator(window))
 
     def check_window_open(self, window):
         self.check_window_exist(window)
-        return ldtp.guiexist(RHSMGuiLocator().get_locator(window))
+        return ldtp.guiexist(self.get_locator(window))
 
     def check_element_exist(self, window, type, name):
         logger.info("check_element_exist")
-        return ldtp.waittillguiexist(RHSMGuiLocator().get_locator(window), type + name)
+        return ldtp.waittillguiexist(self.get_locator(window), type + name)
 
     def click_button(self, window, button_name):
-        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))
+        ldtp.click(self.get_locator(window), self.get_locator(button_name))
 
     def click_menu(self, window, menu_name):
-        ldtp.click(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
+        ldtp.click(self.get_locator(window), self.get_locator(menu_name))
 
     def check_checkbox(self, window, checkbox_name):
         logger.info("Checking checkbox %s in window %s" % (checkbox_name, window))
-        ldtp.check(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+        ldtp.check(self.get_locator(window), self.get_locator(checkbox_name))
 
     def uncheck_checkbox(self, window, checkbox_name):
         logger.info("Unchecking checkbox %s in window %s" % (checkbox_name, window))
-        ldtp.uncheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+        ldtp.uncheck(self.get_locator(window), self.get_locator(checkbox_name))
 
     def verifycheck_checkbox(self, window, checkbox_name):
-        return ldtp.verifycheck(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(checkbox_name))
+        return ldtp.verifycheck(self.get_locator(window), self.get_locator(checkbox_name))
 
     def get_table_row_index(self, window, table, row_name):
         ldtp.wait(15)
         logger.info('Retrieving row index from window %s on table %s with row_name %s' % (window, table, row_name))
-        return ldtp.gettablerowindex(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), row_name)
+        return ldtp.gettablerowindex(self.get_locator(window), self.get_locator(table), row_name)
 
     # ========================================================
     #     1. LDTP GUI Keyword Functions
@@ -374,16 +368,16 @@ class RHSMGuiBase(Base):
 #         logger.info("click_Certificate_Location")
 #         self.click_button("import-cert-dialog", "type-pem-name-button")
 #         time.sleep(30)
-#         if ldtp.guiexist(RHSMGuiLocator().get_locator("import-cert-dialog"), RHSMGuiLocator().get_locator("location-text")):
+#         if ldtp.guiexist(self.get_locator("import-cert-dialog"), self.get_locator("location-text")):
 #             pass
 
     def click_type_file_name_button(self):
-        if ldtp.guiexist(RHSMGuiLocator().get_locator("import-cert-dialog"), RHSMGuiLocator().get_locator("location-text")) == 1:
+        if ldtp.guiexist(self.get_locator("import-cert-dialog"), self.get_locator("location-text")) == 1:
             return
         else:
             logger.info("click_type_file_name_button")
             self.click_button("import-cert-dialog", "type-file-name-button")
-            ldtp.waittillguiexist(RHSMGuiLocator().get_locator("import-cert-dialog"), RHSMGuiLocator().get_locator("location-text"))
+            ldtp.waittillguiexist(self.get_locator("import-cert-dialog"), self.get_locator("location-text"))
 
     def click_import_cert_button(self):
         logger.info("click import cert button")
@@ -544,7 +538,7 @@ class RHSMGuiBase(Base):
 
     def click_facts_view_tree(self, branch):
         logger.info("click_facts_view_tree")
-        ldtp.doubleclickrow(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"), branch)
+        ldtp.doubleclickrow(self.get_locator("system-facts-dialog"), self.get_locator("facts-view-table"), branch)
         ldtp.wait(5)
 
     def check_manual_attach_checkbox(self):
@@ -587,14 +581,14 @@ class RHSMGuiBase(Base):
 
     def check_list_item_selected(self, window, list, item):
 #         for row in range(self.get_all_subscription_table_row_count()):
-#             if RHSMGuiLocator().get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
+#             if self.get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
 #                 logger.info("%s is listed in my_subscriptions_table" % content)
 #                 return True
         return False
 
     def check_item_in_list(self, window, list, item):
 #         for row in range(self.get_all_subscription_table_row_count()):
-#             if RHSMGuiLocator().get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
+#             if self.get_locator_cell("main-window", 'my-subscription-table', row , 0) == content:
 #                 logger.info("%s is listed in my_subscriptions_table" % content)
 #                 return True
         return False
@@ -628,44 +622,44 @@ class RHSMGuiBase(Base):
             return False
 
     def get_facts_value_by_name(self, facts_name):
-        for row in range(ldtp.getrowcount(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"))):
-            if(ldtp.getcellvalue(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"), row, 0).strip() == facts_name):
+        for row in range(ldtp.getrowcount(self.get_locator("system-facts-dialog"), self.get_locator("facts-view-table"))):
+            if(ldtp.getcellvalue(self.get_locator("system-facts-dialog"), self.get_locator("facts-view-table"), row, 0).strip() == facts_name):
                 logger.info("get_facts_value_by_name")
-                return ldtp.getcellvalue(RHSMGuiLocator().get_locator("system-facts-dialog"), RHSMGuiLocator().get_locator("facts-view-table"), row, 1)
+                return ldtp.getcellvalue(self.get_locator("system-facts-dialog"), self.get_locator("facts-view-table"), row, 1)
         raise FailException("Test Failed - Failed to get_facts_value_by_name.")
 
     def check_server_url(self, server_url):
-        print ldtp.gettextvalue(RHSMGuiLocator().get_locator("register-dialog"), RHSMGuiLocator().get_locator("server-url-text"))
-        return ldtp.gettextvalue(RHSMGuiLocator().get_locator("register-dialog"), RHSMGuiLocator().get_locator("server-url-text")) == server_url
+        print ldtp.gettextvalue(self.get_locator("register-dialog"), self.get_locator("server-url-text"))
+        return ldtp.gettextvalue(self.get_locator("register-dialog"), self.get_locator("server-url-text")) == server_url
 
     def check_table_value_exist(self, window, table, cellvalue):
-        return ldtp.doesrowexist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table), cellvalue)
+        return ldtp.doesrowexist(self.get_locator(window), self.get_locator(table), cellvalue)
 
     def check_object_exist(self, window, object_name):
         logger.info("check_object_exist")
         ldtp.wait()
-        return ldtp.guiexist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(object_name))
+        return ldtp.guiexist(self.get_locator(window), self.get_locator(object_name))
 
     def check_menu_enabled(self, window, menu_name):
         logger.info("check_menu_enabled")
-        return ldtp.menuitemenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(menu_name))
+        return ldtp.menuitemenabled(self.get_locator(window), self.get_locator(menu_name))
 
     def check_combo_item(self, window, combobox, item_name):
         logger.info("check_combo_item")
         # do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
-        ldtp.showlist(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox)) 
+        ldtp.showlist(self.get_locator(window), self.get_locator(combobox)) 
         ldtp.wait(10)
-        return item_name in ldtp.getallitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox))
+        return item_name in ldtp.getallitem(self.get_locator(window), self.get_locator(combobox))
 
     def select_combo_item(self, window, combobox, item_name):
         logger.info("select_combo_item")
         ldtp.wait(10)
-        return ldtp.selectitem(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
+        return ldtp.selectitem(self.get_locator(window), self.get_locator(combobox), item_name)
 
     def check_combo_item_selected(self, window, combobox, item_name):
         logger.info("check_combo_item_selected")
         ldtp.wait(10)
-        return ldtp.verifyselect(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(combobox), item_name)
+        return ldtp.verifyselect(self.get_locator(window), self.get_locator(combobox), item_name)
 
     def check_object_status(self, window, object_name, status):
         ldtp.wait()
@@ -673,27 +667,27 @@ class RHSMGuiBase(Base):
             real_status = ldtp.state.ENABLED
         elif status == "VISIBLE":
             real_status = ldtp.state.VISIBLE
-        return ldtp.hasstate(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(object_name), real_status)
+        return ldtp.hasstate(self.get_locator(window), self.get_locator(object_name), real_status)
 
     def wait_until_button_enabled(self, window, button_name):
-        while not(ldtp.stateenabled(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(button_name))):
+        while not(ldtp.stateenabled(self.get_locator(window), self.get_locator(button_name))):
             ldtp.wait()
 
     def input_text(self, window, text, text_value):
-        ldtp.settextvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(text), text_value)
+        ldtp.settextvalue(self.get_locator(window), self.get_locator(text), text_value)
 
     def verify_text(self, window, text, text_value):
-        ldtp.verifysettext(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(text), text_value)
+        ldtp.verifysettext(self.get_locator(window), self.get_locator(text), text_value)
 
     def click_tab(self, tab_name):
-        ldtp.selecttab(RHSMGuiLocator().get_locator("main-window"), RHSMGuiLocator().get_locator("all-tabs"), RHSMGuiLocator().get_locator(tab_name))
+        ldtp.selecttab(self.get_locator("main-window"), self.get_locator("all-tabs"), self.get_locator(tab_name))
 
     def get_table_row_count(self, window, table_name):
         ldtp.wait()
-        return ldtp.getrowcount(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table_name))
+        return ldtp.getrowcount(self.get_locator(window), self.get_locator(table_name))
 
     def get_table_cell(self, window, table_name, row, colomn):
-        return ldtp.getcellvalue(RHSMGuiLocator().get_locator(window), RHSMGuiLocator().get_locator(table_name), row, colomn)
+        return ldtp.getcellvalue(self.get_locator(window), self.get_locator(table_name), row, colomn)
 
     def sendkeys(self, key1, key2="", key3=""):
         ldtp.keypress(key1)

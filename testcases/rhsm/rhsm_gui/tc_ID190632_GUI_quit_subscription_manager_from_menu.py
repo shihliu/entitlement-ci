@@ -1,7 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID190632_GUI_quit_subscription_manager_from_menu(RHSMGuiBase):

@@ -1,7 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID217501_GUI_open_rhsm_after_change_hostname(RHSMGuiBase):

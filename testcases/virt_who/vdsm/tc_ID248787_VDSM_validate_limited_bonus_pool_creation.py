@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID248787_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
@@ -10,12 +9,12 @@ class tc_ID248787_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = VIRTWHOConstants().get_constant("RHEVM_HOST")
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
 
-            test_sku = VIRTWHOConstants().get_constant("productid_guest")
-            bonus_quantity = VIRTWHOConstants().get_constant("guestlimit")
-            sku_name = VIRTWHOConstants().get_constant("productname_guest")
+            test_sku = self.get_vw_cons("productid_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit")
+            sku_name = self.get_vw_cons("productname_guest")
 
             #self.conf_rhevm_shellrc(rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)

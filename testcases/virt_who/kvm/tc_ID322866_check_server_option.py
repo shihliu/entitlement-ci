@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
@@ -13,13 +12,13 @@ class tc_ID322866_check_server_option(KVMBase):
             remote_ip = get_exported_param("REMOTE_IP")
             username = "root"
             password = "red2015"
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             test_server = get_exported_param("SERVER_TYPE")
-            VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
-            VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
-            VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
+            VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
+            VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+            VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
             VIRTWHO_LIBVIRT_SERVER = "qemu+ssh://" + remote_ip + "/system"
 
             # stop virt-who service on host1 and host2

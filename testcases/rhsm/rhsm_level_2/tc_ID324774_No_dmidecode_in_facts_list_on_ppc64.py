@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID324774_No_dmidecode_in_facts_list_on_ppc64(RHSMBase):

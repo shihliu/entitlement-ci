@@ -7,7 +7,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID181220_import_invaild_cert(RHSMBase):
@@ -15,8 +14,8 @@ class tc_ID181220_import_invaild_cert(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # create invaild pem file
             cmd = "touch /root/testinvalid.pem"

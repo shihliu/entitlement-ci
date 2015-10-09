@@ -1,7 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID178186_GUI_register_with_invalid_usename_password(RHSMGuiBase):

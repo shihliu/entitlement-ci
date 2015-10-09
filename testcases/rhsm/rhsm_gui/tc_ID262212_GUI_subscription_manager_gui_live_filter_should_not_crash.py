@@ -23,8 +23,6 @@ Does above instructions and sees whether the subscription-manager-gui window is 
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID262212_GUI_subscription_manager_gui_live_filter_should_not_crash(RHSMGuiBase):
@@ -34,8 +32,8 @@ class tc_ID262212_GUI_subscription_manager_gui_live_filter_should_not_crash(RHSM
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()

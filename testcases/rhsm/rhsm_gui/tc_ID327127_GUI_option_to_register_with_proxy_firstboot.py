@@ -24,8 +24,6 @@ Completed.
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID327127_GUI_option_to_register_with_proxy_firstboot(RHSMGuiBase):

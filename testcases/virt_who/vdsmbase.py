@@ -1,7 +1,6 @@
 from utils import *
 from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 
 class VDSMBase(VIRTWHOBase):
     def configure_rhel_host_bridge(self, targetmachine_ip=""):
@@ -491,20 +490,20 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to restart vdsmd")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        RHEVM_IP = VIRTWHOConstants().get_constant("RHEVM_HOST")
-        RHEL_RHEVM_GUEST_NAME = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
+        RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
+        RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         REMOTE_IP_NAME = self.get_hostname()
         # REMOTE_IP_2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
         
-        VIRTWHO_RHEVM_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_OWNER")
-        VIRTWHO_RHEVM_ENV = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_ENV")
-        # VIRTWHO_RHEVM_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_SERVER")
-        VIRTWHO_RHEVM_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_USERNAME")
-        VIRTWHO_RHEVM_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_RHEVM_PASSWORD")
+        VIRTWHO_RHEVM_OWNER = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
+        VIRTWHO_RHEVM_ENV = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
+        # VIRTWHO_RHEVM_SERVER = self.get_vw_cons("VIRTWHO_RHEVM_SERVER")
+        VIRTWHO_RHEVM_USERNAME = self.get_vw_cons("VIRTWHO_RHEVM_USERNAME")
+        VIRTWHO_RHEVM_PASSWORD = self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
 
-        NFSserver_ip = VIRTWHOConstants().get_constant("NFSserver_ip_test")
-        nfs_dir_for_storage = VIRTWHOConstants().get_constant("NFS_DIR_FOR_storage")
-        nfs_dir_for_export = VIRTWHOConstants().get_constant("NFS_DIR_FOR_export")
+        NFSserver_ip = self.get_vw_cons("NFSserver_ip_test")
+        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
+        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
 
         # system setup for RHEL+RHEVM testing env
 #         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
@@ -540,8 +539,8 @@ class VDSMBase(VIRTWHOBase):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
         SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
         if SERVER_TYPE == "STAGE":
-            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
+            SERVER_USER = self.get_vw_cons("STAGE_USER")
+            SERVER_PASS = self.get_vw_cons("STAGE_PASS")
         else:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 

@@ -7,7 +7,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID180680_autosubscribe_without_product_cert(RHSMBase):
@@ -22,10 +21,10 @@ class tc_ID180680_autosubscribe_without_product_cert(RHSMBase):
                 logger.info(" It's successful to move the product cert.")
             else:
                 raise FailException("Test Failed - Failed to move the product cert to other dir.")
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.check_autosub_result(autosubprod)
             # Check the entitlement cert
             cmd = "ls -l /etc/pki/entitlement"

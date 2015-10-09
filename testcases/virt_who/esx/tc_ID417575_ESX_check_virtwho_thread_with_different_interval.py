@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID417575_ESX_check_virtwho_thread_with_different_interval(ESXBase):

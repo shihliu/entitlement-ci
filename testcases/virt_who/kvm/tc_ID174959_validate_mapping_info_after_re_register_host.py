@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID174959_validate_mapping_info_after_re_register_host(KVMBase):
@@ -10,7 +9,7 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             # Check guest uuid before unregister

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115122_check_uuid_with_none_guest(KVMBase):

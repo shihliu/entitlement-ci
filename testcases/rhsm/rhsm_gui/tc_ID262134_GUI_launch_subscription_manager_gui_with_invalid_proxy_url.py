@@ -21,8 +21,6 @@ Notes:
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID262134_GUI_launch_subscription_manager_gui_with_invalid_proxy_url(RHSMGuiBase):

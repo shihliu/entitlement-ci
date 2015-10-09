@@ -27,8 +27,6 @@ It just selects a product in the pool and sees whether product is the my-subscri
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115175_GUI_subscribe_to_a_pool(RHSMGuiBase):
@@ -38,8 +36,8 @@ class tc_ID115175_GUI_subscribe_to_a_pool(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()

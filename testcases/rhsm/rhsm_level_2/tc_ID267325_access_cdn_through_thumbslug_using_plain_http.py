@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
@@ -8,10 +7,10 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
-            autosubprod = RHSMConstants().get_constant("autosubprod")
-            pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
+            autosubprod = self.get_rhsm_cons("autosubprod")
+            pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
             if not self.skip_satellite():
                 self.check_and_backup_yum_repos()
                 # register to and auto-attach

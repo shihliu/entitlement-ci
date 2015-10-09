@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID301665_Instance_host_autosubscribe_instance(KVMBase):
@@ -10,10 +9,10 @@ class tc_ID301665_Instance_host_autosubscribe_instance(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("instancebase_sku_id")
-            sku_name = VIRTWHOConstants().get_constant("instancebase_name")
+            test_sku = self.get_vw_cons("instancebase_sku_id")
+            sku_name = self.get_vw_cons("instancebase_name")
 
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "8")

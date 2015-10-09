@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 import random
 
@@ -9,8 +8,8 @@ class tc_ID115187_updatefactsinfo(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             org_cpusocket = self.get_current_facts_info()
             selectlist = ['1', '2', '3', '4', '5', '6', '7', '8']

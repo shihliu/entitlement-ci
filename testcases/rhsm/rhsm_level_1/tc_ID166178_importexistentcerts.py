@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID166178_importexistentcerts(RHSMBase):
@@ -8,10 +7,10 @@ class tc_ID166178_importexistentcerts(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # check whether entitlement certificates generated and productid in them or not
             productid = self.check_sku_in_consumed_subscriptions()

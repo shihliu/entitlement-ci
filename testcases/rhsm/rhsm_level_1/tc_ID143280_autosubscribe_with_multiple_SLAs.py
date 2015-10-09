@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID143280_autosubscribe_with_multiple_SLAs(RHSMBase):
@@ -8,11 +7,11 @@ class tc_ID143280_autosubscribe_with_multiple_SLAs(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # get service_level
-            service_level = RHSMConstants().get_constant("servicelevel")
+            service_level = self.get_rhsm_cons("servicelevel")
             # auto subscribe with one service level
             cmd = "subscription-manager subscribe --auto --servicelevel=%s" % service_level
             (ret, output) = self.runcmd(cmd, "autosubscribe with one service-level")

@@ -1,7 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115141_GUI_list_products_and_subscriptions_info(RHSMGuiBase):
@@ -11,11 +9,11 @@ class tc_ID115141_GUI_list_products_and_subscriptions_info(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
-                productid = RHSMConstants().get_constant("productid")
+                productid = self.get_rhsm_cons("productid")
                 self.click_my_installed_products_tab()
                 for item in self.sub_listinstalledpools():
                     if not self.check_content_in_my_installed_products_table(item["SubscriptionName"]):

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189613_list_consumed_matching_servicelevel(RHSMBase):
@@ -8,15 +7,15 @@ class tc_ID189613_list_consumed_matching_servicelevel(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # get service_level
-            service_level = RHSMConstants().get_constant("servicelevel")
+            service_level = self.get_rhsm_cons("servicelevel")
             # set service level
             self.sub_set_servicelevel(service_level)
             # auto attach
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # list consumed subscriptions matching specified service level
             cmd = "subscription-manager list --consumed --servicelevel=%s" % service_level

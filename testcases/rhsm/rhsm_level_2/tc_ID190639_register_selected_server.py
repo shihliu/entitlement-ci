@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID190639_register_selected_server(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID190639_register_selected_server(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             baseurl = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
             # register to sam candlepin server

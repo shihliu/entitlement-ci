@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
@@ -13,13 +12,13 @@ class tc_ID476491_check_offline_mode(KVMBase):
             remote_ip = get_exported_param("REMOTE_IP")
             username = "root"
             password = "red2015"
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
-            VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
-            VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
-            VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
+            SERVER_USER = self.get_vw_cons("SERVER_USER")
+            SERVER_PASS = self.get_vw_cons("SERVER_PASS")
+            VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
+            VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+            VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
             VIRTWHO_LIBVIRT_SERVER = "qemu+ssh://" + remote_ip + "/system"
             VIRTWHO_FAKE_FILE = "/home/fake"
 

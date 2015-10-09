@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID301527_Instance_compliance_in_guest(KVMBase):
@@ -10,10 +9,10 @@ class tc_ID301527_Instance_compliance_in_guest(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("instancebase_sku_id")
-            sku_name = VIRTWHOConstants().get_constant("instancebase_name")
+            test_sku = self.get_vw_cons("instancebase_sku_id")
+            sku_name = self.get_vw_cons("instancebase_name")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)

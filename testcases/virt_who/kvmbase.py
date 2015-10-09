@@ -1,7 +1,6 @@
 from utils import *
 from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class KVMBase(VIRTWHOBase):
@@ -38,9 +37,9 @@ class KVMBase(VIRTWHOBase):
 
     def mount_images(self):
         ''' mount the images prepared '''
-        image_server = VIRTWHOConstants().get_constant("beaker_image_server")
-        image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
-        image_mount_path = VIRTWHOConstants().get_constant("local_mount_point")
+        image_server = self.get_vw_cons("beaker_image_server")
+        image_nfs_path = self.get_vw_cons("nfs_image_path")
+        image_mount_path = self.get_vw_cons("local_mount_point")
         cmd = "mkdir %s" % image_mount_path
         self.runcmd(cmd, "create local images mount point")
         cmd = "mkdir %s" % image_nfs_path
@@ -185,17 +184,17 @@ class KVMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
 
     def vw_define_all_guests(self, targetmachine_ip=""):
-        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        guest_path = self.get_vw_cons("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
             self.define_vm(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
 
     def vw_undefine_all_guests(self, targetmachine_ip=""):
-        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        guest_path = self.get_vw_cons("nfs_image_path")
         for guestname in self.get_all_guests_list(guest_path, targetmachine_ip):
             self.vw_undefine_guest(guestname, targetmachine_ip)
 
     def vw_define_guest(self, guestname, targetmachine_ip=""):
-        guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+        guest_path = self.get_vw_cons("nfs_image_path")
         self.define_vm(guestname, os.path.join(guest_path, guestname), targetmachine_ip)
 
     def get_all_guests_list(self, guest_path, targetmachine_ip=""):
@@ -313,9 +312,9 @@ class KVMBase(VIRTWHOBase):
             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
 
     def set_remote_libvirt_conf(self, virtwho_remote_server_ip, targetmachine_ip=""):
-        VIRTWHO_LIBVIRT_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_OWNER")
-        VIRTWHO_LIBVIRT_ENV = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_ENV")
-        VIRTWHO_LIBVIRT_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_LIBVIRT_USERNAME")
+        VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
+        VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+        VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
         VIRTWHO_LIBVIRT_SERVER = "qemu+ssh:\/\/" + virtwho_remote_server_ip + "\/system"
 
         cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/.*VIRTWHO_LIBVIRT=.*/VIRTWHO_LIBVIRT=1/g' -e 's/.*VIRTWHO_LIBVIRT_OWNER=.*/VIRTWHO_LIBVIRT_OWNER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_ENV=.*/VIRTWHO_LIBVIRT_ENV=%s/g' -e 's/.*VIRTWHO_LIBVIRT_SERVER=.*/VIRTWHO_LIBVIRT_SERVER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_USERNAME=.*/VIRTWHO_LIBVIRT_USERNAME=%s/g' -e 's/.*VIRTWHO_LIBVIRT_PASSWORD=.*/VIRTWHO_LIBVIRT_PASSWORD=/g' /etc/sysconfig/virt-who" % (VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV, VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME)
@@ -413,8 +412,8 @@ class KVMBase(VIRTWHOBase):
         SERVER_TYPE = get_exported_param("SERVER_TYPE")
         SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
         if SERVER_TYPE == "STAGE":
-            SERVER_USER = VIRTWHOConstants().get_constant("STAGE_USER")
-            SERVER_PASS = VIRTWHOConstants().get_constant("STAGE_PASS")
+            SERVER_USER = self.get_vw_cons("STAGE_USER")
+            SERVER_PASS = self.get_vw_cons("STAGE_PASS")
         else:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
@@ -437,7 +436,7 @@ class KVMBase(VIRTWHOBase):
             self.sub_unregister(slave_machine_ip)
             self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
-            image_nfs_path = VIRTWHOConstants().get_constant("nfs_image_path")
+            image_nfs_path = self.get_vw_cons("nfs_image_path")
             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
             self.update_vw_configure(slave_machine_ip)
             self.vw_restart_virtwho(slave_machine_ip)

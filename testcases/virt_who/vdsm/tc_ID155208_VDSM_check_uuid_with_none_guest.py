@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID155208_VDSM_check_uuid_with_none_guest(VDSMBase):
@@ -8,8 +7,8 @@ class tc_ID155208_VDSM_check_uuid_with_none_guest(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            rhevm_ip = VIRTWHOConstants().get_constant("RHEVM_HOST")
-            guest_name = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
+            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
 
             cmd = "rhevm-shell -c -E 'show vm %s'" % guest_name
             ret, output = self.runcmd(cmd, "list vm in rhevm.", rhevm_ip)

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID324831_lscpu_socket_facts_value_should_be_the_same_with_value_reported_by_lscpu(RHSMBase):

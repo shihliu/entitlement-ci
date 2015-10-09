@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID308833_check_uuid_after_add_large_number_guests(KVMBase):
@@ -8,7 +7,7 @@ class tc_ID308833_check_uuid_after_add_large_number_guests(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_path = VIRTWHOConstants().get_constant("nfs_image_path")
+            guest_path = self.get_vw_cons("nfs_image_path")
             guest_name = "kvm_auto_guest"
             guest_total = 100
             guest_uuid_list = []

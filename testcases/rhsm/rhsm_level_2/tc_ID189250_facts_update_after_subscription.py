@@ -5,7 +5,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189250_facts_update_after_subscription(RHSMBase):
@@ -13,8 +12,8 @@ class tc_ID189250_facts_update_after_subscription(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             cmd_system_entitlement = "subscription-manager facts --list|grep system.entitlement"
             # step1:check its value of system.entitlements
@@ -25,7 +24,7 @@ class tc_ID189250_facts_update_after_subscription(RHSMBase):
                 else:
                     raise FailException("Failed to check the value of system.entitlement after register!")
             # step2:auto-subscribe
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # step3:re-check the value of system.entitlements_valid
             (ret, output) = self.runcmd(cmd_system_entitlement, "list system entilement")

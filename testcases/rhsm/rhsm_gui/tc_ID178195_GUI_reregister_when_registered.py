@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID178195_GUI_reregister_when_registered(RHSMGuiBase):
@@ -10,8 +9,8 @@ class tc_ID178195_GUI_reregister_when_registered(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.check_consumer_cert_files(exist=False)
                 self.click_register_button()

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 import time
 
@@ -9,8 +8,8 @@ class tc_ID327120_consumer_folder_moved_to_consumer_old_after_deleting_the_consu
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             baseurl = get_exported_param("SERVER_HOSTNAME")
             baseurl = baseurl + ':443/sam/api'
             # remove the consumer related files

@@ -22,8 +22,6 @@ Completed.
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID272161_GUI_rhsm_gui_should_launch_although_CA_cert_invalid(RHSMGuiBase):

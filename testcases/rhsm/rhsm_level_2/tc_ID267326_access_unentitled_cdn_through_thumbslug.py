@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID267326_access_unentitled_cdn_through_thumbslug(RHSMBase):
@@ -9,9 +8,9 @@ class tc_ID267326_access_unentitled_cdn_through_thumbslug(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.check_and_backup_yum_repos()
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
-            pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
+            pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
             # register to and auto-attach
             self.register_and_autosubscribe(username, password)
             # back up /etc/yum.repos.d/redhat.repo as /etc/yum.repos.d/redhat.repo.bak

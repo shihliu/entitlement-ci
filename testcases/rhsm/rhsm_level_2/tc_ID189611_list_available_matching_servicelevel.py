@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189611_list_available_matching_servicelevel(RHSMBase):
@@ -8,11 +7,11 @@ class tc_ID189611_list_available_matching_servicelevel(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # get service_level
-            service_level = RHSMConstants().get_constant("servicelevel")
+            service_level = self.get_rhsm_cons("servicelevel")
             # list available subscriptions matching specified service level
             cmd = "subscription-manager list --available --servicelevel=%s" % service_level
             (ret, output) = self.runcmd(cmd, "list available subscriptions matching specified service level")
@@ -24,7 +23,7 @@ class tc_ID189611_list_available_matching_servicelevel(RHSMBase):
                     raise FailException("Test Failed - Failed to check specified service level in the ouput of listing available subscriptions.")
             else:
                 raise FailException("Test Failed - Failed to list available subscriptions matching specified service level.")
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             self.assert_(True, case_name)
         except Exception, e:

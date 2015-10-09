@@ -5,7 +5,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
@@ -17,8 +16,8 @@ class tc_ID178040_register_with_consumerID_and_other_account(RHSMBase):
         passwordnew = "123456"
         emailnew = "test456@redhat.com"
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             if samhostip == None:
                 logger.info("This case is just for SAM, no need to test against other servers!")
             else:

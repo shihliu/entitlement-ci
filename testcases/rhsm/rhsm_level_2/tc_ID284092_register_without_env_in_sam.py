@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID284092_register_without_env_in_sam(RHSMBase):
@@ -12,8 +11,8 @@ class tc_ID284092_register_without_env_in_sam(RHSMBase):
             if samhostip == None:
                 logger.info("It's not sam test, so skip this case")
             else:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 org = 'ACME_Corporation'
                 cmd = "subscription-manager register --username=%s --password=%s --org=%s" % (username, password, org)
                 (ret, output) = self.runcmd(cmd, "register without environments")

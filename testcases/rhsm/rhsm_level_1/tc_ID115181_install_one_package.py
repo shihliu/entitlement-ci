@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115181_install_one_package(RHSMBase):
@@ -9,15 +8,15 @@ class tc_ID115181_install_one_package(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             if not self.skip_satellite():
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
-                autosubprod = RHSMConstants().get_constant("autosubprod")
+                autosubprod = self.get_rhsm_cons("autosubprod")
                 self.sub_autosubscribe(autosubprod)
                 # get variables form ent_env
-                repoid = RHSMConstants().get_constant("productrepo")
-                pid = RHSMConstants().get_constant("pid")
-                pkgtoinstall = RHSMConstants().get_constant("pkgtoinstall")
+                repoid = self.get_rhsm_cons("productrepo")
+                pid = self.get_rhsm_cons("pid")
+                pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
                 # check repo exist
                 if self.is_enabled_repo(repoid):
                     # check package to be installed exist

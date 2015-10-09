@@ -23,8 +23,6 @@ Completed.
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID190646_GUI_my_installed_products_default_selection(RHSMGuiBase):
@@ -34,8 +32,8 @@ class tc_ID190646_GUI_my_installed_products_default_selection(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 default_info_label = self.get_text_from_txtbox('main-window','text-product')

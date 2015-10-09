@@ -1,7 +1,6 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
 from utils.exception.failexception import FailException
-from testcases.rhsm.rhsmconstants import RHSMConstants
 
 class rhsm_setup(RHSMBase):
     def test_run(self):

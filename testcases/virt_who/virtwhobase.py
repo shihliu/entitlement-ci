@@ -1,7 +1,6 @@
 from utils import *
 from testcases.base import Base
 from utils.exception.failexception import FailException
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.libvirtAPI.Python.xmlbuilder import XmlBuilder
 
 class VIRTWHOBase(Base):
@@ -11,7 +10,7 @@ class VIRTWHOBase(Base):
 
     def get_server_info(self):
         # usage: SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), VIRTWHOConstants().get_constant("SERVER_USER"), VIRTWHOConstants().get_constant("SERVER_PASS")
+        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("SERVER_USER"), self.get_vw_cons("SERVER_PASS")
 
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
@@ -98,16 +97,16 @@ class VIRTWHOBase(Base):
         SERVER_IP = get_exported_param("SERVER_IP")
         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
-        SERVER_USER = VIRTWHOConstants().get_constant("SERVER_USER")
-        SERVER_PASS = VIRTWHOConstants().get_constant("SERVER_PASS")
+        SERVER_USER = self.get_vw_cons("SERVER_USER")
+        SERVER_PASS = self.get_vw_cons("SERVER_PASS")
 
-        ESX_HOST = VIRTWHOConstants().get_constant("ESX_HOST")
+        ESX_HOST = self.get_vw_cons("ESX_HOST")
 
-        VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-        VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-        VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-        VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-        VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+        VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
+        VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
+        VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+        VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+        VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
         # update virt-who configure file
         self.update_esx_vw_configure(VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
         # restart virt-who service
@@ -116,9 +115,9 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
-        guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
+        guest_name = self.get_vw_cons("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
-        self.wget_images(VIRTWHOConstants().get_constant("esx_guest_url"), guest_name, ESX_HOST)
+        self.wget_images(self.get_vw_cons("esx_guest_url"), guest_name, ESX_HOST)
         self.esx_add_guest(guest_name, ESX_HOST)
         self.esx_start_guest_first(guest_name, ESX_HOST)
         self.esx_service_restart(ESX_HOST)
@@ -141,8 +140,8 @@ class VIRTWHOBase(Base):
     # List system
     def st_system_list(self):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SERVER_USER")
-        password = VIRTWHOConstants().get_constant("SERVER_PASS")
+        username = self.get_vw_cons("SERVER_USER")
+        password = self.get_vw_cons("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -150,8 +149,8 @@ class VIRTWHOBase(Base):
     # List pool list
     def st_pool_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SERVER_USER")
-        password = VIRTWHOConstants().get_constant("SERVER_PASS")
+        username = self.get_vw_cons("SERVER_USER")
+        password = self.get_vw_cons("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -159,8 +158,8 @@ class VIRTWHOBase(Base):
     # Attach pool_id 
     def st_attach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SERVER_USER")
-        password = VIRTWHOConstants().get_constant("SERVER_PASS")
+        username = self.get_vw_cons("SERVER_USER")
+        password = self.get_vw_cons("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
@@ -175,8 +174,8 @@ class VIRTWHOBase(Base):
     # List consumed 
     def st_consumed_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SERVER_USER")
-        password = VIRTWHOConstants().get_constant("SERVER_PASS")
+        username = self.get_vw_cons("SERVER_USER")
+        password = self.get_vw_cons("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -184,8 +183,8 @@ class VIRTWHOBase(Base):
     # Unattach poo_id
     def st_unattach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SERVER_USER")
-        password = VIRTWHOConstants().get_constant("SERVER_PASS")
+        username = self.get_vw_cons("SERVER_USER")
+        password = self.get_vw_cons("SERVER_PASS")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
@@ -199,11 +198,11 @@ class VIRTWHOBase(Base):
 
     # only return CLI for virt-who esx mode, don't run cli 
     def virtwho_cli(self, mode):
-        esx_owner = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-        esx_env = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-        esx_server = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-        esx_username = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-        esx_password = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+        esx_owner = self.get_vw_cons("VIRTWHO_ESX_OWNER")
+        esx_env = self.get_vw_cons("VIRTWHO_ESX_ENV")
+        esx_server = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+        esx_username = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+        esx_password = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
         if mode == "esx":
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
@@ -320,11 +319,11 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to disable VIRTWHO_ESX.")
 
     def set_esx_conf(self, targetmachine_ip=""):
-        VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-        VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-        VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-        VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-        VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+        VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
+        VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
+        VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+        VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+        VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
         # clean # first
         cmd = "sed -i -e 's/^#VIRTWHO_ESX/VIRTWHO_ESX/g' -e 's/^#VIRTWHO_ESX_OWNER/VIRTWHO_ESX_OWNER/g' -e 's/^#VIRTWHO_ESX_ENV/VIRTWHO_ESX_ENV/g' -e 's/^#VIRTWHO_ESX_SERVER/VIRTWHO_ESX_SERVER/g' -e 's/^#VIRTWHO_ESX_USERNAME/VIRTWHO_ESX_USERNAME/g' -e 's/^#VIRTWHO_ESX_PASSWORD/VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -1152,11 +1151,11 @@ EOF''' % (file_name, file_data)
 
     def esx_remove_guest(self, guest_name, esx_host, vCenter="", vCenter_user="", vCenter_pass=""):
         ''' remove guest from esx vCenter '''
-        vmware_cmd_ip = VIRTWHOConstants().get_constant("VMWARE_CMD_IP")
+        vmware_cmd_ip = self.get_vw_cons("VMWARE_CMD_IP")
         if vCenter == "" and vCenter_user == "" and vCenter_pass == "":
-            vCenter = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-            vCenter_user = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-            vCenter_pass = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+            vCenter = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+            vCenter_user = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+            vCenter_pass = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
         cmd = "vmware-cmd -H %s -U %s -P %s --vihost %s -s unregister /vmfs/volumes/datastore1/%s/%s.vmx" % (vCenter, vCenter_user, vCenter_pass, esx_host, guest_name, guest_name)
         ret, output = self.runcmd(cmd, "remove guest '%s' from vCenter" % guest_name, targetmachine_ip=vmware_cmd_ip)
         if ret == 0:
@@ -1191,7 +1190,7 @@ EOF''' % (file_name, file_data)
 # 
     def esx_start_guest(self, guest_name):
         ''' start guest in esx host '''
-        esx_host_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+        esx_host_ip = self.get_vw_cons("ESX_HOST")
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
         ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
         if ret == 0:

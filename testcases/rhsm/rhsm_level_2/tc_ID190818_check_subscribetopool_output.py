@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 import random
 
@@ -9,11 +8,11 @@ class tc_ID190818_check_subscribetopool_output(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             #list availalbe entitlement pools
-            productid = RHSMConstants().get_constant("productid")
+            productid = self.get_rhsm_cons("productid")
             availpoollist = self.sub_listavailpools(productid)
             #get an available entitlement pool to subscribe with random.sample
             availpool = random.sample(availpoollist, 1)[0]

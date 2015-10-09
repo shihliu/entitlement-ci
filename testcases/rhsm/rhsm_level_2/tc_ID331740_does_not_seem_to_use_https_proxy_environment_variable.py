@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID331740_does_not_seem_to_use_https_proxy_environment_variable(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID331740_does_not_seem_to_use_https_proxy_environment_variable(RHSMBase
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             samhostip = get_exported_param("SERVER_IP")
             if samhostip != None:
                 logger.info("sam not test proxy")

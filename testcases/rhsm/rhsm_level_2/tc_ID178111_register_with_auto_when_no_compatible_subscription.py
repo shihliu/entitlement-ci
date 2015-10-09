@@ -5,7 +5,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID178111_register_with_auto_when_no_compatible_subscription(RHSMBase):
@@ -17,8 +16,8 @@ class tc_ID178111_register_with_auto_when_no_compatible_subscription(RHSMBase):
             if samhostip == None:
                 logger.info("This case is just for SAM, no need to test against other servers!")
             else:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 # create a new org without available subscriptions in SAM
                 orgname = "test"
                 self.create_sam_org(samhostip, orgname)

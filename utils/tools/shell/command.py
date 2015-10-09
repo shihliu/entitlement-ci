@@ -52,6 +52,5 @@ def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user
 
 if __name__ == "__main__":
     commander = Command("10.34.35.76", "root", "red2015")
-#     cmd = "virsh migrate --live 5.10_Server_x86_64 qemu+ssh://10.16.67.184/system --undefinesource"
     cmd = "scp /root/images_nfs/test.xml root@10.16.67.184:/root/"
     print commander.run_interact(cmd)

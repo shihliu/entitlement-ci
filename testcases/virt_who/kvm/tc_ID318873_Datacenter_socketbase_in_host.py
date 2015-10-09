@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID318873_Datacenter_socketbase_in_host(KVMBase):
@@ -10,10 +9,10 @@ class tc_ID318873_Datacenter_socketbase_in_host(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            host_test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
-            sku_name = VIRTWHOConstants().get_constant("datacenter_name")
+            host_test_sku = self.get_vw_cons("datacenter_sku_id")
+            sku_name = self.get_vw_cons("datacenter_name")
 
             # Set up host facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4")

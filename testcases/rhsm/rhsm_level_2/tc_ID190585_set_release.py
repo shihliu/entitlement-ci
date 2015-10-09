@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 import random
 
@@ -9,16 +8,16 @@ class tc_ID190585_set_release(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # list the subscription-manager release
             cmd = "subscription-manager release --list"
             (ret, output) = self.runcmd(cmd, "list release info")
             # 1. set list got from release list
-            releaselist = RHSMConstants().get_constant("releaselist")
+            releaselist = self.get_rhsm_cons("releaselist")
             outputtmp = output.strip().splitlines()
             if "+-" in outputtmp[0] and "+-" in outputtmp[2]:
                 outputtmp.remove(outputtmp[0])

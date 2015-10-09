@@ -5,7 +5,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID183444_display_orgs_available(RHSMBase):
@@ -15,8 +14,8 @@ class tc_ID183444_display_orgs_available(RHSMBase):
         samhostip = get_exported_param("SERVER_IP")
         orgname2 = 'ACME_Corporation2'
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # check if the org ACME_Corporation2 exist on samserver
             is_multi_orgs = self.sam_remote_is_org_exist(samhostip, orgname2)

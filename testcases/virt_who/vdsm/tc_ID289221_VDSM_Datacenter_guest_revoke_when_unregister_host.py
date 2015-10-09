@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID289221_VDSM_Datacenter_guest_revoke_when_unregister_host(VDSMBase):
@@ -10,13 +9,13 @@ class tc_ID289221_VDSM_Datacenter_guest_revoke_when_unregister_host(VDSMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = VIRTWHOConstants().get_constant("RHEVM_HOST")
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
 
-            test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
-            guest_bonus_sku = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
-            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
-            sku_name = VIRTWHOConstants().get_constant("datacenter_name")
+            test_sku = self.get_vw_cons("datacenter_sku_id")
+            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
+            bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
+            sku_name = self.get_vw_cons("datacenter_name")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

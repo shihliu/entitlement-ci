@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID248787_validate_limited_bonus_pool_creation(KVMBase):
@@ -10,11 +9,11 @@ class tc_ID248787_validate_limited_bonus_pool_creation(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("productid_guest")
-            bonus_quantity = VIRTWHOConstants().get_constant("guestlimit")
-            sku_name = VIRTWHOConstants().get_constant("productname_guest")
+            test_sku = self.get_vw_cons("productid_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit")
+            sku_name = self.get_vw_cons("productname_guest")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)

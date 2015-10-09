@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115130_listorgs(RHSMBase):
@@ -9,8 +8,8 @@ class tc_ID115130_listorgs(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # list orgs of a consumer.
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             cmd = "subscription-manager orgs --username=%s --password=%s" % (username, password)
             (ret, output) = self.runcmd(cmd, "list orgs")
             if ret == 0 and "OrgName" in output and "OrgKey" in output:

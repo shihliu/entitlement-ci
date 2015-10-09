@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID477303_ESX_run_virtwho_with_exclude_host_parents_null(ESXBase):
@@ -9,14 +8,14 @@ class tc_ID477303_ESX_run_virtwho_with_exclude_host_parents_null(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
 
-            VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-            VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-            VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-            VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-            VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+            VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
+            VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
+            VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+            VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+            VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
-            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
             #0).check the guest is power off or not on esxi host, if power on, stop it firstly 

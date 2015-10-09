@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
@@ -10,8 +9,8 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            destination_ip = self.get_vw_cons("ESX_HOST")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
 

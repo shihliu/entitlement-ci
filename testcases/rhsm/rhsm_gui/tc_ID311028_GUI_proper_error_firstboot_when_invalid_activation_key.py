@@ -28,8 +28,6 @@ Completed.
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID311028_GUI_proper_error_firstboot_when_invalid_activation_key(RHSMGuiBase):

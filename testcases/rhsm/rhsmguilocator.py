@@ -1,8 +1,4 @@
-from utils import *
-from testcases.base import Base
-from utils.exception.failexception import FailException
-
-class RHSMGuiLocator(Base):
+class RHSMGuiLocator(object):
 
     # ========================================================
     #       RHSM GUI test elements
@@ -151,7 +147,6 @@ class RHSMGuiLocator(Base):
     'classic-set-systemname-text':           'txtSystemName',
     'text-service-level':                    'txtAllAvailableSupportLevelAndTypeText',
 
-
     ######## Menu Elements ########
     # under System menu
     'system-menu':                           'mnuSystem',
@@ -226,21 +221,9 @@ class RHSMGuiLocator(Base):
     'service-level-combobox':                    'cboslaselectioncombobox',
     'release-version-combobox':                  'cboreleaseselectioncombobox',
 
-#     'service-level-notset-combobox':             'cboNotSet',
-#     'service-level-premium-combobox':            'cboPremium',
-#     'service-level-none-combobox':               'cboNone',
-#     'release-version-combobox':                  'cbo1',
-#     'release-version-6server-combobox':          'cbo6Server',
-
     ######## Other Element ########
     'register-progressbar':                      'pbarregisterprogressbar',
     }
-
-    def get_locator(self, name):
-        if name + "-" + self.os_serial in self.element_locators.keys():
-            return self.element_locators[name + "-" + self.os_serial]
-        else:
-            return self.element_locators[name]
 
     __instance = None
     def __new__(cls):
@@ -248,10 +231,7 @@ class RHSMGuiLocator(Base):
             cls.__instance = super(RHSMGuiLocator, cls).__new__(cls)
             cls.__instance.__initialized = False
         return cls.__instance
-
+ 
     def __init__(self):
-        if(self.__initialized):
-            return
-        else:
-            self.os_serial = self.get_os_serials()
-            self.__initialized = True
+        if(self.__initialized): return
+        else: self.__initialized = True

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189592_enable_repo(RHSMBase):
@@ -9,12 +8,12 @@ class tc_ID189592_enable_repo(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             if not self.skip_satellite():
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
-                autosubprod = RHSMConstants().get_constant("autosubprod")
+                autosubprod = self.get_rhsm_cons("autosubprod")
                 self.sub_autosubscribe(autosubprod)
-                productrepo = RHSMConstants().get_constant("productrepo")
+                productrepo = self.get_rhsm_cons("productrepo")
                 cmd = "subscription-manager repos --list | grep %s" % productrepo
                 (ret, output) = self.runcmd(cmd, "check the repo %s" % productrepo)
                 if ret == 0 and productrepo in output:

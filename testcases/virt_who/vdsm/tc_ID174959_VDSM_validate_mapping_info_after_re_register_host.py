@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
@@ -10,8 +9,8 @@ class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = VIRTWHOConstants().get_constant("RHEVM_HOST")
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
 
             self.conf_rhevm_shellrc(rhevm_ip)
             (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

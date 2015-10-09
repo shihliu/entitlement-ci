@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_338068_ESX_run_virtwho_one_shot_double(ESXBase):
@@ -9,8 +8,8 @@ class tc_338068_ESX_run_virtwho_one_shot_double(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
 
-            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
             #0).check the hostuuid and guestuuid

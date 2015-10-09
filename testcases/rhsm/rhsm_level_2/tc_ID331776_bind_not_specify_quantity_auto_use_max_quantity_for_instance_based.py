@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID331776_bind_not_specify_quantity_auto_use_max_quantity_for_instance_based(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID331776_bind_not_specify_quantity_auto_use_max_quantity_for_instance_b
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # make sure the system is physical machine
             is_physical = self.check_physical_machine()
@@ -43,7 +42,7 @@ class tc_ID331776_bind_not_specify_quantity_auto_use_max_quantity_for_instance_b
                 logger.info("It's successful to attach an instance-based subscriptions without specifying quantity.") 
             else:
                 raise FailException("Test Failed - Failed to attach an instance-based subscriptions without specifying quantity.")
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             self.assert_(True, case_name)
         except Exception, e:

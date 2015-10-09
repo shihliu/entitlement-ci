@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID289221_Datacenter_guest_revoke_when_unregister_host(KVMBase):
@@ -10,12 +9,12 @@ class tc_ID289221_Datacenter_guest_revoke_when_unregister_host(KVMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("datacenter_sku_id")
-            guest_bonus_sku = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
-            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
-            sku_name = VIRTWHOConstants().get_constant("datacenter_name")
+            test_sku = self.get_vw_cons("datacenter_sku_id")
+            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
+            bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
+            sku_name = self.get_vw_cons("datacenter_name")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)

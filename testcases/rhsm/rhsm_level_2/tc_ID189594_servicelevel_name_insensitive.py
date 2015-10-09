@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189594_servicelevel_name_insensitive(RHSMBase):
@@ -8,11 +7,11 @@ class tc_ID189594_servicelevel_name_insensitive(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # list the designated service level
-            servicelevel = RHSMConstants().get_constant("servicelevel")
+            servicelevel = self.get_rhsm_cons("servicelevel")
             cmd = "subscription-manager service-level --list"
             (ret, output) = self.runcmd(cmd, "list correct service level")
             if ret == 0 and ("servicelevel" or "Service Levels" in output):

@@ -1,6 +1,8 @@
 from utils import *
 from utils.tools.shell import command
 from utils.exception.failexception import FailException
+from testcases.rhsm.rhsmconstants import RHSMConstants
+from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
 from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
@@ -25,8 +27,46 @@ class Base(unittest.TestCase):
         (ret, output) = self.runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
         if ret == 0:
             return output.strip("\n").strip(" ")
+        else: raise FailException("Failed to get os serials")
+
+    def get_rhsm_cons(self, name):
+#         test_server = get_exported_param("SERVER_TYPE")
+        rhsm_cons = RHSMConstants()
+        if self.test_server == "SAM":
+            if self.os_serial == "7" and name + "_el7" in rhsm_cons.sam_cons:
+                return rhsm_cons.sam_cons[name + "_el7"]
+            else:
+                return rhsm_cons.sam_cons[name]
+        elif self.test_server == "SATELLITE":
+            if self.os_serial == "7" and name + "_el7" in rhsm_cons.sam_cons:
+                return rhsm_cons.sam_cons[name + "_el7"]
+            elif name + "_sat" in rhsm_cons.sam_cons:
+                return rhsm_cons.sam_cons[name + "_sat"]
+            else:
+                return rhsm_cons.sam_cons[name]
+        elif self.test_server == "STAGE" :
+            return rhsm_cons.stage_cons[name]
         else:
-            raise FailException("Failed to get os serials")
+            raise FailException("Failed to get rhsm constant %s" % name)
+
+    def get_vw_cons(self, name):
+        virtwho_cons = VIRTWHOConstants()
+#         test_server = get_exported_param("SERVER_TYPE")
+        if self.test_server == "SAM":
+            return virtwho_cons.virtwho_sam_cons[name]
+        elif self.test_server == "SATELLITE":
+            return virtwho_cons.virtwho_satellite_cons[name]
+        elif self.test_server == "STAGE" :
+            return virtwho_cons.virtwho_stage_cons[name]
+        else:
+            raise FailException("Failed to get virt-who constant %s" % name)
+
+    def get_locator(self, name):
+        rhsm_gui_locator = RHSMGuiLocator()
+        if name + "-" + self.os_serial in self.element_locators.keys():
+            return rhsm_gui_locator.element_locators[name + "-" + self.os_serial]
+        else:
+            return rhsm_gui_locator.element_locators[name]
 
     # ========================================================
     #       Configure Server Functions
@@ -80,16 +120,16 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
-        test_server = get_exported_param("SERVER_TYPE")
-        if test_server == "STAGE" :
+#         test_server = get_exported_param("SERVER_TYPE")
+        if self.test_server == "STAGE" :
             self.configure_stage_host("subscription.rhn.stage.redhat.com", targetmachine_ip)
         else:
             if server_ip == "" or server_hostname == "":
                 server_ip = get_exported_param("SERVER_IP")
                 server_hostname = get_exported_param("SERVER_HOSTNAME")
-            if test_server == "SAM" :
+            if self.test_server == "SAM" :
                 self.configure_sam_host(server_ip, server_hostname, targetmachine_ip)
-            elif test_server == "SATELLITE" :
+            elif self.test_server == "SATELLITE" :
                 self.configure_satellite_host(server_ip, server_hostname, targetmachine_ip)
             else:
                 raise FailException("Test Failed - Failed to configure rhsm testing server ... ")
@@ -150,8 +190,8 @@ class Base(unittest.TestCase):
     # List system
     def st_system_list(self):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -159,8 +199,8 @@ class Base(unittest.TestCase):
     # List pool list
     def st_pool_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -168,8 +208,8 @@ class Base(unittest.TestCase):
     # Attach pool_id 
     def st_attach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
@@ -184,8 +224,8 @@ class Base(unittest.TestCase):
     # List consumed 
     def st_consumed_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -193,8 +233,8 @@ class Base(unittest.TestCase):
     # Unattach poo_id
     def st_unattach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = VIRTWHOConstants().get_constant("SAM_USER")
-        password = VIRTWHOConstants().get_constant("SAM_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
@@ -211,17 +251,26 @@ class Base(unittest.TestCase):
     # ========================================================
 
     def skip_on_rhel7(self):
-        rhel_version = self.get_os_serials()
-        if rhel_version == "7" :
+#         rhel_version = self.get_os_serials()
+        if self.os_serial == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
             return True
-        else:
-            return False
+        else: return False
 
     def skip_satellite(self):
-        test_server = get_exported_param("SERVER_TYPE")
-        if test_server == "SATELLITE" :
+#         test_server = get_exported_param("SERVER_TYPE")
+        if self.test_server == "SATELLITE" :
             logger.info("satellite do not support, this test case is skipped ...")
             return True
-        else:
-            return False
+        else: return False
+
+    # ========================================================
+    #       unittest setup
+    # ========================================================
+    def setUp(self):
+        logger.info("********************************************************************************")
+        self.os_serial = self.get_os_serials()
+        self.test_server = get_exported_param("SERVER_TYPE")
+        logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
+        logger.info("********************************************************************************")
+

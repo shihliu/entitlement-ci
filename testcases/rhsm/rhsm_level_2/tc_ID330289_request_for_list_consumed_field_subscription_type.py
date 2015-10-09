@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID330289_request_for_list_consumed_field_subscription_type(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID330289_request_for_list_consumed_field_subscription_type(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # list available subscriptions and check the subscription type
             cmd = "subscription-manager list --available | grep 'Subscription Type'| sort | uniq"
@@ -19,7 +18,7 @@ class tc_ID330289_request_for_list_consumed_field_subscription_type(RHSMBase):
             else:
                 raise FailException("Test Failed - Failed to check the subscription type for list available.")
             # auto-attach
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # list consumed subscriptions and check the subscription type
             cmd = " subscription-manager list --consumed | grep 'Subscription Type'| sort | uniq"

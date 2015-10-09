@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID332939_display_stdout_to_user_with_actual_destination_by_rhsm_debug_system(RHSMBase):
@@ -8,8 +7,8 @@ class tc_ID332939_display_stdout_to_user_with_actual_destination_by_rhsm_debug_s
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # execute rhsm-debug system
             cmd = "rhsm-debug system"

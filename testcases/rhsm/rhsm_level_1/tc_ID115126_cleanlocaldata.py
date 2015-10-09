@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115126_cleanlocaldata(RHSMBase):
@@ -10,16 +9,16 @@ class tc_ID115126_cleanlocaldata(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
                 # [A] - prepare test env
                 # get uuid of consumer
                 cmd = "subscription-manager identity | grep identity"
                 (ret, output) = self.runcmd(cmd, "get identity")
                 uuid = output.split(':')[1].strip()
-                productid = RHSMConstants().get_constant("productid")
-                autosubprod = RHSMConstants().get_constant("autosubprod")
+                productid = self.get_rhsm_cons("productid")
+                autosubprod = self.get_rhsm_cons("autosubprod")
                 self.sub_autosubscribe(autosubprod)
                 # [B] - run the test
                 # clean local consumer and subscription data

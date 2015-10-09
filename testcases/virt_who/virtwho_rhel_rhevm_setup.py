@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class virtwho_rhel_rhevm_setup(VDSMBase):

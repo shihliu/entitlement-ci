@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 import paramiko
 
@@ -11,20 +10,20 @@ class tc_ID439632_validate_remote_libvirt_unlimited_bonus_pool(KVMBase):
         try:
             SAM_IP = get_exported_param("SERVER_IP")
             SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SAM_USER = self.get_vw_cons("username")
+            SAM_PASS = self.get_vw_cons("password")
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
-            test_sku = VIRTWHOConstants().get_constant("productid_unlimited_guest")
-            bonus_quantity = VIRTWHOConstants().get_constant("guestlimit_unlimited_guest")
-            sku_name = VIRTWHOConstants().get_constant("productname_unlimited_guest")
+            test_sku = self.get_vw_cons("productid_unlimited_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_ip = get_exported_param("REMOTE_IP")
             username = "root"
             password = "red2015"
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             self.vw_start_guests(guest_name)

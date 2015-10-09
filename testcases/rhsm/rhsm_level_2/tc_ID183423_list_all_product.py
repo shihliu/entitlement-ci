@@ -7,7 +7,6 @@
 
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID183423_list_all_product(RHSMBase):
@@ -15,10 +14,10 @@ class tc_ID183423_list_all_product(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            productid = RHSMConstants().get_constant("productid")
+            productid = self.get_rhsm_cons("productid")
             # list all available entitlement pools
             self.sub_listallavailpools(productid)
             self.assert_(True, case_name)

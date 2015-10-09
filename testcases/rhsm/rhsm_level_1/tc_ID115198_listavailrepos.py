@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115198_listavailrepos(RHSMBase):
@@ -10,13 +9,13 @@ class tc_ID115198_listavailrepos(RHSMBase):
         try:
             if not self.skip_satellite():
                 # register to server
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
-                autosubprod = RHSMConstants().get_constant("autosubprod")
+                autosubprod = self.get_rhsm_cons("autosubprod")
                 self.sub_autosubscribe(autosubprod)
-                productrepo = RHSMConstants().get_constant("productrepo")
-                betarepo = RHSMConstants().get_constant("betarepo")
+                productrepo = self.get_rhsm_cons("productrepo")
+                betarepo = self.get_rhsm_cons("betarepo")
                 cmd = "subscription-manager repos --list"
                 (ret, output) = self.runcmd(cmd, "list available repos")
                 if ret == 0 and productrepo in output and betarepo in output:

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID189618_collapsed_provided_products(RHSMBase):
@@ -8,12 +7,12 @@ class tc_ID189618_collapsed_provided_products(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            autosubprod = RHSMConstants().get_constant("autosubprod")
+            autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            productid = RHSMConstants().get_constant("productid")
+            productid = self.get_rhsm_cons("productid")
             cmd = "subscription-manager list --consumed"
             (ret, output) = self.runcmd(cmd, "list the consumed products")
             if ret == 0:

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
@@ -9,8 +8,8 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
 
         # register to server
-        username = RHSMConstants().get_constant("username")
-        password = RHSMConstants().get_constant("password")
+        username = self.get_rhsm_cons("username")
+        password = self.get_rhsm_cons("password")
         self.sub_register(username, password)
         try:
             # get baseurl

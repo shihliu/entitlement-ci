@@ -27,8 +27,6 @@ See comments in code.
 
 from utils import *
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
-from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
@@ -38,8 +36,8 @@ class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 self.register_and_autosubscribe_in_gui(username, password)
                 self.click_my_subscriptions_tab()
@@ -70,7 +68,7 @@ class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
                 else:
                     raise FailException("FAILED: Success prompt not found!")
                 #check whether imported certificate has proper productid
-                productid = RHSMConstants().get_constant("productid")
+                productid = self.get_rhsm_cons("productid")
                 self.check_entitlement_cert(productid)
                 self.click_button('information-dialog', 'ok-button')
                 self.click_my_subscriptions_tab()

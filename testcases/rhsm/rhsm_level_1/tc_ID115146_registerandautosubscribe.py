@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID115146_registerandautosubscribe(RHSMBase):
@@ -10,10 +9,10 @@ class tc_ID115146_registerandautosubscribe(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = RHSMConstants().get_constant("username")
-                password = RHSMConstants().get_constant("password")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
                 # productid = RHSMConstants.get_constant("productid")
-                # autosubprod = RHSMConstants().get_constant("autosubprod")
+                # autosubprod = self.get_rhsm_cons("autosubprod")
                 # remove check (autosubprod in output) since rhel 7 changed
                 cmd = "subscription-manager register --username=%s --password=%s --autosubscribe" % (username, password)
                 (ret, output) = self.runcmd(cmd, "register and auto-subscribe")

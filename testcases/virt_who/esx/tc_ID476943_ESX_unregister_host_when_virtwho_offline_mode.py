@@ -1,6 +1,5 @@
 from utils import *
 from testcases.virt_who.esxbase import ESXBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 from utils.exception.failexception import FailException
 
 class tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode(ESXBase):
@@ -10,19 +9,19 @@ class tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            VIRTWHO_ESX_OWNER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_OWNER")
-            VIRTWHO_ESX_ENV = VIRTWHOConstants().get_constant("VIRTWHO_ESX_ENV")
-            VIRTWHO_ESX_SERVER = VIRTWHOConstants().get_constant("VIRTWHO_ESX_SERVER")
-            VIRTWHO_ESX_USERNAME = VIRTWHOConstants().get_constant("VIRTWHO_ESX_USERNAME")
-            VIRTWHO_ESX_PASSWORD = VIRTWHOConstants().get_constant("VIRTWHO_ESX_PASSWORD")
+            VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
+            VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
+            VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
+            VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
+            VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
-            product_name = VIRTWHOConstants().get_constant("datacenter_name")
-            host_sku_id = VIRTWHOConstants().get_constant("datacenter_sku_id")
-            bonus_sku_id = VIRTWHOConstants().get_constant("datacenter_bonus_sku_id")
-            bonus_quantity = VIRTWHOConstants().get_constant("datacenter_bonus_quantity")
+            product_name = self.get_vw_cons("datacenter_name")
+            host_sku_id = self.get_vw_cons("datacenter_sku_id")
+            bonus_sku_id = self.get_vw_cons("datacenter_bonus_sku_id")
+            bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
 
-            guest_name = VIRTWHOConstants().get_constant("ESX_GUEST_NAME")
-            destination_ip = VIRTWHOConstants().get_constant("ESX_HOST")
+            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
             #0).check the guest is power off or not on esxi host, if power on, stop it firstly 

@@ -1,6 +1,5 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
-from testcases.rhsm.rhsmconstants import RHSMConstants
 from utils.exception.failexception import FailException
 
 class tc_ID126355_registerwithproxy(RHSMBase):
@@ -8,9 +7,9 @@ class tc_ID126355_registerwithproxy(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = RHSMConstants().get_constant("username")
-            password = RHSMConstants().get_constant("password")
-            proxy = RHSMConstants().get_constant("proxy_server")
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
+            proxy = self.get_rhsm_cons("proxy_server")
             cmd = "subscription-manager register --username=%s --password=%s --proxy=%s" % (username, password, proxy)
             (ret, output) = self.runcmd(cmd, "register with proxy")
             if ret == 0:
