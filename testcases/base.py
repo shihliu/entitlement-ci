@@ -88,7 +88,7 @@ class Base(unittest.TestCase):
 
     def get_locator(self, name):
         rhsm_gui_locator = RHSMGuiLocator()
-        if name + "-" + self.os_serial in self.element_locators.keys():
+        if name + "-" + self.os_serial in rhsm_gui_locator.element_locators.keys():
             return rhsm_gui_locator.element_locators[name + "-" + self.os_serial]
         else:
             return rhsm_gui_locator.element_locators[name]
@@ -291,7 +291,7 @@ class Base(unittest.TestCase):
     # ========================================================
     def setUp(self):
         logger.info(" ")
-        logger.info("********************************************************************************")
+        logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
         self.test_server = get_exported_param("SERVER_TYPE")
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
@@ -301,5 +301,5 @@ class Base(unittest.TestCase):
         REMOTE_IP_2 = get_exported_param("REMOTE_IP_2")
         RHEL_COMPOSE = get_exported_param("RHEL_COMPOSE")
         BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
-        logger.info("********************************************************************************")
+        logger.info("**************************************************************************************************************")
 
