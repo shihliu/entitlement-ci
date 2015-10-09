@@ -1,7 +1,6 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
 from utils.exception.failexception import FailException
-import time
 
 class tc_ID327120_consumer_folder_moved_to_consumer_old_after_deleting_the_consumer(RHSMBase):
     def test_run(self):

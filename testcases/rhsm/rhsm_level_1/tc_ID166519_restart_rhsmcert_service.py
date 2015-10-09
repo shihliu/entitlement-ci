@@ -1,7 +1,6 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
 from utils.exception.failexception import FailException
-import time
 
 class tc_ID166519_restart_rhsmcert_service(RHSMBase):
     def test_run(self):

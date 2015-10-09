@@ -1,4 +1,3 @@
-import time
 from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException

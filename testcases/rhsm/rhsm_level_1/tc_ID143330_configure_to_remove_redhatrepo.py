@@ -1,7 +1,6 @@
 from utils import *
 from testcases.rhsm.rhsmbase import RHSMBase
 from utils.exception.failexception import FailException
-import time
 
 class tc_ID143330_configure_to_remove_redhatrepo(RHSMBase):
     def test_run(self):

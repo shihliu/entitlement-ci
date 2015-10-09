@@ -1,4 +1,3 @@
-import time
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException

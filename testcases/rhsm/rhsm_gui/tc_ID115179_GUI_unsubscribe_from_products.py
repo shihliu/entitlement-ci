@@ -27,7 +27,6 @@ Completed.
 ##############################################################################
 
 from utils import *
-import time
 from testcases.rhsm.rhsmguibase import RHSMGuiBase
 from utils.exception.failexception import FailException
 
