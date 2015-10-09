@@ -409,13 +409,7 @@ class KVMBase(VIRTWHOBase):
     #       KVM - test env set up function
     # ========================================================
     def kvm_setup(self):
-        SERVER_IP = SERVER_HOSTNAME = SERVER_USER = SERVER_PASS = ""
-        if self.test_server == "STAGE":
-            SERVER_USER = self.get_vw_cons("STAGE_USER")
-            SERVER_PASS = self.get_vw_cons("STAGE_PASS")
-        else:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)

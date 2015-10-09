@@ -8,8 +8,8 @@ class ESXBase(VIRTWHOBase):
         SERVER_IP = get_exported_param("SERVER_IP")
         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
 
-        SERVER_USER = self.get_vw_cons("SERVER_USER")
-        SERVER_PASS = self.get_vw_cons("SERVER_PASS")
+        SERVER_USER = self.get_vw_cons("username")
+        SERVER_PASS = self.get_vw_cons("password")
 
         ESX_HOST = self.get_vw_cons("ESX_HOST")
 

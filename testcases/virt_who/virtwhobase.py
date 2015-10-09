@@ -10,7 +10,7 @@ class VIRTWHOBase(Base):
 
     def get_server_info(self):
         # usage: SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("SERVER_USER"), self.get_vw_cons("SERVER_PASS")
+        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
 
     def brew_virtwho_upgrate(self, targetmachine_ip=None):
         # virt-who upgrade via brew
@@ -96,8 +96,8 @@ class VIRTWHOBase(Base):
     # List system
     def st_system_list(self):
         server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("SERVER_USER")
-        password = self.get_vw_cons("SERVER_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -105,8 +105,8 @@ class VIRTWHOBase(Base):
     # List pool list
     def st_pool_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("SERVER_USER")
-        password = self.get_vw_cons("SERVER_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -114,8 +114,8 @@ class VIRTWHOBase(Base):
     # Attach pool_id 
     def st_attach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("SERVER_USER")
-        password = self.get_vw_cons("SERVER_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
@@ -130,8 +130,8 @@ class VIRTWHOBase(Base):
     # List consumed 
     def st_consumed_list(self, uuid):
         server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("SERVER_USER")
-        password = self.get_vw_cons("SERVER_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
@@ -139,8 +139,8 @@ class VIRTWHOBase(Base):
     # Unattach poo_id
     def st_unattach(self, uuid, pool_id):
         server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("SERVER_USER")
-        password = self.get_vw_cons("SERVER_PASS")
+        username = self.get_vw_cons("username")
+        password = self.get_vw_cons("password")
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})

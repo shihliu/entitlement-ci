@@ -14,8 +14,8 @@ class tc_ID476491_check_offline_mode(KVMBase):
             password = "red2015"
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            SERVER_USER = self.get_vw_cons("SERVER_USER")
-            SERVER_PASS = self.get_vw_cons("SERVER_PASS")
+            SERVER_USER = self.get_vw_cons("username")
+            SERVER_PASS = self.get_vw_cons("password")
             VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
             VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
             VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
