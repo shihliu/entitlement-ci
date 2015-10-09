@@ -290,6 +290,7 @@ class Base(unittest.TestCase):
     #       unittest setup
     # ========================================================
     def setUp(self):
+        logger.info(" ")
         logger.info("********************************************************************************")
         self.os_serial = self.get_os_serials()
         self.test_server = get_exported_param("SERVER_TYPE")
