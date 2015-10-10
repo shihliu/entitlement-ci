@@ -250,7 +250,7 @@ class VDSMBase(VIRTWHOBase):
 
     def rhevm_undefine_guest(self, vm_name, targetmachine_ip=""):
         # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
-        cmd = "virsh undefine %s.xml" % vm_name
+        cmd = "virsh undefine %s" % vm_name
         ret, output = self.runcmd(cmd, "undefine kvm guest", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to undefine kvm guest")
@@ -293,12 +293,12 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to enable auth_unix_rw.")
         self.vw_restart_libvirtd(origin_machine_ip)
-        time.sleep(120)
+        time.sleep(60)
         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
         if "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
-            time.sleep(600)
+            time.sleep(10)
         else:
             raise FailException("Failed to convert_guest_to_nfs with v2v tool")
 #         # convert the second guest
@@ -526,14 +526,14 @@ class VDSMBase(VIRTWHOBase):
 #         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
 #         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
 #         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
-        self.create_storage_pool()
+#         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
+#         self.create_storage_pool()
 #         self.install_virtV2V(RHEVM_IP)
-        self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-#         self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
-#         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
-#         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
-#         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
+#         self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+        self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
+        data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
+        export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
+        self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()

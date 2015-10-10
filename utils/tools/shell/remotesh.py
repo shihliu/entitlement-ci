@@ -112,12 +112,14 @@ class RemoteSH(object):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(remote_ip, 22, username, password)
         channel = ssh.get_transport().open_session()
-        channel.settimeout(600)
+#         channel.settimeout(600)
+        channel.settimeout(6000)
         channel.get_pty()
         channel.exec_command(cmd)
         output = ""
         while True:
-            data = channel.recv(1048576)
+#             data = channel.recv(1048576)
+            data = channel.recv(1073741824)
             output += data
             logger.debug("output: %s" % data)
             if channel.send_ready():
@@ -136,6 +138,7 @@ class RemoteSH(object):
                 if channel.exit_status_ready():
                     break
         if channel.recv_ready():
-            data = channel.recv(1048576)
+#             data = channel.recv(1048576)
+            data = channel.recv(1073741824)
             output += data
         return channel.recv_exit_status(), output
