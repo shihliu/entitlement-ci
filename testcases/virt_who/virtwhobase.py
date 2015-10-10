@@ -925,3 +925,39 @@ EOF''' % (file_name, file_data)
             return poolid
         else:
             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
+
+    def get_uuid_list_in_rhsm_log(self, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check if the guest attributions is correctly monitored by virt-who. '''
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+            self.vw_restart_virtwho(targetmachine_ip)
+            time.sleep(10)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        else: 
+            self.vw_restart_virtwho(targetmachine_ip)
+            cmd = "tail -3 %s " % rhsmlogfile
+            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        if ret == 0:
+            ''' get guest uuid.list from rhsm.log '''
+            if "Sending list of uuids: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update to updateConsumer: " in output:
+                log_uuid_list = output.split('Sending update to updateConsumer: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update in hosts-to-guests mapping: " in output:
+                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending domain info" in output:
+                # log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
+                log_uuid_list = output.split('Sending domain info: ')[1].strip()
+                logger.info("log_uuid_list is %s" % log_uuid_list)
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            else:
+                raise FailException("Failed to get guest uuid.list from rhsm.log")
+            return log_uuid_list
+        else:
+            raise FailException("Failed to get uuid list in rhsm.log")
