@@ -40,6 +40,10 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -81,6 +85,10 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
           - project: 'rhsm-stage-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-kvm-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
