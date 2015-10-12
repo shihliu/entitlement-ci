@@ -36,6 +36,10 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -76,6 +80,10 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -104,6 +112,10 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
       - default-virt-who-publishers
 
 - job-template:
@@ -129,6 +141,10 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'qeos-satellite-install-rhel-7-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
