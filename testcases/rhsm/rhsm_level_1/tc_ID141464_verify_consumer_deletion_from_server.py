@@ -20,7 +20,8 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
                 baseurl = "https://" + sever_hostname + "/sam/api"
             elif self.test_server == "SATELLITE":
                 baseurl = "https://" + sever_hostname + "/rhsm"
-
+            elif self.test_server == "STAGE":
+                baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
             # if "8443" in baseurl:
              #   baseurl = baseurl + "/candlepin"
             # elif samhostip == None:

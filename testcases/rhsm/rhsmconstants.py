@@ -47,6 +47,8 @@ class RHSMConstants(object):
     "betarepo":                     "rhel-6-server-beta-rpms",
     "servicelevel":                 "PREMIUM",
     "releaselist":                  "6.1,6.2,6.3,6.4,6Server",
+
+    "proxy_server":                 "10.66.128.144:3128",
     }
 
     __instance = None
