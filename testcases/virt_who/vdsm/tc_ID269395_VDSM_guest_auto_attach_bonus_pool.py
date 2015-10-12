@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID289221_VDSM_Datacenter_guest_revoke_when_unregister_host(VDSMBase):
+class tc_ID269395_VDSM_guest_auto_attach_bonus_pool(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -26,25 +26,24 @@ class tc_ID289221_VDSM_Datacenter_guest_revoke_when_unregister_host(VDSMBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # subscribe the host to the physical pool which can generate bonus pool
             self.sub_subscribe_sku(test_sku)
-            # subscribe the registered guest to the corresponding bonus pool
-            self.sub_subscribe_to_bonus_pool(guest_bonus_sku, guestip)
+            # guest auto subscribe bonus pool
+            cmd = "subscription-manager subscribe --auto"
+            ret, output = self.runcmd(cmd, "guest auto subscribe bonus pool", guestip)
+            if ret == 0:
+                logger.info("Succeeded to auto subscribe bonus pool on %s." % self.get_hg_info(guestip))
+            else:
+                raise FailException("Failed to auto subscribe to a pool on %s." % self.get_hg_info(guestip))
             # list consumed subscriptions on guest
-            self.sub_listconsumed(sku_name, guestip)
-            # unregister hosts
-            self.sub_unregister()
-#             time.sleep(60)
-            self.sub_refresh(guestip)
-            # list consumed subscriptions on guest
-            self.sub_listconsumed(sku_name, guestip, productexists=False)
+            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
-            # register host
-            self.sub_register(SERVER_USER, SERVER_PASS)
+            # unsubscribe host
+            self.sub_unsubscribe()
+            self.sub_unregister(guestip)
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
