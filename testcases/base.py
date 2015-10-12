@@ -29,6 +29,10 @@ class Base(unittest.TestCase):
             return output.strip("\n").strip(" ")
         else: raise FailException("Failed to get os serials")
 
+    def get_server_info(self):
+        # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
+
     def service_command(self, command, targetmachine_ip="", is_return=False):
         virtwho_cons = VIRTWHOConstants()
         if self.get_os_serials(targetmachine_ip) == "7":
@@ -213,27 +217,21 @@ class Base(unittest.TestCase):
 
     # List system
     def st_system_list(self):
-        server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("username")
-        password = self.get_vw_cons("password")
+        server_ip, server_hostname, username, password = self.get_server_info()
         api_url = "https://%s/katello/api/v2/systems" % server_ip
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
 
     # List pool list
     def st_pool_list(self, uuid):
-        server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("username")
-        password = self.get_vw_cons("password")
+        server_ip, server_hostname, username, password = self.get_server_info()
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
 
     # Attach pool_id 
     def st_attach(self, uuid, pool_id):
-        server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("username")
-        password = self.get_vw_cons("password")
+        server_ip, server_hostname, username, password = self.get_server_info()
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
@@ -247,18 +245,14 @@ class Base(unittest.TestCase):
 
     # List consumed 
     def st_consumed_list(self, uuid):
-        server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("username")
-        password = self.get_vw_cons("password")
+        server_ip, server_hostname, username, password = self.get_server_info()
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         res = requests.get(api_url, auth=(username, password), verify=False)
         return res.json()
 
     # Unattach poo_id
     def st_unattach(self, uuid, pool_id):
-        server_ip = get_exported_param("SERVER_IP")
-        username = self.get_vw_cons("username")
-        password = self.get_vw_cons("password")
+        server_ip, server_hostname, username, password = self.get_server_info()
         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
         post_headers = {'content-type': 'application/json'}
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
