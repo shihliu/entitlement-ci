@@ -75,7 +75,10 @@ class Base(unittest.TestCase):
             else:
                 return rhsm_cons.sam_cons[name]
         elif self.test_server == "STAGE" :
-            return rhsm_cons.stage_cons[name]
+            if self.os_serial == "7" and name + "_el7" in rhsm_cons.stage_cons:
+                return rhsm_cons.stage_cons[name + "_el7"]
+            else:
+                return rhsm_cons.stage_cons[name]
         else:
             raise FailException("Failed to get rhsm constant %s" % name)
 

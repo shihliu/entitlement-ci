@@ -38,6 +38,11 @@ class RHSMConstants(object):
     "productid":                    "RH0103708",
     "pid":                          "69",
     "pkgtoinstall":                 "zsh",
+    # for rhel7
+    "productrepo_el7":              "rhel-7-server-rpms",
+    "betarepo_el7":                 "rhel-7-server-beta-rpms",
+    "releaselist_el7":              "7.0,7.1,7Server",
+    # for rhel6
     "productrepo":                  "rhel-6-server-rpms",
     "betarepo":                     "rhel-6-server-beta-rpms",
     "servicelevel":                 "PREMIUM",
