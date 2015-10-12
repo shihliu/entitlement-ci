@@ -19,6 +19,8 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
                 baseurl = "https://" + server_hostname + "/sam/api"
             elif self.test_server == "SATELLITE":
                 baseurl = "https://" + server_hostname + "/rhsm"
+            elif self.test_server == "STAGE":
+                baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
 
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
