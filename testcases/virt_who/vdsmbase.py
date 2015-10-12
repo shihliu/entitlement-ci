@@ -159,13 +159,18 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to add '%s *(rw,no_root_squash)' to /etc/exports file." % storage_dir)
         else:
             raise FailException("Failed to add '%s *(rw,no_root_squash)' to /etc/exports file." % storage_dir)
+        cmd = "chmod -R 777 %s" % storage_dir
+        ret, output = self.runcmd(cmd, "Add x right to storage dir", NFS_server)
+        if ret == 0 :
+            logger.info("Succeeded to add right to storage dir.")
+        else:
+            raise FailException("Failed to add right to storage dir.")
         cmd = "service nfs restart"
         ret, output = self.runcmd(cmd, "restarting nfs service", NFS_server)
         if ret == 0 :
             logger.info("Succeeded to restart service nfs.")
         else:
             raise FailException("Failed to restart service nfs.")
-
         cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
         ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
         if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "unattached", targetmachine_ip):
@@ -475,19 +480,37 @@ class VDSMBase(VIRTWHOBase):
 
     def vw_restart_vdsm_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("vdsmd", targetmachine_ip):
-            cmd = "systemctl restart vdsmd service; sleep 10"
+            cmd = "systemctl restart vdsmd service; sleep 15"
             ret, output = self.runcmd(cmd, "restart vdsmd service by systemctl.", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to restsart vdsmd")
             else:
                 raise FailException("Test Failed - Failed to restart vdsmd")
         else:
-            cmd = "service vdsmd restart; sleep 10"
+            cmd = "service vdsmd restart; sleep 15"
             ret, output = self.runcmd(cmd, "restart vdsmd by service", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to restsart vdsmd")
             else:
                 raise FailException("Test Failed - Failed to restart vdsmd")
+
+    def vw_check_vdsm_status(self, targetmachine_ip=""):
+        ''' Check the vdsmd status. '''
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "systemctl status vdsmd; sleep 15"
+            ret, output = self.runcmd(cmd, "vdsmd status", targetmachine_ip)
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check vdsmd is running.")
+            else:
+                raise FailException("Test Failed - Failed to check vdsmd is running.")
+        else:
+            cmd = "service vdsmd status; sleep 15"
+            ret, output = self.runcmd(cmd, "vdsmd status", targetmachine_ip)
+            if ret == 0 and "running" in output:
+                logger.info("Succeeded to check vdsmd is running.")
+                self.SET_RESULT(0)
+            else:
+                raise FailException("Test Failed - Failed to check vdsmd is running.")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
@@ -506,30 +529,30 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
 
         # system setup for RHEL+RHEVM testing env
-#         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-#         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-#         self.configure_rhel_host_bridge(targetmachine_ip)
-#         self.get_rhevm_repo_file(targetmachine_ip)
-#         cmd = "yum install -y vdsm"
-#         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-#         self.stop_firewall(targetmachine_ip)
-#         #configure env on rhevm(add host,storage,guest)
-#         self.conf_rhevm_shellrc(RHEVM_IP)
-#         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-#         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
-#         self.create_storage_pool()
-#         self.install_virtV2V(RHEVM_IP)
-#         self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.configure_rhel_host_bridge(targetmachine_ip)
+        self.get_rhevm_repo_file(targetmachine_ip)
+        cmd = "yum install -y vdsm"
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
+        #configure env on rhevm(add host,storage,guest)
+        self.conf_rhevm_shellrc(RHEVM_IP)
+        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
+        self.create_storage_pool()
+        self.install_virtV2V(RHEVM_IP)
+        self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
         self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
