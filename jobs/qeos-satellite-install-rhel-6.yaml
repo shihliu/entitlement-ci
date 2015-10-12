@@ -99,6 +99,11 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
+          - project: 'rhsm-stage-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
 
 - job-group:
     name: qeos-satellite-install-rhel-6-provision-runtest
