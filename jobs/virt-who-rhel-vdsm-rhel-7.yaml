@@ -1,0 +1,142 @@
+- job-template:
+    name: 'virt-who-rhel-vdsm-rhel-7-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
+            kinit -k -t $KEYTAB $PRINCIPAL
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+            # Provision Test Resources Machine
+            sleep 300
+            sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
+            if [ "$RHEL_COMPOSE" != "" ]
+            then
+                sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_double_provision.json
+                chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
+                $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/bkr_build_double_provision --ssh_keyfile={ssh_keyfile} --name={project}
+            else
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+            fi
+            TR_STATUS=$?
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'virt-who-rhel-vdsm-rhel-7-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+- job-template:
+    name: 'virt-who-rhel-vdsm-rhel-7-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'virt-who-rhel-vdsm-rhel-7-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            export TOPOLOGY={topology}
+            {testparams}
+            echo "TOPOLOGY: {topology}"
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+            echo "Jenkins machine info we are running on"
+            ifconfig
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+            EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
+            EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
+            beaker_ip_1=`ping $EXISTING_NODES_1 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
+            export REMOTE_IP=$beaker_ip_1
+            export REMOTE_IP_2=$beaker_ip_2
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export REMOTE_IP=
+            #export REMOTE_IP_2=
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            echo "********************************runtime env********************************"
+
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            nosetests virtwho_rhel_vdsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/vdsm/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - default-virt-who-publishers
+
+- job-group:
+    name: virt-who-rhel-vdsm-rhel-7-provision-runtest
+    jobs:
+      - 'virt-who-rhel-vdsm-rhel-7-provision'
+      - 'virt-who-rhel-vdsm-rhel-7-runtest'
+
+- project:
+    name: virt-who-rhel-vdsm-rhel-7-jobs
+    project: virt-who-rhel-vdsm-rhel-7
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_virt-who_kvm_rhel_7
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
+    jobs:
+      - virt-who-rhel-vdsm-rhel-7-provision-runtest
+    jslavename: jslave-virt-who-rhel-vdsm-rhel-7-slave
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
