@@ -5,6 +5,10 @@
     builders:
         - shell: |
             #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE=
+            echo "*********************************setup env*********************************"
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
@@ -28,6 +32,10 @@
                 cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
@@ -63,6 +71,11 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
             export REMOTE_IP=$EXISTING_NODES
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export REMOTE_IP=
+            #export RHEL_COMPOSE=
+            echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
