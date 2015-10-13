@@ -10,11 +10,17 @@ class tc_ID190639_register_selected_server(RHSMBase):
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             baseurl = get_exported_param("SERVER_HOSTNAME")
-            samhostip = get_exported_param("SERVER_IP")
+            server_ip = get_exported_param("SERVER_IP")
+            server_type=self.test_server
             # register to sam candlepin server
-            if samhostip != None:
+            if server_type == 'SAM':
                 serverurl = baseurl + ':443/sam/api'
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=ACME_Corporation --force" % (username, password, serverurl)
+            elif server_type == 'SATELLITE':
+                if 'satellite' in baseurl:
+                    baseurl = baseurl + '.novalocal'
+                serverurl = baseurl + ':443/rhsm'
+                cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=Default_Organization --force" % (username, password, serverurl)
             # register to stage/product candlepin server
             else:
                 serverurl = baseurl + '/subscription'
