@@ -430,7 +430,7 @@ class RHSMBase(Base):
             logger.info("No need to back up repos")
 
     def restore_repos(self):
-        cmd = "ls /root/backuprepo"
+        cmd = "ls /root/backuprepo/*"
         (ret, output) = self.runcmd(cmd, "check if repos' backup is empty")
         if ret == 0:
             logger.info("The repos backup exist, and need restore")
