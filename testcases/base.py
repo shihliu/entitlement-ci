@@ -215,54 +215,86 @@ class Base(unittest.TestCase):
     #       SATELLITE Functions
     # ========================================================
 
-    # List system
+    def st_orgs_list(self):
+        return self.get_json("organizations/")
+
+    def st_users_list(self):
+        return self.get_json("users/")
+
     def st_system_list(self):
-        server_ip, server_hostname, username, password = self.get_server_info()
-        api_url = "https://%s/katello/api/v2/systems" % server_ip
-        res = requests.get(api_url, auth=(username, password), verify=False)
-        return res.json()
+        return self.get_json("systems/")
 
-    # List pool list
     def st_pool_list(self, uuid):
-        server_ip, server_hostname, username, password = self.get_server_info()
-        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
-        res = requests.get(api_url, auth=(username, password), verify=False)
-        return res.json()
+        return self.get_json("systems/%s/subscriptions/available/" % uuid)
 
-    # Attach pool_id 
-    def st_attach(self, uuid, pool_id):
-        server_ip, server_hostname, username, password = self.get_server_info()
-        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-        post_headers = {'content-type': 'application/json'}
-        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
-        res = requests.post(
-              api_url,
-              data=json_data,
-              auth=(username, password),
-              verify=False,
-              headers=post_headers)
-        return res.json()
-
-    # List consumed 
     def st_consumed_list(self, uuid):
-        server_ip, server_hostname, username, password = self.get_server_info()
-        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-        res = requests.get(api_url, auth=(username, password), verify=False)
-        return res.json()
+        return self.get_json("systems/%s/subscriptions/" % uuid)
 
-    # Unattach poo_id
+    def st_attach(self, uuid, pool_id):
+        location = "systems/%s/subscriptions/" % uuid
+        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
+        return self.post_json(location, json_data)
+
     def st_unattach(self, uuid, pool_id):
-        server_ip, server_hostname, username, password = self.get_server_info()
-        api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-        post_headers = {'content-type': 'application/json'}
+        location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
-        res = requests.put(
-              api_url,
-              data=json_data,
-              auth=(username, password),
-              verify=False,
-              headers=post_headers,)
-        return res.json()
+        return self.post_json(location, json_data)
+
+    def st_org_create(self, org_name):
+        location = "organizations/"
+        json_data = json.dumps({"name": org_name})
+        org_id = self.post_json(location, json_data)["organization"]["id"]
+        return org_id
+
+    def st_org_delete(self, org_name):
+        location = "organizations/"
+        json_data = json.dumps({"name": org_name})
+        return self.post_json(location, json_data)
+
+    def st_user_create(self, user_name):
+        location = "users/"
+        json_data = json.dumps({"login":"sgao", "password":"redhat", "admin":"true", "mail":"sgao@redhat.com", "auth_source_id": 1})
+        return self.post_json(location, json_data)
+
+    def get_json(self, location):
+        """
+        Performs a GET using the passed URL location
+        """
+        server_ip, server_hostname, username, password = self.get_server_info()
+        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        result = requests.get(sat_api, auth=(username, password), verify=False)
+#         print result.get("error", None)
+        return result.json()
+
+    def post_json(self, location, json_data):
+        """
+        Performs a POST and passes the data to the URL location
+        """
+        server_ip, server_hostname, username, password = self.get_server_info()
+        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        post_headers = {'content-type': 'application/json'}
+        result = requests.post(
+            sat_api,
+            data=json_data,
+            auth=(username, password),
+            verify=False,
+            headers=post_headers)
+        return result.json()
+
+    def put_json(self, location, json_data):
+        """
+        Performs a put and passes the data to the URL location
+        """
+        server_ip, server_hostname, username, password = self.get_server_info()
+        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        post_headers = {'content-type': 'application/json'}
+        result = requests.put(
+            sat_api,
+            data=json_data,
+            auth=(username, password),
+            verify=False,
+            headers=post_headers)
+        return result.json()
 
     # ========================================================
     #       Skip Test Functions
@@ -297,3 +329,8 @@ class Base(unittest.TestCase):
         BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
         logger.info("**************************************************************************************************************")
 
+#     def test_self(self):
+#         print self.st_system_list()
+
+if __name__ == "__main__":
+    unittest.main()
