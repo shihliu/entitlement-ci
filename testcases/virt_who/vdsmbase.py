@@ -45,31 +45,51 @@ class VDSMBase(VIRTWHOBase):
 
     # Add host to rhevm
     def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
-        cmd = " rhevm-shell -c -E 'add host --name \"%s\" --address \"%s\" --root_password red2015'" % (rhevm_host_name, rhevm_host_ip)
-        ret, output = self.runcmd(cmd, "add host to rhevm.", targetmachine_ip)
-        if ret == 0:
-            runtime = 0
-            while True:
-                cmd = " rhevm-shell -c -E 'list hosts --show-all'"
-                ret, output = self.runcmd(cmd, "list hosts in rhevm.", targetmachine_ip)
-                runtime = runtime + 1
-                if ret == 0 and rhevm_host_name in output:
-                    logger.info("Succeeded to list host %s." % rhevm_host_name)
-                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
-                    if "up" in status:
-                        logger.info("Succeeded to add new host %s to rhevm" % rhevm_host_name)
-                        break
-                    # elif "install_failed":
-                    #    raise FailException("Failed to add host since status is %s" % (rhevm_host_name, status))
-                    else :
-                        logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
+        while True:
+            cmd = " rhevm-shell -c -E 'list hosts --show-all'"
+            ret, output = self.runcmd(cmd, "list hosts in rhevm before add host", targetmachine_ip)
+            if ret == 0 and rhevm_host_name in output:
+                logger.info("Succeeded to list host %s before add host" % rhevm_host_name)
+                status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
+                if "up" in status:
+                    logger.info("Succeeded to show host %s at up mode in rhevm" % rhevm_host_name)
+                    break
+            else:
+                cmd = " rhevm-shell -c -E 'add host --name \"%s\" --address \"%s\" --root_password red2015'" % (rhevm_host_name, rhevm_host_ip)
+                ret, output = self.runcmd(cmd, "add host to rhevm.", targetmachine_ip)
+                if ret == 0:
+                    runtime = 0
+                    while True:
+                        cmd = " rhevm-shell -c -E 'list hosts --show-all'"
+                        ret, output = self.runcmd(cmd, "list hosts in rhevm.", targetmachine_ip)
+                        runtime = runtime + 1
+                        if ret == 0 and rhevm_host_name in output:
+                            logger.info("Succeeded to list host %s." % rhevm_host_name)
+                            status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
+                            if "up" in status:
+                                logger.info("Succeeded to add new host %s to rhevm" % rhevm_host_name)
+                                break
+                            # elif "install_failed":
+                            #    raise FailException("Failed to add host since status is %s" % (rhevm_host_name, status))
+                            else :
+                                logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
+                        else:
+                            raise FailException("Failed to list host %s in rhevm" % rhevm_host_name)
+                        time.sleep(10)
+                        if runtime > 120:
+                            raise FailException("%s status has problem,status is %s." % (rhevm_host_name, status))
                 else:
-                    raise FailException("Failed to list host %s in rhevm" % rhevm_host_name)
-                time.sleep(10)
-                if runtime > 120:
-                    raise FailException("%s status has problem,status is %s." % (rhevm_host_name, status))
+                    raise FailException("Failed to add host %s to rhevm" % rhevm_host_name)
+
+    # Add vm to special host
+    def update_vm_to_host(self, vm_name, rhevm_host_name, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'update vm %s --placement_policy-host-name %s'" % (vm_name, rhevm_host_name)
+        ret, output = self.runcmd(cmd, "update vm to special host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update vm %s to host %s." % (vm_name, rhevm_host_name))
         else:
-            raise FailException("Failed to add host %s to rhevm" % rhevm_host_name)
+            raise FailException("Failed to update vm %s to host %s." % (vm_name, rhevm_host_name))
+
     # parse rhevm-shell result to dict
     def get_key_rhevm(self, output, non_key_value, key_value, find_value, targetmachine_ip=""):
         pool_dict = {}
@@ -171,31 +191,37 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to restart service nfs.")
         else:
             raise FailException("Failed to restart service nfs.")
-        cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
-        ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
-        if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "unattached", targetmachine_ip):
-            logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
+        # check datastorage domain before add new one
+        cmd = "rhevm-shell -c -E 'list storagedomains --name %s --show-all' " % storage_name
+        ret, output = self.runcmd(cmd, "check storagedomain before add new one.", targetmachine_ip)
+        if storage_name not in output:
+            logger.info("storagedomains %s is not exist in rhevm." % storage_name)
+            cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+            ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
+            if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "unattached", targetmachine_ip):
+                logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
+            else:
+                raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
+            cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+            ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
+            if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
+                logger.info("Succeeded to maintenance storagedomains %s in rhevm." % storage_name)
+            else:
+                raise FailException("Failed to maintenance storagedomains %s in rhevm." % storage_name)
+    #     # activate storagedomain in rhevm
+    #      def activate_storagedomain(self, storage_name, targetmachine_ip): 
+    #         cmd = "rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' " % (storage_name)
+    #         ret, output = self.runcmd(cmd, "activate storagedomain in rhevm.", targetmachine_ip)
+    #         if "complete" in output:
+    #             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
+    #         #if self.wait_for_status("rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' % (storage_name)", "status-state", "complete", targetmachine_ip):
+    #                 logger.info("Succeeded to activate storagedomains %s in rhevm." % storage_name)
+    #             else:
+    #                 raise FailException("Failed to list activate storagedomains %s in rhevm." % storage_name)
+    #         else:
+    #             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
         else:
-            raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
-        cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
-        ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
-        if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
-            logger.info("Succeeded to maintenance storagedomains %s in rhevm." % storage_name)
-        else:
-            raise FailException("Failed to maintenance storagedomains %s in rhevm." % storage_name)
-
-#     # activate storagedomain in rhevm
-#     def activate_storagedomain(self, storage_name, targetmachine_ip): 
-#         cmd = "rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' " % (storage_name)
-#         ret, output = self.runcmd(cmd, "activate storagedomain in rhevm.", targetmachine_ip)
-#         if "complete" in output:
-#             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
-#         #if self.wait_for_status("rhevm-shell -c -E 'action storagedomain \"%s\" activate --datacenter-identifier \"Default\"' % (storage_name)", "status-state", "complete", targetmachine_ip):
-#                 logger.info("Succeeded to activate storagedomains %s in rhevm." % storage_name)
-#             else:
-#                 raise FailException("Failed to list activate storagedomains %s in rhevm." % storage_name)
-#         else:
-#             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
+            logger.info("storagedomains %s is exist in rhevm." % storage_name)
 
     def install_virtV2V(self, targetmachine_ip=""):
         '''install virt-V2V'''
@@ -300,6 +326,7 @@ class VDSMBase(VIRTWHOBase):
         self.vw_restart_libvirtd(origin_machine_ip)
         time.sleep(60)
         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
+#         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network ovirtmgmt %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
         if "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
@@ -349,6 +376,26 @@ class VDSMBase(VIRTWHOBase):
                 time.sleep(10)
                 if runtime > 120:
                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
+
+    def add_vm_to_rhevm(self, rhevm_vm_name, NFSserver_ip, nfs_dir_for_export, targetmachine_ip):
+        while True:
+            cmd = "rhevm-shell -c -E ' list vms --name %s'" %rhevm_vm_name
+            ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip)
+            if ret == 0 :
+                if rhevm_vm_name in output and "Imported with virt-v2v" in output:
+                    logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
+                    break
+                else:
+                    self.rhevm_define_guest(rhevm_vm_name)
+                    self.create_storage_pool()
+                    self.install_virtV2V(targetmachine_ip)
+                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name, targetmachine_ip)
+                    self.rhevm_undefine_guest(rhevm_vm_name)
+                    data_storage_id = self.get_domain_id ("data_storage", targetmachine_ip)
+                    export_storage_id = self.get_domain_id ("export_storage", targetmachine_ip)
+                    self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
+            else:
+                raise FailException("Failed to list vm in rhevm")
 
 # Start VM on RHEVM
     def rhevm_start_vm(self, rhevm_vm_name, rhevm_host_ip):
@@ -529,34 +576,38 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
 
         # system setup for RHEL+RHEVM testing env
-        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.configure_rhel_host_bridge(targetmachine_ip)
-        self.get_rhevm_repo_file(targetmachine_ip)
-        cmd = "yum install -y vdsm"
-        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        self.stop_firewall(targetmachine_ip)
-        #configure env on rhevm(add host,storage,guest)
+#         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+#         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+# #         self.configure_rhel_host_bridge(targetmachine_ip)
+#         self.get_rhevm_repo_file(targetmachine_ip)
+#         cmd = "yum install -y vdsm"
+#         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+#         self.stop_firewall(targetmachine_ip)
+#         configure env on rhevm(add host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
-        self.create_storage_pool()
-        self.install_virtV2V(RHEVM_IP)
-        self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-        self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
-        data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
-        export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
-        self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
+        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, REMOTE_IP_NAME, RHEVM_IP)
+
+
+#         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
+#         self.create_storage_pool()
+#         self.install_virtV2V(RHEVM_IP)
+#         self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+#         self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
+#         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
+#         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
+#         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()

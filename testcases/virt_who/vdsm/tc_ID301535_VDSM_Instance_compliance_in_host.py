@@ -16,7 +16,7 @@ class tc_ID301535_VDSM_Instance_compliance_in_host(VDSMBase):
 
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "6")
-            #disable auto attach subscription
+            # disable auto attach subscription
             self.sub_disable_auto_subscribe()
             # subscribe the registered host to 4 instance pool
             poolid = self.get_pool_by_SKU(test_sku)

@@ -52,6 +52,7 @@ class tc_ID301521_VDSM_Instance_host_consume_increments_instance_multiplier(VDSM
             self.restore_facts()
             # unsubscribe host
             self.sub_unsubscribe()
+
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

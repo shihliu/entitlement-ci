@@ -18,7 +18,7 @@ class tc_ID289221_VDSM_Datacenter_guest_revoke_when_unregister_host(VDSMBase):
             sku_name = self.get_vw_cons("datacenter_name")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

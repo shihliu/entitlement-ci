@@ -13,13 +13,12 @@ class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
             rhevm_ip = self.get_vw_cons("RHEVM_HOST")
 
             self.conf_rhevm_shellrc(rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            self.rhevm_start_vm(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
-            self.rhevm_start_vm(guest_name, rhevm_ip)
-
             # Check guest uuid before unregister
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.vw_check_uuid(guestuuid, uuidexists=True)
             # Check guest uuid after unregister
             cmd = "subscription-manager unregister"
