@@ -51,7 +51,7 @@ class tc_ID155149_validate_compliance_after_pause_shutdown(KVMBase):
                 self.sub_unregister(guestip)
             # unsubscribe host
             self.sub_unsubscribe()
-            self.vw_stop_guests(guest_name)
+#             self.vw_stop_guests(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

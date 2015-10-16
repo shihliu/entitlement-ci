@@ -24,7 +24,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
 
-    def get_rhevm_repo_file(self, targetmachine_ip=""):
+    def get_rhevm_repo_file(self, compose_name, targetmachine_ip=""):
         ''' wget rhevm repo file and add to rhel host '''
         cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.2.repo"
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
@@ -32,6 +32,12 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.2.repo" %compose_name
+        ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update repo file to the latest rhel repo")
+        else:
+            raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
     def conf_rhevm_shellrc(self, targetmachine_ip=""):
         ''' Config the env to login to rhevm_rhell '''
@@ -192,9 +198,11 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to restart service nfs.")
         # check datastorage domain before add new one
-        cmd = "rhevm-shell -c -E 'list storagedomains --name %s --show-all' " % storage_name
+        cmd = "rhevm-shell -c -E 'list storagedomains' "
         ret, output = self.runcmd(cmd, "check storagedomain before add new one.", targetmachine_ip)
-        if storage_name not in output:
+        if ret == 0 and storage_name in output:
+            logger.info("storagedomains %s is exist in rhevm." % storage_name)
+        else:
             logger.info("storagedomains %s is not exist in rhevm." % storage_name)
             cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
             ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
@@ -220,8 +228,6 @@ class VDSMBase(VIRTWHOBase):
     #                 raise FailException("Failed to list activate storagedomains %s in rhevm." % storage_name)
     #         else:
     #             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
-        else:
-            logger.info("storagedomains %s is exist in rhevm." % storage_name)
 
     def install_virtV2V(self, targetmachine_ip=""):
         '''install virt-V2V'''
@@ -328,7 +334,7 @@ class VDSMBase(VIRTWHOBase):
         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
 #         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network ovirtmgmt %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
-        if "100%" in output:
+        if ret == 0 and "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
             time.sleep(10)
         else:
@@ -391,7 +397,7 @@ class VDSMBase(VIRTWHOBase):
                     self.install_virtV2V(targetmachine_ip)
                     self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name, targetmachine_ip)
                     self.rhevm_undefine_guest(rhevm_vm_name)
-                    data_storage_id = self.get_domain_id ("data_storage", targetmachine_ip)
+                    data_storage_id = self.get_domain_id ("data_storage_2", targetmachine_ip)
                     export_storage_id = self.get_domain_id ("export_storage", targetmachine_ip)
                     self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
             else:
@@ -575,6 +581,8 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
 
+        rhel_compose= get_exported_param("RHEL_COMPOSE")
+
         # system setup for RHEL+RHEVM testing env
 #         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
 #         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
@@ -582,8 +590,8 @@ class VDSMBase(VIRTWHOBase):
 #             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
 #         else:
 #             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-# #         self.configure_rhel_host_bridge(targetmachine_ip)
-#         self.get_rhevm_repo_file(targetmachine_ip)
+#         self.configure_rhel_host_bridge(targetmachine_ip)
+        self.get_rhevm_repo_file(rhel_compose)
 #         cmd = "yum install -y vdsm"
 #         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
 #         if ret == 0:
@@ -591,14 +599,13 @@ class VDSMBase(VIRTWHOBase):
 #         else:
 #             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
 #         self.stop_firewall(targetmachine_ip)
-#         configure env on rhevm(add host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, REMOTE_IP_NAME, RHEVM_IP)
-
+#         #configure env on rhevm(add host,storage,guest)
+#         self.conf_rhevm_shellrc(RHEVM_IP)
+#         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage_2", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, REMOTE_IP_NAME, RHEVM_IP)
 
 #         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
 #         self.create_storage_pool()
