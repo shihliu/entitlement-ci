@@ -317,8 +317,8 @@ class Base(unittest.TestCase):
     # ========================================================
     def setUp(self):
         # show log in unittest report
-        stream_handler = logging.StreamHandler(sys.stdout)
-        logger.addHandler(stream_handler)
+        self.stream_handler = logging.StreamHandler(sys.stdout)
+        logger.addHandler(self.stream_handler)
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
@@ -331,6 +331,9 @@ class Base(unittest.TestCase):
         RHEL_COMPOSE = get_exported_param("RHEL_COMPOSE")
         BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
         logger.info("**************************************************************************************************************")
+
+    def tearDown(self):
+        logger.removeHandler(self.stream_handler)
 
 #     def test_self(self):
 #         print self.st_system_list()
