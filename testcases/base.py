@@ -316,6 +316,9 @@ class Base(unittest.TestCase):
     #       unittest setup
     # ========================================================
     def setUp(self):
+        # show log in unittest report
+        stream_handler = logging.StreamHandler(sys.stdout)
+        logger.addHandler(stream_handler)
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
