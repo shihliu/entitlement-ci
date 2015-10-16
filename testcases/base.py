@@ -317,8 +317,11 @@ class Base(unittest.TestCase):
     # ========================================================
     def setUp(self):
         # show log in unittest report
-        self.stream_handler = logging.StreamHandler(sys.stdout)
-        logger.addHandler(self.stream_handler)
+        self.unittest_handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.unittest_handler.setFormatter(formatter)
+        logger.addHandler(self.unittest_handler)
+
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
@@ -333,7 +336,7 @@ class Base(unittest.TestCase):
         logger.info("**************************************************************************************************************")
 
     def tearDown(self):
-        logger.removeHandler(self.stream_handler)
+        logger.removeHandler(self.unittest_handler)
 
 #     def test_self(self):
 #         print self.st_system_list()
