@@ -16,6 +16,9 @@ class tc_ID165512_VDSM_validate_double_fork(VDSMBase):
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
 
+            self.rhevm_start_vm(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+
             # (1) check guest uuid is exist.
             self.vw_check_uuid(guestuuid, uuidexists=True)
             # (2) Check guest uuid is exist after restart virt-who on another host
@@ -27,6 +30,8 @@ class tc_ID165512_VDSM_validate_double_fork(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            if guestip != None and guestip != "":
+                self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

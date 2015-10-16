@@ -11,7 +11,6 @@ class tc_ID322864_VDSM_check_log_small_interval_after_add_guest(VDSMBase):
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = self.get_vw_cons("RHEVM_HOST")
-            guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
             rhsmlogpath = '/var/log/rhsm/rhsm.log'
 
@@ -36,7 +35,7 @@ class tc_ID322864_VDSM_check_log_small_interval_after_add_guest(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            #stop guest    
+            #stop guest
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # set interval to default : 5
             self.update_rhevm_vdsm_configure(5)

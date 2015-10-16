@@ -39,10 +39,9 @@ class tc_ID322862_VDSM_validate_unregister_check_output(VDSMBase):
         finally:
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
-            # move VIRTWHO_INTERVAL to default
-            cmd = "sed -i 's/.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/' /etc/sysconfig/virt-who"
-            (ret, output) = self.runcmd(cmd, "move interval to default in virt-who config file")
-            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+            # set interval to default : 5
+            self.update_rhevm_vdsm_configure(5)
             self.rhevm_stop_vm(guest_name, rhevm_ip)
+            logger.info("========== End of Running Test Case: %s ==========" % case_name)
 if __name__ == "__main__":
     unittest.main()

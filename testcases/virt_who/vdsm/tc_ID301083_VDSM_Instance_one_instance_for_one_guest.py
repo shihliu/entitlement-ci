@@ -16,7 +16,7 @@ class tc_ID301083_VDSM_Instance_one_instance_for_one_guest(VDSMBase):
             sku_name = self.get_vw_cons("instancebase_name")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

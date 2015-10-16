@@ -18,7 +18,7 @@ class tc_ID269395_VDSM_guest_auto_attach_bonus_pool(VDSMBase):
             sku_name = self.get_vw_cons("datacenter_name")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
@@ -41,9 +41,10 @@ class tc_ID269395_VDSM_guest_auto_attach_bonus_pool(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            # unsubscribe host
+            # unsubscribe host and guest
             self.sub_unsubscribe()
-            self.sub_unregister(guestip)
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

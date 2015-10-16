@@ -18,7 +18,7 @@ class tc_ID289139_VDSM_Datacenter_subpool_quantity_unlimited(VDSMBase):
             sku_name = self.get_vw_cons("datacenter_name")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

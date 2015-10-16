@@ -16,9 +16,9 @@ class tc_ID248787_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
 
-            #self.conf_rhevm_shellrc(rhevm_ip)
+            # self.conf_rhevm_shellrc(rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
