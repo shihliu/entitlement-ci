@@ -218,6 +218,19 @@ class Base(unittest.TestCase):
     def st_orgs_list(self):
         return self.get_json("organizations/")
 
+    def st_org_create(self, org_name):
+        location = "organizations/"
+        json_data = json.dumps({"name": org_name})
+        return self.post_json(location, json_data)["id"]
+
+    def st_org_update(self, org_id):
+        location = "organizations/%s" % org_id
+        json_data = json.dumps({"name": "change name"})
+        self.put_json(location, json_data)
+
+    def st_org_delete(self, org_id):
+        self.delete_json("organizations/%s" % org_id)
+
     def st_users_list(self):
         return self.get_json("users/")
 
@@ -240,17 +253,6 @@ class Base(unittest.TestCase):
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
         return self.post_json(location, json_data)
 
-    def st_org_create(self, org_name):
-        location = "organizations/"
-        json_data = json.dumps({"name": org_name})
-        org_id = self.post_json(location, json_data)["organization"]["id"]
-        return org_id
-
-    def st_org_delete(self, org_name):
-        location = "organizations/"
-        json_data = json.dumps({"name": org_name})
-        return self.post_json(location, json_data)
-
     def st_user_create(self, user_name):
         location = "users/"
         json_data = json.dumps({"login":"sgao", "password":"redhat", "admin":"true", "mail":"sgao@redhat.com", "auth_source_id": 1})
@@ -262,9 +264,17 @@ class Base(unittest.TestCase):
         """
         server_ip, server_hostname, username, password = self.get_server_info()
         sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
-        result = requests.get(sat_api, auth=(username, password), verify=False)
-#         print result.get("error", None)
-        return result.json()
+        result = requests.get(
+            sat_api,
+            auth=(username, password),
+            verify=False)
+        if result.status_code != 200:
+            raise FailException("Failed to run requests get: %s" % sat_api)
+        else:
+            logger.info("Succeeded to run requests get: %s" % sat_api)
+            ret = result.json()
+            logger.info("Result >>>: %s" % ret)
+            return ret
 
     def post_json(self, location, json_data):
         """
@@ -279,11 +289,17 @@ class Base(unittest.TestCase):
             auth=(username, password),
             verify=False,
             headers=post_headers)
-        return result.json()
+        if result.status_code != 201:
+            raise FailException("Failed to run requests post: %s" % sat_api)
+        else:
+            logger.info("Succeeded to run requests post: %s" % sat_api)
+            ret = result.json()
+            logger.info("Result >>>: %s" % ret)
+            return ret
 
     def put_json(self, location, json_data):
         """
-        Performs a put and passes the data to the URL location
+        Performs a PUT and passes the data to the URL location
         """
         server_ip, server_hostname, username, password = self.get_server_info()
         sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
@@ -294,7 +310,31 @@ class Base(unittest.TestCase):
             auth=(username, password),
             verify=False,
             headers=post_headers)
-        return result.json()
+        if result.status_code != 200:
+            raise FailException("Failed to run requests put: %s" % sat_api)
+        else:
+            logger.info("Succeeded to run requests put: %s" % sat_api)
+            ret = result.json()
+            logger.info("Result >>>: %s" % ret)
+            return ret
+
+    def delete_json(self, location):
+        """
+        Performs a DELETE using the passed URL location
+        """
+        server_ip, server_hostname, username, password = self.get_server_info()
+        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        result = requests.delete(
+            sat_api,
+            auth=(username, password),
+            verify=False)
+        if result.status_code != 202:
+            raise FailException("Failed to run requests delete: %s" % sat_api)
+        else:
+            logger.info("Succeeded to run requests delete: %s" % sat_api)
+            ret = result.json()
+            logger.info("Result >>>: %s" % ret)
+            return ret
 
     # ========================================================
     #       Skip Test Functions
@@ -338,8 +378,13 @@ class Base(unittest.TestCase):
     def tearDown(self):
         logger.removeHandler(self.unittest_handler)
 
-#     def test_self(self):
-#         print self.st_system_list()
+    def test_self(self):
+        org = self.st_org_create("autoorg")
+        self.st_orgs_list()
+        self.st_org_update(org)
+        self.st_orgs_list()
+        self.st_org_delete(org)
+        self.st_orgs_list()
 
 if __name__ == "__main__":
     unittest.main()
