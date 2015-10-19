@@ -378,13 +378,13 @@ class Base(unittest.TestCase):
     def tearDown(self):
         logger.removeHandler(self.unittest_handler)
 
-    def test_self(self):
-        org = self.st_org_create("autoorg")
-        self.st_orgs_list()
-        self.st_org_update(org)
-        self.st_orgs_list()
-        self.st_org_delete(org)
-        self.st_orgs_list()
+#     def test_self(self):
+#         org = self.st_org_create("autoorg")
+#         self.st_orgs_list()
+#         self.st_org_update(org)
+#         self.st_orgs_list()
+#         self.st_org_delete(org)
+#         self.st_orgs_list()
 
 if __name__ == "__main__":
     unittest.main()
