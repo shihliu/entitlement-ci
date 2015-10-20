@@ -234,29 +234,20 @@ class Base(unittest.TestCase):
     def st_users_list(self):
         return self.get_json("users/")
 
-    def st_system_list(self):
-        return self.get_json("systems/")
-
-    def st_pool_list(self, uuid):
-        return self.get_json("systems/%s/subscriptions/available/" % uuid)
-
-    def st_consumed_list(self, uuid):
-        return self.get_json("systems/%s/subscriptions/" % uuid)
+    # do not know how to setup auth_source_id, failed func
+    def st_user_create(self, user_name, user_pass):
+        location = "users/"
+        json_data = json.dumps({"login":user_name, "password":user_pass, "admin":"true", "mail":"test@redhat.com", "auth_source_id": 1})
+        return self.post_json(location, json_data)["id"]
 
     def st_attach(self, uuid, pool_id):
         location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
-        return self.post_json(location, json_data)
+        return self.post_json(location, json_data)["results"][1]["id"]
 
-    def st_unattach(self, uuid, pool_id):
-        location = "systems/%s/subscriptions/" % uuid
-        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
-        return self.post_json(location, json_data)
-
-    def st_user_create(self, user_name):
-        location = "users/"
-        json_data = json.dumps({"login":"sgao", "password":"redhat", "admin":"true", "mail":"sgao@redhat.com", "auth_source_id": 1})
-        return self.post_json(location, json_data)
+    def st_unattach(self, uuid, consumed_pool_id):
+        location = "systems/%s/subscriptions/%s" % (uuid, consumed_pool_id)
+        return self.delete_json(location)
 
     def get_json(self, location):
         """
@@ -268,13 +259,14 @@ class Base(unittest.TestCase):
             sat_api,
             auth=(username, password),
             verify=False)
-        if result.status_code != 200:
+        ret, output = result.status_code, result.json()
+        logger.info("Status Code >>>: %s" % ret)
+        logger.info("Result >>>: %s" % output)
+        if ret not in (200,):
             raise FailException("Failed to run requests get: %s" % sat_api)
         else:
             logger.info("Succeeded to run requests get: %s" % sat_api)
-            ret = result.json()
-            logger.info("Result >>>: %s" % ret)
-            return ret
+            return output
 
     def post_json(self, location, json_data):
         """
@@ -289,13 +281,14 @@ class Base(unittest.TestCase):
             auth=(username, password),
             verify=False,
             headers=post_headers)
-        if result.status_code != 201:
+        ret, output = result.status_code, result.json()
+        logger.info("Status Code >>>: %s" % ret)
+        logger.info("Result >>>: %s" % output)
+        if ret not in (200, 201):
             raise FailException("Failed to run requests post: %s" % sat_api)
         else:
             logger.info("Succeeded to run requests post: %s" % sat_api)
-            ret = result.json()
-            logger.info("Result >>>: %s" % ret)
-            return ret
+            return output
 
     def put_json(self, location, json_data):
         """
@@ -310,13 +303,14 @@ class Base(unittest.TestCase):
             auth=(username, password),
             verify=False,
             headers=post_headers)
-        if result.status_code != 200:
+        ret, output = result.status_code, result.json()
+        logger.info("Status Code >>>: %s" % ret)
+        logger.info("Result >>>: %s" % output)
+        if ret not in (200,):
             raise FailException("Failed to run requests put: %s" % sat_api)
         else:
             logger.info("Succeeded to run requests put: %s" % sat_api)
-            ret = result.json()
-            logger.info("Result >>>: %s" % ret)
-            return ret
+            return output
 
     def delete_json(self, location):
         """
@@ -328,13 +322,14 @@ class Base(unittest.TestCase):
             sat_api,
             auth=(username, password),
             verify=False)
-        if result.status_code != 202:
+        ret, output = result.status_code, result.json()
+        logger.info("Status Code >>>: %s" % ret)
+        logger.info("Result >>>: %s" % output)
+        if ret not in (200, 202):
             raise FailException("Failed to run requests delete: %s" % sat_api)
         else:
             logger.info("Succeeded to run requests delete: %s" % sat_api)
-            ret = result.json()
-            logger.info("Result >>>: %s" % ret)
-            return ret
+            return output
 
     # ========================================================
     #       Skip Test Functions
@@ -387,6 +382,8 @@ class Base(unittest.TestCase):
 #         self.st_orgs_list()
 #         self.st_org_delete(org)
 #         self.st_orgs_list()
+#         consumed_pool_id = self.st_attach("43e33262-57ff-4b13-ba94-1e5459cba2a2", "2c90ec93507e9bf901507ea2b2e601a7")
+#         self.st_unattach("43e33262-57ff-4b13-ba94-1e5459cba2a2", consumed_pool_id)
 
 if __name__ == "__main__":
     unittest.main()
