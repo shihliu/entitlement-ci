@@ -357,10 +357,11 @@ class Base(unittest.TestCase):
     # ========================================================
     def setUp(self):
         # show log in unittest report
-        self.unittest_handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.unittest_handler.setFormatter(formatter)
-        logger.addHandler(self.unittest_handler)
+        # self.unittest_handler = logging.StreamHandler(sys.stdout)
+        # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # self.unittest_handler.setFormatter(formatter)
+        # logger.addHandler(self.unittest_handler)
+        logger.addHandler(ch)
 
         logger.info(" ")
         logger.info("**************************************************************************************************************")
@@ -375,12 +376,13 @@ class Base(unittest.TestCase):
         BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
         logger.info("**************************************************************************************************************")
 
-    def tearDown(self):
-        logger.removeHandler(self.unittest_handler)
+    # def tearDown(self):
+        # logger.removeHandler(self.unittest_handler)
+        # logger.removeHandler(ch)
 
-#     def test_self(self):
-#         org = self.st_org_create("autoorg")
-#         self.st_orgs_list()
+    def test_self(self):
+#         org = self.st_org_create("autoorg20")
+        self.st_orgs_list()
 #         self.st_org_update(org)
 #         self.st_orgs_list()
 #         self.st_org_delete(org)
