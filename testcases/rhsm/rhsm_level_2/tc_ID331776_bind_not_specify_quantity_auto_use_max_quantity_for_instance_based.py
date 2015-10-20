@@ -17,7 +17,7 @@ class tc_ID331776_bind_not_specify_quantity_auto_use_max_quantity_for_instance_b
                 self.virt_to_phy()
 
             # list an instance-based subscription pool
-            cmd = 'subscription-manager list --available | egrep "Subscription Name:|Pool ID:|Suggested:"| grep "Red Hat Enterprise Linux High Touch Beta" -A2 '
+            cmd = 'subscription-manager list --available | egrep "Subscription Name:|Pool ID:|Suggested:"| grep "Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)" -A2 '
             (ret, output) = self.runcmd(cmd, "list an instance-based subscription and get it's pool and suggested quantities.")
             if ret == 0 and output != '':
                 poolid = output.split("\n")[1].split(":")[1].strip()
