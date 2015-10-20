@@ -380,9 +380,9 @@ class Base(unittest.TestCase):
         # logger.removeHandler(self.unittest_handler)
         # logger.removeHandler(ch)
 
-    def test_self(self):
+#     def test_self(self):
 #         org = self.st_org_create("autoorg20")
-        self.st_orgs_list()
+#         self.st_orgs_list()
 #         self.st_org_update(org)
 #         self.st_orgs_list()
 #         self.st_org_delete(org)
