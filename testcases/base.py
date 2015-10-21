@@ -355,7 +355,6 @@ class Base(unittest.TestCase):
         self.unittest_handler = logging.StreamHandler(sys.stdout)
         self.unittest_handler.setFormatter(formatter)
         logger.addHandler(self.unittest_handler)
-        logger.removeHandler(ch)
 
         logger.info(" ")
         logger.info("**************************************************************************************************************")
@@ -372,8 +371,6 @@ class Base(unittest.TestCase):
 
     def tearDown(self):
         logger.removeHandler(self.unittest_handler)
-        logger.addHandler(ch)
-
 
 #     def test_self(self):
 #         org = self.st_org_create("autoorg20")
