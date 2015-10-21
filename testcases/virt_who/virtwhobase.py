@@ -957,3 +957,18 @@ EOF''' % (file_name, file_data)
             return log_uuid_list
         else:
             raise FailException("Failed to get uuid list in rhsm.log")
+
+    def cal_virtwho_thread(self, targetmachine_ip=""):
+            self.vw_restart_virtwho()
+            time.sleep(1)
+            self.vw_restart_virtwho()
+            time.sleep(1)
+            self.vw_restart_virtwho()
+            time.sleep(1)
+            cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
+            ret, output = self.runcmd(cmd, "calculate virt-who thread", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to calculate virt-who thread. virt-who thread is %s" %output)
+                return output
+            else:
+                raise FailException("Test Failed - Failed to calculate virt-who thread")
