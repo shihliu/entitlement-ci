@@ -584,25 +584,25 @@ class VDSMBase(VIRTWHOBase):
         rhel_compose= get_exported_param("RHEL_COMPOSE")
 
         # system setup for RHEL+RHEVM testing env
-#         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-#         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
 #         self.configure_rhel_host_bridge(targetmachine_ip)
         self.get_rhevm_repo_file(rhel_compose)
-#         cmd = "yum install -y vdsm"
-#         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-#         self.stop_firewall(targetmachine_ip)
-#         #configure env on rhevm(add host,storage,guest)
-#         self.conf_rhevm_shellrc(RHEVM_IP)
-#         self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("data_storage_2", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        cmd = "yum install -y vdsm"
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
+#        configure env on rhevm(add host,storage,guest)
+        self.conf_rhevm_shellrc(RHEVM_IP)
+        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
 #         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 #         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 #         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, REMOTE_IP_NAME, RHEVM_IP)
