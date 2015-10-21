@@ -568,8 +568,8 @@ class VDSMBase(VIRTWHOBase):
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-        REMOTE_IP_NAME = self.get_hostname()
-        # REMOTE_IP_2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        RHEVM_HOST1_NAME = self.get_hostname()
+        RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
         
         VIRTWHO_RHEVM_OWNER = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
         VIRTWHO_RHEVM_ENV = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
@@ -601,11 +601,12 @@ class VDSMBase(VIRTWHOBase):
         self.stop_firewall(targetmachine_ip)
 #        configure env on rhevm(add host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
-        self.rhevm_add_host(REMOTE_IP_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("data_storage", REMOTE_IP_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("export_storage", REMOTE_IP_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        self.rhevm_add_host_2(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 #         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, REMOTE_IP_NAME, RHEVM_IP)
+#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 
 #         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
 #         self.create_storage_pool()
