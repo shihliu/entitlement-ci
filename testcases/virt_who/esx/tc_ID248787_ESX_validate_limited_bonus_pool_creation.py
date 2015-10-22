@@ -46,7 +46,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
                 raise FailException("Failed to check the bonus pool is exist.")
 
             #4).subscribe the limited pool on host
-            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SERVER_IP)
+            self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
 
             #5).after subscribe host, check the bonus pool's quantity is limited and system type is Virtual
             self.sub_refresh(guestip)
@@ -84,7 +84,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

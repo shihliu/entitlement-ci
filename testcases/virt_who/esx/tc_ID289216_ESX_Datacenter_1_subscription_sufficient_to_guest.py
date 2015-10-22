@@ -41,7 +41,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
 
             #4).subscribe the DataCenter subscription pool on host
-            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SERVER_IP)
+            self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
 
             #5).for esxi hypervisor, skip to check the consumed status details
 
@@ -80,7 +80,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
                 self.restore_facts(guestip)
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

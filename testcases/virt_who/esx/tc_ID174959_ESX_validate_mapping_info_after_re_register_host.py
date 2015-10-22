@@ -31,11 +31,11 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
 
             #2). check esxi host is registered or not on sam
             time.sleep(10)
-            self.esx_check_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_check_system(host_uuid, SERVER_IP)
 
             #3). unregister or remove esxi host from sam 
             self.service_command("stop_virtwho")
-            self.esx_remove_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_remove_system(host_uuid, SERVER_IP)
 
             #4). after stop virt-who, start to monitor the rhsm.log 
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
@@ -52,7 +52,7 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
 
             #6). check esxi host is registered or not on sam again, and check guest uuid from rhsm.log
             time.sleep(10)
-            self.esx_check_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_check_system(host_uuid, SERVER_IP)
 
             #7). after restart virt-who, stop to monitor the rhsm.log
             time.sleep(10)
@@ -85,7 +85,7 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

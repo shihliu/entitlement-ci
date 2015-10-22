@@ -32,7 +32,7 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(ESXBase):
             # check only physical subscription in guest
             
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             
             # list available pools of guest, check related bonus pool generated.
             new_available_poollist = self.sub_listavailpools(test_sku, guestip)
@@ -54,7 +54,7 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

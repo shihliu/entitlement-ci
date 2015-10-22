@@ -58,7 +58,7 @@ class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(
                 self.restore_facts(guestip)
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

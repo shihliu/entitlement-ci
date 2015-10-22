@@ -38,7 +38,7 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(ESXBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             #3).subscribe successfully to the DataCenter subscription pool on host
-            self.esx_subscribe_host_in_samserv(host_uuid, host_pool_id, SERVER_IP)
+            self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
 
             #4).check the bonus pool is available
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
@@ -54,7 +54,7 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

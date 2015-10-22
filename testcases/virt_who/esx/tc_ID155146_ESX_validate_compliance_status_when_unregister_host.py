@@ -29,13 +29,13 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unregister the ESX host 
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # refresh the guest
             self.sub_refresh(guestip)
             # list available subscriptions on guest

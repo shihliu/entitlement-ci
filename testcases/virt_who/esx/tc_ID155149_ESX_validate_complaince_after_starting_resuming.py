@@ -30,9 +30,9 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # before subscribe esx host with limited subscription, need to clean all the old subscribed pool from SAM
-            self.esx_unsubscribe_all_host_in_samserv(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # subscribe esx host with limited bonus subscription
-            self.esx_subscribe_host_in_samserv(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
