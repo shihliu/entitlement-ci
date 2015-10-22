@@ -7,7 +7,7 @@
                     "distro": "url_compose",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1","CPUVENDOR=genuineintel"],
                     "hostrequire": ["arch=X86_64"],
                     "bkr_data": {
                         "role": "Master",
@@ -18,7 +18,7 @@
                     "distro": "url_compose",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1","CPUVENDOR=genuineintel"],
                     "hostrequire": ["arch=X86_64"],
                     "bkr_data": {
                         "role": "Slave",
