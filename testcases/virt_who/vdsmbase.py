@@ -39,6 +39,24 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
+    def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip="" ):
+        # system setup for RHEL+RHEVM testing env
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+#         self.configure_rhel_host_bridge(targetmachine_ip)
+        self.get_rhevm_repo_file(rhel_compose, targetmachine_ip)
+        cmd = "yum install -y vdsm"
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
+
     def conf_rhevm_shellrc(self, targetmachine_ip=""):
         ''' Config the env to login to rhevm_rhell '''
         tagetmachine_hostname = self.get_hostname(targetmachine_ip)
@@ -482,6 +500,32 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
 
+# Migrate VM on RHEVM
+    def rhevm_migrate_vm(self, rhevm_vm_name, dest_ip, dest_host_id, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'action vm \"%s\" migrate --host-name \"%s\"'" % (rhevm_vm_name, dest_ip)
+        ret, output = self.runcmd(cmd, "migrate vm on rhevm.", targetmachine_ip)
+        if ret == 0 and "complete" in output:
+            runtime = 0
+            while True:
+                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
+                ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0:
+                    logger.info("Succeeded to list vms")
+                    dest_host_id_value = self.get_key_rhevm(output, "host-id", "name", rhevm_vm_name, targetmachine_ip)
+                    if dest_host_id_value == dest_host_id :
+                        logger.info("Succeeded to migrate vm %s in rhevm" % rhevm_vm_name)
+                        break
+                    else :
+                        logger.info("vm %s is migrating in rhevm" % (rhevm_vm_name))
+                    time.sleep(10)
+                    if runtime > 20:
+                        raise FailException("Failed to migrate vm %s in rhevm" % rhevm_vm_name)
+                else:
+                    raise FailException("Failed to list vm %s" % rhevm_vm_name)
+        else:
+            raise FailException("Failed to run migrate vm %s on rhevm" % rhevm_vm_name)
+
     # get guest ip
     def rhevm_get_guest_ip(self, vm_name, targetmachine_ip):
         cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
@@ -521,6 +565,21 @@ class VDSMBase(VIRTWHOBase):
                 logger.error("Failed to get guest %s id is %s" % (vm_name, guestid))
         else:
             raise FailException("Failed to list VM %s." % vm_name) 
+
+    def vdsm_get_host_uuid(self, host_name, targetmachine_ip=""):
+        ''' get the guest uuid. '''
+        cmd = "rhevm-shell -c -E 'show host %s'" % host_name
+        ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to list host %s." % host_name)
+            hostid = self.get_key_rhevm(output, "id", "name", host_name, targetmachine_ip)
+            if hostid is not "":
+                logger.info("Succeeded to get host %s id is %s" % (host_name, hostid))
+                return hostid
+            else:
+                logger.error("Failed to get guest %s id is %s" % (host_name, hostid))
+        else:
+            raise FailException("Failed to list HOST %s." % host_name) 
 
     def vw_restart_vdsm(self, targetmachine_ip=""):
         ''' restart vdsmd service. '''
@@ -583,39 +642,17 @@ class VDSMBase(VIRTWHOBase):
 
         rhel_compose= get_exported_param("RHEL_COMPOSE")
 
-        # system setup for RHEL+RHEVM testing env
-        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-#         self.configure_rhel_host_bridge(targetmachine_ip)
-        self.get_rhevm_repo_file(rhel_compose)
-        cmd = "yum install -y vdsm"
-        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
-        self.stop_firewall(targetmachine_ip)
-#        configure env on rhevm(add host,storage,guest)
+        # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
+        self.config_vdsm_env_setup(rhel_compose)
+        self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
+#        #configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.rhevm_add_host_2(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
 #         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
 #         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 #         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
-
-#         self.rhevm_define_guest(RHEL_RHEVM_GUEST_NAME)
-#         self.create_storage_pool()
-#         self.install_virtV2V(RHEVM_IP)
-#         self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-#         self.rhevm_undefine_guest(RHEL_RHEVM_GUEST_NAME)
-#         data_storage_id = self.get_domain_id ("data_storage", RHEVM_IP)
-#         export_storage_id = self.get_domain_id ("export_storage", RHEVM_IP)
-#         self.import_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, data_storage_id, export_storage_id, RHEVM_IP)
+        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
