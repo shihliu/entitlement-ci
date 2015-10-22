@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class virtwho_rhel_rhevm_setup(VDSMBase):
+class virtwho_rhel_vdsm_setup(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

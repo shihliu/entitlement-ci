@@ -166,50 +166,60 @@ class Base(unittest.TestCase):
     #       SAM Functions
     # ========================================================
 
-    def check_system_in_samserv(self, system_uuid, destination_ip):
-        ''' check system exist in sam server '''
-        cmd = "headpin -u admin -p admin system list --org=ACME_Corporation --environment=Library"
-        ret, output = self.runcmd_sam(cmd, "check system exist in sam server", destination_ip)
-        if ret == 0 and system_uuid in output:
-            logger.info("Succeeded to check system %s exist in sam server" % system_uuid)
+    def server_check_system(self, system_uuid, destination_ip):
+        ''' check system exist in test server '''
+        if self.test_server == "SATELLITE":
+            output = self.st_system_list()
+            if system_uuid in output:
+                logger.info("Succeeded to check system %s exist in test server" % system_uuid)
+            else:
+                raise FailException("Failed to check system %s exist in test server" % system_uuid)
         else:
-            raise FailException("Failed to check system %s exist in sam server" % system_uuid)
+            cmd = "headpin -u admin -p admin system list --org=ACME_Corporation --environment=Library"
+            ret, output = self.runcmd_sam(cmd, "check system exist in sam server", destination_ip)
+            if ret == 0 and system_uuid in output:
+                logger.info("Succeeded to check system %s exist in test server" % system_uuid)
+            else:
+                raise FailException("Failed to check system %s exist in test server" % system_uuid)
 
-    def remove_system_in_samserv(self, system_uuid, destination_ip):
-        ''' remove system in sam server '''
-        cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % system_uuid
-        ret, output = self.runcmd_sam(cmd, "remove system in sam server", destination_ip)
-        if ret == 0 and system_uuid in output:
-            logger.info("Succeeded to remove system %s in sam server" % system_uuid)
+    def server_remove_system(self, system_uuid, destination_ip):
+        ''' remove system in test server '''
+        if self.test_server == "SATELLITE":
+            output = self.st_system_remove()
+            logger.info("Succeeded to remove system %s in test server" % system_uuid)
         else:
-            raise FailException("Failed to remove system %s in sam server" % system_uuid)
+            cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % system_uuid
+            ret, output = self.runcmd_sam(cmd, "remove system in sam server", destination_ip)
+            if ret == 0 and system_uuid in output:
+                logger.info("Succeeded to remove system %s in test server" % system_uuid)
+            else:
+                raise FailException("Failed to remove system %s in test server" % system_uuid)
 
-    def remove_deletion_record_in_samserv(self, system_uuid, destination_ip):
-        ''' remove deletion record in sam server '''
-        cmd = "headpin -u admin -p admin system remove_deletion --uuid=%s" % system_uuid
-        ret, output = self.runcmd_sam(cmd, "remove deletion record in sam server", destination_ip)
-        if ret == 0 and system_uuid in output:
-            logger.info("Succeeded to remove deletion record %s in sam server" % system_uuid)
+    def server_subscribe_system(self, system_uuid, poolid, destination_ip):
+        ''' subscribe host in test server '''
+        if self.test_server == "SATELLITE":
+            self.st_attach(system_uuid, poolid)
+            logger.info("Succeeded to subscribe host %s in test server" % system_uuid)
         else:
-            raise FailException("Failed to remove deletion record %s in sam server" % system_uuid)
+            cmd = "headpin -u admin -p admin system subscribe --name=%s --org=ACME_Corporation --pool=%s " % (system_uuid, poolid)
+            ret, output = self.runcmd_sam(cmd, "subscribe host in sam server", destination_ip)
+            if ret == 0 and system_uuid in output:
+                logger.info("Succeeded to subscribe host %s in sam server" % system_uuid)
+            else:
+                raise FailException("Failed to subscribe host %s in sam server" % system_uuid)
 
-    def subscribe_system_in_samserv(self, system_uuid, poolid, destination_ip):
-        ''' subscribe host in sam server '''
-        cmd = "headpin -u admin -p admin system subscribe --name=%s --org=ACME_Corporation --pool=%s " % (system_uuid, poolid)
-        ret, output = self.runcmd_sam(cmd, "subscribe host in sam server", destination_ip)
-        if ret == 0 and system_uuid in output:
-            logger.info("Succeeded to subscribe host %s in sam server" % system_uuid)
+    def server_unsubscribe_all_system(self, system_uuid, destination_ip):
+        ''' unsubscribe host in test server '''
+        if self.test_server == "SATELLITE":
+            self.st_unattach_all(system_uuid)
+            logger.info("Succeeded to unsubscribe host %s in test server" % system_uuid)
         else:
-            raise FailException("Failed to subscribe host %s in sam server" % system_uuid)
-
-    def unsubscribe_all_system_in_samserv(self, system_uuid, destination_ip):
-        ''' unsubscribe host in sam server '''
-        cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % system_uuid
-        ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
-        if ret == 0 and system_uuid in output:
-            logger.info("Succeeded to unsubscribe host %s in sam server" % system_uuid)
-        else:
-            raise FailException("Failed to unsubscribe host %s in sam server" % system_uuid)
+            cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % system_uuid
+            ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
+            if ret == 0 and system_uuid in output:
+                logger.info("Succeeded to unsubscribe host %s in sam server" % system_uuid)
+            else:
+                raise FailException("Failed to unsubscribe host %s in sam server" % system_uuid)
 
     # ========================================================
     #       SATELLITE Functions
@@ -261,9 +271,9 @@ class Base(unittest.TestCase):
 
     def st_consumed_list(self, uuid):
         consumed_id_list = []
-        all_consumed = self.get_json("systems/%s/subscriptions" % uuid)
+        all_consumed = self.get_json("systems/%s/subscriptions" % uuid)["results"]
         for consumed in all_consumed:
-            consumed_id_list.append(consumed[id])
+            consumed_id_list.append(consumed["id"])
         return consumed_id_list
 
     def get_json(self, location):
