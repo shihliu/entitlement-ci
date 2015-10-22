@@ -249,6 +249,23 @@ class Base(unittest.TestCase):
         location = "systems/%s/subscriptions/%s" % (uuid, consumed_pool_id)
         return self.delete_json(location)
 
+    def st_unattach_all(self, uuid):
+        for consumed_pool_id in self.st_consumed_list(uuid):
+            self.st_unattach(uuid, consumed_pool_id)
+
+    def st_system_list(self):
+        return self.get_json("systems/")
+
+    def st_system_remove(self, uuid):
+        return self.delete_json("systems/%s" % uuid)
+
+    def st_consumed_list(self, uuid):
+        consumed_id_list = []
+        all_consumed = self.get_json("systems/%s/subscriptions" % uuid)
+        for consumed in all_consumed:
+            consumed_id_list.append(consumed[id])
+        return consumed_id_list
+
     def get_json(self, location):
         """
         Performs a GET using the passed URL location
@@ -322,10 +339,10 @@ class Base(unittest.TestCase):
             sat_api,
             auth=(username, password),
             verify=False)
-        ret, output = result.status_code, result.json()
+        ret, output = result.status_code, result
         logger.info("Status Code >>>: %s" % ret)
         logger.info("Result >>>: %s" % output)
-        if ret not in (200, 202):
+        if ret not in (200, 202, 204):
             raise FailException("Failed to run requests delete: %s" % sat_api)
         else:
             logger.info("Succeeded to run requests delete: %s" % sat_api)
