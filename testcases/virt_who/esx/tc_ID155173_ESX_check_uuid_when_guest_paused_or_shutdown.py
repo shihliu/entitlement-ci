@@ -7,7 +7,7 @@ class tc_ID155173_ESX_check_uuid_when_guest_paused_or_shutdown(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)

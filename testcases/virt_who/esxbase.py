@@ -26,12 +26,12 @@ class ESXBase(VIRTWHOBase):
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
-        guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+        guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
 #         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
         self.wget_images(self.get_vw_cons("esx_guest_url"), guest_name, ESX_HOST)
         self.esx_add_guest(guest_name, ESX_HOST)
         self.esx_start_guest_first(guest_name, ESX_HOST)
-        self.esx_service_restart(ESX_HOST)
+        # self.esx_service_restart(ESX_HOST)
         self.esx_stop_guest(guest_name, ESX_HOST)
         self.vw_restart_virtwho()
 #         else:

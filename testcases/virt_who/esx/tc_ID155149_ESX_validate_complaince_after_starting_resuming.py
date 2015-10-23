@@ -9,7 +9,7 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             test_sku = self.get_vw_cons("productid_guest")

@@ -9,7 +9,7 @@ class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             # for instance pool 

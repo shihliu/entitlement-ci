@@ -90,6 +90,9 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to get virt-who constant %s" % name)
 
+    def get_vw_guest_name(self, guest_name):
+        return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
+
     def get_locator(self, name):
         rhsm_gui_locator = RHSMGuiLocator()
         if name + "-" + self.os_serial in rhsm_gui_locator.element_locators.keys():

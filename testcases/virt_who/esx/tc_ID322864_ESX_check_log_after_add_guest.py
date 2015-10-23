@@ -9,7 +9,7 @@ class tc_ID322864_ESX_check_log_after_add_guest(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)

@@ -9,7 +9,7 @@ class tc_ID269395_ESX_Datacenter_guest_auto_attach_bonus_pool(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             product_name = self.get_vw_cons("datacenter_name")

@@ -14,7 +14,7 @@ class tc_ID477582_ESX_run_virtwho_with_hypervisor_id_hwuuid(ESXBase):
             VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
             VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 

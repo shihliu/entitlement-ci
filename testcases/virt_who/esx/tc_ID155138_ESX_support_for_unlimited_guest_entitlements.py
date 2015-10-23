@@ -9,7 +9,7 @@ class tc_ID155138_ESX_support_for_unlimited_guest_entitlements(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")

@@ -13,7 +13,7 @@ class tc_ID477180_ESX_run_virtwho_with_env_owner(ESXBase):
             esx_username = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
             esx_password = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
-            guest_name = self.get_vw_cons("ESX_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
