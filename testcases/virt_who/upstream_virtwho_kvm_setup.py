@@ -1,14 +1,14 @@
 from utils import *
-from testcases.virt_who.esxbase import ESXBase
+from testcases.virt_who.kvmbase import KVMBase
 
-class brew_virtwho_esx_setup(ESXBase):
+class brew_virtwho_kvm_setup(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.sys_setup()
-            self.brew_virtwho_upgrate()
-            self.esx_setup()
+            self.kvm_sys_setup()
+            self.upstream_virtwho_install()
+            self.kvm_setup()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

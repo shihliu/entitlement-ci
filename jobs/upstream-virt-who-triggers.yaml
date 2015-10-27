@@ -6,7 +6,7 @@
             url: 'https://github.com/virt-who/virt-who'
             branches:
                 - origin/master
-            basedir: entitlement-ci
+            basedir: entitlement-ci/virt-who
     triggers:
         - github:
     builders:
@@ -16,9 +16,14 @@
             #setup environment here to run alone, change back when finished
             export GITHUB_URL=https://github.com/virt-who/virt-who
             echo "*********************************setup env*********************************"
+            
+            # run upstream on rhel 6 or rhel 7
+            #RHEL_COMPOSE=`curl -s -k http://download.eng.rdu2.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            RHEL_COMPOSE=`curl -s -k http://download.eng.rdu2.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            
             echo "********************************runtime env********************************"
-            env | grep -E '(GITHUB_URL)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(GITHUB_URL)' >> $WORKSPACE/GITHUB_URL.txt
+            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' >> $WORKSPACE/GITHUB_URL.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/GITHUB_URL.txt
@@ -28,6 +33,11 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'upstream-sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/GITHUB_URL.txt
+            fail-on-missing: true
+          - project: 'upstream-satellite-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/GITHUB_URL.txt
