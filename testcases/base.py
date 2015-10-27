@@ -155,7 +155,7 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_baseurl(self, baseurl, targetmachine_ip=""):
-        cmd = "sed -i -e 's/baseurl= https:\/\/cdn.redhat.com/baseurl= https:\/\/%s/g' /etc/rhsm/rhsm.conf" % baseurl
+        cmd = "sed -i -e 's/cdn.redhat.com/%s/g' /etc/rhsm/rhsm.conf" % baseurl
         ret, output = self.runcmd(cmd, "configure baseurl for stage", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure baseurl for stage")
