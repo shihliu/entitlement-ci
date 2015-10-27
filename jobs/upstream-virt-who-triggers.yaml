@@ -1,9 +1,14 @@
 - job-template:
     name: 'upstream-virt-who-trigger'
     node: master
+    scm:
+        - git:
+            url: 'https://github.com/virt-who/virt-who'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
     triggers:
         - github:
-            https://github.com/virt-who/virt-who
     builders:
         - shell: |
             #!/bin/bash
