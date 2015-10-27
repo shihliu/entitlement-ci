@@ -155,7 +155,7 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_baseurl(self, baseurl, targetmachine_ip=""):
-        cmd = "sed -i -e 's/baseurl= https:\/\/cdn.redhat.com/baseurl = %s/g' /etc/rhsm/rhsm.conf" % baseurl
+        cmd = "sed -i -e 's/baseurl= https:\/\/cdn.redhat.com/baseurl= https:\/\/%s/g' /etc/rhsm/rhsm.conf" % baseurl
         ret, output = self.runcmd(cmd, "configure baseurl for stage", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure baseurl for stage")
@@ -167,7 +167,7 @@ class Base(unittest.TestCase):
     def configure_server(self, server_ip="", server_hostname="", targetmachine_ip=""):
         if self.test_server == "STAGE" :
             self.configure_stage_host("subscription.rhn.stage.redhat.com", targetmachine_ip)
-            self.configure_baseurl("https://subscription.rhn.stage.redhat.com", targetmachine_ip)
+            self.configure_baseurl("subscription.rhn.stage.redhat.com", targetmachine_ip)
         else:
             if server_ip == "" or server_hostname == "":
                 server_ip = get_exported_param("SERVER_IP")
