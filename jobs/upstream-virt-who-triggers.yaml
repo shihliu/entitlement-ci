@@ -27,7 +27,7 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/GITHUB_URL.txt
             fail-on-missing: true
-      - default-brew-publishers
+      - default-upstream-publishers
 
 - job-group:
     name: upstream-virt-who-triggers
