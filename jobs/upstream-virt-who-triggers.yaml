@@ -1,0 +1,41 @@
+- job-template:
+    name: 'upstream-virt-who-trigger'
+    node: master
+    triggers:
+        - github:
+            https://github.com/virt-who/virt-who
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            export GITHUB_URL=https://github.com/virt-who/virt-who
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(GITHUB_URL)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(GITHUB_URL)' >> $WORKSPACE/GITHUB_URL.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/GITHUB_URL.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'upstream-sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/GITHUB_URL.txt
+            fail-on-missing: true
+      - default-brew-publishers
+
+- job-group:
+    name: upstream-virt-who-triggers
+    jobs:
+      - 'upstream-virt-who-trigger'
+
+- project:
+    name: upstream-virt-who-triggers-jobs
+    project: upstream-virt-who-triggers
+    jobs:
+      - upstream-virt-who-triggers
