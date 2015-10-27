@@ -11,7 +11,6 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
             # get baseurl
-            # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
             samhostip = get_exported_param("SERVER_IP")
 
@@ -19,6 +18,8 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
                 baseurl = "https://" + sever_hostname + "/sam/api"
             elif self.test_server == "SATELLITE":
                 baseurl = "https://" + sever_hostname + "/rhsm"
+            elif self.test_server == "STAGE":
+                baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
 
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
