@@ -27,7 +27,7 @@ class RHSMConstants(object):
     "proxy_server":                 "10.66.128.144:3128",
     }
 
-    stage_cons = {
+    0stage_cons = {
     "username":                     "stage_test_12_new",
     "password":                     "redhat",
 
@@ -46,7 +46,7 @@ class RHSMConstants(object):
     # for rhel6
     "productrepo":                  "rhel-6-server-rpms",
     "betarepo":                     "rhel-6-server-beta-rpms",
-    "servicelevel":                 "standard",
+    "servicelevel":                 "premium",
     "releaselist":                  "6.1,6.2,6.3,6.4,6Server",
 
     "proxy_server":                 "10.66.128.144:3128",

@@ -21,7 +21,7 @@ class tc_ID178051_register_with_invalid_username_and_password(RHSMBase):
                 cmd = "subscription-manager register --username=%s --password='%s'" % (username, invalidpassword)
                 (ret, output) = self.runcmd(cmd, "register with invalid username and password")
                 if ret != 0:
-                    if ("Invalid credentials" in output):
+                    if ("Invalid credentials" in output) or ("Invalid username or password" in output):
                         logger.info("It's successful to verify that invalid password can not be used to register.")
                     else:
                         raise FailException("Test Failed - The information shown after registeration with invalid username and password is not correct.")
