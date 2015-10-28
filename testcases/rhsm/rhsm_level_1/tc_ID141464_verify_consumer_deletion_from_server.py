@@ -11,14 +11,7 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            # get baseurl
-            sever_hostname = get_exported_param("SERVER_HOSTNAME")
-
-            # get consumerid
-            cmd = "subscription-manager identity | grep identity"
-            (ret, output) = self.runcmd(cmd, "get consumerid")
-            consumerid = output.split(':')[1].strip()
-
+            consumerid = self.cm_get_consumerid()
             # Delete the consumer from server
             self.server_remove_system(consumerid)
 

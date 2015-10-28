@@ -7,6 +7,15 @@ from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
     # ========================================================
+    #       Common Functions
+    # ========================================================
+    def cm_get_consumerid(self, targetmachine_ip=None):
+        # get consumer id: system identity
+        cmd = "subscription-manager identity | grep identity"
+        (ret, output) = self.runcmd(cmd, "get consumerid", targetmachine_ip)
+        return output.split(':')[1].strip()
+
+    # ========================================================
     #       Basic Functions
     # ========================================================
 
@@ -32,26 +41,6 @@ class Base(unittest.TestCase):
     def get_server_info(self):
         # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
-
-    def service_command(self, command, targetmachine_ip="", is_return=False):
-        virtwho_cons = VIRTWHOConstants()
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = virtwho_cons.virt_who_commands[command + "_systemd"]
-        else:
-            cmd = virtwho_cons.virt_who_commands[command]
-        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
-        if is_return == True:
-            if ret == 0:
-                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
-                return True
-            else:
-                return False
-        else:
-            if ret == 0:
-                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
-                return output
-            else:
-                raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
     def get_hg_info(self, targetmachine_ip):
         if targetmachine_ip == "":
@@ -102,6 +91,26 @@ class Base(unittest.TestCase):
             return rhsm_gui_locator.element_locators[name + "-" + self.os_serial]
         else:
             return rhsm_gui_locator.element_locators[name]
+
+    def service_command(self, command, targetmachine_ip="", is_return=False):
+        virtwho_cons = VIRTWHOConstants()
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = virtwho_cons.virt_who_commands[command + "_systemd"]
+        else:
+            cmd = virtwho_cons.virt_who_commands[command]
+        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
+        if is_return == True:
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return True
+            else:
+                return False
+        else:
+            if ret == 0:
+                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                return output
+            else:
+                raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
 
     # ========================================================
     #       Configure Server Functions
@@ -206,6 +215,16 @@ class Base(unittest.TestCase):
             uuid = self.st_name_to_id(system_uuid)
             output = self.st_system_remove(uuid)
             logger.info("Succeeded to remove system %s in test server" % uuid)
+        elif self.test_server == "STAGE":
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
+            baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
+            cmd = "curl -X DELETE -k -u %s:%s %s/consumers/%s" % (username, password, baseurl, system_uuid)
+            (ret, output) = self.runcmd(cmd, "delete consumer from test server")
+            if ret == 0:
+                logger.info("It's successful to delete consumer from test server.")
+            else:
+                raise FailException("Test Failed - Failed to delete consumer from test server.")
         else:
             cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % system_uuid
             ret, output = self.runcmd_sam(cmd, "remove system in sam server", destination_ip)
