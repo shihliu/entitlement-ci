@@ -27,7 +27,7 @@ class RHSMConstants(object):
     "proxy_server":                 "10.66.128.144:3128",
     }
 
-    0stage_cons = {
+    stage_cons = {
     "username":                     "stage_test_12_new",
     "password":                     "redhat",
 
