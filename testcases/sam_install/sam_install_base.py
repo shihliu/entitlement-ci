@@ -68,7 +68,7 @@ class SAM_Install_Base(Base):
 
     def __auto_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
 #         too slow for local install, add rhel repo instead
-        cmd = "subscription-manager register --username=qa@redhat.com --password=uBLybd5JSmkRHebA --auto-attach"
+        cmd = "subscription-manager register --username=qa@redhat.com --password=QMdMJ8jvSWUwB6WZ --auto-attach"
         ret, output = self.runcmd(cmd, "auto attach", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to auto attach.")
