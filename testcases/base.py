@@ -319,9 +319,11 @@ class Base(unittest.TestCase):
     def st_name_to_id(self, name):
         systems = self.st_system_list()["results"]
         for item in systems:
-            if item["name"] == name:
+            if item["name"] == name:  # for esx, rhevm hypervisor
                 return item["id"]
-        raise FailException("Failed to get id by system name: %s" % name)
+            if item["id"] == name:  # for kvm
+                return item["id"]
+        raise FailException("Failed to get system id by: %s" % name)
 
     def get_json(self, location):
         """
