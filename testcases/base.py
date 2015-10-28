@@ -31,6 +31,10 @@ class Base(unittest.TestCase):
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         return command.runcmd_interact(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
+    def runcmd_service(self, command, targetmachine_ip=""):
+        cmd = self.get_service_cmd(command, targetmachine_ip)
+        return self.runcmd(cmd, "run service cmd: %s" % cmd, targetmachine_ip)
+
     def get_os_serials(self, targetmachine_ip=""):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
         (ret, output) = self.runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
@@ -92,25 +96,28 @@ class Base(unittest.TestCase):
         else:
             return rhsm_gui_locator.element_locators[name]
 
-    def service_command(self, command, targetmachine_ip="", is_return=False):
+    def get_service_cmd(self, cmd_name, targetmachine_ip=""):
         virtwho_cons = VIRTWHOConstants()
         if self.get_os_serials(targetmachine_ip) == "7":
             cmd = virtwho_cons.virt_who_commands[command + "_systemd"]
         else:
             cmd = virtwho_cons.virt_who_commands[command]
-        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
+        return cmd
+
+    def service_command(self, command, targetmachine_ip="", is_return=False):
+        ret, output = self.runcmd_service(command, targetmachine_ip)
         if is_return == True:
             if ret == 0:
-                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                logger.info("Succeeded to run cmd %s in %s." % (command, self.get_hg_info(targetmachine_ip)))
                 return True
             else:
                 return False
         else:
             if ret == 0:
-                logger.info("Succeeded to run cmd %s in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                logger.info("Succeeded to run cmd %s in %s." % (command, self.get_hg_info(targetmachine_ip)))
                 return output
             else:
-                raise FailException("Test Failed - Failed to run cmd in %s." % (cmd, self.get_hg_info(targetmachine_ip)))
+                raise FailException("Test Failed - Failed to run cmd in %s." % (command, self.get_hg_info(targetmachine_ip)))
 
     # ========================================================
     #       Configure Server Functions
