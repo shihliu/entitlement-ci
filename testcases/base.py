@@ -9,7 +9,7 @@ class Base(unittest.TestCase):
     # ========================================================
     #       Common Functions
     # ========================================================
-    def cm_get_consumerid(self, targetmachine_ip=None):
+    def cm_get_consumerid(self, targetmachine_ip=""):
         # get consumer id: system identity
         cmd = "subscription-manager identity | grep identity"
         (ret, output) = self.runcmd(cmd, "get consumerid", targetmachine_ip)
@@ -31,7 +31,7 @@ class Base(unittest.TestCase):
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         return command.runcmd_interact(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
-    def get_os_serials(self, targetmachine_ip=None):
+    def get_os_serials(self, targetmachine_ip=""):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
         (ret, output) = self.runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
         if ret == 0:
@@ -42,7 +42,7 @@ class Base(unittest.TestCase):
         # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
 
-    def get_hg_info(self, targetmachine_ip=None):
+    def get_hg_info(self, targetmachine_ip=""):
         if targetmachine_ip == "" or targetmachine_ip == None:
             host_guest_info = "in host machine"
         else:
@@ -192,7 +192,7 @@ class Base(unittest.TestCase):
     #       SAM Functions
     # ========================================================
 
-    def server_check_system(self, system_uuid, destination_ip=None):
+    def server_check_system(self, system_uuid, destination_ip=""):
         ''' check system exist in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -209,7 +209,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to check system %s exist in test server" % system_uuid)
 
-    def server_remove_system(self, system_uuid, destination_ip=None):
+    def server_remove_system(self, system_uuid, destination_ip=""):
         ''' remove system in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -233,7 +233,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to remove system %s in test server" % system_uuid)
 
-    def server_subscribe_system(self, system_uuid, poolid, destination_ip=None):
+    def server_subscribe_system(self, system_uuid, poolid, destination_ip=""):
         ''' subscribe host in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -247,7 +247,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to subscribe host %s in sam server" % system_uuid)
 
-    def server_unsubscribe_all_system(self, system_uuid, destination_ip=None):
+    def server_unsubscribe_all_system(self, system_uuid, destination_ip=""):
         ''' unsubscribe host in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
