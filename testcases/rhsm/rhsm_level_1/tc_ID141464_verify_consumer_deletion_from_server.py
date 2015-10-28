@@ -6,41 +6,21 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-
-        # register to server
-        username = self.get_rhsm_cons("username")
-        password = self.get_rhsm_cons("password")
-        self.sub_register(username, password)
         try:
+            # register to server
+            username = self.get_rhsm_cons("username")
+            password = self.get_rhsm_cons("password")
+            self.sub_register(username, password)
             # get baseurl
             sever_hostname = get_exported_param("SERVER_HOSTNAME")
-            samhostip = get_exported_param("SERVER_IP")
-
-            if self.test_server == "SAM":
-                baseurl = "https://" + sever_hostname + "/sam/api"
-            elif self.test_server == "SATELLITE":
-                baseurl = "https://" + sever_hostname + "/rhsm"
-            elif self.test_server == "STAGE":
-                baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
-            # if "8443" in baseurl:
-             #   baseurl = baseurl + "/candlepin"
-            # elif samhostip == None:
-            #    baseurl = baseurl + "/subscription"
-            # else:
-            #    baseurl = baseurl + "/sam/api"
 
             # get consumerid
             cmd = "subscription-manager identity | grep identity"
             (ret, output) = self.runcmd(cmd, "get consumerid")
             consumerid = output.split(':')[1].strip()
 
-            # Delete the consumer from candlepin server
-            cmd = "curl -X DELETE -k -u %s:%s %s/consumers/%s" % (username, password, baseurl, consumerid)
-            (ret, output) = self.runcmd(cmd, "delete consumer from candlepin server")
-            if ret == 0:
-                logger.info("It's successful to delete consumer from candlepin server.")
-            else:
-                raise FailException("Test Failed - Failed to delete consumer from candlepin server.")
+            # Delete the consumer from server
+            self.server_remove_system(consumerid)
 
             # Check deleted consumer status
             cmd = "subscription-manager identity"
