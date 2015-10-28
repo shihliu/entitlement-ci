@@ -42,8 +42,8 @@ class Base(unittest.TestCase):
         # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
 
-    def get_hg_info(self, targetmachine_ip):
-        if targetmachine_ip == "":
+    def get_hg_info(self, targetmachine_ip=None):
+        if targetmachine_ip == "" or targetmachine_ip == None:
             host_guest_info = "in host machine"
         else:
             host_guest_info = "in guest machine %s" % targetmachine_ip
@@ -192,7 +192,7 @@ class Base(unittest.TestCase):
     #       SAM Functions
     # ========================================================
 
-    def server_check_system(self, system_uuid, destination_ip):
+    def server_check_system(self, system_uuid, destination_ip=None):
         ''' check system exist in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -209,7 +209,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to check system %s exist in test server" % system_uuid)
 
-    def server_remove_system(self, system_uuid, destination_ip):
+    def server_remove_system(self, system_uuid, destination_ip=None):
         ''' remove system in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -233,7 +233,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to remove system %s in test server" % system_uuid)
 
-    def server_subscribe_system(self, system_uuid, poolid, destination_ip):
+    def server_subscribe_system(self, system_uuid, poolid, destination_ip=None):
         ''' subscribe host in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
@@ -247,7 +247,7 @@ class Base(unittest.TestCase):
             else:
                 raise FailException("Failed to subscribe host %s in sam server" % system_uuid)
 
-    def server_unsubscribe_all_system(self, system_uuid, destination_ip):
+    def server_unsubscribe_all_system(self, system_uuid, destination_ip=None):
         ''' unsubscribe host in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
