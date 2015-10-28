@@ -186,11 +186,12 @@ class Base(unittest.TestCase):
     def server_check_system(self, system_uuid, destination_ip):
         ''' check system exist in test server '''
         if self.test_server == "SATELLITE":
+            uuid = self.st_name_to_id(system_uuid)
             output = self.st_system_list()
-            if system_uuid in output:
-                logger.info("Succeeded to check system %s exist in test server" % system_uuid)
+            if uuid in output:
+                logger.info("Succeeded to check system %s exist in test server" % uuid)
             else:
-                raise FailException("Failed to check system %s exist in test server" % system_uuid)
+                raise FailException("Failed to check system %s exist in test server" % uuid)
         else:
             cmd = "headpin -u admin -p admin system list --org=ACME_Corporation --environment=Library"
             ret, output = self.runcmd_sam(cmd, "check system exist in sam server", destination_ip)
@@ -202,8 +203,9 @@ class Base(unittest.TestCase):
     def server_remove_system(self, system_uuid, destination_ip):
         ''' remove system in test server '''
         if self.test_server == "SATELLITE":
-            output = self.st_system_remove()
-            logger.info("Succeeded to remove system %s in test server" % system_uuid)
+            uuid = self.st_name_to_id(system_uuid)
+            output = self.st_system_remove(uuid)
+            logger.info("Succeeded to remove system %s in test server" % uuid)
         else:
             cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % system_uuid
             ret, output = self.runcmd_sam(cmd, "remove system in sam server", destination_ip)
@@ -215,8 +217,9 @@ class Base(unittest.TestCase):
     def server_subscribe_system(self, system_uuid, poolid, destination_ip):
         ''' subscribe host in test server '''
         if self.test_server == "SATELLITE":
-            self.st_attach(system_uuid, poolid)
-            logger.info("Succeeded to subscribe host %s in test server" % system_uuid)
+            uuid = self.st_name_to_id(system_uuid)
+            self.st_attach(uuid, poolid)
+            logger.info("Succeeded to subscribe host %s in test server" % uuid)
         else:
             cmd = "headpin -u admin -p admin system subscribe --name=%s --org=ACME_Corporation --pool=%s " % (system_uuid, poolid)
             ret, output = self.runcmd_sam(cmd, "subscribe host in sam server", destination_ip)
@@ -228,8 +231,9 @@ class Base(unittest.TestCase):
     def server_unsubscribe_all_system(self, system_uuid, destination_ip):
         ''' unsubscribe host in test server '''
         if self.test_server == "SATELLITE":
-            self.st_unattach_all(system_uuid)
-            logger.info("Succeeded to unsubscribe host %s in test server" % system_uuid)
+            uuid = self.st_name_to_id(system_uuid)
+            self.st_unattach_all(uuid)
+            logger.info("Succeeded to unsubscribe host %s in test server" % uuid)
         else:
             cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % system_uuid
             ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
@@ -292,6 +296,13 @@ class Base(unittest.TestCase):
         for consumed in all_consumed:
             consumed_id_list.append(consumed["id"])
         return consumed_id_list
+
+    def st_name_to_id(self, name):
+        systems = self.st_system_list()["results"]
+        for item in systems:
+            if item["name"] == name:
+                return item["id"]
+        raise FailException("Failed to get id by system name: %s" % name)
 
     def get_json(self, location):
         """
@@ -427,6 +438,8 @@ class Base(unittest.TestCase):
 #         self.st_orgs_list()
 #         consumed_pool_id = self.st_attach("43e33262-57ff-4b13-ba94-1e5459cba2a2", "2c90ec93507e9bf901507ea2b2e601a7")
 #         self.st_unattach("43e33262-57ff-4b13-ba94-1e5459cba2a2", consumed_pool_id)
+#         id = self.st_name_to_id("aee4ff00-8c33-11e2-994a-6c3be51d959a")
+#         logger.info(id)
 
 if __name__ == "__main__":
     unittest.main()
