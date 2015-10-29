@@ -56,7 +56,7 @@
     name: default-virt-who-publishers
     publishers:
           - email-ext:
-              recipients: $DEFAULT_RECIPIENTS
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
@@ -71,7 +71,7 @@
     name: default-rhsm-publishers
     publishers:
           - email-ext:
-              recipients: gxing@redhat.com, qianzhan@redhat.com, sgao@redhat.com
+              recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
