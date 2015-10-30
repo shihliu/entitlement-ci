@@ -46,7 +46,7 @@
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|BREW_VIRTWHO|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|BREW_VIRTWHO|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|BREW_VIRTWHO|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
