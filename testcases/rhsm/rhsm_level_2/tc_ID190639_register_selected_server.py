@@ -23,7 +23,7 @@ class tc_ID190639_register_selected_server(RHSMBase):
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=Default_Organization --force" % (username, password, serverurl)
             # register to stage/product candlepin server
             else:
-                serverurl = baseurl + '/subscription'
+                serverurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s" % (username, password, serverurl)
             (ret, output) = self.runcmd(cmd, "register to selected server")
             if ret == 0 and ("The system has been registered with ID:" in output) or ("The system has been registered with id:" in output):
