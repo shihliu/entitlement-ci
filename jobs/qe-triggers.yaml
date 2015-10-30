@@ -141,13 +141,13 @@
       - pollurl:
           cron: 'H/9 * * * *'
           urls:
-            - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/COMPOSE_ID
+            - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID
               check-content:
                 - simple: true
     builders:
         - shell: |
             #!/bin/bash
-            compose=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-stable-Satellite-6.1-RHEL-7/COMPOSE_ID`
+            compose=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID`
             echo SATELLITE_COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
