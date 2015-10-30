@@ -99,9 +99,9 @@ class Base(unittest.TestCase):
     def get_service_cmd(self, cmd_name, targetmachine_ip=""):
         virtwho_cons = VIRTWHOConstants()
         if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = virtwho_cons.virt_who_commands[command + "_systemd"]
+            cmd = virtwho_cons.virt_who_commands[cmd_name + "_systemd"]
         else:
-            cmd = virtwho_cons.virt_who_commands[command]
+            cmd = virtwho_cons.virt_who_commands[cmd_name]
         return cmd
 
     def service_command(self, command, targetmachine_ip="", is_return=False):
