@@ -105,9 +105,7 @@
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: [Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!
-              body: $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
-              
-              Check console output at $BUILD_URL
+              body: $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS\:\nCheck console output at $BUILD_URL
               attach-build-log: false
               always: true
               send-to:
