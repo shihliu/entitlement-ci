@@ -51,7 +51,7 @@ class tc_ID178500_bind_and_unbind_action_in_syslog(RHSMBase):
             # get serial number from consumed subscription
             serial = self.get_subscription_serialnumlist()[0]
             # check the syslog for subscribe info
-            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -B10 |grep Added -A10 | grep '%s'" % serial
+            cmd = "tail -1000 /var/log/rhsm/rhsm.log | grep Deleted -B10 |grep Added -A10 | grep '%s'" % serial
             (ret, loginfo) = self.runcmd(cmd, "check the syslog for subscribe info")
             if ret == 0 and loginfo != None:
                 logger.info("It's successful to check the syslog for subscribe info")
@@ -62,7 +62,7 @@ class tc_ID178500_bind_and_unbind_action_in_syslog(RHSMBase):
             self.sub_unsubscribe()
 
             # check the syslog for unsubscribe info
-            cmd = "tail -100 /var/log/rhsm/rhsm.log | grep Deleted -A10 | grep '%s'" % serial
+            cmd = "tail -1000 /var/log/rhsm/rhsm.log | grep Deleted -A10 | grep '%s'" % serial
             (ret, loginfo) = self.runcmd(cmd, "check the syslog for subscribe info")
             if ret == 0 and loginfo != None:
                 logger.info("It's successful to check the syslog for unsubscribe info")

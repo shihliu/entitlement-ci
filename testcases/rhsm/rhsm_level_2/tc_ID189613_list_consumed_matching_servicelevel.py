@@ -41,7 +41,7 @@ class tc_ID189613_list_consumed_matching_servicelevel(RHSMBase):
         if "No consumed subscription pools matching the specified criteria were found" not in output:
             pool_list = self.parse_listavailable_output(output)
             for item in pool_list:
-                if item['ServiceLevel'] != service_level:
+                if item['ServiceLevel'].lower() != service_level.lower():
                     return False
                 else:
                     continue
