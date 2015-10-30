@@ -86,7 +86,7 @@
     name: default-brew-publishers
     publishers:
           - email-ext:
-              recipients: rnovacek@redhat.com, sgao@redhat.com
+              recipients: sgao@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
