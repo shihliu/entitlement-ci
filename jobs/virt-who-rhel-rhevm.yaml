@@ -1,5 +1,5 @@
 - job-template:
-    name: 'virt-who-rhel-vdsm-rhel-6-provision'
+    name: 'virt-who-rhel-rhevm-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -7,7 +7,7 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
-            #export RHEL_COMPOSE= (optional)
+            #export RHEL_COMPOSE=
             #export SERVER_IP=
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
@@ -35,8 +35,7 @@
                 $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
                 --topology={topology_path}/bkr_build_intel_double_provision --ssh_keyfile={ssh_keyfile} --name={project}
             else
-                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+                echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
@@ -56,19 +55,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'virt-who-rhel-vdsm-rhel-6-runtest'
+          - project: 'virt-who-rhel-rhevm-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'virt-who-rhel-vdsm-rhel-6-runtest'
+    name: 'virt-who-rhel-rhevm-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'virt-who-rhel-vdsm-rhel-6-provision'
+            project: 'virt-who-rhel-rhevm-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -90,7 +89,6 @@
             beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
             export REMOTE_IP=$beaker_ip_1
             export REMOTE_IP_2=$beaker_ip_2
-
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export REMOTE_IP=
@@ -104,10 +102,10 @@
             echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-            nosetests virtwho_rhel_vdsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/vdsm/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/rhevm/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
@@ -118,24 +116,24 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: virt-who-rhel-vdsm-rhel-6-provision-runtest
+    name: virt-who-rhel-rhevm-provision-runtest
     jobs:
-      - 'virt-who-rhel-vdsm-rhel-6-provision'
-      - 'virt-who-rhel-vdsm-rhel-6-runtest'
+      - 'virt-who-rhel-rhevm-provision'
+      - 'virt-who-rhel-rhevm-runtest'
 
 - project:
-    name: virt-who-rhel-vdsm-rhel-6-jobs
-    project: virt-who-rhel-vdsm-rhel-6
+    name: virt-who-rhel-rhevm-jobs
+    project: virt-who-rhel-rhevm
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: bkr_virt-who_kvm_intel_rhel_6
+    topology: bkr_virt-who_kvm_rhel_7
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - virt-who-rhel-vdsm-rhel-6-provision-runtest
-    jslavename: jslave-virt-who-rhel-vdsm-rhel-6-slave
-    jslave_execs: 3
+      - virt-who-rhel-rhevm-provision-runtest
+    jslavename: jslave-virt-who-rhel-rhevm-slave
+    jslave_execs: 5
     jslaveimage: RHEL-6.6-Server-x86_64-released
     jslaveflavor: m1.small
     jslaveusername: root

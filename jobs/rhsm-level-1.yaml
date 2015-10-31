@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhsm-level-2-rhel-6-provision'
+    name: 'rhsm-level-1-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -7,7 +7,7 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
-            #export RHEL_COMPOSE= (optional)
+            #export RHEL_COMPOSE=
             #export SERVER_IP=
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
@@ -25,7 +25,7 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources
-            sleep 240
+            sleep 120
             sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             if [ "$RHEL_COMPOSE" != "" ]
             then
@@ -35,8 +35,7 @@
                 $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
                 --topology={topology_path}/bkr_build_single_provision --ssh_keyfile={ssh_keyfile} --name={project}
             else
-                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name={project}
+                echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
@@ -56,19 +55,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhsm-level-2-rhel-6-runtest'
+          - project: 'rhsm-level-1-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhsm-level-2-rhel-6-runtest'
+    name: 'rhsm-level-1-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhsm-level-2-rhel-6-provision'
+            project: 'rhsm-level-1-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -102,7 +101,7 @@
             nosetests rhsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_2/
+            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
@@ -113,24 +112,24 @@
       - default-rhsm-publishers
 
 - job-group:
-    name: rhsm-level-2-rhel-6-provision-runtest
+    name: rhsm-level-1-provision-runtest
     jobs:
-      - 'rhsm-level-2-rhel-6-provision'
-      - 'rhsm-level-2-rhel-6-runtest'
+      - 'rhsm-level-1-provision'
+      - 'rhsm-level-1-runtest'
 
 - project:
-    name: rhsm-level-2-rhel-6
-    project: rhsm-level-2-rhel-6
+    name: rhsm-level-1
+    project: rhsm-level-1
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: bkr_rhsm_rhel_6
+    topology: bkr_rhsm_rhel_7
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-     - rhsm-level-2-rhel-6-provision-runtest
-    jslavename: jslave-rhsm-level-2-rhel-6-slave
-    jslave_execs: 3
+     - rhsm-level-1-provision-runtest
+    jslavename: jslave-rhsm-level-1-slave
+    jslave_execs: 5
     jslaveimage: RHEL-6.6-Server-x86_64-released
     jslaveflavor: m1.small
     jslaveusername: root

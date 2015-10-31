@@ -12,7 +12,7 @@
     builders:
         - shell: |
             #!/bin/bash
-            # run upstream on rhel 6 or rhel 7
+            # switch, run upstream on rhel 6 or rhel 7
             #RHEL_COMPOSE=`curl -s -k http://download.eng.rdu2.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
             RHEL_COMPOSE=`curl -s -k http://download.eng.rdu2.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
             echo "*********************************setup env*********************************"

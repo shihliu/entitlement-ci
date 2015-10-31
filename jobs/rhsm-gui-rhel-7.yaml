@@ -143,7 +143,7 @@
     jobs:
      - rhsm-gui-rhel-7-provision-runtest
     jslavename: jslave-rhsm-gui-rhel-7-slave
-    jslave_execs: 3
+    jslave_execs: 5
     jslaveimage: RHEL-6.6-Server-x86_64-released
     jslaveflavor: m1.small
     jslaveusername: root
