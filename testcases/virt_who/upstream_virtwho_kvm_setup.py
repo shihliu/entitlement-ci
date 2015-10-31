@@ -7,8 +7,11 @@ class brew_virtwho_kvm_setup(KVMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.kvm_sys_setup()
+            self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
             self.upstream_virtwho_install()
             self.kvm_setup()
+            self.generate_ssh_key()
+            self.install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
