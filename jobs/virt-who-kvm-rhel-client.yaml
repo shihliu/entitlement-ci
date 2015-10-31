@@ -31,8 +31,8 @@
                 sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_double_provision_client.json
                 chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
                 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
-	            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-	            --topology={topology_path}/bkr_build_double_provision_client --ssh_keyfile={ssh_keyfile} --name={project}
+                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/bkr_build_double_provision_client --ssh_keyfile={ssh_keyfile} --name={project}
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
