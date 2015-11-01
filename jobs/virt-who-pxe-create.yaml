@@ -48,7 +48,7 @@
             python virtwhokickstart.py $RHEL_COMPOSE
             popd
     publishers:
-      - default-virt-who-publishers
+      - default-trigger-publishers
 
 - job-group:
     name: virt-who-pxe-create-provision-runtest
