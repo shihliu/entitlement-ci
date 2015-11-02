@@ -118,13 +118,13 @@ class RHSMBase(Base):
 
     def sub_checkproductcert(self, productid):
         rctcommand = self.check_rct()
-        if rctcommand == 0:
-            cmd = "for i in /etc/pki/product/*; do rct cat-cert $i; done"
+        if rctcommand:
+            cmd = "for i in /etc/pki/product-default/*; do rct cat-cert $i; done"
         else:
-            cmd = "for i in /etc/pki/product/*; do openssl x509 -text -noout -in $i; done"
+            cmd = "for i in /etc/pki/product-default/*; do openssl x509 -text -noout -in $i; done"
         (ret, output) = self.runcmd(cmd, "checking product cert")
         if ret == 0:
-            if ("1.3.6.1.4.1.2312.9.1.%s" % productid in output) or ("ID: %s" % productid in output and "Path: /etc/pki/product/%s.pem" % productid in output):
+            if ("1.3.6.1.4.1.2312.9.1.%s" % productid in output) or ("ID: %s" % productid in output and "Path: /etc/pki/product-default/%s.pem" % productid in output):
                 logger.info("The product cert is verified.")
             else:
                 raise FailException("Test Failed - The product cert is not correct.")

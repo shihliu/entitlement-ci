@@ -30,13 +30,12 @@ class tc_ID115181_install_one_package(RHSMBase):
                 self.check_cert_file(certfile)
                 # check productid cert
                 self.sub_checkproductcert(pid)
-                # uninstall test-pkg
-                self.uninstall_givenpkg(pkgtoinstall)
                 self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.uninstall_givenpkg(pkgtoinstall)
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
@@ -56,11 +55,25 @@ class tc_ID115181_install_one_package(RHSMBase):
         cmd = "repoquery -a --repoid=%s | grep %s" % (repoid, testpkg)
         (ret, output) = self.runcmd(cmd, "check package available")
         if ret == 0 and testpkg in output:
-            logger.info("The package %s exists." % (testpkg))
+            logger.info("The package %s exists."% (testpkg)) 
         else:
             raise FailException("Test Failed - The package %s does not exist." % (testpkg))
 
+    def uninstall_givenpkg(self, testpkg):
+        cmd = "rpm -qa | grep %s"%(testpkg)
+        (ret, output) = self.runcmd(cmd, "check if package %s is installed"% testpkg) 
+        if ret != 0:
+            logger.info("Package %s is not installed at all no need to uninstall it."% testpkg)
+        else:
+            cmd = "yum remove -y %s" % (testpkg)
+            (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
+            if ret == 0 and "Complete!" in output and "Removed" in output:
+                logger.info("The package %s is uninstalled successfully." % (testpkg))
+            else:
+                raise FailException("Test Failed - The package %s is failed to uninstall." % (testpkg))
+
     def install_givenpkg(self, testpkg):
+        self.uninstall_givenpkg(testpkg)
         cmd = "yum install -y %s" % (testpkg)
         (ret, output) = self.runcmd(cmd, "install selected package %s" % testpkg)
         if ret == 0 and "Complete!" in output and "Error" not in output:
@@ -68,16 +81,8 @@ class tc_ID115181_install_one_package(RHSMBase):
         else:
             raise FailException("Test Failed - The package %s is failed to install." % (testpkg))
 
-    def uninstall_givenpkg(self, testpkg):
-        cmd = "yum remove -y %s" % (testpkg)
-        (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
-        if ret == 0 and "Complete!" in output and "Removed" in output:
-            logger.info("The package %s is uninstalled successfully." % (testpkg))
-        else:
-            raise FailException("Test Failed - The package %s is failed to uninstall." % (testpkg))
-
     def check_cert_file(self, certfile):
-        cmd = "ls -l /etc/pki/product/%s" % certfile
+        cmd = "ls -l /etc/pki/product-default/%s" % certfile
         (ret, output) = self.runcmd(cmd, "check the product cert file exists")
         if ret == 0 :
             logger.info("It's successful to check product cert file exists.")
