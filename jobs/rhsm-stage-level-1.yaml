@@ -90,6 +90,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE)' > $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
