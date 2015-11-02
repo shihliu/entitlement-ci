@@ -97,7 +97,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {} > $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/

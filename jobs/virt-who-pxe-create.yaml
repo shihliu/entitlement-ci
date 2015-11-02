@@ -42,7 +42,7 @@
             #!/bin/bash
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE)' | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(RHEL_COMPOSE)' | xargs -i -d "\n" echo "export" {} > $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
             export PYTHONPATH=$PYTHONPATH:$WORKSPACE/entitlement-ci/
             pushd $WORKSPACE/entitlement-ci/utils/tools/
