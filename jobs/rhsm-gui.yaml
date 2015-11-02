@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhsm-gui-rhel-provision'
+    name: 'rhsm-gui-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -55,19 +55,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhsm-gui-rhel-runtest'
+          - project: 'rhsm-gui-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhsm-gui-rhel-runtest'
+    name: 'rhsm-gui-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhsm-gui-rhel-provision'
+            project: 'rhsm-gui-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -125,14 +125,14 @@
       - default-rhsm-publishers
 
 - job-group:
-    name: rhsm-gui-rhel-provision-runtest
+    name: rhsm-gui-provision-runtest
     jobs:
-      - 'rhsm-gui-rhel-provision'
-      - 'rhsm-gui-rhel-runtest'
+      - 'rhsm-gui-provision'
+      - 'rhsm-gui-runtest'
 
 - project:
-    name: rhsm-gui-rhel
-    project: rhsm-gui-rhel
+    name: rhsm-gui
+    project: rhsm-gui
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhsm_rhel_7
@@ -140,8 +140,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-     - rhsm-gui-rhel-provision-runtest
-    jslavename: jslave-rhsm-gui-rhel-slave
+     - rhsm-gui-provision-runtest
+    jslavename: jslave-rhsm-gui-slave
     jslave_execs: 5
     jslaveimage: RHEL-6.6-Server-x86_64-released
     jslaveflavor: m1.small
