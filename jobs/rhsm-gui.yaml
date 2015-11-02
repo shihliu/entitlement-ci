@@ -106,8 +106,7 @@
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {} > $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
