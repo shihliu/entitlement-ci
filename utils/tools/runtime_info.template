@@ -2,7 +2,12 @@
 //This file is used to show RUNTIME_INFO.txt in Jenkins Extended E-mail Notification
 //Put it under /var/lib/jenkins/email-templates
 //In Jenkins Configure, add ${SCRIPT, template="runtime_info.template"}
-file_name = rooturl + build.url + "artifact/RUNTIME_INFO.txt"
+//file_name = rooturl + build.url + "artifact/RUNTIME_INFO.txt"
+//file_name = project.workspace.toString() + "/RUNTIME_INFO.txt"
+temp = build.url.split("/")
+job_name = temp[1]
+build_num = temp[2]
+file_name = "/var/lib/jenkins/jobs/" + job_name  + "/builds/" + build_num + "/archive/RUNTIME_INFO.txt"
 File runtime_info_file = new File(file_name)
 if(! runtime_info_file.isFile()){
     println "No runtime info provided!"
