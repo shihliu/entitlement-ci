@@ -6,7 +6,7 @@
             url: 'https://github.com/virt-who/virt-who'
             branches:
                 - origin/master
-            basedir: entitlement-ci/virt-who
+            basedir: virt-who
     triggers:
         - github:
     builders:
