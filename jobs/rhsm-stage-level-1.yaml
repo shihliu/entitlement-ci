@@ -119,7 +119,7 @@
     topology_path: entitlement-ci/config
     topology: 
     ssh_keyfile: entitlement-ci/config/keys/ent-key
-    ssh_keyfile_beaker: entitlement-ci/config/keys/ci-ops-central
+    ssh_keyfile_beaker: ci-ops-projex/config/keys/ci-ops-central
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
