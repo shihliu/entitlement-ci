@@ -84,10 +84,8 @@
 
             EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
             EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
-            beaker_ip_1=`ping $EXISTING_NODES_1 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            beaker_ip_2=`ping $EXISTING_NODES_2 -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip_1
-            export REMOTE_IP_2=$beaker_ip_2
+            export REMOTE_IP=$EXISTING_NODES_1
+            export REMOTE_IP_2=$EXISTING_NODES_2
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export REMOTE_IP=

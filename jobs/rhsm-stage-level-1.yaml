@@ -80,8 +80,7 @@
             echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
 
-            beaker_ip=`ping $EXISTING_NODES -c 1 | awk -F '[()]' 'NR==2' | cut -d '(' -f 2 | cut -d ')' -f 1`
-            export REMOTE_IP=$beaker_ip
+            export REMOTE_IP=$EXISTING_NODES
 
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
