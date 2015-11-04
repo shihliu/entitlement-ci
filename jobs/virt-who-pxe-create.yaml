@@ -60,7 +60,8 @@
     name: virt-who-pxe-create-jobs
     project: virt-who-pxe-create
     project_defaults: entitlement-ci/config/project_defaults
-    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    ssh_keyfile: entitlement-ci/config/keys/qeos-key
+    beaker_keyfile: entitlement-ci/config/keys/beaker-key
     jobs:
       - virt-who-pxe-create-provision-runtest
     jslavename: jslave-virt-who-pxe-create-slave

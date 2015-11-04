@@ -33,7 +33,7 @@
                 chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
                 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
                 $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/bkr_build_single_provision --ssh_keyfile={ssh_keyfile} --name={project}
+                --topology={topology_path}/bkr_build_single_provision --ssh_keyfile={beaker_keyfile} --name={project}
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
@@ -135,7 +135,8 @@
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhsm_rhel_7
-    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    ssh_keyfile: entitlement-ci/config/keys/qeos-key
+    beaker_keyfile: entitlement-ci/config/keys/beaker-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
