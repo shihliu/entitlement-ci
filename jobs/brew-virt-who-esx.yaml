@@ -161,7 +161,7 @@
       - brew-virt-who-esx-provision-runtest
     jslavename: jslave-brew-virt-who-esx-slave
     jslave_execs: 5
-    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.small
     jslaveusername: root
     jslavepassword: redhat

@@ -124,7 +124,7 @@
       - brew-sam-install-provision-runtest
     jslavename: jslave-brew-sam-install-slave
     jslave_execs: 5
-    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.small
     jslaveusername: root
     jslavepassword: redhat
