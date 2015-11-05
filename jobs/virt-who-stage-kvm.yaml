@@ -130,7 +130,7 @@
     jslavename: jslave-virt-who-stage-kvm-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
-    jslaveflavor: m1.small
+    jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
     jslaveteardown: True
