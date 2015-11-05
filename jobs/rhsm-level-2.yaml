@@ -122,7 +122,7 @@
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhsm_rhel_7
-    ssh_keyfile: entitlement-ci/config/keys/qeos-key
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
     beaker_keyfile: entitlement-ci/config/keys/beaker-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
