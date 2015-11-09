@@ -22,7 +22,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' >> $WORKSPACE/GITHUB_URL.txt
+            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' > $WORKSPACE/GITHUB_URL.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/GITHUB_URL.txt

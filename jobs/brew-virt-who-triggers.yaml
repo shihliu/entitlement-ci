@@ -16,7 +16,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' >> $WORKSPACE/TRIGGER_MESSAGE.txt
+            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt
@@ -50,7 +50,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' >> $WORKSPACE/TRIGGER_MESSAGE.txt
+            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt

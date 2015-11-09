@@ -18,7 +18,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' >> $WORKSPACE/BUILD.txt
+            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
@@ -73,7 +73,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' >> $WORKSPACE/BUILD.txt
+            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
@@ -132,9 +132,8 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' >> $WORKSPACE/BUILD.txt
+            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
-            echo SAM_COMPOSE=$compose > BUILD.txt
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -172,7 +171,7 @@
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' >> $WORKSPACE/BUILD.txt
+            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
