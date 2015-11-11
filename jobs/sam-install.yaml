@@ -115,6 +115,10 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
+          - project: 'rhevm-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
 
 - job-group:
     name: sam-install-provision-runtest

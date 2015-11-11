@@ -24,9 +24,7 @@ class SAM_Install_Base(Base):
         self.__import_manifest_satellite(server_ip, server_user, server_passwd)
 
     def install_rhevm(self, compose, server_ip=None, server_user=None, server_passwd=None):
-#         self.__stop_iptables(server_ip, server_user, server_passwd)
-#         self.__set_selinux(server_ip, server_user, server_passwd)
-        self.__satellite_subscribe(server_ip, server_user, server_passwd)
+        self.__rhevm_subscribe(server_ip, server_user, server_passwd)
         self.__add_rhevm_repo(compose, server_ip, server_user, server_passwd)
         self.__install_rhevm(server_ip, server_user, server_passwd)
         self.__deploy_rhevm(server_ip, server_user, server_passwd)
@@ -291,3 +289,17 @@ class SAM_Install_Base(Base):
             logger.info("Succeeded to run rhevm-configure --deployment=sam --user-pass=admin.")
         else:
             raise FailException("Test Failed - Failed to run rhevm-configure --deployment=sam --user-pass=admin.")
+
+    def __rhevm_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
+        cmd = "subscription-manager register --username=rhn-engineering-automation --password=KoKMAtikw1ifEPSe"
+        ret, output = self.runcmd(cmd, "register system with ENG creds", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to register system with ENG creds.")
+        else:
+            raise FailException("Test Failed - Failed to register system with ENG creds.")
+        cmd = "subscription-manager attach --pool=8a85f9823e3d5e43013e3e0af77e0f36"
+        ret, output = self.runcmd(cmd, "attach rhscl product", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to attach rhscl product.")
+        else:
+            raise FailException("Test Failed - Failed to attach rhscl product.")

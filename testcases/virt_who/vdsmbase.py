@@ -32,14 +32,14 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.2.repo" %compose_name
+        cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.2.repo" % compose_name
         ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update repo file to the latest rhel repo")
         else:
             raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
-    def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip="" ):
+    def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip=""):
         # system setup for RHEL+RHEVM testing env
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
@@ -424,7 +424,7 @@ class VDSMBase(VIRTWHOBase):
 
     def add_vm_to_rhevm(self, rhevm_vm_name, NFSserver_ip, nfs_dir_for_export, targetmachine_ip):
         while True:
-            cmd = "rhevm-shell -c -E ' list vms --name %s'" %rhevm_vm_name
+            cmd = "rhevm-shell -c -E ' list vms --name %s'" % rhevm_vm_name
             ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip)
             if ret == 0 :
                 if rhevm_vm_name in output and "Imported with virt-v2v" in output:
@@ -646,7 +646,8 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to check vdsmd is running.")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
+        # RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
+        RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()
         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
@@ -661,7 +662,7 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
 
-        rhel_compose= get_exported_param("RHEL_COMPOSE")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
 
         # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose)
