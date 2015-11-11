@@ -89,6 +89,16 @@ class Base(unittest.TestCase):
     def get_vw_guest_name(self, guest_name):
         return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
 
+    def get_hostname(self, targetmachine_ip=""):
+        cmd = "hostname"
+        ret, output = self.runcmd(cmd, "geting the machine's hostname", targetmachine_ip)
+        if ret == 0:
+            hostname = output.strip(' \r\n').strip('\r\n') 
+            logger.info("Succeeded to get the machine's hostname %s." % hostname) 
+            return hostname
+        else:
+            raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
+
     def get_locator(self, name):
         rhsm_gui_locator = RHSMGuiLocator()
         if name + "-" + self.os_serial in rhsm_gui_locator.element_locators.keys():
