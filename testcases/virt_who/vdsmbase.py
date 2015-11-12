@@ -68,6 +68,15 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to config rhevm_shell env on rhevm in %s." % self.get_hg_info(targetmachine_ip))
 
+    # Add cluster cpu 
+    def update_cluster_cpu(self, cluster_name, cpu_type, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id %s'" % (cluster_name, cpu_type)
+        ret, output = self.runcmd(cmd, "update cluster cpu", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update cluster %s cpu to %s." % (cluster_name, cpu_type))
+        else:
+            raise FailException("Failed to update cluster %s cpu to %s." % (cluster_name, cpu_type))
+
     # Add host to rhevm
     def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
         while True:
@@ -651,7 +660,7 @@ class VDSMBase(VIRTWHOBase):
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()
         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-        NFSserver_ip = self.get_vw_cons("NFSserver_ip_test")
+        NFSserver_ip = get_exported_param("RHEVM_IP")
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
@@ -661,6 +670,7 @@ class VDSMBase(VIRTWHOBase):
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
 #        #configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
+        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
