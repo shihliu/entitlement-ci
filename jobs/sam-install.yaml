@@ -116,7 +116,7 @@
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
           - project: 'rhevm-install-provision'
-            current-parameters: true
+            current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
 
