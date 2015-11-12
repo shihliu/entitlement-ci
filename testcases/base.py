@@ -15,6 +15,14 @@ class Base(unittest.TestCase):
         (ret, output) = self.runcmd(cmd, "get consumerid", targetmachine_ip)
         return output.split(':')[1].strip()
 
+    def cm_install_wget(self, targetmachine_ip=""):
+        cmd = "yum install -y wget"
+        ret, output = self.runcmd(cmd, "install wget", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install wget in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install wget in %s." % self.get_hg_info(targetmachine_ip))
+
     # ========================================================
     #       Basic Functions
     # ========================================================
@@ -448,8 +456,6 @@ class Base(unittest.TestCase):
         self.unittest_handler = logging.StreamHandler(sys.stdout)
         self.unittest_handler.setFormatter(formatter)
         logger.addHandler(self.unittest_handler)
-        # logger.removeHandler(ch)
-
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
@@ -465,7 +471,6 @@ class Base(unittest.TestCase):
 
     def tearDown(self):
         logger.removeHandler(self.unittest_handler)
-        # logger.addHandler(ch)
 
 #     def test_self(self):
 #         org = self.st_org_create("autoorg20")

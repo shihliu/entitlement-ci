@@ -47,7 +47,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-#         self.configure_rhel_host_bridge(targetmachine_ip)
+        self.cm_install_wget(targetmachine_ip)
         self.get_rhevm_repo_file(rhel_compose, targetmachine_ip)
         cmd = "yum install -y vdsm"
         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
@@ -651,17 +651,9 @@ class VDSMBase(VIRTWHOBase):
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()
         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-        
-        VIRTWHO_RHEVM_OWNER = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
-        VIRTWHO_RHEVM_ENV = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
-        # VIRTWHO_RHEVM_SERVER = self.get_vw_cons("VIRTWHO_RHEVM_SERVER")
-        VIRTWHO_RHEVM_USERNAME = self.get_vw_cons("VIRTWHO_RHEVM_USERNAME")
-        VIRTWHO_RHEVM_PASSWORD = self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
-
         NFSserver_ip = self.get_vw_cons("NFSserver_ip_test")
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-
         rhel_compose = get_exported_param("RHEL_COMPOSE")
 
         # system setup for RHEL+RHEVM(VDSM) testing env on two hosts

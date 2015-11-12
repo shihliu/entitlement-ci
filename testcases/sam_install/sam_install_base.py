@@ -24,6 +24,7 @@ class SAM_Install_Base(Base):
         self.__import_manifest_satellite(server_ip, server_user, server_passwd)
 
     def install_rhevm(self, compose, server_ip=None, server_user=None, server_passwd=None):
+        self.cm_install_wget(server_ip)
         self.__rhevm_subscribe(server_ip, server_user, server_passwd)
         self.__add_rhevm_repo(compose, server_ip, server_user, server_passwd)
         self.__install_rhevm(server_ip, server_user, server_passwd)
