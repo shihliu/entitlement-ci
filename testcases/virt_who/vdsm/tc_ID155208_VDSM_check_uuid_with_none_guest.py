@@ -7,7 +7,7 @@ class tc_ID155208_VDSM_check_uuid_with_none_guest(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
 
             cmd = "rhevm-shell -c -E 'show vm %s'" % guest_name

@@ -10,7 +10,7 @@ class tc_ID289660_VDSM_validate_compliance_when_migrate_to_none_DC_host(VDSMBase
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             dest_host_name = self.get_hostname(get_exported_param("REMOTE_IP_2"))
             dest_host_uuid = self.vdsm_get_host_uuid(dest_host_name, rhevm_ip)
 

@@ -11,7 +11,7 @@ class tc_ID322866_VDSM_check_server_option(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             # start a guest    
             self.rhevm_start_vm(guest_name, rhevm_ip)
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)

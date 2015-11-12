@@ -10,7 +10,7 @@ class tc_ID165512_VDSM_validate_double_fork(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             slave_machine_ip = get_exported_param("REMOTE_IP_2")
 
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
