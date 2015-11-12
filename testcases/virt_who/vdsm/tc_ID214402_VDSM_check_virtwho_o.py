@@ -8,7 +8,7 @@ class tc_ID214402_VDSM_check_virtwho_o(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
             self.vw_stop_virtwho_new()

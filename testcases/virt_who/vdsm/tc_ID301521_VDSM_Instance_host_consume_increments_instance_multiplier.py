@@ -10,7 +10,7 @@ class tc_ID301521_VDSM_Instance_host_consume_increments_instance_multiplier(VDSM
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
 
             test_sku = self.get_vw_cons("instancebase_sku_id")
             sku_name = self.get_vw_cons("instancebase_name")

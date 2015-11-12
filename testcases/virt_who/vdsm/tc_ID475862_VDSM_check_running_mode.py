@@ -9,7 +9,7 @@ class tc_ID475862_VDSM_check_running_mode(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
 

@@ -10,7 +10,7 @@ class tc_ID174959_VDSM_validate_mapping_info_after_re_register_host(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
 
             self.conf_rhevm_shellrc(rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)

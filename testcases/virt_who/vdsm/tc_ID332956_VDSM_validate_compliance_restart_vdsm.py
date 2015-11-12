@@ -10,7 +10,7 @@ class tc_ID332956_VDSM_validate_compliance_restart_vdsm(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")

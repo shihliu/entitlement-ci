@@ -10,7 +10,7 @@ class tc_ID322864_VDSM_check_log_small_interval_after_add_guest(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-            rhevm_ip = self.get_vw_cons("RHEVM_HOST")
+            rhevm_ip = get_exported_param("RHEVM_IP")
 
             rhsmlogpath = '/var/log/rhsm/rhsm.log'
 
