@@ -70,7 +70,7 @@ class VDSMBase(VIRTWHOBase):
 
     # Add cluster cpu 
     def update_cluster_cpu(self, cluster_name, cpu_type, targetmachine_ip):
-        cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id %s'" % (cluster_name, cpu_type)
+        cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id \"%s\"'" % (cluster_name, cpu_type)
         ret, output = self.runcmd(cmd, "update cluster cpu", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update cluster %s cpu to %s." % (cluster_name, cpu_type))
@@ -697,7 +697,6 @@ class VDSMBase(VIRTWHOBase):
             # update virt-who configure file
             self.update_rhevm_vdsm_configure(5, slave_machine_ip)
             self.vw_restart_virtwho_new(slave_machine_ip)
-
 
     def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
         ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
