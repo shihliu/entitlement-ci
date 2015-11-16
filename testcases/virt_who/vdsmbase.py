@@ -291,7 +291,7 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
             else:
                 raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
-            time.sleep(60)
+            time.sleep(120)
             cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
             ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
@@ -434,7 +434,7 @@ class VDSMBase(VIRTWHOBase):
         time.sleep(60)
         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
 #         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network ovirtmgmt %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
-        ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
+        ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip, showlogger=False)
         if ret == 0 and "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
             time.sleep(10)
