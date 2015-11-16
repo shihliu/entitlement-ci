@@ -50,7 +50,7 @@ class VDSMBase(VIRTWHOBase):
         self.cm_install_wget(targetmachine_ip)
         self.get_rhevm_repo_file(rhel_compose, targetmachine_ip)
         cmd = "yum install -y vdsm"
-        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -70,7 +70,8 @@ class VDSMBase(VIRTWHOBase):
 
     # Add cluster cpu 
     def update_cluster_cpu(self, cluster_name, cpu_type, targetmachine_ip):
-        cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id \"%s\"'" % (cluster_name, cpu_type)
+        # cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id \"%s\"'" % (cluster_name, cpu_type)
+        cmd = "rhevm-shell -c -E \"update cluster %s --cpu-id '%s' \"" % (cluster_name, cpu_type)
         ret, output = self.runcmd(cmd, "update cluster cpu", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update cluster %s cpu to %s." % (cluster_name, cpu_type))
@@ -109,11 +110,63 @@ class VDSMBase(VIRTWHOBase):
                                 logger.info("vm %s status-state is %s" % (rhevm_host_name, status))
                         else:
                             raise FailException("Failed to list host %s in rhevm" % rhevm_host_name)
-                        time.sleep(10)
-                        if runtime > 120:
+                        time.sleep(60)
+                        if runtime > 20:
                             raise FailException("%s status has problem,status is %s." % (rhevm_host_name, status))
                 else:
                     raise FailException("Failed to add host %s to rhevm" % rhevm_host_name)
+
+# Maintenance Host on RHEVM
+    def rhevm_mantenance_host(self, rhevm_host_name, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'action host \"%s\" deactivate'" % rhevm_host_name
+        ret, output = self.runcmd(cmd, "Maintenance host on rhevm.", targetmachine_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = "rhevm-shell -c -E 'show host \"%s\"'" % rhevm_host_name
+                ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0:
+                    logger.info("Succeeded to list host")
+                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
+                    if status.find("maintenance") >= 0:
+                        logger.info("Succeeded to maintenance host %s in rhevm" % rhevm_host_name)
+                        break
+                    else :
+                        logger.info("Host %s status-state is %s" % (rhevm_host_name, status))
+                    time.sleep(10)
+                    if runtime > 20:
+                        raise FailException("%s's status has problem,status is %s." % (rhevm_host_name, status))
+                else:
+                    raise FailException("Failed to list host %s" % rhevm_host_name)
+        else:
+            raise FailException("Failed to maintenance host %s on rhevm" % rhevm_host_name)
+
+# Active Host on RHEVM
+    def rhevm_active_host(self, rhevm_host_name, targetmachine_ip):
+        cmd = "rhevm-shell -c -E 'action host \"%s\" activate'" % rhevm_host_name
+        ret, output = self.runcmd(cmd, "Active host on rhevm.", targetmachine_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = "rhevm-shell -c -E 'show host \"%s\"'" % rhevm_host_name
+                ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0:
+                    logger.info("Succeeded to list host")
+                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_host_name, targetmachine_ip)
+                    if status.find("up") >= 0:
+                        logger.info("Succeeded to active host %s in rhevm" % rhevm_host_name)
+                        break
+                    else :
+                        logger.info("Host %s status-state is %s" % (rhevm_host_name, status))
+                    time.sleep(10)
+                    if runtime > 20:
+                        raise FailException("%s's status has problem,status is %s." % (rhevm_host_name, status))
+                else:
+                    raise FailException("Failed to list host %s" % rhevm_host_name)
+        else:
+            raise FailException("Failed to active host %s on rhevm" % rhevm_host_name)
 
     # Add vm to special host
     def update_vm_to_host(self, vm_name, rhevm_host_name, targetmachine_ip):
@@ -427,8 +480,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (guest_name, status))
-                time.sleep(10)
-                if runtime > 120:
+                time.sleep(60)
+                if runtime > 60:
                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
 
     def add_vm_to_rhevm(self, rhevm_vm_name, NFSserver_ip, nfs_dir_for_export, targetmachine_ip):
@@ -466,12 +519,12 @@ class VDSMBase(VIRTWHOBase):
                     status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, rhevm_host_ip)
                     if status.find("up") >= 0 and status.find("powering") < 0 and output.find("guest_info-ips-ip-address") > 0:
                         logger.info("Succeeded to up vm %s in rhevm" % rhevm_vm_name)
-                        time.sleep(20)
+                        time.sleep(60)
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
                     time.sleep(20)
-                    if runtime > 50:
+                    if runtime > 20:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -496,15 +549,15 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(20)
-                    if runtime > 50:
+                    time.sleep(30)
+                    if runtime > 20:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
         else:
             raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
 
-# Stop VM on RHEVM
+# Pause VM on RHEVM
     def rhevm_pause_vm(self, rhevm_vm_name, targetmachine_ip):
         cmd = "rhevm-shell -c -E 'action vm \"%s\" suspend'" % rhevm_vm_name
         ret, output = self.runcmd(cmd, "stop vm on rhevm.", targetmachine_ip)
@@ -522,7 +575,7 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(10)
+                    time.sleep(30)
                     if runtime > 20:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
@@ -548,7 +601,7 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s is migrating in rhevm" % (rhevm_vm_name))
-                    time.sleep(10)
+                    time.sleep(30)
                     if runtime > 20:
                         raise FailException("Failed to migrate vm %s in rhevm" % rhevm_vm_name)
                 else:
