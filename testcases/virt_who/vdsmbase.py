@@ -321,7 +321,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             logger.info("virt-V2V hasn't been installed.")
             cmd = "yum install virt-v2v -y"
-            ret, output = self.runcmd(cmd, "install vdsm", targetmachine_ip)
+            ret, output = self.runcmd(cmd, "install vdsm", targetmachine_ip, showlogger=False)
             if ret == 0 and "Complete!" in output:
                 logger.info("Succeeded to install virt-V2V.")
             else:
