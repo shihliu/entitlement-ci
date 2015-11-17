@@ -134,8 +134,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("Host %s status-state is %s" % (rhevm_host_name, status))
-                    time.sleep(10)
-                    if runtime > 20:
+                    time.sleep(20)
+                    if runtime > 30:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_host_name, status))
                 else:
                     raise FailException("Failed to list host %s" % rhevm_host_name)
@@ -160,8 +160,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("Host %s status-state is %s" % (rhevm_host_name, status))
-                    time.sleep(10)
-                    if runtime > 20:
+                    time.sleep(20)
+                    if runtime > 30:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_host_name, status))
                 else:
                     raise FailException("Failed to list host %s" % rhevm_host_name)
@@ -292,12 +292,13 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
             time.sleep(120)
+    #     # Attach datacenter to storagedomain in rhevm
             cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
             ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
-                logger.info("Succeeded to maintenance storagedomains %s in rhevm." % storage_name)
+                logger.info("Succeeded to active storagedomains %s in rhevm." % storage_name)
             else:
-                raise FailException("Failed to maintenance storagedomains %s in rhevm." % storage_name)
+                raise FailException("Failed to active storagedomains %s in rhevm." % storage_name)
             time.sleep(60)
     #     # activate storagedomain in rhevm
     #      def activate_storagedomain(self, storage_name, targetmachine_ip): 
@@ -322,7 +323,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("virt-V2V hasn't been installed.")
             cmd = "yum install virt-v2v -y"
             ret, output = self.runcmd(cmd, "install vdsm", targetmachine_ip, showlogger=False)
-            if ret == 0 and "Complete!" in output:
+            if ret == 0:
                 logger.info("Succeeded to install virt-V2V.")
             else:
                 raise FailException("Failed to install virt-V2V")
@@ -341,8 +342,9 @@ class VDSMBase(VIRTWHOBase):
 #                 logger.info("Succeeded to wget kvm img file")
 #             else:
 #                 raise FailException("Failed to wget kvm img file")
-            image_server = self.get_vw_cons("beaker_image_server")
 #             image_nfs_path = self.get_vw_cons("nfs_image_path")
+            # Get image from beaker NFS server
+            image_server = self.get_vw_cons("beaker_image_server")
             image_nfs_path = '/home/rhevm_guest/'
             image_mount_path = self.get_vw_cons("local_mount_point")
             cmd = "mkdir %s" % image_mount_path
@@ -414,7 +416,6 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("Succeeded to destroy autotest_pool")
             else:
                 raise FailException("Failed to destroy autotest_pool")
-
         cmd = "virsh pool-create /tmp/autotest_pool.xml"
         ret, output = self.runcmd(cmd, "import vm to rhevm.")
         if ret == 0 and "autotest_pool created" in output:
@@ -425,16 +426,19 @@ class VDSMBase(VIRTWHOBase):
     # convert_guest_to_nfs with v2v tool
     def convert_guest_to_nfs(self, origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, targetmachine_ip=""):
         cmd = "sed -i 's/^.*auth_unix_rw/auth_unix_rw/' /etc/libvirt/libvirtd.conf"
-        (ret, output) = self.runcmd(cmd, "Enable auth_unix_rw firstly in libvirtd config file", origin_machine_ip)
+        (ret, output) = self.runcmd(cmd, "Enable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to enable auth_unix_rw.")
         else:
             raise FailException("Failed to enable auth_unix_rw.")
-        self.vw_restart_libvirtd(origin_machine_ip)
-        time.sleep(60)
-        cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
-#         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network ovirtmgmt %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
-        ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip, showlogger=False)
+        self.vw_restart_libvirtd()
+        time.sleep(30)
+#        # v2v import vm from remote libvirt to rhevm
+#         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
+#         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip, showlogger=False)
+        # v2v import vm from local libvirt to rhevm
+        cmd = "export LIBGUESTFS_BACKEND=direct && virt-v2v -o rhev -os  %s:%s --network rhevm %s" % (NFS_server, NFS_export_dir, vm_hostname)
+        (ret, output) = self.runcmd(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
         if ret == 0 and "100%" in output:
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
             time.sleep(10)
@@ -480,7 +484,7 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (guest_name, status))
-                time.sleep(60)
+                time.sleep(120)
                 if runtime > 60:
                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
 
@@ -489,14 +493,14 @@ class VDSMBase(VIRTWHOBase):
             cmd = "rhevm-shell -c -E ' list vms --name %s'" % rhevm_vm_name
             ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip)
             if ret == 0 :
-                if rhevm_vm_name in output and "Imported with virt-v2v" in output:
+                if rhevm_vm_name in output and "virt-v2v" in output:
                     logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
                     break
                 else:
                     self.rhevm_define_guest(rhevm_vm_name)
                     self.create_storage_pool()
-                    self.install_virtV2V(targetmachine_ip)
-                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name, targetmachine_ip)
+                    self.install_virtV2V()
+                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
                     self.rhevm_undefine_guest(rhevm_vm_name)
                     data_storage_id = self.get_domain_id ("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id ("export_storage", targetmachine_ip)
@@ -523,8 +527,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(20)
-                    if runtime > 20:
+                    time.sleep(10)
+                    if runtime > 30:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -549,8 +553,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(30)
-                    if runtime > 20:
+                    time.sleep(60)
+                    if runtime > 30:
                         raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -601,8 +605,8 @@ class VDSMBase(VIRTWHOBase):
                         break
                     else :
                         logger.info("vm %s is migrating in rhevm" % (rhevm_vm_name))
-                    time.sleep(30)
-                    if runtime > 20:
+                    time.sleep(60)
+                    if runtime > 120:
                         raise FailException("Failed to migrate vm %s in rhevm" % rhevm_vm_name)
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
@@ -708,12 +712,11 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to check vdsmd is running.")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        # RHEVM_IP = self.get_vw_cons("RHEVM_HOST")
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()
         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-        NFSserver_ip = get_exported_param("RHEVM_IP")
+        NFSserver_ip = get_exported_param("REMOTE_IP")
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
