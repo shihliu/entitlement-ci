@@ -26,7 +26,7 @@ class VDSMBase(VIRTWHOBase):
 
     def get_rhevm_repo_file(self, compose_name, targetmachine_ip=""):
         ''' wget rhevm repo file and add to rhel host '''
-        if "7." in compose_name:
+        if self.os_serial == "7":
             cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.x.repo"
             ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
             if ret == 0:

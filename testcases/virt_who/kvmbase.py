@@ -442,6 +442,7 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.cm_install_wget(targetmachine_ip)
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"
