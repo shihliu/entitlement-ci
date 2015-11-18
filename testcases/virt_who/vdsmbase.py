@@ -26,12 +26,20 @@ class VDSMBase(VIRTWHOBase):
 
     def get_rhevm_repo_file(self, compose_name, targetmachine_ip=""):
         ''' wget rhevm repo file and add to rhel host '''
-        cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.2.repo"
-        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+        if "7." in compose_name:
+            cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.x.repo"
+            ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
         else:
-            raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_6.x.repo"
+            ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.2.repo" % compose_name
         ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
         if ret == 0:
