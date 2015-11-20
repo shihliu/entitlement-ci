@@ -1,0 +1,194 @@
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/ci-ops-central'
+            branches:
+                - origin/master
+            basedir: ci-ops-central
+        - git:
+            url: 'https://code.engineering.redhat.com/gerrit/job-runner'
+            branches:
+                - origin/master
+            basedir: job-runner
+        - git:
+            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+
+- defaults:
+    name: virt-who-runtest
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
+
+- wrapper:
+    name: default-virt-who-build-timeout-wrapper
+    wrappers:
+        - timeout:
+            timeout: 600
+            timeout-var: 'BUILD_TIMEOUT'
+            fail: true
+            type: absolute
+
+- publisher:
+    name: default-trigger-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, shihliu@redhat.com, gxing@redhat.com, qianzhan@redhat.com, hsun@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
+              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-virt-who-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-rhsm-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-brew-publishers
+    publishers:
+          - email-ext:
+              recipients: rnovacek@redhat.com, sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-brew-trigger-publishers
+    publishers:
+          - email-ext:
+              recipients: rnovacek@redhat.com, sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
+              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-upstream-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-upstream-trigger-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
+              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-test-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: $DEFAULT_SUBJECT
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-virt-who-runtest-publishers
+    publishers:
+           - xunit:
+               thresholdmode: 'number'
+               thresholds:
+                 - failed:
+                       unstable: 0
+                       unstablenew: 0
+                       failure: 0
+                       failurenew: 0
+                 - skipped:
+                       unstable: 0
+                       unstablenew: 0
+                       failure: 0
+                       failurenew: 0
+               types:
+                 - junit:
+                     pattern: '*.xml'
+                     deleteoutput: false
