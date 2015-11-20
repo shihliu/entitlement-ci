@@ -19,7 +19,7 @@
             fi
             # Provision Test Resources
             $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam
+            --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name=sam
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
             if [ -e "$files" ]
@@ -92,6 +92,7 @@
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_sam_install_rhel_7
+    beaker_keyfile: entitlement-ci/config/keys/beaker-key
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
