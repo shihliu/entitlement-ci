@@ -33,10 +33,10 @@ class SAM_Install_Base(Base):
     def __stop_iptables(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "service iptables stop"
         ret, output = self.runcmd(cmd, "service iptables stop", server_ip, server_user, server_passwd)
-        if ret == 0:
-            logger.info("Succeeded to run service iptables stop.")
-        else:
-            raise FailException("Test Failed - Failed to run service iptables stop.")
+#         if ret == 0:
+#             logger.info("Succeeded to run service iptables stop.")
+#         else:
+#             raise FailException("Test Failed - Failed to run service iptables stop.")
         cmd = "chkconfig iptables off"
         ret, output = self.runcmd(cmd, "chkconfig iptables off", server_ip, server_user, server_passwd)
         if ret == 0:
