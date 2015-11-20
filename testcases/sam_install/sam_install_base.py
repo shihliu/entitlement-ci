@@ -37,18 +37,18 @@ class SAM_Install_Base(Base):
 #             logger.info("Succeeded to run service iptables stop.")
 #         else:
 #             raise FailException("Test Failed - Failed to run service iptables stop.")
-        cmd = "chkconfig iptables off"
-        ret, output = self.runcmd(cmd, "chkconfig iptables off", server_ip, server_user, server_passwd)
-        if ret == 0:
-            logger.info("Succeeded to run chkconfig iptables off.")
-        else:
-            raise FailException("Test Failed - Failed to run chkconfig iptables off.")
-        cmd = "service iptables save"
-        ret, output = self.runcmd(cmd, "service iptables save", server_ip, server_user, server_passwd)
-        if ret == 0:
-            logger.info("Succeeded to run service iptables save.")
-        else:
-            raise FailException("Test Failed - Failed to run service iptables save.")
+#         cmd = "chkconfig iptables off"
+#         ret, output = self.runcmd(cmd, "chkconfig iptables off", server_ip, server_user, server_passwd)
+#         if ret == 0:
+#             logger.info("Succeeded to run chkconfig iptables off.")
+#         else:
+#             raise FailException("Test Failed - Failed to run chkconfig iptables off.")
+#         cmd = "service iptables save"
+#         ret, output = self.runcmd(cmd, "service iptables save", server_ip, server_user, server_passwd)
+#         if ret == 0:
+#             logger.info("Succeeded to run service iptables save.")
+#         else:
+#             raise FailException("Test Failed - Failed to run service iptables save.")
 
     def __set_selinux(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "setenforce 0"
