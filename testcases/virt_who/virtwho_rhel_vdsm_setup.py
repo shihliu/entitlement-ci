@@ -8,7 +8,7 @@ class virtwho_rhel_vdsm_setup(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.rhel_rhevm_sys_setup()
-            self.rhel_rhevm_setup()
+            self.rhel_vdsm_setup()
 #             #self.generate_ssh_key()
 #             self.install_desktop()
             self.assert_(True, case_name)

@@ -33,6 +33,12 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x.repo" % compose_name
+            ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to update repo file to the latest rhel repo")
+            else:
+                raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
         else:
             cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_6.x.repo"
             ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
@@ -40,12 +46,12 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-        cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.2.repo" % compose_name
-        ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to update repo file to the latest rhel repo")
-        else:
-            raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+            cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x.repo" % compose_name
+            ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to update repo file to the latest rhel repo")
+            else:
+                raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
     def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip=""):
         # system setup for RHEL+RHEVM testing env
@@ -637,15 +643,6 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to list VM %s." % vm_name) 
 
-    def update_rhevm_vdsm_configure(self, interval_value, targetmachine_ip=""):
-        ''' update virt-who configure file to vdsm mode /etc/sysconfig/virt-who. '''
-        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/^.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/g' -e 's/^.*VIRTWHO_VDSM=.*/VIRTWHO_VDSM=1/g' /etc/sysconfig/virt-who" % interval_value
-        ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to update virt-who configure file.")
-        else:
-            raise FailException("Failed to update virt-who configure file.")
-
     def vdsm_get_vm_uuid(self, vm_name, targetmachine_ip=""):
         ''' get the guest uuid. '''
         cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
@@ -719,6 +716,24 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Test Failed - Failed to check vdsmd is running.")
 
+    def update_rhel_vdsm_configure(self, interval_value, targetmachine_ip=""):
+        ''' update virt-who configure file to vdsm mode /etc/sysconfig/virt-who. '''
+        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/^.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/g' -e 's/^.*VIRTWHO_VDSM=.*/VIRTWHO_VDSM=1/g' /etc/sysconfig/virt-who" % interval_value
+        ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update virt-who configure file.")
+        else:
+            raise FailException("Failed to update virt-who configure file.")
+
+    def update_rhel_rhevm_configure(self, rhevm_interval, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, debug=1):
+        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
+        cmd = "sed -i -e 's/#VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/g' -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/#VIRTWHO_RHEVM=.*/VIRTWHO_RHEVM=1/g' -e 's/#VIRTWHO_RHEVM_OWNER=.*/VIRTWHO_RHEVM_OWNER=%s/g' -e 's/#VIRTWHO_RHEVM_ENV=.*/VIRTWHO_RHEVM_ENV=%s/g' -e 's/#VIRTWHO_RHEVM_SERVER=.*/VIRTWHO_RHEVM_SERVER=%s/g' -e 's/#VIRTWHO_RHEVM_USERNAME=.*/VIRTWHO_RHEVM_USERNAME=%s/g' -e 's/#VIRTWHO_RHEVM_PASSWORD=.*/VIRTWHO_RHEVM_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (rhevm_interval, debug, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
+        ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_RHEVM")
+        if ret == 0:
+            logger.info("Succeeded to enable VIRTWHO_RHEVM.")
+        else:
+            raise FailException("Test Failed - Failed to enable VIRTWHO_RHEVM.")
+
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
@@ -742,14 +757,14 @@ class VDSMBase(VIRTWHOBase):
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 
-    def rhel_rhevm_setup(self):
+    def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
-        self.update_rhevm_vdsm_configure(5)
+        self.update_rhel_vdsm_configure(5)
         self.vw_restart_virtwho_new()
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
@@ -759,14 +774,22 @@ class VDSMBase(VIRTWHOBase):
             self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             # update virt-who configure file
-            self.update_rhevm_vdsm_configure(5, slave_machine_ip)
+            self.update_rhel_vdsm_configure(5, slave_machine_ip)
             self.vw_restart_virtwho_new(slave_machine_ip)
 
-    def update_rhevm_vw_configure(self, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, background=1, debug=1):
-        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
-        cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_RHEVM/VIRTWHO_RHEVM/g' -e 's/^#VIRTWHO_RHEVM_OWNER/VIRTWHO_RHEVM_OWNERs/g' -e 's/^#VIRTWHO_RHEVM_ENV/VIRTWHO_RHEVM_ENV/g' -e 's/^#VIRTWHO_RHEVM_SERVER/VIRTWHO_RHEVM_SERVER/g' -e 's/^#VIRTWHO_RHEVM_USERNAME/VIRTWHO_RHEVM_USERNAME/g' -e 's/^#VIRTWHO_RHEVM_PASSWORD/VIRTWHO_RHEVM_PASSWORD/g' /etc/sysconfig/virt-who" 
-        ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_RHEVM")
-        if ret == 0:
-            logger.info("Succeeded to enable VIRTWHO_RHEVM.")
-        else:
-            raise FailException("Test Failed - Failed to enable VIRTWHO_RHEVM.")
+    def rhel_rhevm_setup(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        RHEVM_IP = get_exported_param("RHEVM_IP")
+
+        VIRTWHO_RHEVM_OWNER = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
+        VIRTWHO_RHEVM_ENV = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
+        VIRTWHO_RHEVM_SERVER = "https:\/\/" + RHEVM_IP + ":443"
+        VIRTWHO_RHEVM_USERNAME = self.get_vw_cons("VIRTWHO_RHEVM_USERNAME")
+        VIRTWHO_RHEVM_PASSWORD = self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who configure file
+        self.update_rhel_rhevm_configure("5", VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV, VIRTWHO_RHEVM_SERVER, VIRTWHO_RHEVM_USERNAME, VIRTWHO_RHEVM_PASSWORD, debug=1)
+        self.vw_restart_virtwho_new()
