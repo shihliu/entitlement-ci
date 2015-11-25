@@ -12,7 +12,7 @@ class tc_ID155201_VDSM_check_uuid_after_migrate_vm_restart_vdsm(VDSMBase):
             dest_host_name = self.get_hostname(get_exported_param("REMOTE_IP_2"))
             
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
-            dest_host_uuid = self.vdsm_get_host_uuid(dest_host_name, rhevm_ip)
+            dest_host_uuid = self.get_host_uuid_on_rhevm(dest_host_name, rhevm_ip)
 
             # (1) start guest    
             self.rhevm_start_vm(guest_name, rhevm_ip)
