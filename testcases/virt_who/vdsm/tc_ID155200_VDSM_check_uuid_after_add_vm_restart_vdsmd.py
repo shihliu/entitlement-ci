@@ -30,6 +30,7 @@ class tc_ID155200_VDSM_check_uuid_after_add_vm_restart_vdsmd(VDSMBase):
         finally:
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.update_rhevm_vdsm_configure(5)
+            self.service_command("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

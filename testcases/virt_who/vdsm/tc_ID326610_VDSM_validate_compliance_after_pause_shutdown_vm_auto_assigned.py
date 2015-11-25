@@ -14,7 +14,7 @@ class tc_ID326610_VDSM_validate_compliance_after_pause_shutdown_vm_auto_assigned
             orig_host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
             dest_host_ip = get_exported_param("REMOTE_IP_2")
             dest_host_name = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-            dest_host_uuid = self.vdsm_get_host_uuid(dest_host_name, rhevm_ip)
+            dest_host_uuid = self.get_host_uuid_on_rhevm(dest_host_name, rhevm_ip)
 
             test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
