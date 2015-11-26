@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID155206_RHEVM_check_uuid_after_migrate_vm(VDSMBase):
+class tc_ID155201_RHEVM_check_uuid_after_migrate_vm_restart_vdsm(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -21,7 +21,10 @@ class tc_ID155206_RHEVM_check_uuid_after_migrate_vm(VDSMBase):
             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(orig_host_uuid, guestuuid, uuidexists=True)
  
-            # (2) migrate guest from host1 to host2
+              # (2) Restart vdsmd service 
+            self.vw_restart_vdsm_new()
+
+            # (3) migrate guest from host1 to host2
             self.rhevm_migrate_vm(guest_name, dest_host_name , dest_host_uuid, rhevm_ip)
  
             # check if the uuid is correctly monitored by virt-who in host1 and host2.
