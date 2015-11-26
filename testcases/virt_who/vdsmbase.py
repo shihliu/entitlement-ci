@@ -588,8 +588,9 @@ class VDSMBase(VIRTWHOBase):
                 if ret == 0:
                     logger.info("Succeeded to list vms")
                     status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, targetmachine_ip)
-                    if status.find("suspended") >= 0 and status.find("saving_state") < 0:
-                        logger.info("Succeeded to stop vm %s in rhevm" % rhevm_vm_name)
+#                     if status.find("suspended") >= 0 and status.find("saving_state") < 0:
+                    if "suspended" in status :
+                        logger.info("Succeeded to suspended vm %s in rhevm" % rhevm_vm_name)
                         break
                     else :
                         logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
@@ -767,20 +768,20 @@ class VDSMBase(VIRTWHOBase):
                 if uuidexists:
                     khrightloc = log_uuid_list.find("[", hostloc, -1)
                     khleftloc = log_uuid_list.find("]", hostloc, -1)
-                    ulst = log_uuid_list[khrightloc:khleftloc-1]
+                    ulst = log_uuid_list[khrightloc:khleftloc - 1]
                     if guestuuid == "" and len(ulst) == 0:
                         logger.info("Succeeded to get none uuid list")
                     else:
                         if guestuuid in ulst:
-                            logger.info("Succeeded to check guestuuid %s in host %s" % (guestuuid,hostuuid))
+                            logger.info("Succeeded to check guestuuid %s in host %s" % (guestuuid, hostuuid))
                         else:
-                            raise FailException("Failed to check guestuuid %s in host %s" % (guestuuid,hostuuid))
+                            raise FailException("Failed to check guestuuid %s in host %s" % (guestuuid, hostuuid))
                 else:
                     khrightloc = log_uuid_list.find("[", hostloc, -1)
                     khleftloc = log_uuid_list.find("]", hostloc, -1)
-                    ulst = log_uuid_list[khrightloc:khleftloc+1]
+                    ulst = log_uuid_list[khrightloc:khleftloc + 1]
                     if guestuuid not in ulst:
-                        logger.info("Succeeded to check guestuuid %s not in host %s" % (guestuuid,hostuuid))
+                        logger.info("Succeeded to check guestuuid %s not in host %s" % (guestuuid, hostuuid))
                     else:
                         raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
             else:
@@ -788,7 +789,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - log file has problem, please check it !")
 
-    def hypervisor_check_attr(self,hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+    def hypervisor_check_attr(self, hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
         if self.get_os_serials(targetmachine_ip) == "7":
@@ -821,11 +822,11 @@ class VDSMBase(VIRTWHOBase):
             hostloc = log_uuid_list.find(hostuuid)
             khrightloc = log_uuid_list.find("[", hostloc, -1)
             khleftloc = log_uuid_list.find("]", hostloc, -1)
-            ulst = log_uuid_list[khrightloc:khleftloc+1]
-            logger.info("ulst is %s" %ulst)
+            ulst = log_uuid_list[khrightloc:khleftloc + 1]
+            logger.info("ulst is %s" % ulst)
 #             loglist = eval(ulst[:ulst.rfind("]\n") + 1].strip())
             loglist = eval(ulst[:ulst.rfind("]") + 1].strip())
-            logger.info("loglist is %s" %loglist)
+            logger.info("loglist is %s" % loglist)
 #             loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
             for item in loglist:
                 if item['guestId'] == guestuuid:
@@ -858,7 +859,7 @@ class VDSMBase(VIRTWHOBase):
         # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose)
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
-#        #configure env on rhevm(add two host,storage,guest)
+        # configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)

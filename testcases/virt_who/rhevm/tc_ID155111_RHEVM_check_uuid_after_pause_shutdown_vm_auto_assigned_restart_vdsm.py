@@ -21,14 +21,14 @@ class tc_ID155111_RHEVM_check_uuid_after_pause_shutdown_vm_auto_assigned_restart
             self.vw_restart_virtwho_new()
             self.vw_restart_vdsm_new()
             time.sleep(60)
-            # Check guest's uuid and guest's attribute 
+#             # Check guest's uuid and guest's attribute 
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
             self.hypervisor_check_attr(hostuuid, guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
-#             # (2) pause guest    
+            # (2) pause guest    
             self.rhevm_pause_vm(guest_name, rhevm_ip)
-# #             # check if the uuid is correctly monitored by virt-who.
+            # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False)
-#             # (3) Auto assigned vm to host2
+            # (3) Auto assigned vm to host2
             self.rhevm_mantenance_host(orig_host_name, rhevm_ip)
 #             # (4) resume guest    
             self.rhevm_start_vm(guest_name, rhevm_ip)
@@ -36,12 +36,12 @@ class tc_ID155111_RHEVM_check_uuid_after_pause_shutdown_vm_auto_assigned_restart
 #             # check if the uuid is correctly monitored by virt-who on host1 and host2
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False)
             self.hypervisor_check_uuid(auto_hostuuid, guestuuid, uuidexists=True)
-            self.hypervisor_check_attr(guest_name, 1, 'rhevm', 'qemu', 1, guestuuid, targetmachine_ip=dest_host_ip)
+            self.hypervisor_check_attr(auto_hostuuid, guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
 #             # (5) stop guest    
             self.rhevm_stop_vm(guest_name, rhevm_ip)
 #             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False)
-            self.hypervisor_check_uuid(auto_hostuuid, guestuuid, uuidexists=False, targetmachine_ip=dest_host_ip)
+            self.hypervisor_check_uuid(auto_hostuuid, guestuuid, uuidexists=False)
 
             self.assert_(True, case_name)
         except Exception, e:

@@ -23,16 +23,17 @@ class tc_ID155146_RHEVM_validate_compliance_when_unregister_host(VDSMBase):
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            # subscribe the host to the physical pool which can generate bonus pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku))
+            # subscribe the hypervsior to the physical pool which can generate bonus pool
+            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku),SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             self.vw_stop_virtwho_new()
-            # unregister hosts
+            # unregister hosts and remove hypervisor in SAM/Satellite
+            self.sub_unregister()
             self.server_remove_system(hostuuid, SERVER_IP)
-            time.sleep(10)
+            time.sleep(20)
             self.sub_refresh(guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)

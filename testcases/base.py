@@ -326,7 +326,9 @@ class Base(unittest.TestCase):
     def st_attach(self, uuid, pool_id):
         location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
-        return self.post_json(location, json_data)["results"][1]["id"]
+        consumer_pool_id = self.post_json(location, json_data)["results"][0]["id"]
+        logger.info ("attch reture is %s" %consumer_pool_id)
+        return consumer_pool_id
 
     def st_unattach(self, uuid, consumed_pool_id):
         location = "systems/%s/subscriptions/%s" % (uuid, consumed_pool_id)
@@ -487,8 +489,9 @@ class Base(unittest.TestCase):
 #         self.st_orgs_list()
 #         self.st_org_delete(org)
 #         self.st_orgs_list()
-#         consumed_pool_id = self.st_attach("43e33262-57ff-4b13-ba94-1e5459cba2a2", "2c90ec93507e9bf901507ea2b2e601a7")
-#         self.st_unattach("43e33262-57ff-4b13-ba94-1e5459cba2a2", consumed_pool_id)
+#         consumed_pool_id = self.st_attach("4456e572-2edb-43b9-abc8-12d4f96b8e78", "8a9330aa5138cbb201513d2c0aa208b4")
+#         logger.info("cosumed_pool_id is %s" %consumed_pool_id)
+#         self.st_unattach("4456e572-2edb-43b9-abc8-12d4f96b8e78", "8a9330aa5138cbb2015142db3ccc047e")
 #         id = self.st_name_to_id("aee4ff00-8c33-11e2-994a-6c3be51d959a")
 #         logger.info(id)
 
