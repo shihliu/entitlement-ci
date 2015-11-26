@@ -45,6 +45,7 @@ class rhsm_gui_setup(RHSMGuiBase):
                 logger.info("Succeeded to setup system for gui testing")
             else:
                 raise FailException("Test Failed - Failed to setup system for gui testing")
+        self.cm_install_basetool()
         install_ldtp_cmd = "git clone git://anongit.freedesktop.org/git/ldtp/ldtp2.git; cd ldtp2/; python setup.py build; python setup.py install"
         ret, output = self.runcmd(install_ldtp_cmd, "install ldtp", showlogger=False)
         if ret == 0:
