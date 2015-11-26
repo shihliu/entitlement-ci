@@ -23,6 +23,14 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to install wget in %s." % self.get_hg_info(targetmachine_ip))
 
+    def cm_install_basetool(self, targetmachine_ip=""):
+        cmd = "yum install -y wget git"
+        ret, output = self.runcmd(cmd, "install base tool to support automation", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install base tool to support automation in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install base tool to support automation in %s." % self.get_hg_info(targetmachine_ip))
+
     # ========================================================
     #       Basic Functions
     # ========================================================
