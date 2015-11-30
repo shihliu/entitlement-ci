@@ -17,7 +17,7 @@ class tc_ID155149_RHEVM_validate_compliance_after_pause_shutdown(VDSMBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
@@ -25,7 +25,7 @@ class tc_ID155149_RHEVM_validate_compliance_after_pause_shutdown(VDSMBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
             # subscribe the hypervsior to the physical pool which can generate bonus pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku),SERVER_IP)
+            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
