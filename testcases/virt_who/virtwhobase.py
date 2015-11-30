@@ -94,66 +94,6 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
 
-#     # ==============Satellite CLI=======================
-#     # List system
-#     def st_system_list(self):
-#         server_ip = get_exported_param("SERVER_IP")
-#         username = self.get_vw_cons("username")
-#         password = self.get_vw_cons("password")
-#         api_url = "https://%s/katello/api/v2/systems" % server_ip
-#         res = requests.get(api_url, auth=(username, password), verify=False)
-#         return res.json()
-# 
-#     # List pool list
-#     def st_pool_list(self, uuid):
-#         server_ip = get_exported_param("SERVER_IP")
-#         username = self.get_vw_cons("username")
-#         password = self.get_vw_cons("password")
-#         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions/available" % (server_ip, uuid)
-#         res = requests.get(api_url, auth=(username, password), verify=False)
-#         return res.json()
-# 
-#     # Attach pool_id 
-#     def st_attach(self, uuid, pool_id):
-#         server_ip = get_exported_param("SERVER_IP")
-#         username = self.get_vw_cons("username")
-#         password = self.get_vw_cons("password")
-#         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-#         post_headers = {'content-type': 'application/json'}
-#         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
-#         res = requests.post(
-#               api_url,
-#               data=json_data,
-#               auth=(username, password),
-#               verify=False,
-#               headers=post_headers)
-#         return res.json()
-# 
-#     # List consumed 
-#     def st_consumed_list(self, uuid):
-#         server_ip = get_exported_param("SERVER_IP")
-#         username = self.get_vw_cons("username")
-#         password = self.get_vw_cons("password")
-#         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-#         res = requests.get(api_url, auth=(username, password), verify=False)
-#         return res.json()
-# 
-#     # Unattach poo_id
-#     def st_unattach(self, uuid, pool_id):
-#         server_ip = get_exported_param("SERVER_IP")
-#         username = self.get_vw_cons("username")
-#         password = self.get_vw_cons("password")
-#         api_url = "https://%s/katello/api/v2/systems/%s/subscriptions" % (server_ip, uuid)
-#         post_headers = {'content-type': 'application/json'}
-#         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"subscription_id":pool_id}]})
-#         res = requests.put(
-#               api_url,
-#               data=json_data,
-#               auth=(username, password),
-#               verify=False,
-#               headers=post_headers,)
-#         return res.json()
-
     # only return CLI for virt-who esx mode, don't run cli 
     def virtwho_cli(self, mode):
         esx_owner = self.get_vw_cons("VIRTWHO_ESX_OWNER")
@@ -672,15 +612,20 @@ EOF''' % (file_name, file_data)
             consumed_lines = self.__parse_avail_pools(output)
             if consumed_lines != None:
                 for line in range(0, len(consumed_lines)):
-                    if key is not None and value is not None: 
+                    if key is not None and value is not None:
                         if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
-                            logger.info("Succeeded to list the right consumed subscription %s." % self.get_hg_info(targetmachine_ip))
-                            return True
+                            logger.info("Succeeded to list the right consumed subscription, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
+                        else:
+                            raise FailException("Failed to list the right consumed subscriptions, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
                     else:
                         if consumed_lines[line]["SKU"] == sku_id:
-                            return True
-            return False
-        raise FailException("Failed to list consumed subscriptions.")
+                            logger.info("Succeeded to list the right consumed subscription %s" % self.get_hg_info(targetmachine_ip))
+                        else:
+                            raise FailException("Failed to list the right consumed subscription %s" % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("List consumed subscription: none %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to list consumed subscriptions.")
 
     # check "subscription-manager list --installed" key & value 
     def check_installed_status(self, key, value, targetmachine_ip=""):
