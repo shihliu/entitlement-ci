@@ -62,10 +62,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
             # 9).check the Status of installed product
             installed_status_key = "Status"
             installed_status_value = "Subscribed"
-            if self.check_installed_status(installed_status_key, installed_status_value, guestip):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status.")
+            self.check_installed_status(installed_status_key, installed_status_value, guestip)
 
             self.assert_(True, case_name)
 

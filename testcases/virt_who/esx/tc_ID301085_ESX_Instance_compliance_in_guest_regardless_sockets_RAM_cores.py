@@ -37,10 +37,7 @@ class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(
             self.sub_limited_subscribetopool(pool_id, "1", guestip)
 
             #4).check installed product status on guest, the Status should be Subscribed
-            if self.check_installed_status("Status", "Subscribed", guestip):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status.")
+            self.check_installed_status("Status", "Subscribed", guestip)
 
             #5).check consumed subscription with Status Details: 'Subscription is current'
             self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip)

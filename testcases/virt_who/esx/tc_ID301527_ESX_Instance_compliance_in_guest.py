@@ -33,10 +33,7 @@ class tc_ID301527_ESX_Instance_compliance_in_guest(ESXBase):
             self.sub_limited_subscribetopool(pool_id, "1", guestip)
 
             # 3).check installed product status on guest, the Status should be Subscribed
-            if self.check_installed_status("Status", "Subscribed", guestip):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status.")
+            self.check_installed_status("Status", "Subscribed", guestip)
 
             # 4).check consumed subscription with Status Details: 'Subscription is current'
             self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip)

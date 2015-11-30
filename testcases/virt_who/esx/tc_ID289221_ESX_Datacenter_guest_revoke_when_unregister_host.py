@@ -70,10 +70,7 @@ class tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host(ESXBase):
             # 11).check the Status of installed product, should be "Not Subscribed"
             installed_status_key = "Status"
             installed_status_value = "Not Subscribed"
-            if self.check_installed_status(installed_status_key, installed_status_value, guestip):
-                logger.info("Succeeded to check the installed Status: %s" % installed_status_value)
-            else:
-                raise FailException("Failed to check the installed Status.")
+            self.check_installed_status(installed_status_key, installed_status_value, guestip)
 
             self.assert_(True, case_name)
 
