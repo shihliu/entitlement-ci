@@ -615,13 +615,13 @@ EOF''' % (file_name, file_data)
                     if key is not None and value is not None:
                         if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value:
                             logger.info("Succeeded to list the right consumed subscription, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
-                        else:
-                            raise FailException("Failed to list the right consumed subscriptions, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
+                            return
                     else:
                         if consumed_lines[line]["SKU"] == sku_id:
                             logger.info("Succeeded to list the right consumed subscription %s" % self.get_hg_info(targetmachine_ip))
-                        else:
-                            raise FailException("Failed to list the right consumed subscription %s" % self.get_hg_info(targetmachine_ip))
+                            return
+                # no proper consumed subscription found
+                raise FailException("Failed to list the right consumed subscriptions, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
             else:
                 raise FailException("List consumed subscription: none %s" % self.get_hg_info(targetmachine_ip))
         else:
@@ -637,8 +637,12 @@ EOF''' % (file_name, file_data)
             if installed_lines != None:
                 for line in range(0, len(installed_lines)):
                     if installed_lines[line][key] == value:
-                        return True
-            return False
+                        logger.info("Succeeded to check installed status: %s %s" % (value, self.get_hg_info(targetmachine_ip)))
+                        return
+                # no proper installed status found
+                raise FailException("Failed to check installed status %s %s" % (value, self.get_hg_info(targetmachine_ip)))
+            else:
+                raise FailException("List installed info: none %s" % self.get_hg_info(targetmachine_ip))
         raise FailException("Failed to list installed info.")
 
     # check ^Certificate: or ^Content: in cert file
