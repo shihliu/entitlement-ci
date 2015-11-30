@@ -17,32 +17,29 @@ class tc_ID301527_ESX_Instance_compliance_in_guest(ESXBase):
             sku_name = self.get_vw_cons("instancebase_name")
             sku_id = self.get_vw_cons("instancebase_sku_id")
 
-            #0).check the guest is power off or not, if power_on, stop it
+            # 0).check the guest is power off or not, if power_on, stop it
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
 
-            #1).register guest to SAM/Candlepin server with same username and password
+            # 1).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
-            #2).subscribe instance pool by --quantity=1 on guest  
+            # 2).subscribe instance pool by --quantity=1 on guest  
             pool_id = self.get_poolid_by_SKU(sku_id, guestip)
             self.sub_limited_subscribetopool(pool_id, "1", guestip)
 
-            #3).check installed product status on guest, the Status should be Subscribed
+            # 3).check installed product status on guest, the Status should be Subscribed
             if self.check_installed_status("Status", "Subscribed", guestip):
                 logger.info("Succeeded to check the installed Status: Subscribed")
             else:
                 raise FailException("Failed to check the installed Status.")
 
-            #4).check consumed subscription with Status Details: 'Subscription is current'
-            if self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip):
-                logger.info("Succeeded to check the consumed Status Details: Subscription is current")
-            else:
-                raise FailException("Failed to check the consumed Status Details.")
+            # 4).check consumed subscription with Status Details: 'Subscription is current'
+            self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip)
 
             self.assert_(True, case_name)
 

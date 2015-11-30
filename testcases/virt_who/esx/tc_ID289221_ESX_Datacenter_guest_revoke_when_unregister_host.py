@@ -19,62 +19,59 @@ class tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host(ESXBase):
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #0).check the guest is power off or not, if power_on, stop it
+            # 0).check the guest is power off or not, if power_on, stop it
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
 
-            #1).check DataCenter is exist on host/hpyervisor
+            # 1).check DataCenter is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
-            if host_pool_id is not None or host_pool_id !="":
-                 logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
+            if host_pool_id is not None or host_pool_id != "":
+                logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
                 raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
-            #2).register guest to SAM/Candlepin server with same username and password
+            # 2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
-            #3).subscribe the DataCenter subscription pool on host
+            # 3).subscribe the DataCenter subscription pool on host
             self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
 
-            #4).check the bonus pool is available and quantity is unlimited
+            # 4).check the bonus pool is available and quantity is unlimited
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool.")
             
-            #5).subscribe to the bonus pool. 
+            # 5).subscribe to the bonus pool. 
             self.sub_subscribe_sku(bonus_sku_id, guestip)
 
-            #6). list consumed subscriptions on the guest, should be listed
+            # 6). list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(product_name, guestip)
 
-            #7). unregister host from SAM server.
+            # 7). unregister host from SAM server.
             self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
 
-            #8). refresh on the guest 
+            # 8). refresh on the guest 
             self.sub_refresh(guestip)
 
-            #9). check bonus pool is revoked on guest
+            # 9). check bonus pool is revoked on guest
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check, the bonus pool is revoked.")
             else:
                 raise FailException("Failed to check, the bonus pool is not revoked.")
 
-            #10). list consumed subscriptions on the guest, should be revoked
-            if self.check_consumed_status(bonus_sku_id, guestip) is False:
-                logger.info("Succeeded to check the consumed pool, no consumed pool displayed for %s " % bonus_sku_id)
-            else:
-                raise FailException("Failed to check the consumed pool, should be revoked.")
+            # 10). list consumed subscriptions on the guest, should be revoked
+            self.sub_listconsumed(product_name, guestip, productexists=False)
 
-            #11).check the Status of installed product, should be "Not Subscribed"
+            # 11).check the Status of installed product, should be "Not Subscribed"
             installed_status_key = "Status"
             installed_status_value = "Not Subscribed"
             if self.check_installed_status(installed_status_key, installed_status_value, guestip):
-                logger.info("Succeeded to check the installed Status: %s" %installed_status_value)
+                logger.info("Succeeded to check the installed Status: %s" % installed_status_value)
             else:
                 raise FailException("Failed to check the installed Status.")
 

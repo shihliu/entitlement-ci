@@ -43,10 +43,7 @@ class tc_ID301085_ESX_Instance_compliance_in_guest_regardless_sockets_RAM_cores(
                 raise FailException("Failed to check the installed Status.")
 
             #5).check consumed subscription with Status Details: 'Subscription is current'
-            if self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip):
-                logger.info("Succeeded to check the consumed Status Details: Subscription is current")
-            else:
-                raise FailException("Failed to check the consumed Status Details.")
+            self.check_consumed_status(sku_id, "StatusDetails", "Subscription is current", guestip)
 
             self.assert_(True, case_name)
 

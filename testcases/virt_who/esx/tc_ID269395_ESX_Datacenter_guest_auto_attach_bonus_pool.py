@@ -19,42 +19,39 @@ class tc_ID269395_ESX_Datacenter_guest_auto_attach_bonus_pool(ESXBase):
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #0).check the guest is power off or not on esxi host, if power on, stop it 
+            # 0).check the guest is power off or not on esxi host, if power on, stop it 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            #1).check DataCenter is exist on host/hpyervisor
+            # 1).check DataCenter is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
-            if host_pool_id is not None or host_pool_id !="":
-                 logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
+            if host_pool_id is not None or host_pool_id != "":
+                logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
                 raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
-            #2).register guest to SAM/Candlepin server with same username and password
+            # 2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
-            #3).subscribe the DataCenter subscription pool on host
+            # 3).subscribe the DataCenter subscription pool on host
             self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
 
-            #6).check the virtual pools listed on guest.
+            # 6).check the virtual pools listed on guest.
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip):
                 logger.info("Succeeded to check the virtual pool exist.")
             else:
                 raise FailException("Failed to check the virtual pool exist.")
 
-            #7).subscribe to the pool by --auto on guest 
+            # 7).subscribe to the pool by --auto on guest 
             self.sub_auto_subscribe(guestip)
 
-            #8).check the consumed product on guest
-            if self.check_consumed_status(bonus_sku_id, "SubscriptionName", product_name, guestip):
-                logger.info("Succeeded to check the consumed: %s " % product_name)
-            else:
-                raise FailException("Failed to check the consumed.")
+            # 8).check the consumed product on guest
+            self.check_consumed_status(bonus_sku_id, "SubscriptionName", product_name, guestip)
 
             self.assert_(True, case_name)
 
