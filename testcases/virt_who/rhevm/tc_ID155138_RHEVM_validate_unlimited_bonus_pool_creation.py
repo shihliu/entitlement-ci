@@ -17,14 +17,14 @@ class tc_ID155138_RHEVM_validate_unlimited_bonus_pool_creation(VDSMBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip,hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # subscribe the hypervsior to the physical pool which can generate bonus pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku),SERVER_IP)
+            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
 
             # list available pools of guest, check related bonus pool generated.
             new_available_poollist = self.sub_listavailpools(test_sku, guestip)

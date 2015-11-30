@@ -18,7 +18,7 @@ class tc_ID214402_RHEVM_check_virtwho_o(VDSMBase):
 
             self.vw_stop_virtwho_new()
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s -o -d" %(VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV, VIRTWHO_RHEVM_SERVER, VIRTWHO_RHEVM_USERNAME, VIRTWHO_RHEVM_PASSWORD)
+            cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s -o -d" % (VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV, VIRTWHO_RHEVM_SERVER, VIRTWHO_RHEVM_USERNAME, VIRTWHO_RHEVM_PASSWORD)
             ret, output = self.runcmd(cmd, "run virt-who -o -d command in rhevm mode")
             if ret == 0 :
                 if ("Sending domain info" in output or "Sending list of uuids" in output or " Sending update in hosts-to-guests mapping" in output) and guestuuid in output and "ERROR" not in output:

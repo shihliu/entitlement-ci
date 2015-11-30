@@ -25,7 +25,7 @@ class tc_ID269395_RHEVM_guest_auto_attach_bonus_pool(VDSMBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # subscribe the hypervisor to the physical pool which can generate bonus pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku),SERVER_IP)
+            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
 
             # guest auto subscribe bonus pool
             cmd = "subscription-manager subscribe --auto"
