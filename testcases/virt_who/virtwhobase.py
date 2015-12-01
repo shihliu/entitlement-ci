@@ -650,16 +650,18 @@ EOF''' % (file_name, file_data)
         cmd = "rct cat-cert /etc/pki/entitlement/*[^-key].pem | grep -A5 \"%s\"" % keywords
         ret, output = self.runcmd(cmd, "Check %s exist in cert file in guest" % keywords, targetmachine_ip)
         if ret == 0:
-            return True
-        return False
+            logger.info("Succeeded to check content sets exist %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to check content sets exist %s" % self.get_hg_info(targetmachine_ip))
 
     # check ^Repo ID by subscription-manager repos --list 
     def check_yum_repo(self, keywords, targetmachine_ip=""):
         cmd = "subscription-manager repos --list | grep -A4 \"^Repo ID\""
         ret, output = self.runcmd(cmd, "Check repositories available in guest", targetmachine_ip)
         if ret == 0 and "This system has no repositories available through subscriptions." not in output:
-            return True
-        return False
+            logger.info("Succeeded to check repositories available %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to check repositories available %s" % self.get_hg_info(targetmachine_ip))
 
     # get sku attribute value 
     def get_SKU_attribute(self, sku_id, attribute_key, targetmachine_ip=""):
