@@ -119,6 +119,10 @@
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
+          - project: 'rhevm-install-2-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
 
 - job-group:
     name: satellite-install-provision-runtest
