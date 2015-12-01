@@ -229,8 +229,8 @@ class Base(unittest.TestCase):
         ''' check system exist in test server '''
         if self.test_server == "SATELLITE":
             uuid = self.st_name_to_id(system_uuid)
-            output = self.st_system_list()
-            if uuid in output:
+            system_id_list = self.st_system_id_list()
+            if uuid in system_id_list:
                 logger.info("Succeeded to check system %s exist in test server" % uuid)
             else:
                 raise FailException("Failed to check system %s exist in test server" % uuid)
@@ -340,6 +340,13 @@ class Base(unittest.TestCase):
 
     def st_system_list(self):
         return self.get_json("systems/")
+
+    def st_system_id_list(self):
+        system_id_list = []
+        all_system = self.st_system_list()["results"]
+        for system in all_system:
+            system_id_list.append(system["id"])
+        return system_id_list
 
     def st_system_remove(self, uuid):
         return self.delete_json("systems/%s" % uuid)
@@ -466,6 +473,9 @@ class Base(unittest.TestCase):
         self.unittest_handler = logging.StreamHandler(sys.stdout)
         self.unittest_handler.setFormatter(formatter)
         logger.addHandler(self.unittest_handler)
+        # turn off paramiko log off
+        paramiko_logger = logging.getLogger("paramiko.transport")
+        paramiko_logger.disabled = True
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
