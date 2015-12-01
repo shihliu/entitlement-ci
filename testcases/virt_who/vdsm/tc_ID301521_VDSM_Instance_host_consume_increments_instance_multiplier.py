@@ -30,18 +30,12 @@ class tc_ID301521_VDSM_Instance_host_consume_increments_instance_multiplier(VDSM
             # check consumed subscriptions' quality, should be 2 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "2"
-            if self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value):
-                logger.info("Succeeded to check the consumed quantity value is: %s" % consumed_quantity_value)
-            else:
-                raise FailException("Failed to check the consumed quantity value.")
+            self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value)
 
             # .check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"
             installed_status_value = "Partially Subscribed"
-            if self.check_installed_status(installed_status_key, installed_status_value):
-                logger.info("Succeeded to check the installed Status: Partially Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status:Partially Subscribed.")
+            self.check_installed_status(installed_status_key, installed_status_value)
 
             self.assert_(True, case_name)
         except Exception, e:
