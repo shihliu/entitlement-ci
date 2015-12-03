@@ -1,8 +1,8 @@
 from utils import *
-from testcases.virt_who.kvmbase import KVMBase
+from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID322662_restart_libvirtd_unregister_check_virtwho(KVMBase):
+class tc_ID322662_RHEVM_restart_vdsmd_unregister_check_virtwho(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -11,14 +11,14 @@ class tc_ID322662_restart_libvirtd_unregister_check_virtwho(KVMBase):
 
             # restart virtwho service
             self.vw_restart_virtwho()
-            # restart libvirtd service
-            self.vw_restart_libvirtd()
+            # restart vdsmd service
+            self.vw_restart_vdsm_new()
             # Unregister the host 
             self.sub_unregister()
             # check virt-who status
             self.vw_check_virtwho_status()
             # check libvirtd status
-            self.vw_check_libvirtd_status()
+            self.vw_check_vdsm_status()
 
             self.assert_(True, case_name)
         except Exception, e:

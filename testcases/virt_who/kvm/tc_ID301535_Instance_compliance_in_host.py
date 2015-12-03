@@ -16,7 +16,7 @@ class tc_ID301535_Instance_compliance_in_host(KVMBase):
 
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "6")
-            #disable auto attach subscription
+            # disable auto attach subscription
             self.sub_disable_auto_subscribe()
             # subscribe the registered host to 4 instance pool
             poolid = self.get_pool_by_SKU(test_sku)
@@ -28,21 +28,12 @@ class tc_ID301535_Instance_compliance_in_host(KVMBase):
             else:
                 raise FailException("Failed to check subscribe instance with 4 instance")
             # check consumed subscriptions' quality, should be 4 on host 
-            if self.check_consumed_status(test_sku, "QuantityUsed", "4"):
-                logger.info("Succeeded to check the consumed quantity value is 4")
-            else:
-                raise FailException("Failed to check the consumed quantity value is 4")
+            self.check_consumed_status(test_sku, "QuantityUsed", "4", "")
 
             # .check the Status of installed product, should be 'Partially Subscribed' status
-            if self.check_installed_status("Status", "Partially Subscribed"):
-                logger.info("Succeeded to check the installed Status: Partially Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status is Partially Subscribed.")
+            self.check_installed_status("Status", "Partially Subscribed")
 
-            if self.check_installed_status("StatusDetails", "Only supports 4 of 6 sockets."):
-                logger.info("Succeeded to check the installed Status Details: Only supports 4 of 6 sockets")
-            else:
-                raise FailException("Failed to check the installed Status Details: Only supports 4 of 6 sockets")
+            self.check_installed_status("StatusDetails", "Only supports 4 of 6 sockets.")
 
             # subscribe the registered host to 4 instance pool again
             cmd = "subscription-manager subscribe --pool=%s --quantity=2" % poolid
@@ -54,15 +45,8 @@ class tc_ID301535_Instance_compliance_in_host(KVMBase):
                 raise FailException("Failed to check subscribe with 6 instance")
 
             # .check the Status of installed product, should be 'Partially Subscribed' status
-            if self.check_installed_status("Status", "Subscribed"):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status is Subscribed.")
-
-            if self.check_installed_status("StatusDetails", ""):
-                logger.info("Succeeded to check the installed Status Details is null")
-            else:
-                raise FailException("Failed to check the installed Status Details is null")
+            self.check_installed_status("Status", "Subscribed")
+            self.check_installed_status("StatusDetails", "")
 
             self.assert_(True, case_name)
         except Exception, e:
