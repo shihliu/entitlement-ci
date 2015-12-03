@@ -23,8 +23,6 @@ class tc_ID301083_VDSM_Instance_one_instance_for_one_guest(VDSMBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
-            # Set up guest facts
-            self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
             # check the instance pool Available on guest before subscribed
             instance_quantity_before = self.get_SKU_attribute(test_sku, "Available", guestip)
             # subscribe instance pool by --quantity=1 on guest  

@@ -35,7 +35,7 @@ class tc_ID289216_VDSM_Datacenter_1_subscription_sufficient_to_guest(VDSMBase):
             # check consumed subscriptions' quality, should be 1 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "1"
-            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, guestip)
+            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, "", guestip)
 
             # .check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"
