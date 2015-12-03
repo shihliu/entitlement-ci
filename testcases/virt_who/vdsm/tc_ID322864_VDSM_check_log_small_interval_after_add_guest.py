@@ -15,7 +15,7 @@ class tc_ID322864_VDSM_check_log_small_interval_after_add_guest(VDSMBase):
             rhsmlogpath = '/var/log/rhsm/rhsm.log'
 
             # config the virt-who config file, set VIRTWHO_INTERVAL = 2
-            self.update_rhevm_vdsm_configure(2)
+            self.update_rhel_vdsm_configure(2)
             # .restart virtwho service
             self.vw_restart_virtwho_new()
             # start a guest    
@@ -38,7 +38,7 @@ class tc_ID322864_VDSM_check_log_small_interval_after_add_guest(VDSMBase):
             #stop guest
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # set interval to default : 5
-            self.update_rhevm_vdsm_configure(5)
+            self.update_rhel_vdsm_configure(5)
             # .restart virtwho service
             self.vw_restart_virtwho_new()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

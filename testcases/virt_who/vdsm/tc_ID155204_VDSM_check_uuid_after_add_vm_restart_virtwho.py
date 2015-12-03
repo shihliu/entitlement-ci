@@ -16,7 +16,7 @@ class tc_ID155204_VDSM_check_uuid_after_add_vm_restart_virtwho(VDSMBase):
             # check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=False)
             # (2) Restart libvirtd service
-            self.update_rhevm_vdsm_configure(2)
+            self.update_rhel_vdsm_configure(2)
             # (3) start guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # check if the uuid is correctly monitored by virt-who.
