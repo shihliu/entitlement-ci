@@ -40,7 +40,7 @@ class tc_ID322862_VDSM_validate_unregister_check_output(VDSMBase):
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
             # set interval to default : 5
-            self.update_rhevm_vdsm_configure(5)
+            self.update_rhel_vdsm_configure(5)
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 if __name__ == "__main__":
