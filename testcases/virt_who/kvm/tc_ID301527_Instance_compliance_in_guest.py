@@ -25,15 +25,9 @@ class tc_ID301527_Instance_compliance_in_guest(KVMBase):
             pool_id = self.get_poolid_by_SKU(test_sku, guestip)
             self.sub_limited_subscribetopool(pool_id, "1", guestip)
             # check installed product status on guest, the Status should be Subscribed
-            if self.check_installed_status("Status", "Subscribed", guestip):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status.")
+            self.check_installed_status("Status", "Subscribed", guestip)
             # check consumed subscription with Status Details: 'Subscription is current'
-            if self.check_consumed_status(test_sku, "StatusDetails", "", guestip) or self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", guestip):
-                logger.info("Succeeded to check the consumed Status Details: Subscription is current")
-            else:
-                raise FailException("Failed to check the consumed Status Details.")
+            self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", "",  guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

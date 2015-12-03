@@ -32,7 +32,7 @@ class tc_ID301085_VDSM_Instance_compliance_in_guest_regardless_sockets_RAM_cores
             # check consumed subscriptions' quality, should be 1 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "1"
-            self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, guestip)
+            self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, "", guestip)
 
             # .check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"

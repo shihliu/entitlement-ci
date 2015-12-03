@@ -26,22 +26,10 @@ class tc_ID301665_Instance_host_autosubscribe_instance(KVMBase):
             else:
                 raise FailException("Failed to check subscribe instance with 4 instance")
             # check consumed subscriptions' quality, should be 4 on host 
-            if self.check_consumed_status(test_sku, "QuantityUsed", "4"):
-                logger.info("Succeeded to check the consumed quantity value is 4")
-            else:
-                raise FailException("Failed to check the consumed quantity value is 4")
-
+            self.check_consumed_status(test_sku, "QuantityUsed", "4", "")
             # .check the Status of installed product, should be 'Partially Subscribed' status
-            if self.check_installed_status("Status", "Partially Subscribed"):
-                logger.info("Succeeded to check the installed Status: Partially Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status is Partially Subscribed.")
-
-            if self.check_installed_status("StatusDetails", "Only supports 4 of 8 sockets."):
-                logger.info("Succeeded to check the installed Status Details: Only supports 4 of 8 sockets")
-            else:
-                raise FailException("Failed to check the installed Status Details: Only supports 4 of 8 sockets")
-
+            self.check_installed_status("Status", "Partially Subscribed")
+            self.check_installed_status("StatusDetails", "Only supports 4 of 8 sockets.")
             # subscribe the registered host to 4 instance pool again
             cmd = "subscription-manager subscribe --auto"
             ret, output = self.runcmd(cmd, "Check host auto subscribe instance base subscription")
@@ -52,15 +40,8 @@ class tc_ID301665_Instance_host_autosubscribe_instance(KVMBase):
                 raise FailException("Failed to auto subscribe instance base subscription")
 
             # .check the Status of installed product, should be 'Partially Subscribed' status
-            if self.check_installed_status("Status", "Subscribed"):
-                logger.info("Succeeded to check the installed Status: Subscribed")
-            else:
-                raise FailException("Failed to check the installed Status is Subscribed.")
-
-            if self.check_installed_status("StatusDetails", ""):
-                logger.info("Succeeded to check the installed Status Details is null")
-            else:
-                raise FailException("Failed to check the installed Status Details is null")
+            self.check_installed_status("Status", "Subscribed")
+            self.check_installed_status("StatusDetails", "")
 
             self.assert_(True, case_name)
         except Exception, e:

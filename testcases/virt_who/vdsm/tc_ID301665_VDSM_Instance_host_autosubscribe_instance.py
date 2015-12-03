@@ -26,7 +26,7 @@ class tc_ID301665_VDSM_Instance_host_autosubscribe_instance(VDSMBase):
             else:
                 raise FailException("Failed to check subscribe instance with 4 instance")
             # check consumed subscriptions' quality, should be 4 on host 
-            self.check_consumed_status(test_sku, "QuantityUsed", "4")
+            self.check_consumed_status(test_sku, "QuantityUsed", "4","")
             # .check the Status of installed product, should be 'Partially Subscribed' status
             self.check_installed_status("Status", "Partially Subscribed")
             self.check_installed_status("StatusDetails", "Only supports 4 of 8 sockets.")
