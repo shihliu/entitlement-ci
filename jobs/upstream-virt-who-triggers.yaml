@@ -33,7 +33,7 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/GITHUB_URL.txt
             fail-on-missing: true
-      - default-upstream-publishers
+      - default-upstream-trigger-publishers
 
 - job-group:
     name: upstream-virt-who-triggers
