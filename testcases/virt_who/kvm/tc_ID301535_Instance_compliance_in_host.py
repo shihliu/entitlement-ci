@@ -28,7 +28,7 @@ class tc_ID301535_Instance_compliance_in_host(KVMBase):
             else:
                 raise FailException("Failed to check subscribe instance with 4 instance")
             # check consumed subscriptions' quality, should be 4 on host 
-            self.check_consumed_status(test_sku, "QuantityUsed", "4", "")
+            self.check_consumed_status(test_sku, "QuantityUsed", "4")
 
             # .check the Status of installed product, should be 'Partially Subscribed' status
             self.check_installed_status("Status", "Partially Subscribed")

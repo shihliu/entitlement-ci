@@ -604,7 +604,7 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to list consumed subscriptions.")
 
     # check "subscription-manager list --consumed" key & value 
-    def check_consumed_status(self, sku_id, key="", value="", value2="", targetmachine_ip=""):
+    def check_consumed_status(self, sku_id, key="", value="", targetmachine_ip=""):
         ''' check consumed entitlements status details '''
         cmd = "subscription-manager list --consumed"
         ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
@@ -612,12 +612,9 @@ EOF''' % (file_name, file_data)
             consumed_lines = self.__parse_avail_pools(output)
             if consumed_lines != None:
                 for line in range(0, len(consumed_lines)):
-                    if key is not None and (value is not None or value2 is not None):
+                    if key is not None and value is not None and key != "" and value != "":
                         if consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value :
                             logger.info("Succeeded to list the right consumed subscription, %s=%s %s." % (key, value, self.get_hg_info(targetmachine_ip)))
-                            return
-                        elif consumed_lines[line]["SKU"] == sku_id and consumed_lines[line][key] == value2:
-                            logger.info("Succeeded to list the right consumed subscription, %s=%s %s." % (key, value2, self.get_hg_info(targetmachine_ip)))
                             return
                     else:
                         if consumed_lines[line]["SKU"] == sku_id:

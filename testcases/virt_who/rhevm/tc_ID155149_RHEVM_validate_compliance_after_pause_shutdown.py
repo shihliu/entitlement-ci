@@ -35,13 +35,13 @@ class tc_ID155149_RHEVM_validate_compliance_after_pause_shutdown(VDSMBase):
             # (2)resume a guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # Check consumed subscriptions on guest
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, "", guestip)
+            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
             # (3)shutdown a guest
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # (4)start a guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # Check consumed subscriptions on guest
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, "", guestip)
+            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
