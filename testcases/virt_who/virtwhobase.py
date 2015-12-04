@@ -210,8 +210,8 @@ EOF''' % (file_name, file_data)
     def run_virt_who_password(self, input_password, timeout=None):
         import paramiko
         remote_ip = get_exported_param("REMOTE_IP")
-        username = get_exported_param("REMOTE_USER")
-        password = get_exported_param("REMOTE_PASSWD")
+        username = "root"
+        password = "red2015"
         virt_who_password_cmd = "python /usr/share/virt-who/virtwhopassword.py" 
         logger.info("run command %s in %s" % (virt_who_password_cmd, remote_ip))
         
@@ -928,7 +928,7 @@ EOF''' % (file_name, file_data)
             cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
             ret, output = self.runcmd(cmd, "calculate virt-who thread", targetmachine_ip)
             if ret == 0:
-                logger.info("Succeeded to calculate virt-who thread. virt-who thread is %s" %output)
+                logger.info("Succeeded to calculate virt-who thread. virt-who thread is %s" % output)
                 return output
             else:
                 raise FailException("Test Failed - Failed to calculate virt-who thread")
