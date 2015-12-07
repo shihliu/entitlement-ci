@@ -3,7 +3,6 @@ from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
 class ESXBase(VIRTWHOBase):
-
     def esx_setup(self):
         SERVER_IP = get_exported_param("SERVER_IP")
         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
