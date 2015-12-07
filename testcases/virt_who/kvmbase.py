@@ -435,6 +435,7 @@ class KVMBase(VIRTWHOBase):
             self.vw_restart_virtwho(slave_machine_ip)
 
     def kvm_sys_setup(self, targetmachine_ip=""):
+        self.cm_install_basetool(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
@@ -442,7 +443,6 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.cm_install_wget(targetmachine_ip)
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"

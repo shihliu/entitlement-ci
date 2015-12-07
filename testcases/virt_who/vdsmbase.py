@@ -54,6 +54,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
     def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip=""):
+        self.cm_install_basetool(targetmachine_ip)
         # system setup for RHEL+RHEVM testing env
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
@@ -61,7 +62,6 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.cm_install_wget(targetmachine_ip)
         self.get_rhevm_repo_file(rhel_compose, targetmachine_ip)
         cmd = "yum install -y vdsm"
         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
@@ -847,6 +847,7 @@ class VDSMBase(VIRTWHOBase):
             self.SET_RESULT(1)
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
+        self.cm_install_basetool(targetmachine_ip)
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()

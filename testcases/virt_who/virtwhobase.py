@@ -15,12 +15,14 @@ class VIRTWHOBase(Base):
         ret, output = self.runcmd(cmd, "upgrade virt-who via brew", targetmachine_ip)
 
     def upstream_virtwho_install(self, targetmachine_ip=None):
+        self.cm_install_basetool(targetmachine_ip)
         # virt-who install via upstream
         github_url = get_exported_param("GITHUB_URL")
         cmd = "git clone %s; cd virt-who; make install" % github_url
         ret, output = self.runcmd(cmd, "install virt-who via upstream", targetmachine_ip)
 
-    def sys_setup(self):
+    def sys_setup(self, targetmachine_ip=None):
+        self.cm_install_basetool(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for esx testing", showlogger=False)
