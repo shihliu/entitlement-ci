@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID443910_RHEVM_check_virtwho_with_encrypted_password(VDSMBase):
+class tc_ID444448_RHEVM_check_only_define_config_working(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -31,30 +31,33 @@ class tc_ID443910_RHEVM_check_virtwho_with_encrypted_password(VDSMBase):
                 logger.info("Succeeded to disable VIRTWHO_RHEVM.")
             else:
                 raise FailException("Test Failed - Failed to disable VIRTWHO_RHEVM.")
-            #3). create decrypt encrypted password
-            encrypted_password = self.run_virt_who_password(VIRTWHO_RHEVM_PASSWORD)
-            #4). creat /etc/virt-who.d/rhevm file for rhevm mode
-            conf_data = '''[rhevm]
+            #3). creat /etc/virt-who.d/rhevm file for rhevm mode
+            conf_data = '''[rhevm-test]
 type=rhevm
 server=%s
 username=%s
-encrypted_password=%s
+password=%s
 owner=%s
-env=%s''' % (VIRTWHO_RHEVM_SERVER_2, VIRTWHO_RHEVM_USERNAME, encrypted_password, VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV)
+env=%s''' % (VIRTWHO_RHEVM_SERVER_2, VIRTWHO_RHEVM_USERNAME, VIRTWHO_RHEVM_PASSWORD, VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV)
             self.set_virtwho_d_conf(conf_file, conf_data)
-            #5). after stop virt-who, start to monitor the rhsm.log 
+            #4). after stop virt-who, start to monitor the rhsm.log 
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
             cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
             self.runcmd(cmd, "generate nohup.out file by tail -f")
-            #6). virt-who restart
+            #5). virt-who restart
             self.service_command("restart_virtwho")
             virtwho_status = self.check_virtwho_status()
             if virtwho_status == "running" or virtwho_status == "active":
                 logger.info("Succeeded to check, virt-who is running with the right encrypted_password.")
             else:
                 raise FailException("Failed to check, virt-who should become running or active with an right encrypted_password.")
-            #7).# check if the uuid is correctly monitored by virt-who on host1
-            self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
+            #6).# check only /etc/virt-who.d/XXX  has been used
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "feedback tail log for parse")
+            if guestuuid in output and 'Using configuration "env/cmdline" ("rhevm" mode)' not in output and 'Using configuration "rhevm-test" ("rhevm" mode)':
+                logger.info("Succeeded to check virt-who only run at defined modes.")
+            else:
+                raise FailException("Failed to check virt-who only run at defined modes.")
             self.assert_(True, case_name)
 
         except Exception, e:
