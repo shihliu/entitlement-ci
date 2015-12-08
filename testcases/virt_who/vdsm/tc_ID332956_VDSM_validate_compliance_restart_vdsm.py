@@ -32,11 +32,11 @@ class tc_ID332956_VDSM_validate_compliance_restart_vdsm(VDSMBase):
             self.sub_listconsumed(sku_name, guestip)
             # (1)restart virt-who and check bonus pool
             self.vw_restart_virtwho_new()
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, "", guestip)
+            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
             # (2)restart libvirtd and check bonus pool
             self.vw_restart_vdsm_new()
             # Check consumed subscriptions on guest
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, "", guestip)
+            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

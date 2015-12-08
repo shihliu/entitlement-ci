@@ -33,7 +33,7 @@ class tc_ID269395_Datacenter_guest_auto_attach_bonus_pool(KVMBase):
             else:
                 raise FailException("Failed to auto subscribe to a pool on %s." % self.get_hg_info(guestip))
             # list consumed subscriptions on guest
-            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, "", guestip)
+            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

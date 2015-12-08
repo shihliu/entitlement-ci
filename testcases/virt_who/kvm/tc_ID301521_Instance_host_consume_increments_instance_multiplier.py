@@ -29,7 +29,7 @@ class tc_ID301521_Instance_host_consume_increments_instance_multiplier(KVMBase):
             # check consumed subscriptions' quality, should be 2 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "2"
-            self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value, "")
+            self.check_consumed_status(test_sku, consumed_quantity_key, consumed_quantity_value)
 
             # .check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"

@@ -27,7 +27,7 @@ class tc_ID301527_Instance_compliance_in_guest(KVMBase):
             # check installed product status on guest, the Status should be Subscribed
             self.check_installed_status("Status", "Subscribed", guestip)
             # check consumed subscription with Status Details: 'Subscription is current'
-            self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", "",  guestip)
+            self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

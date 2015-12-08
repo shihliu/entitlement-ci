@@ -31,12 +31,12 @@ class tc_ID289216_Datacenter_1_subscription_sufficient_to_guest(KVMBase):
             gpoolid = self.get_pool_by_SKU(guest_bonus_sku, guestip)
             self.sub_limited_subscribetopool(gpoolid, "1", guestip)
 
-            #check consumed subscriptions' quality, should be 1 on guest 
+            # check consumed subscriptions' quality, should be 1 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "1"
-            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, "", guestip)
+            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, guestip)
 
-            #.check the Status of installed product, should be 'Subscribed' status
+            # .check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"
             installed_status_value = "Subscribed"
             self.check_installed_status(installed_status_key, installed_status_value, guestip)

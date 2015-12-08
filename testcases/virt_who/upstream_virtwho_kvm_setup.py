@@ -1,7 +1,7 @@
 from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 
-class brew_virtwho_kvm_setup(KVMBase):
+class upstream_virtwho_kvm_setup(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

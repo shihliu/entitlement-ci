@@ -1,14 +1,6 @@
 - job-template:
     name: 'upstream-virt-who-trigger'
     node: master
-    scm:
-        - git:
-            url: 'https://github.com/virt-who/virt-who'
-            branches:
-                - origin/master
-            basedir: virt-who
-    triggers:
-        - github:
     builders:
         - shell: |
             #!/bin/bash
@@ -41,7 +33,7 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/GITHUB_URL.txt
             fail-on-missing: true
-      - default-upstream-publishers
+      - default-upstream-trigger-publishers
 
 - job-group:
     name: upstream-virt-who-triggers

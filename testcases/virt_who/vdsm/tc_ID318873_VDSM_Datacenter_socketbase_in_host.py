@@ -21,11 +21,11 @@ class tc_ID318873_VDSM_Datacenter_socketbase_in_host(VDSMBase):
             poolid = self.get_pool_by_SKU(host_test_sku)
             self.sub_limited_subscribetopool(poolid, "1")
             # In host, check consumed subscriptions' quality is 1
-            self.check_consumed_status(host_test_sku, "StatusDetails", "Only supports 2 of 4 sockets.", "")
+            self.check_consumed_status(host_test_sku, "StatusDetails", "Only supports 2 of 4 sockets.")
             # In host,subscribe 1 datacenter pool again
             self.sub_limited_subscribetopool(poolid, "1")
             # In host, check consumed subscriptions' quality is 1
-            self.check_consumed_status(host_test_sku, "StatusDetails", "Subscription is current", "")
+            self.check_consumed_status(host_test_sku, "StatusDetails", "Subscription is current")
 
             self.assert_(True, case_name)
 
