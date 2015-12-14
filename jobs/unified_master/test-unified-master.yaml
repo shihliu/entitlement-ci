@@ -1,7 +1,7 @@
 - job-template:
     name: 'test-unified-master-provision'
     defaults: virt-who-provision
-    node: {jslavename}
+    node: {jmastername}
     builders:
         - shell: |
             #!/bin/bash
@@ -102,9 +102,10 @@
     jobs:
       - test-unified-master-provision-runtest
     jslavename: jslave-test-unified-master-slave
+    jmastername: jslave-ent-unified-master-slave
     jslave_execs: 3
-    jslaveimage: RHEL-6.6-Server-x86_64-released
-    jslaveflavor: m1.small
+    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
     jslaveteardown: True
