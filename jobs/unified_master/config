@@ -1,4 +1,4 @@
 [jenkins]
 user=sgao
-password=
+password=0bdd1e1626c4701fc0023fa87474459d
 url=https://platform-stg-jenkins.rhev-ci-vms.eng.rdu2.redhat.com
