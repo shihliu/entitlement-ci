@@ -13,8 +13,8 @@
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
                 --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
-                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
-                --jenkins_master_username=$SWARM_USER --jenkins_master_password=$SWARM_PASS
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json \
+                --jenkins_master_username=sgao --jenkins_master_password=0bdd1e1626c4701fc0023fa87474459d
                 TR_STATUS=$?
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
