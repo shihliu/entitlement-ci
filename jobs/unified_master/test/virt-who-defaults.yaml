@@ -53,25 +53,10 @@
             type: absolute
 
 - publisher:
-    name: default-trigger-publishers
-    publishers:
-          - email-ext:
-              recipients: sgao@redhat.com, shihliu@redhat.com, gxing@redhat.com, qianzhan@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
-              content-type: default
-              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
-              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
-              attach-build-log: false
-              always: true
-              send-to:
-                - requester
-                - recipients
-
-- publisher:
     name: default-virt-who-publishers
     publishers:
           - email-ext:
-              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              recipients: $DEFAULT_RECIPIENTS
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
@@ -86,7 +71,7 @@
     name: default-rhsm-publishers
     publishers:
           - email-ext:
-              recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
+              recipients: gxing@redhat.com, qianzhan@redhat.com, sgao@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
@@ -101,56 +86,11 @@
     name: default-brew-publishers
     publishers:
           - email-ext:
-              recipients: rnovacek@redhat.com, sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              recipients: rnovacek@redhat.com, sgao@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
-              attach-build-log: false
-              always: true
-              send-to:
-                - requester
-                - recipients
-
-- publisher:
-    name: default-brew-trigger-publishers
-    publishers:
-          - email-ext:
-              recipients: rnovacek@redhat.com, sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
-              content-type: default
-              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
-              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
-              attach-build-log: false
-              always: true
-              send-to:
-                - requester
-                - recipients
-
-- publisher:
-    name: default-upstream-publishers
-    publishers:
-          - email-ext:
-              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
-              content-type: default
-              subject: $DEFAULT_SUBJECT
-              body: $DEFAULT_CONTENT
-              attach-build-log: false
-              always: true
-              send-to:
-                - requester
-                - recipients
-
-- publisher:
-    name: default-upstream-trigger-publishers
-    publishers:
-          - email-ext:
-              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
-              content-type: default
-              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
-              body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
               attach-build-log: false
               always: true
               send-to:
