@@ -1,0 +1,47 @@
+- job-template:
+    name: 'upstream-virt-who-trigger'
+    node: '{jmastername}'
+    builders:
+        - shell: |
+            #!/bin/bash
+            # switch, run upstream on rhel 6 or rhel 7
+            #export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            export GITHUB_URL=https://github.com/virt-who/virt-who
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(GITHUB_URL|RHEL_COMPOSE)' > $WORKSPACE/GITHUB_URL.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/GITHUB_URL.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'upstream-sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/GITHUB_URL.txt
+            fail-on-missing: true
+          - project: 'upstream-satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/GITHUB_URL.txt
+            fail-on-missing: true
+      - default-upstream-trigger-publishers
+
+- job-group:
+    name: upstream-virt-who-triggers
+    jobs:
+      - 'upstream-virt-who-trigger'
+
+- project:
+    name: upstream-virt-who-triggers-jobs
+    project: upstream-virt-who-triggers
+    jobs:
+      - upstream-virt-who-triggers

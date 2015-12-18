@@ -1,0 +1,193 @@
+- job-template:
+    name: 'qe-rhel-6-trigger'
+    node: '{jmastername}'
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-level-1-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-level-2-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+      - default-trigger-publishers
+
+- job-template:
+    name: 'qe-rhel-7-trigger'
+    node: '{jmastername}'
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE= (optional)
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-level-1-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'rhsm-stage-level-2-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+      - default-trigger-publishers
+
+- job-template:
+    name: 'qe-sam-1-4-trigger'
+    node: '{jmastername}'
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            # switch, run virt-who sam test on rhel 6 or rhel 7
+            #RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            export SAM_COMPOSE=`curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SAM_COMPOSE= (optional)
+            #export RHEL_COMPOSE= (optional)
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'sam-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+      - default-trigger-publishers
+
+- job-template:
+    name: 'qe-satellite-6-1-trigger'
+    node: '{jmastername}'
+    triggers:
+      - pollurl:
+          cron: 'H/9 * * * *'
+          urls:
+            - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID
+              check-content:
+                - simple: true
+    builders:
+        - shell: |
+            #!/bin/bash
+            # switch, run virt-who satellite test on rhel 6 or rhel 7
+            #RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            export SATELLITE_COMPOSE=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID`
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SATELLITE_COMPOSE= (optional)
+            #export RHEL_COMPOSE= (optional)
+            echo "*********************************setup env*********************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/BUILD.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+      - default-trigger-publishers
+
+- job-group:
+    name: qe-triggers
+    jobs:
+      - 'qe-rhel-6-trigger'
+      - 'qe-rhel-7-trigger'
+      - 'qe-sam-1-4-trigger'
+      - 'qe-satellite-6-1-trigger'
+
+- project:
+    name: qe-triggers-jobs
+    project: qe-triggers
+    jobs:
+      - qe-triggers

@@ -1,0 +1,133 @@
+- job-template:
+    name: 'sam-install-for-rhel-7-provision'
+    defaults: virt-who-provision
+    node: '{jmastername}'
+    builders:
+        - shell: |
+            #!/bin/bash
+            kinit -k -t $KEYTAB $PRINCIPAL
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+            # Provision Test Resources
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
+            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=sam
+            TR_STATUS=$?
+            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+            if [ -e "$files" ]
+            then
+                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+            fi
+            if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'sam-install-for-rhel-7-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+- job-template:
+    name: 'sam-install-for-rhel-7-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'sam-install-for-rhel-7-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            export TOPOLOGY={topology}
+            {testparams}
+            echo "TOPOLOGY: {topology}"
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+            echo "Jenkins machine info we are running on"
+            ifconfig
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+            export REMOTE_IP=$EXISTING_NODES
+
+            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            nosetests sam_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+            echo SERVER_TYPE=SAM > $WORKSPACE/SERVER.txt
+            echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
+            echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
+        - inject:
+            properties-file: $WORKSPACE/SERVER.txt
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - trigger-parameterized-builds:
+          - project: 'virt-who-esx-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+          - project: 'virt-who-kvm-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-level-1-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-level-2-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+          - project: 'rhsm-gui-rhel-7-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+
+- job-group:
+    name: sam-install-for-rhel-7-provision-runtest
+    jobs:
+      - 'sam-install-for-rhel-7-provision'
+      - 'sam-install-for-rhel-7-runtest'
+
+- project:
+    name: sam-install-for-rhel-7-jobs
+    project: sam-install-for-rhel-7
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: qeos_sam_install
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
+    jobs:
+      - sam-install-for-rhel-7-provision-runtest
+    jslavename: jslave-sam-install-for-rhel-7-slave
+    jmastername: jslave-static-entitlement-master
+    jslave_execs: 3
+    jslaveimage: RHEL-6.6-Server-x86_64-released
+    jslaveflavor: m1.small
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
