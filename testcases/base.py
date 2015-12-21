@@ -62,6 +62,10 @@ class Base(unittest.TestCase):
         # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
 
+    def get_esx_info(self):
+        # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
+        return self.get_vw_cons("VIRTWHO_ESX_OWNER"), self.get_vw_cons("VIRTWHO_ESX_ENV"), self.get_vw_cons("VIRTWHO_ESX_SERVER"), self.get_vw_cons("VIRTWHO_ESX_USERNAME"), self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
+
     def get_hg_info(self, targetmachine_ip=""):
         if targetmachine_ip == "" or targetmachine_ip == None:
             host_guest_info = "in host machine"
