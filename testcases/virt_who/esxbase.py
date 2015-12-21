@@ -113,7 +113,7 @@ class ESXBase(VIRTWHOBase):
     def esx_guest_ispoweron(self, guest_name, destination_ip):
         ''' check guest is power on or off '''
         # get geust id by vmsvc/getallvms
-        cmd = "vim-cmd vmsvc/getallvms | grep '%s' | awk '{print $1'}" % (guest_name)
+        cmd = "vim-cmd vmsvc/getallvms | grep '%s' | awk '{print $1}'" % (guest_name)
         ret, output = self.runcmd_esx(cmd, "get guest '%s' ID" % (guest_name), destination_ip)
         if ret == 0:
             guest_id = output.strip()
