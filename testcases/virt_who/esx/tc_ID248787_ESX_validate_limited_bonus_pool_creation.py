@@ -7,8 +7,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
@@ -19,43 +18,43 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
-            
-            #0).check the guest is power off or not on esxi host, if power on, stop it 
+
+            # 0).check the guest is power off or not on esxi host, if power on, stop it 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            #1).check limited pool is exist on host/hpyervisor
+            # 1).check limited pool is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
-            if host_pool_id is not None or host_pool_id !="":
-                 logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
+            if host_pool_id is not None or host_pool_id != "":
+                logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
                 raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
-            #2).register guest to SAM/Candlepin server with same username and password
+            # 2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+                self.configure_server(server_ip, server_hostname, guestip)
+                self.sub_register(server_user, server_pass, guestip)
 
-            #3).before subscribe host, check the bonus pool is not available and the system type is Virtual 
+            # 3).before subscribe host, check the bonus pool is not available and the system type is Virtual 
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check the bonus pool, no bonus bool of Virtual system type found.")
             else:
                 raise FailException("Failed to check the bonus pool is exist.")
 
-            #4).subscribe the limited pool on host
-            self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
+            # 4).subscribe the limited pool on host
+            self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
-            #5).after subscribe host, check the bonus pool's quantity is limited and system type is Virtual
+            # 5).after subscribe host, check the bonus pool's quantity is limited and system type is Virtual
             self.sub_refresh(guestip)
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool quantity is exist.")
 
-            #6).return the bonus pool id for subscribe 
+            # 6).return the bonus pool id for subscribe 
             poollist = self.sub_listavailpools(bonus_sku_id, guestip)
             if poollist != None:
                 for item in range(0, len(poollist)):
@@ -69,7 +68,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
             else:
                 raise FailException("Failed to get available pool list from guest.")
 
-            #7).after subscribe bonus pool on guest, there is no bonus pool listed 
+            # 7).after subscribe bonus pool on guest, there is no bonus pool listed 
             if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check the bonus pool, no bonus bool of Virtual system type found.")
             else:
@@ -84,7 +83,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

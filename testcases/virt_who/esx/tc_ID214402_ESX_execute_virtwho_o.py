@@ -11,25 +11,25 @@ class tc_ID214402_ESX_execute_virtwho_o(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #0).check the hostuuid and guestuuid
+            # 0).check the hostuuid and guestuuid
             host_uuid = self.esx_get_host_uuid(destination_ip)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            #1). stop virt-who before run oneshot 
+            # 1). stop virt-who before run oneshot 
             self.service_command("stop_virtwho")
 
-            #2). fetch virt-who cmd with oneshot
+            # 2). fetch virt-who cmd with oneshot
             cmd = self.virtwho_cli("esx") + " -o -d "
 
-            #3). run virt-who oneshot cmd
+            # 3). run virt-who oneshot cmd
             ret, output = self.runcmd(cmd, "executing virt-who with one shot")
             if ret == 0 and output is not None and "ERROR" not in output and host_uuid in output and guestuuid in output:
                 logger.info("Succeeded to run virt-who with -o -d,  can find uuid from oneshot log message.")
             else:
                 raise FailException("Failed to run virt-who with -o -d, can't find uuid from oneshot log meesage.")
 
-            #4). check the status of virt-who, shoud no any virt-who process because the one-shot mode! 
+            # 4). check the status of virt-who, shoud no any virt-who process because the one-shot mode! 
             cmd = "ps -ef | grep -E 'virtwho|virt-who' |grep -v grep"
             ret, output = self.runcmd(cmd, "check the process of virt-who with background mode")
             if ret != 0 and "virtwho.py" not in output and "virt-who.py" not in output:
@@ -37,7 +37,7 @@ class tc_ID214402_ESX_execute_virtwho_o(ESXBase):
             else:
                 raise FailException("Failed to stop virt-who process.")
 
-            #5). recover virt-who service 
+            # 5). recover virt-who service 
             self.service_command("restart_virtwho")
 
             self.assert_(True, case_name)

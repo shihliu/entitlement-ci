@@ -7,14 +7,8 @@ class tc_ID477183_ESX_run_virtwho_with_rhsm_username_password(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-
-            VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
-            VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
-            VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
-            VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
-            VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
-
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
@@ -43,10 +37,9 @@ owner=%s
 env=%s
 rhsm_username=%s
 rhsm_password=%s
-''' % (VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD, VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, SERVER_USER, SERVER_PASS)
+''' % (esx_server, esx_username, esx_password, esx_owner, esx_env server_user, server_pass)
 
             self.set_virtwho_d_conf(conf_file, conf_data)
-
 
             # 5). after stop virt-who, start to monitor the rhsm.log 
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
@@ -84,7 +77,6 @@ rhsm_password=%s
                 raise FailException("Failed to check, there is an error message found or no output data.")
 
             self.assert_(True, case_name)
-
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
@@ -92,7 +84,6 @@ rhsm_password=%s
             self.unset_virtwho_d_conf(conf_file)
             self.set_esx_conf()
             self.service_command("restart_virtwho")
-
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.esx_stop_guest(guest_name, destination_ip)

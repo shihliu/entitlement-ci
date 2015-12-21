@@ -7,7 +7,7 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
@@ -18,7 +18,7 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
 
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            #0).check the guest is power off or not, if power_on, stop it
+            # 0).check the guest is power off or not, if power_on, stop it
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
@@ -26,13 +26,13 @@ class tc_ID155149_ESX_validate_complaince_after_starting_resuming(ESXBase):
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
-                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+                self.configure_server(server_ip, server_hostname, guestip)
+                self.sub_register(server_user, server_pass, guestip)
 
             # before subscribe esx host with limited subscription, need to clean all the old subscribed pool from SAM
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
             # subscribe esx host with limited bonus subscription
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku) , SERVER_IP)
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku) , server_ip)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest

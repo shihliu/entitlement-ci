@@ -8,7 +8,7 @@ class tc_ID289675_ESX_Datacenter_repos_in_guest(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         if not self.skip_satellite():
             try:
-                SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+                server_ip, server_hostname, server_user, server_pass = self.get_server_info()
                 guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
                 destination_ip = self.get_vw_cons("ESX_HOST")
                 product_name = self.get_vw_cons("datacenter_name")
@@ -29,10 +29,10 @@ class tc_ID289675_ESX_Datacenter_repos_in_guest(ESXBase):
                     raise FailException("Failed to find the pool id of %s" % host_sku_id)
                 # 2).register guest to SAM/Candlepin server with same username and password
                 if not self.sub_isregistered(guestip):
-                    self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                    self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+                    self.configure_server(server_ip, server_hostname, guestip)
+                    self.sub_register(server_user, server_pass, guestip)
                 # 3).subscribe the DataCenter subscription pool on host
-                self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
+                self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
                 # 4).subscribe the bonus pool on guest. 
                 self.sub_subscribe_sku(bonus_sku_id, guestip)
                 # 5).check ^Repo ID by subscription-manager repos --list  
@@ -47,7 +47,7 @@ class tc_ID289675_ESX_Datacenter_repos_in_guest(ESXBase):
                 if guestip != None and guestip != "":
                     self.sub_unregister(guestip)
                 # Unregister the ESX host 
-                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+                self.server_unsubscribe_all_system(host_uuid, server_ip)
                 self.esx_stop_guest(guest_name, destination_ip)
                 logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

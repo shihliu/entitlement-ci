@@ -7,7 +7,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
@@ -34,14 +34,14 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
 
             # 2).register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
-                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+                self.configure_server(server_ip, server_hostname, guestip)
+                self.sub_register(server_user, server_pass, guestip)
 
             # 3).set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
 
             # 4).subscribe the DataCenter subscription pool on host
-            self.server_subscribe_system(host_uuid, host_pool_id, SERVER_IP)
+            self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
             # 5).for esxi hypervisor, skip to check the consumed status details
 
@@ -65,7 +65,6 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
             self.check_installed_status(installed_status_key, installed_status_value, guestip)
 
             self.assert_(True, case_name)
-
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
@@ -74,7 +73,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
                 self.restore_facts(guestip)
                 self.sub_unregister(guestip)
             # Unregister the ESX host 
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

@@ -9,19 +9,18 @@ class tc_ID413481_ESX_check_virtwho_config_file_permission(ESXBase):
         try:
 
             # check the configure file's permission
-            virtwho_conf='/etc/sysconfig/virt-who'
+            virtwho_conf = '/etc/sysconfig/virt-who'
             cmd = "ls -lah %s; sleep 5" % virtwho_conf 
-            ret, output = self.runcmd(cmd,"run cmd: %s" %cmd)
+            ret, output = self.runcmd(cmd, "run cmd: %s" % cmd)
             if ret == 0 and output is not None:
                 if  "-rw-------" in output:
                     logger.info("Succeeded to check the virt-who config file's permission.")
                 else:
                     raise FailException("Failed to check the virt-who config file's permission.")
             else:
-                raise FailException("Failed to run: %s." %cmd)
+                raise FailException("Failed to run: %s." % cmd)
 
             self.assert_(True, case_name)
-
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
