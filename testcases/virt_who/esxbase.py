@@ -4,37 +4,24 @@ from utils.exception.failexception import FailException
 
 class ESXBase(VIRTWHOBase):
     def esx_setup(self):
-        SERVER_IP = get_exported_param("SERVER_IP")
-        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-
-        SERVER_USER = self.get_vw_cons("username")
-        SERVER_PASS = self.get_vw_cons("password")
-
-        ESX_HOST = self.get_vw_cons("ESX_HOST")
-
-        VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
-        VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
-        VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
-        VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
-        VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
+        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
+        esx_host = self.get_vw_cons("ESX_HOST")
         # update virt-who configure file
-        self.update_esx_vw_configure(VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
+        self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
         # restart virt-who service
         self.vw_restart_virtwho()
         # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
         self.sub_unregister()
-        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SERVER_USER, SERVER_PASS)
+        self.configure_server(server_ip, server_hostname)
+        self.sub_register(server_user, server_pass)
         guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
-#         if self.esx_check_host_exist(ESX_HOST, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD):
-        self.wget_images(self.get_vw_cons("esx_guest_url"), guest_name, ESX_HOST)
-        self.esx_add_guest(guest_name, ESX_HOST)
-        self.esx_start_guest_first(guest_name, ESX_HOST)
+        self.wget_images(self.get_vw_cons("esx_guest_url"), guest_name, esx_host)
+        self.esx_add_guest(guest_name, esx_host)
+        self.esx_start_guest_first(guest_name, esx_host)
         # self.esx_service_restart(ESX_HOST)
-        self.esx_stop_guest(guest_name, ESX_HOST)
+        self.esx_stop_guest(guest_name, esx_host)
         self.vw_restart_virtwho()
-#         else:
-#             raise FailException("ESX host:'%s' has not been added to vCenter yet, add it manually first!" % ESX_HOST)
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -45,12 +32,7 @@ class ESXBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to disable VIRTWHO_ESX.")
 
     def set_esx_conf(self, targetmachine_ip=""):
-        VIRTWHO_ESX_OWNER = self.get_vw_cons("VIRTWHO_ESX_OWNER")
-        VIRTWHO_ESX_ENV = self.get_vw_cons("VIRTWHO_ESX_ENV")
-        VIRTWHO_ESX_SERVER = self.get_vw_cons("VIRTWHO_ESX_SERVER")
-        VIRTWHO_ESX_USERNAME = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
-        VIRTWHO_ESX_PASSWORD = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
-
+        esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         # clean # first
         cmd = "sed -i -e 's/^#VIRTWHO_ESX/VIRTWHO_ESX/g' -e 's/^#VIRTWHO_ESX_OWNER/VIRTWHO_ESX_OWNER/g' -e 's/^#VIRTWHO_ESX_ENV/VIRTWHO_ESX_ENV/g' -e 's/^#VIRTWHO_ESX_SERVER/VIRTWHO_ESX_SERVER/g' -e 's/^#VIRTWHO_ESX_USERNAME/VIRTWHO_ESX_USERNAME/g' -e 's/^#VIRTWHO_ESX_PASSWORD/VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
         ret, output = self.runcmd(cmd, "set virt-who configure file for enable VIRTWHO_ESX", targetmachine_ip)
@@ -60,7 +42,7 @@ class ESXBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to enable VIRTWHO_ESX.")
 
         # set esx value
-        cmd = "sed -i -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (VIRTWHO_ESX_OWNER, VIRTWHO_ESX_ENV, VIRTWHO_ESX_SERVER, VIRTWHO_ESX_USERNAME, VIRTWHO_ESX_PASSWORD)
+        cmd = "sed -i -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
         ret, output = self.runcmd(cmd, "setting value for esx conf.", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set esx value.")
