@@ -327,7 +327,7 @@ class Base(unittest.TestCase):
         location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
         consumer_pool_id = self.post_json(location, json_data)["results"][0]["id"]
-        logger.info ("attch reture is %s" %consumer_pool_id)
+        logger.info ("attch reture is %s" % consumer_pool_id)
         return consumer_pool_id
 
     def st_unattach(self, uuid, consumed_pool_id):
@@ -473,9 +473,9 @@ class Base(unittest.TestCase):
         self.unittest_handler = logging.StreamHandler(sys.stdout)
         self.unittest_handler.setFormatter(formatter)
         logger.addHandler(self.unittest_handler)
-        # turn off paramiko log off
-        paramiko_logger = logging.getLogger("paramiko.transport")
-        paramiko_logger.disabled = True
+        # turn paramiko log off
+        # paramiko_logger = logging.getLogger("paramiko.transport")
+        # paramiko_logger.disabled = True
         logger.info(" ")
         logger.info("**************************************************************************************************************")
         self.os_serial = self.get_os_serials()
