@@ -23,7 +23,7 @@ class tc_ID476933_ESX_attach_subpool_when_virtwho_offline_mode(ESXBase):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
-            guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
+            guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
             # 1). stop virt-who firstly 
             self.service_command("stop_virtwho")
@@ -53,26 +53,9 @@ env=%s''' % (offline_data, esx_owner, esx_env)
 
 
             # 5). after stop virt-who, start to monitor the rhsm.log 
-            rhsmlogfile = "/var/log/rhsm/rhsm.log"
-            cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-            self.runcmd(cmd, "generate nohup.out file by tail -f")
-
-            # 6). virt-who restart
-            self.service_command("restart_virtwho")
-            virtwho_status = self.check_virtwho_status()
-            if virtwho_status == "running" or virtwho_status == "active":
-                logger.info("Succeeded to check, virt-who is running when offline mode.")
-            else:
-                raise FailException("Failed to check, virt-who is not running or active when offline mode.")
-
-            # 7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(10)
-            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parse")
-            if "ERROR" not in output and host_uuid in output and guestuuid in output:
-                logger.info("Succeeded to check, can find uuid and no error when offline mode.")
-            else:
-                raise FailException("Failed to check, can not find uuid and no error when offline mode.")
+            tmp_file = "/tmp/tail.rhsm.log"
+            self.generate_tmp_log(tmp_file)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
 
             # 8).check DataCenter is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
