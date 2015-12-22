@@ -37,28 +37,12 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
             self.server_remove_system(host_uuid, server_ip)
 
             # 4). after stop virt-who, start to monitor the rhsm.log 
-            rhsmlogfile = "/var/log/rhsm/rhsm.log"
             tmp_file = "/tmp/tail.rhsm.log"
-            cmd = "tail -f -n 0 %s > %s 2>&1 &" % (tmp_file, rhsmlogfile)
-            self.runcmd(cmd, "generate nohup.out file by tail -f")
+            self.generate_tmp_log(tmp_file)
 
-            # 5). re-register esxi host on sam by restart virt-who service 
-            self.service_command("restart_virtwho")
-            virtwho_status = self.check_virtwho_status()
-            if virtwho_status == "running" or virtwho_status == "active":
-                logger.info("Succeeded to check, virt-who is running.")
-            else:
-                raise FailException("Failed to check, virt-who is not running or active.")
-
-            # 6). check esxi host is registered or not on sam again, and check guest uuid from rhsm.log
-            time.sleep(10)
             self.server_check_system(host_uuid, server_ip)
 
-            # 7). after restart virt-who, stop to monitor the rhsm.log
-            time.sleep(10)
-            self.kill_pid("tail")
-
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, file, destination_ip)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
 
             self.assert_(True, case_name)
         except Exception, e:

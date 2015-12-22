@@ -407,14 +407,26 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, file, destination_ip=""):
-        cmd = "cat %s" % file
+    def generate_tmp_log(self, tmp_file, destination_ip=""):
+        cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
+        self.runcmd(cmd, "generate nohup.out file by tail -f", destination_ip)
+        self.service_command("restart_virtwho")
+        virtwho_status = self.check_virtwho_status()
+        if virtwho_status == "running" or virtwho_status == "active":
+            logger.info("Succeeded to check, virt-who is running.")
+        else:
+            raise FailException("Failed to check, virt-who is not running or active.")
+        time.sleep(10)
+        self.kill_pid("tail")
+
+    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, tmp_file, destination_ip=""):
+        cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "feedback tail log for parsing")
         if ret == 0 and output is not None and  "ERROR" not in output:
             if self.os_serial == "7":
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
             else:
-                rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
+                rex = re.compile(r'Host-to-guest mapping: {.*]\n}\n', re.S)
             if len(rex.findall(output)) > 0:
                 mapping_info = rex.findall(output)[0]
             else:
@@ -438,7 +450,7 @@ class ESXBase(VIRTWHOBase):
 
     def kill_pid(self, pid_name, destination_ip=""):
         cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
-        ret, output = self.runcmd(cmd, "start to check %s pid", destination_ip) % pid_name
+        ret, output = self.runcmd(cmd, "start to check %s pid" % pid_name, destination_ip)
         if ret == 0 and output is not None:
             pids = output.strip().split('\n')
             for pid in pids:
