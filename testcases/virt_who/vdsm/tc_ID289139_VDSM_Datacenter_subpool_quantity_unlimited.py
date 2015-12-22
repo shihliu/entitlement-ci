@@ -27,7 +27,7 @@ class tc_ID289139_VDSM_Datacenter_subpool_quantity_unlimited(VDSMBase):
             # host subscribe datacenter pool on host
             self.sub_subscribe_sku(host_test_sku)
             # Check guest with unlimited bonus pool
-            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(guest_bonus_sku, bonus_quantity, guestip) is True:
                 logger.info("Success to check unlimited datacenter subpool on guest")
             else:
                 raise FailException("Failed to to check unlimited datacenter subpool on guest")

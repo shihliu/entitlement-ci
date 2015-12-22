@@ -39,7 +39,7 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
                 self.sub_register(server_user, server_pass, guestip)
 
             # 3).before subscribe host, check the bonus pool is not available and the system type is Virtual 
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check the bonus pool, no bonus bool of Virtual system type found.")
             else:
                 raise FailException("Failed to check the bonus pool is exist.")
@@ -49,33 +49,21 @@ class tc_ID248787_ESX_validate_limited_bonus_pool_creation(ESXBase):
 
             # 5).after subscribe host, check the bonus pool's quantity is limited and system type is Virtual
             self.sub_refresh(guestip)
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool quantity is exist.")
 
-            # 6).return the bonus pool id for subscribe 
-            poollist = self.sub_listavailpools(bonus_sku_id, guestip)
-            if poollist != None:
-                for item in range(0, len(poollist)):
-                    if "Available" in poollist[item]:
-                        SKU_Number = "Available"
-                    else:
-                        SKU_Number = "Quantity"
-                    if poollist[item]["SKU"] == bonus_sku_id and self.check_type_virtual(poollist[item]) and poollist[item][SKU_Number] == bonus_quantity:
-                        bonus_pool_id = poollist[item]["PoolID"]
-                        self.sub_subscribetopool(bonus_pool_id, guestip)
-            else:
-                raise FailException("Failed to get available pool list from guest.")
+            # 6).subscribe the registered guest to the corresponding bonus pool
+            self.sub_subscribe_to_bonus_pool(host_sku_id, guestip)
 
             # 7).after subscribe bonus pool on guest, there is no bonus pool listed 
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check the bonus pool, no bonus bool of Virtual system type found.")
             else:
                 raise FailException("Failed to check the bonus pool exist.")
 
             self.assert_(True, case_name)
-
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)

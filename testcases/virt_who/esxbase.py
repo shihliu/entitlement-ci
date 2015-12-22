@@ -40,7 +40,6 @@ class ESXBase(VIRTWHOBase):
             logger.info("Succeeded to enable VIRTWHO_ESX.")
         else:
             raise FailException("Test Failed - Failed to enable VIRTWHO_ESX.")
-
         # set esx value
         cmd = "sed -i -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
         ret, output = self.runcmd(cmd, "setting value for esx conf.", targetmachine_ip)
@@ -409,16 +408,15 @@ class ESXBase(VIRTWHOBase):
             raise FailException("Failed to get uuids in rhsm.log")
 
     def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, file, destination_ip=""):
-        cmd = "cat /tmp/tail.rhsm.log"
+        cmd = "cat %s" % file
         ret, output = self.runcmd(cmd, "feedback tail log for parsing")
         if ret == 0 and output is not None and  "ERROR" not in output:
-            rex7 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
-            rex6 = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
-            if len(rex7.findall(output)) > 0:
-                mapping_info = rex7.findall(output)[0]
-                logger.info(mapping_info)
-            elif len(rex6.findall(output)) > 0:
-                mapping_info = rex6.findall(output)[0]
+            if self.os_serial == "7":
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+            else:
+                rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
+            if len(rex.findall(output)) > 0:
+                mapping_info = rex.findall(output)[0]
             else:
                 raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
             logger.info("Check uuid from following data: \n%s" % mapping_info)
@@ -429,11 +427,20 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
 
-    def kill_virt_who_pid(self):
+    def kill_virt_who_pid(self, destination_ip=""):
         cmd = "ps -ef | grep virtwho.py -i | grep -v grep | awk '{print $2}'"
-        ret, output = self.runcmd(cmd, "start to check virt-who pid")
+        ret, output = self.runcmd(cmd, "start to check virt-who pid", destination_ip)
         if ret == 0 and output is not None:
             pids = output.strip().split('\n')
             for pid in pids:
                 kill_cmd = "kill -9 %s" % pid
-                self.runcmd(kill_cmd, "kill virt-who pid %s" % pid)
+                self.runcmd(kill_cmd, "kill virt-who pid %s" % pid, destination_ip)
+
+    def kill_pid(self, pid_name, destination_ip=""):
+        cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
+        ret, output = self.runcmd(cmd, "start to check %s pid", destination_ip) % pid_name
+        if ret == 0 and output is not None:
+            pids = output.strip().split('\n')
+            for pid in pids:
+                kill_cmd = "kill -9 %s" % pid
+                self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)

@@ -40,7 +40,7 @@ class tc_ID289138_ESX_Datacenter_subpool_creation(ESXBase):
             self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
             # 4).check the bonus pool is available
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to find the bonus pool of product '%s'" % product_name)
             else:
                 raise FailException("Failed to find the bonus pool from guest.")

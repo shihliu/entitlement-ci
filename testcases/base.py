@@ -293,10 +293,10 @@ class Base(unittest.TestCase):
         else:
             cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % system_uuid
             ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
-            if ret == 0 and system_uuid in output:
-                logger.info("Succeeded to unsubscribe host %s in sam server" % system_uuid)
-            else:
-                raise FailException("Failed to unsubscribe host %s in sam server" % system_uuid)
+            # if ret == 0 and system_uuid in output:
+            #    logger.info("Succeeded to unsubscribe host %s in sam server" % system_uuid)
+            # else:
+            #    raise FailException("Failed to unsubscribe host %s in sam server" % system_uuid)
 
     # ========================================================
     #       SATELLITE Functions

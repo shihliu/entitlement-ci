@@ -27,7 +27,7 @@ class tc_ID289139_RHEVM_Datacenter_subpool_quantity_unlimited(VDSMBase):
             # Hypervisor subscribe datacenter pool
             self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
            # Check guest with unlimited bonus pool
-            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(guest_bonus_sku, bonus_quantity, guestip) is True:
                 logger.info("Success to check unlimited datacenter subpool on guest")
             else:
                 raise FailException("Failed to to check unlimited datacenter subpool on guest")

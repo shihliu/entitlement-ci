@@ -40,7 +40,7 @@ class tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host(ESXBase):
             self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
             # 4).check the bonus pool is available and quantity is unlimited
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool.")
@@ -58,7 +58,7 @@ class tc_ID289221_ESX_Datacenter_guest_revoke_when_unregister_host(ESXBase):
             self.sub_refresh(guestip)
 
             # 9). check bonus pool is revoked on guest
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is False:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is False:
                 logger.info("Succeeded to check, the bonus pool is revoked.")
             else:
                 raise FailException("Failed to check, the bonus pool is not revoked.")

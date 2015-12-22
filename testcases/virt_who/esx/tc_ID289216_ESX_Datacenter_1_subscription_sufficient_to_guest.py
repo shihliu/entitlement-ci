@@ -46,7 +46,7 @@ class tc_ID289216_ESX_Datacenter_1_subscription_sufficient_to_guest(ESXBase):
             # 5).for esxi hypervisor, skip to check the consumed status details
 
             # 6).check the bonus pool is available and quantity is unlimited
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool quantity.")

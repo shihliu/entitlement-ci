@@ -41,7 +41,7 @@ class tc_ID269395_ESX_Datacenter_guest_auto_attach_bonus_pool(ESXBase):
             self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
             # 6).check the virtual pools listed on guest.
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip):
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip):
                 logger.info("Succeeded to check the virtual pool exist.")
             else:
                 raise FailException("Failed to check the virtual pool exist.")

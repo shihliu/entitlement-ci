@@ -8,7 +8,6 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
 
@@ -39,16 +38,10 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
             # refresh the guest
             self.sub_refresh(guestip)
             # list available subscriptions on guest
-            new_available_poollist = self.sub_listavailpools(test_sku, guestip)
-            if new_available_poollist != None:
-                for item in range(0, len(new_available_poollist)):
-                    if test_sku in new_available_poollist[item] and self.check_type_virtual(new_available_poollist[item]):
-                        logger.info("listed bonus pool of product %s, but is shouldn't") % sku_name
-                        self.assert_(False, case_name)
-                    else:
-                        logger.info("no bonus pool been list") 
+            if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == False:
+                logger.info("Succeeded to check the bonus pool not exist.")
             else:
-                raise FailException("Failed to get available pool list from guest.")
+                raise FailException("Failed to check the bonus pool not exist.")
             # list consumed subscriptions on guest
             self.sub_listconsumed(test_sku, targetmachine_ip=guestip, productexists=False)
             self.assert_(True, case_name)
@@ -58,6 +51,8 @@ class tc_ID155146_ESX_validate_compliance_status_when_unregister_host(ESXBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
+            # unregister the ESX host 
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
             self.esx_stop_guest(guest_name, destination_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

@@ -41,7 +41,6 @@ class tc_ID214402_ESX_execute_virtwho_o(ESXBase):
             self.service_command("restart_virtwho")
 
             self.assert_(True, case_name)
-
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)

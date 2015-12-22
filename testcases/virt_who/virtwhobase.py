@@ -691,7 +691,7 @@ EOF''' % (file_name, file_data)
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
 
-    def check_bonus_isExist(self, sku_id, bonus_quantity, targetmachine_ip=""):
+    def check_bonus_exist(self, sku_id, bonus_quantity, targetmachine_ip=""):
         # check bonus pool is exist or not
         cmd = "subscription-manager list --available"
         ret, output = self.runcmd(cmd, "run 'subscription-manager list --available'", targetmachine_ip)

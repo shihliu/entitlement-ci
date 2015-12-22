@@ -40,7 +40,7 @@ class tc_ID289139_ESX_Datacenter_subpool_quantity_unlimited(ESXBase):
             self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
             # 4).check the bonus pool's quantity is unlimited
-            if self.check_bonus_isExist(bonus_sku_id, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to check the bonus pool quantity is: %s" % bonus_quantity)
             else:
                 raise FailException("Failed to check the bonus pool quantity.")

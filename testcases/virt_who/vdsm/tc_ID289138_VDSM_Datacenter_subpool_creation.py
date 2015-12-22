@@ -25,14 +25,14 @@ class tc_ID289138_VDSM_Datacenter_subpool_creation(VDSMBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # Check bonus pool not generated yet
-            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is False:
+            if self.check_bonus_exist(guest_bonus_sku, bonus_quantity, guestip) is False:
                 logger.info("Guest isn't bonus pool before host subscribe '%s' " % sku_name)
             else:
                 raise FailException("Bonus pool exist before host subscribe '%s' " % sku_name)
             # host subscribe datacenter pool
             self.sub_subscribe_sku(host_test_sku)
             # Check bonus pool has been generated after host subscribe datacenter pool
-            if self.check_bonus_isExist(guest_bonus_sku, bonus_quantity, guestip) is True:
+            if self.check_bonus_exist(guest_bonus_sku, bonus_quantity, guestip) is True:
                 logger.info("Success to check datacenter bonus pool after host subscribe '%s' " % sku_name)
             else:
                 raise FailException("Failed to check datacenter bonus pool after host subscribe '%s' " % sku_name)
