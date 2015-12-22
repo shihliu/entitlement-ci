@@ -391,7 +391,6 @@ class ESXBase(VIRTWHOBase):
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
         if ret == 0:
             ''' get uuid.list from rhsm.log '''
-
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
                 logger.info("Succeeded to get uuid.list from rhsm.log.")
@@ -408,3 +407,33 @@ class ESXBase(VIRTWHOBase):
             return uuid in log_uuid_list
         else:
             raise FailException("Failed to get uuids in rhsm.log")
+
+    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, file, destination_ip=""):
+        cmd = "cat /tmp/tail.rhsm.log"
+        ret, output = self.runcmd(cmd, "feedback tail log for parsing")
+        if ret == 0 and output is not None and  "ERROR" not in output:
+            rex7 = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+            rex6 = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
+            if len(rex7.findall(output)) > 0:
+                mapping_info = rex7.findall(output)[0]
+                logger.info(mapping_info)
+            elif len(rex6.findall(output)) > 0:
+                mapping_info = rex6.findall(output)[0]
+            else:
+                raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
+            logger.info("Check uuid from following data: \n%s" % mapping_info)
+            if host_uuid in mapping_info and guest_uuid in mapping_info:
+                logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+            else:
+                raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+        else:
+            raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def kill_virt_who_pid(self):
+        cmd = "ps -ef | grep virtwho.py -i | grep -v grep | awk '{print $2}'"
+        ret, output = self.runcmd(cmd, "start to check virt-who pid")
+        if ret == 0 and output is not None:
+            pids = output.strip().split('\n')
+            for pid in pids:
+                kill_cmd = "kill -9 %s" % pid
+                self.runcmd(kill_cmd, "kill virt-who pid %s" % pid)

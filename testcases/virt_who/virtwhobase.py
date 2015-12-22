@@ -98,12 +98,7 @@ class VIRTWHOBase(Base):
 
     # only return CLI for virt-who esx mode, don't run cli 
     def virtwho_cli(self, mode):
-        esx_owner = self.get_vw_cons("VIRTWHO_ESX_OWNER")
-        esx_env = self.get_vw_cons("VIRTWHO_ESX_ENV")
-        esx_server = self.get_vw_cons("VIRTWHO_ESX_SERVER")
-        esx_username = self.get_vw_cons("VIRTWHO_ESX_USERNAME")
-        esx_password = self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
-
+        esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         if mode == "esx":
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
         else:
