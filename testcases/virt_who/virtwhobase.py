@@ -746,36 +746,45 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
-    def vw_check_uuid(self, guestuuid, uuidexists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+    def generate_tmp_log(self, tmp_file, destination_ip=""):
+        cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
+        self.runcmd(cmd, "generate nohup.out file by tail -f", destination_ip)
+        self.runcmd_service("restart_virtwho", destination_ip)
+        # virtwho_status = self.check_virtwho_status()
+        # if virtwho_status == "running" or virtwho_status == "active":
+        #    logger.info("Succeeded to check, virt-who is running.")
+        # else:
+        #    raise FailException("Failed to check, virt-who is not running or active.")
+        time.sleep(10)
+        self.kill_pid("tail")
+
+    def kill_pid(self, pid_name, destination_ip=""):
+        cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
+        ret, output = self.runcmd(cmd, "start to check %s pid" % pid_name, destination_ip)
+        if ret == 0 and output is not None:
+            pids = output.strip().split('\n')
+            for pid in pids:
+                kill_cmd = "kill -9 %s" % pid
+                self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)
+
+    def vw_check_uuid(self, guestuuid, uuidexists=True, targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
-        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-            # ignore restart virt-who serivce since virt-who -b -d will stop
-            self.vw_restart_virtwho_new(targetmachine_ip)
-            time.sleep(10)
-            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-        else: 
-            self.vw_restart_virtwho_new(targetmachine_ip)
-            cmd = "tail -3 %s " % rhsmlogfile
-            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(tmp_file, targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending update to updateConsumer: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending update in hosts-to-guests mapping" in output:
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
-                raise FailException("Failed to get uuid list from rhsm.log")
+                raise FailException("Failed to get uuid list from %s.") % tmp_file
+            logger.info("Succeeded to get guest uuid.list from %s.") % tmp_file
             if uuidexists:
                 if guestuuid == "" and len(log_uuid_list) == 0:
                     logger.info("Succeeded to get none uuid list")
@@ -790,7 +799,7 @@ EOF''' % (file_name, file_data)
                 else:
                     raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
         else:
-            raise FailException("Failed to get rhsm.log")
+            raise FailException("Failed to get content of %s.") % tmp_file
 
     def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
