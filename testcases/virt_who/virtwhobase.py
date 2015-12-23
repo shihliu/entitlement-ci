@@ -767,6 +767,10 @@ EOF''' % (file_name, file_data)
                 kill_cmd = "kill -9 %s" % pid
                 self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)
 
+    def kill_virt_who_pid(self, destination_ip=""):
+        pid_name="virtwho.py"
+        self.kill_pid(pid_name, destination_ip)
+
     def vw_check_uuid(self, guestuuid, uuidexists=True, targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
