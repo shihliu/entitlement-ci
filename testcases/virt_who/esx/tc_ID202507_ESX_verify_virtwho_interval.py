@@ -28,7 +28,7 @@ class tc_ID202507_ESX_verify_virtwho_interval(ESXBase):
             self.kill_virt_who_pid()
 
             # 4). check host_uuid and guest_uuid from log file
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file)
 
             # 5). recover virt-who service 
             self.service_command("restart_virtwho")

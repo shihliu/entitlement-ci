@@ -40,8 +40,9 @@ exclude_host_uuids="%s"''' % (esx_server, esx_username, esx_password, esx_owner,
 
             # 5). after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
-            self.generate_tmp_log(tmp_file)
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
+            checkcmd = self.get_service_cmd("restart_virtwho")
+            self.generate_tmp_log(checkcmd, tmp_file)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file)
 
             self.assert_(True, case_name)
         except Exception, e:

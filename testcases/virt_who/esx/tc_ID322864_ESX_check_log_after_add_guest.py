@@ -40,9 +40,10 @@ class tc_ID322864_ESX_check_log_after_add_guest(ESXBase):
 
             # 4). after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
-            self.generate_tmp_log(tmp_file)
+            checkcmd = self.get_service_cmd("restart_virtwho")
+            self.generate_tmp_log(checkcmd, tmp_file)
 
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file)
 
             self.assert_(True, case_name)
         except Exception, e:

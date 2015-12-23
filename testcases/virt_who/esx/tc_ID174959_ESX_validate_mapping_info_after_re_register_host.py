@@ -38,11 +38,12 @@ class tc_ID174959_ESX_validate_mapping_info_after_re_register_host(ESXBase):
 
             # 4). after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
-            self.generate_tmp_log(tmp_file)
+            checkcmd = self.get_service_cmd("restart_virtwho")
+            self.generate_tmp_log(checkcmd, tmp_file)
 
             self.server_check_system(host_uuid, server_ip)
 
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file)
 
             self.assert_(True, case_name)
         except Exception, e:
