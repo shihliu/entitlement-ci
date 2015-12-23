@@ -20,4 +20,10 @@ class HYPERVBase(VIRTWHOBase):
             break
           data = data + buf
         logger.info ("After run %s, the output is \n%s" % (cmd, data))
+        return data
         s.close()  # close the socket
+
+    def hyperv_get_guest_ip(self, targetmachine_ip=""):
+        output = self.hyperv_run_cmd("(Get-VMNetworkAdapter -VMName rhel7.2).IpAddresses ")
+        logger.info ("Guest ip is %s" %output)
+        return output

@@ -746,16 +746,16 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
-    def generate_tmp_log(self, tmp_file, destination_ip=""):
+    def generate_tmp_log(self, checkcmd, tmp_file, targetmachine_ip=""):
         cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
-        self.runcmd(cmd, "generate nohup.out file by tail -f", destination_ip)
-        self.runcmd_service("restart_virtwho", destination_ip)
+        self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
         # virtwho_status = self.check_virtwho_status()
         # if virtwho_status == "running" or virtwho_status == "active":
         #    logger.info("Succeeded to check, virt-who is running.")
         # else:
         #    raise FailException("Failed to check, virt-who is not running or active.")
-        time.sleep(10)
+        time.sleep(35)
         self.kill_pid("tail")
 
     def kill_pid(self, pid_name, destination_ip=""):
@@ -770,7 +770,9 @@ EOF''' % (file_name, file_data)
     def vw_check_uuid(self, guestuuid, uuidexists=True, targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(tmp_file, targetmachine_ip)
+        checkcmd = "service virt-who restart"
+#         self.generate_tmp_log(tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
@@ -783,8 +785,8 @@ EOF''' % (file_name, file_data)
             elif "Sending update in hosts-to-guests mapping" in output:
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
             else:
-                raise FailException("Failed to get uuid list from %s.") % tmp_file
-            logger.info("Succeeded to get guest uuid.list from %s.") % tmp_file
+                raise FailException("Failed to get uuid list from %s." % tmp_file)
+            logger.info("Succeeded to get guest uuid.list from %s." % tmp_file)
             if uuidexists:
                 if guestuuid == "" and len(log_uuid_list) == 0:
                     logger.info("Succeeded to get none uuid list")
