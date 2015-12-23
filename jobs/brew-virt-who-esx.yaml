@@ -123,7 +123,7 @@
                 tc_ID443912_ESX_run_virtwho_with_wrong_encrypted_password.py \
                 tc_ID476491_ESX_check_virtwho_support_offline_mode.py \
                 tc_ID476933_ESX_attach_subpool_when_virtwho_offline_mode.py \
-                tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode.py \ 
+                tc_ID476943_ESX_unregister_host_when_virtwho_offline_mode.py \
                 tc_ID477170_ESX_run_virtwho_with_filter_host_uuids.py \
                 tc_ID477171_ESX_run_virtwho_with_filter_host_uuids_null.py \
                 tc_ID477177_ESX_run_virtwho_with_exclude_host_uuids.py \
