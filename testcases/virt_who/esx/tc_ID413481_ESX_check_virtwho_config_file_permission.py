@@ -7,7 +7,6 @@ class tc_ID413481_ESX_check_virtwho_config_file_permission(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-
             # check the configure file's permission
             virtwho_conf = '/etc/sysconfig/virt-who'
             cmd = "ls -lah %s; sleep 5" % virtwho_conf 

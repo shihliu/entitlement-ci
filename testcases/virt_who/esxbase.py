@@ -100,7 +100,6 @@ class ESXBase(VIRTWHOBase):
             guest_id = output.strip()
         else:
             raise FailException("can't get guest '%s' ID" % guest_name)
-
         # check geust status by vmsvc/power.getstate 
         cmd = "vim-cmd vmsvc/power.getstate %s" % guest_id
         ret, output = self.runcmd_esx(cmd, "check guest '%s' status" % (guest_name), destination_ip)
@@ -210,7 +209,7 @@ class ESXBase(VIRTWHOBase):
             logger.info("Succeeded to destroy guest '%s'" % guest_name)
         else:
             raise FailException("Failed to destroy guest '%s'" % guest_name)
-# 
+
 #     def esx_check_host_exist(self, esx_host, vCenter, vCenter_user, vCenter_pass):
 #         ''' check whether esx host exist in vCenter '''
 #         vmware_cmd_ip = ee.vmware_cmd_ip
@@ -225,7 +224,7 @@ class ESXBase(VIRTWHOBase):
 # 
 #     def esx_remove_all_guests(self, guest_name, destination_ip):
 #         return
-# 
+
     def esx_start_guest(self, guest_name):
         ''' start guest in esx host '''
         esx_host_ip = self.get_vw_cons("ESX_HOST")

@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID477582_ESX_run_virtwho_with_hypervisor_id_hwuuid(ESXBase):
+class tc_ID477581_ESX_run_virtwho_with_hypervisor_id_hostname(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
