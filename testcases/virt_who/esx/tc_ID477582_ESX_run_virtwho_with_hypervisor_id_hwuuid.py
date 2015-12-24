@@ -8,71 +8,31 @@ class tc_ID477582_ESX_run_virtwho_with_hypervisor_id_hwuuid(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
-
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             destination_ip = self.get_vw_cons("ESX_HOST")
-            host_uuid = self.esx_get_host_uuid(destination_ip)
+            # host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
-
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
-
-            # 2). disable esx config
+            # disable esx config
             self.unset_esx_conf()
-
-            # 3). creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser host-xxx info
+            hwuuid_list = self.esx_get_host_uuids_list(esx_owner, esx_env, esx_server, esx_username, esx_password)
+            # creat /etc/virt-who.d/virt.esx file for esxi with hypervisor_id=hwuuid 
             conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-password=%s
-filter_host_parents=""
-owner=%s
-env=%s''' % (esx_server, esx_username, esx_password, esx_owner, esx_env)
+            self.esx_set_hypervisor_id("hwuuid", conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            # 4). run virt-who one-shot with above config
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "executing virt-who with -o -d")
-            if ret == 0 and output is not None:
-                host_list = re.findall(r"'host-.*?'", output, re.I)
-                if len(host_list) > 0:
-                    logger.info("Succeeded to check hosts: %s" % host_list)
-                else:
-                    raise FailException("Failed, no domain host found.")
-            else:
-                raise FailException("Failed to execute virt-who with -o -d")
-
-            # 5). remove above /etc/virt-who.d/virt.esx
-            self.unset_virtwho_d_conf(conf_file)
-
-
-            # 6). creat /etc/virt-who.d/virt.esx file for esxi with hypervisor_id=hwuuid 
-            conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-password=%s
-hypervisor_id=hwuuid
-owner=%s
-env=%s''' % (esx_server, esx_username, esx_password, esx_owner, esx_env)
-
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            # 5). after stop virt-who, start to monitor the rhsm.log
+            # after stop virt-who, start to monitor the rhsm.log
             tmp_file = "/tmp/tail.rhsm.log"
             checkcmd = self.get_service_cmd("restart_virtwho")
             self.generate_tmp_log(checkcmd, tmp_file)
-            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
+            for hwuuid in hwuuid_list:
+                self.esx_check_host_guest_uuid_exist_in_file(hwuuid, guest_uuid, tmp_file)
 
             self.assert_(True, case_name)
         except Exception, e:

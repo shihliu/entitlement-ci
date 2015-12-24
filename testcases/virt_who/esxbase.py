@@ -288,7 +288,7 @@ class ESXBase(VIRTWHOBase):
     def esx_get_guest_ip(self, guest_name, destination_ip):
         ''' get guest ip address in esx host, need vmware-tools installed in guest '''
         cmd = "vim-cmd vmsvc/get.summary /vmfs/volumes/datastore*/%s/%s.vmx | grep 'ipAddress'" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "get guest ip address '%s' in ESX '%s'" % (guest_name, destination_ip), destination_ip)
+        ret, output = self.runcmd_esx(cmd, "get guest '%s' ip address in ESX '%s'" % (guest_name, destination_ip), destination_ip)
         ipAddress = output.split("=")[1].strip().strip(',').strip('"').strip('<').strip('>')
         if ret == 0:
             logger.info("Getting guest ip address '%s' in ESX host" % ipAddress)
@@ -307,19 +307,19 @@ class ESXBase(VIRTWHOBase):
             cycle_count = cycle_count + 1
             if accessable:
                 if self.esx_get_guest_ip(guest_name, destination_ip) != "unset":
-                    break
+                    return
                 if cycle_count == max_cycle:
                     logger.info("Time out to esx_check_ip_accessable")
-                    break
+                    return
                 else:
-                    time.sleep(20)
+                    time.sleep(30)
             else:
                 time.sleep(30)
                 if self.esx_get_guest_ip(guest_name, destination_ip) == "unset":
-                    break
+                    return
                 if cycle_count == max_cycle:
                     logger.info("Time out to esx_check_ip_accessable")
-                    break
+                    return
                 else:
                     time.sleep(20)
 
@@ -382,22 +382,120 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, tmp_file, destination_ip=""):
+    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, tmp_file, uuid_exist=True, destination_ip=""):
         cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "feedback tail log for parsing")
+        ret, output = self.runcmd(cmd, "feedback tail log for parsing", destination_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
             if self.os_serial == "7":
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
             else:
-                rex = re.compile(r'Host-to-guest mapping: {.*]\n}\n', re.S)
+                rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
             if len(rex.findall(output)) > 0:
                 mapping_info = rex.findall(output)[0]
             else:
                 raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
             logger.info("Check uuid from following data: \n%s" % mapping_info)
-            if host_uuid in mapping_info and guest_uuid in mapping_info:
-                logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+            if uuid_exist == True:
+                if host_uuid in mapping_info and guest_uuid in mapping_info:
+                    logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+                else:
+                    raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
             else:
-                raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+                if host_uuid not in mapping_info and guest_uuid not in mapping_info:
+                    logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+                else:
+                    raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def esx_get_host_uuids_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            # disable esx config
+            self.unset_esx_conf(destination_ip)
+            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            conf_file = "/etc/virt-who.d/virt.esx"
+            self.esx_set_filter_host_parents("", conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
+            # run virt-who one-shot with above config
+            cmd = "virt-who -o -d"
+            ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
+            if ret == 0 and output is not None:
+                host_list = re.findall(r"(?<=')host-.*?(?=')", output, re.I)
+                if len(host_list) > 0:
+                    logger.info("Succeeded to get host_uuids_list: %s" % host_list)
+                    return host_list
+                else:
+                    raise FailException("Failed, no host uuids found.")
+            else:
+                raise FailException("Failed to execute virt-who with -o -d")
+            # remove above /etc/virt-who.d/virt.esx
+            self.unset_virtwho_d_conf(conf_file, destination_ip)
+
+    def esx_get_host_parents_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            # disable esx config
+            self.unset_esx_conf(destination_ip)
+            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            conf_file = "/etc/virt-who.d/virt.esx"
+            self.esx_set_filter_host_parents("", conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
+            # run virt-who one-shot with above config
+            cmd = "virt-who -o -d"
+            ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
+            if ret == 0 and output is not None:
+                domain_list = re.findall(r"'domain-.*?'", output, re.I)
+                if len(domain_list) > 0:
+                    domain_list = ','.join(list(set(domain_list))).replace("'", "\"")
+                    logger.info("Succeeded to get host_parents_list: %s" % domain_list)
+                    return domain_list
+                else:
+                    raise FailException("Failed, no domain host found.")
+            else:
+                raise FailException("Failed to execute virt-who with -o -d")
+            # remove above /etc/virt-who.d/virt.esx
+            self.unset_virtwho_d_conf(conf_file, destination_ip)
+
+    def esx_set_filter_host_parents(self, host_parents, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            conf_file = "/etc/virt-who.d/virt.esx"
+            conf_data = "[test-esx1]\n"\
+                        "type=esx\n"\
+                        "server=%s\n"\
+                        "username=%s\n"\
+                        "password=%s\n"\
+                        "filter_host_parents=%s\n"\
+                        "owner=%s\n"\
+                        "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
+            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+
+    def esx_set_exclude_host_parents(self, host_parents, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            conf_file = "/etc/virt-who.d/virt.esx"
+            conf_data = "[test-esx1]\n"\
+                        "type=esx\n"\
+                        "server=%s\n"\
+                        "username=%s\n"\
+                        "password=%s\n"\
+                        "exclude_host_parents=%s\n"\
+                        "owner=%s\n"\
+                        "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
+            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+
+    def esx_set_hypervisor_id(self, hypervisor_id, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            conf_file = "/etc/virt-who.d/virt.esx"
+            conf_data = "[test-esx1]\n"\
+                        "type=esx\n"\
+                        "server=%s\n"\
+                        "username=%s\n"\
+                        "password=%s\n"\
+                        "hypervisor_id=%s\n"\
+                        "owner=%s\n"\
+                        "env=%s" % (esx_server, esx_username, esx_password, hypervisor_id, esx_owner, esx_env)
+            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+
+    def esx_get_hostname(self, targetmachine_ip=""):
+        cmd = "hostname -f"
+        ret, output = self.runcmd_esx(cmd, "geting esx machine's hostname", targetmachine_ip)
+        if ret == 0:
+            hostname = output.strip(' \r\n').strip('\r\n') 
+            logger.info("Succeeded to get the machine's hostname %s." % hostname) 
+            return hostname
+        else:
+            raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))

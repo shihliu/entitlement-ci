@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID477303_ESX_run_virtwho_with_exclude_host_parents_null(ESXBase):
+class tc_ID477300_ESX_run_virtwho_with_exclude_host_parents(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -12,80 +12,26 @@ class tc_ID477303_ESX_run_virtwho_with_exclude_host_parents_null(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
-            guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
+            guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
+            host_parents_list = self.esx_get_host_parents_list(esx_owner, esx_env, esx_server, esx_username, esx_password)
 
-            # 2). disable esx config
-            self.unset_esx_conf()
-
-            # 3). creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+            # creat /etc/virt-who.d/virt.esx file for esxi with exclude_host_parents=""
             conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-password=%s
-filter_host_parents=""
-owner=%s
-env=%s''' % (esx_server, esx_username, esx_password, esx_owner, esx_env)
+            self.esx_set_exclude_host_parents(host_parents_list, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
-            
-            # 4). run virt-who one-shot with above config
-            cmd = "virt-who -o -d"
-            ret, output = self.runcmd(cmd, "executing virt-who with -o -d")
-            if ret == 0 and output is not None:
-                domain_list = re.findall(r"'domain-.*?'", output, re.I)
-                if len(domain_list) > 0:
-                    domain_list = ','.join(list(set(domain_list))).replace("'", "\"")
-                else:
-                    raise FailException("Failed, no domain host found.")
-            else:
-                raise FailException("Failed to execute virt-who with -o -d")
-
-            # 5). remove above /etc/virt-who.d/virt.esx
-            self.unset_virtwho_d_conf(conf_file)
-
-            # 6). creat /etc/virt-who.d/virt.esx file for esxi with exclude_host_parents=""
-            conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-password=%s
-owner=%s
-env=%s
-exclude_host_parents=%s''' % (esx_server, esx_username, esx_password, esx_owner, esx_env, domain_list)
-
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            # 5). after stop virt-who, start to monitor the rhsm.log 
+            # after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
             checkcmd = self.get_service_cmd("restart_virtwho")
             self.generate_tmp_log(checkcmd, tmp_file)
-#            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, destination_ip)
-
-            cmd = "cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "feedback tail log for parsing")
-            if ret == 0 and output is not None and "ERROR" not in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {}', re.S)
-                if len(rex.findall(output)) > 0:
-                    mapping_info = rex.findall(output)[0]
-                    if host_uuid not in mapping_info and guestuuid not in mapping_info:
-                        logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guestuuid))
-                    else:
-                        raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guestuuid))
-                else:
-                    raise FailException("Failed to check uuid list, no 'Sending update in hosts-to-guests mapping' keyword found.")
-            else:
-                raise FailException("Failed to check uuid list, there is an error message found or no data output.")
+            self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file, uuid_exist=False)
 
             self.assert_(True, case_name)
         except Exception, e:
