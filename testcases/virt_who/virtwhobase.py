@@ -251,12 +251,26 @@ EOF''' % (file_name, file_data)
 
     def vw_restart_libvirtd(self, targetmachine_ip=""):
         ''' restart libvirtd service. '''
-        cmd = "service libvirtd restart"
-        ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to restart libvirtd service.")
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "service libvirtd restart"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                raise FailException("Test Failed - Failed to restart libvirtd")
         else:
-            raise FailException("Test Failed - Failed to restart libvirtd")
+            cmd = "service libvirtd restart"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                raise FailException("Test Failed - Failed to restart libvirtd")
+            cmd = "initctl restart libvirtd"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                logger.info("Failed to initctl restart libvirtd")
 
     def vw_restart_virtwho_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("virt-who", targetmachine_ip):
