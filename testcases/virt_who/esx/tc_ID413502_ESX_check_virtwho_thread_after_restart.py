@@ -12,13 +12,7 @@ class tc_ID413502_ESX_check_virtwho_thread_after_restart(ESXBase):
             self.service_command("stop_virtwho")
 
             # ). kill all virt-who process
-            # cmd = "pidof virtwho.py | xargs kill 9"
-            cmd = "kill 9 `ps -ef | grep virtwho.py -i | grep -v grep | awk '{print $2}'`"
-            ret, output = self.runcmd(cmd, "kill all the process of virt-who.")
-            if ret == 0:
-                logger.info("Succeeded to kill virt-who process.")
-            else:
-                raise FailException("Failed to kill virt-who process.")
+            self.kill_virt_who_pid()
 
             # ). restart virt-who and check the pid number
             for i in range(3):

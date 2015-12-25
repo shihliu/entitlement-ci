@@ -12,40 +12,28 @@ class tc_ID476491_ESX_check_virtwho_support_offline_mode(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
 
-            # 2). disable esx config
+            # disable esx config
             self.unset_esx_conf()
 
-            # 3). create offline data
+            # create offline data
             offline_data = "/tmp/offline.dat"
-            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
-            ret, output = self.runcmd(cmd, "executing virt-who with -p -d for offline mode.")
-            if ret == 0:
-                logger.info("Succeeded to execute virt-who with -p -d for offline mode. ")
-            else:
-                raise FailException("Failed to execute virt-who with -o -d")
+            self.esx_create_offline_data(offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password)
 
-            # 4). creat /etc/virt-who.d/virt.fake file for offline mode
+            # creat /etc/virt-who.d/virt.fake file for offline mode
             conf_file = "/etc/virt-who.d/virt.fake"
-            conf_data = '''[fake-virt]
-type=fake
-file=%s
-is_hypervisor=True
-owner=%s
-env=%s''' % (offline_data, esx_owner, esx_env)
+            self.esx_set_offline(offline_data, conf_file, esx_owner, esx_env)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            # 5). after stop virt-who, start to monitor the rhsm.log 
+            # after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
             checkcmd = self.get_service_cmd("restart_virtwho")
             self.generate_tmp_log(checkcmd, tmp_file)

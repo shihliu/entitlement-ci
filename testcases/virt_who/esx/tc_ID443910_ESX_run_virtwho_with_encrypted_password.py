@@ -12,33 +12,25 @@ class tc_ID443910_ESX_run_virtwho_with_encrypted_password(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
 
-            # 2). disable esx config
+            # disable esx config
             self.unset_esx_conf()
 
-            # 3). create decrypt encrypted password
+            # create decrypt encrypted password
             encrypted_password = self.run_virt_who_password(esx_password)
 
-            # 4). creat /etc/virt-who.d/virt.esx file for esxi
+            # creat /etc/virt-who.d/virt.esx file for esxi
             conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-encrypted_password=%s
-owner=%s
-env=%s''' % (esx_server, esx_username, encrypted_password, esx_owner, esx_env)
-
-            self.set_virtwho_d_conf(conf_file, conf_data)
+            self.esx_set_encrypted_password(encrypted_password, conf_file, esx_owner, esx_env, esx_server, esx_username)
 
             # 5). after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"

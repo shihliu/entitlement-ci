@@ -12,40 +12,32 @@ class tc_ID443912_ESX_run_virtwho_with_wrong_encrypted_password(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
 
-            # 2). disable esx config
+            # disable esx config
             self.unset_esx_conf()
 
-            # 3). input an error decrypt encrypted password for testing
+            # input an error decrypt encrypted password for testing
             encrypted_password = "xxxxxxxx"
 
-            # 4). creat /etc/virt-who.d/virt.esx file for esxi
+            # creat /etc/virt-who.d/virt.esx file for esxi
             conf_file = "/etc/virt-who.d/virt.esx"
-            conf_data = '''[test-esx1]
-type=esx
-server=%s
-username=%s
-encrypted_password=%s
-owner=%s
-env=%s''' % (esx_server, esx_username, encrypted_password, esx_owner, esx_env)
+            self.esx_set_encrypted_password(encrypted_password, conf_file, esx_owner, esx_env, esx_server, esx_username)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-            # 5). after stop virt-who, start to monitor the rhsm.log 
+            # after stop virt-who, start to monitor the rhsm.log 
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
             cmd = "tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
             self.runcmd(cmd, "generate nohup.out file by tail -f")
 
-            # 6). virt-who restart
+            # virt-who restart
             if self.service_command("restart_virtwho", is_return=True) == False:
                 logger.info("Succeeded to check, virt-who restart failed with an error encrypted_password.")
                 virtwho_status = self.check_virtwho_status()
@@ -56,7 +48,7 @@ env=%s''' % (esx_server, esx_username, encrypted_password, esx_owner, esx_env)
             else:
                 raise FailException("Failed to check, virt-who service should not be restarted with an wrong encrypted_password.")
 
-            # 7). after restart virt-who, stop to monitor the rhsm.log
+            # after restart virt-who, stop to monitor the rhsm.log
             time.sleep(5)
             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
             ret, output = self.runcmd(cmd, "feedback tail log for parse")

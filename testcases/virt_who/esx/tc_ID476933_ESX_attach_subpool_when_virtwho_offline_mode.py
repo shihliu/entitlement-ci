@@ -18,71 +18,58 @@ class tc_ID476933_ESX_attach_subpool_when_virtwho_offline_mode(ESXBase):
             destination_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(destination_ip)
 
-            # 0).check the guest is power off or not on esxi host, if power on, stop it firstly 
+            # check the guest is power off or not on esxi host, if power on, stop it firstly 
             if self.esx_guest_ispoweron(guest_name, destination_ip):
                 self.esx_stop_guest(guest_name, destination_ip)
             self.esx_start_guest(guest_name)
             guestip = self.esx_get_guest_ip(guest_name, destination_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, destination_ip)
 
-            # 1). stop virt-who firstly 
+            # stop virt-who firstly 
             self.service_command("stop_virtwho")
 
-            # 2). disable esx config
+            # disable esx config
             self.unset_esx_conf()
 
-            # 3). create offline data
+            # create offline data
             offline_data = "/tmp/offline.dat"
-            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
-            ret, output = self.runcmd(cmd, "executing virt-who with -p -d for offline mode.")
-            if ret == 0:
-                logger.info("Succeeded to execute virt-who with -p -d for offline mode. ")
-            else:
-                raise FailException("Failed to execute virt-who with -o -d")
+            self.esx_create_offline_data(offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password)
 
-            # 4). creat /etc/virt-who.d/virt.fake file for offline mode
+            # creat /etc/virt-who.d/virt.fake file for offline mode
             conf_file = "/etc/virt-who.d/virt.fake"
-            conf_data = '''[fake-virt]
-type=fake
-file=%s
-is_hypervisor=True
-owner=%s
-env=%s''' % (offline_data, esx_owner, esx_env)
+            self.esx_set_offline(offline_data,conf_file, esx_owner, esx_env)
 
-            self.set_virtwho_d_conf(conf_file, conf_data)
-
-
-            # 5). after stop virt-who, start to monitor the rhsm.log 
+            # after stop virt-who, start to monitor the rhsm.log 
             tmp_file = "/tmp/tail.rhsm.log"
             checkcmd = self.get_service_cmd("restart_virtwho")
             self.generate_tmp_log(checkcmd, tmp_file)
             self.esx_check_host_guest_uuid_exist_in_file(host_uuid, guest_uuid, tmp_file)
 
-            # 8).check DataCenter is exist on host/hpyervisor
+            # check DataCenter is exist on host/hpyervisor
             host_pool_id = self.get_poolid_by_SKU(host_sku_id)
             if host_pool_id is not None or host_pool_id != "":
                 logger.info("Succeeded to find the pool id of '%s': '%s'" % (host_sku_id, host_pool_id))
             else:
                 raise FailException("Failed to find the pool id of %s" % host_sku_id)
 
-            # 9).register guest to SAM/Candlepin server with same username and password
+            # register guest to SAM/Candlepin server with same username and password
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
 
-            # 10).subscribe successfully to the DataCenter subscription pool on host
+            # subscribe successfully to the DataCenter subscription pool on host
             self.server_subscribe_system(host_uuid, host_pool_id, server_ip)
 
-            # 11).check the bonus pool is available
+            # check the bonus pool is available
             if self.check_bonus_exist(bonus_sku_id, bonus_quantity, guestip) is True:
                 logger.info("Succeeded to find the bonus pool of product '%s'" % product_name)
             else:
                 raise FailException("Failed to find the bonus pool from guest.")
 
-            # 12).subscribe to the bonus pool. 
+            # subscribe to the bonus pool. 
             self.sub_subscribe_sku(bonus_sku_id, guestip)
 
-            # 13).check the consumed product
+            # check the consumed product
             self.sub_listconsumed(product_name, guestip)
 
             self.assert_(True, case_name)
