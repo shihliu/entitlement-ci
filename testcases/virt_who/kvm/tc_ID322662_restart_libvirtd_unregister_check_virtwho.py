@@ -21,6 +21,7 @@ class tc_ID322662_restart_libvirtd_unregister_check_virtwho(KVMBase):
             self.vw_check_libvirtd_status()
 
             self.assert_(True, case_name)
+
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
