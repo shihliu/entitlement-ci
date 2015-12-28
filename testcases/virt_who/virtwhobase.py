@@ -265,12 +265,23 @@ EOF''' % (file_name, file_data)
                 logger.info("Succeeded to restart libvirtd service.")
             else:
                 raise FailException("Test Failed - Failed to restart libvirtd")
+
+    def vw_restart_libvirtd_vdsm(self, targetmachine_ip=""):
+        ''' restart libvirtd service. '''
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "service libvirtd restart"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                raise FailException("Test Failed - Failed to restart libvirtd")
+        else:
             cmd = "initctl restart libvirtd"
             ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to restart libvirtd service.")
             else:
-                logger.info("Failed to initctl restart libvirtd")
+                raise FailException("Failed to initctl restart libvirtd")
 
     def vw_restart_virtwho_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("virt-who", targetmachine_ip):
@@ -336,7 +347,6 @@ EOF''' % (file_name, file_data)
             ret, output = self.runcmd(cmd, "libvirtd status", targetmachine_ip)
             if ret == 0 and "running" in output:
                 logger.info("Succeeded to check libvirtd is running.")
-                self.SET_RESULT(0)
             else:
                 raise FailException("Test Failed - Failed to check libvirtd is running.")
 
@@ -495,8 +505,7 @@ EOF''' % (file_name, file_data)
                 gpoolid = availpoollistguest[rindex]["PoolId"]
             return gpoolid
         else:
-            logger.error("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
-            self.SET_RESULT(1)
+            raise FailException("Failed to subscribe the guest to the bonus pool of the product: %s - due to failed to list available pools." % SKU_id)
 
     def sub_subscribe_to_bonus_pool(self, productid, guest_ip=""):
         ''' subscribe the registered guest to the corresponding bonus pool of the product: productid. '''
@@ -858,8 +867,7 @@ EOF''' % (file_name, file_data)
             else:
                 raise FailException("Failed to check guest %s attribute" % guestname)
         else:
-            logger.error("Failed to get uuids in rhsm.log")
-            self.SET_RESULT(1)
+            raise FailException("Failed to get uuids in rhsm.log")
 
     def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. '''

@@ -336,7 +336,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             logger.info("virt-V2V hasn't been installed.")
             cmd = "yum install virt-v2v -y"
-            ret, output = self.runcmd(cmd, "install vdsm", targetmachine_ip, showlogger=False)
+            ret, output = self.runcmd(cmd, "install virt-v2v", targetmachine_ip, showlogger=False)
             if ret == 0:
                 logger.info("Succeeded to install virt-V2V.")
             else:
@@ -393,7 +393,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to Disable auth_unix_rw.")
         else:
             raise FailException("Failed to Disable auth_unix_rw.")
-        self.vw_restart_libvirtd()
+        self.vw_restart_libvirtd_vdsm()
         # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
         cmd = "virsh define /home/rhevm_guest/xml/%s.xml" % vm_name
         ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
@@ -436,6 +436,24 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to create autotest_pool.")
         else:
             raise FailException("Failed to create autotest_pool.")
+        if self.os_serial == "6":
+            cmd = "virsh pool-define /tmp/autotest_pool.xml"
+            ret, output = self.runcmd(cmd, "define storage pool.")
+            if ret == 0 and "autotest_pool defined" in output:
+                logger.info("Succeeded to define storage pool.")
+            else:
+                raise FailException("Failed to define storage pool.")
+            cmd = "virsh pool-list"
+            ret, output = self.runcmd(cmd, "list storage pool.")
+            if ret == 0 and "autotest_pool" in output and "active" in output:
+                logger.info("Succeeded to list storage pool.")
+            else:
+                cmd = "virsh pool-start autotest_pool"
+                ret, output = self.runcmd(cmd, "start storage pool.")
+                if ret == 0 and "autotest_pool started" in output:
+                    logger.info("Succeeded to start storage pool.")
+                else:
+                    raise FailException("Failed to start storage pool.")
 
     # convert_guest_to_nfs with v2v tool
     def convert_guest_to_nfs(self, origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, targetmachine_ip=""):
@@ -445,7 +463,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to enable auth_unix_rw.")
         else:
             raise FailException("Failed to enable auth_unix_rw.")
-        self.vw_restart_libvirtd()
+        self.vw_restart_libvirtd_vdsm()
         time.sleep(30)
 #        # v2v import vm from remote libvirt to rhevm
 #         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
@@ -453,18 +471,11 @@ class VDSMBase(VIRTWHOBase):
         # v2v import vm from local libvirt to rhevm
         cmd = "export LIBGUESTFS_BACKEND=direct && virt-v2v -o rhev -os  %s:%s --network rhevm %s" % (NFS_server, NFS_export_dir, vm_hostname)
         (ret, output) = self.runcmd(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
-        if ret == 0 and "100%" in output:
+        if ret == 0 and ("100%" in output or "configured with virtio drivers" in output):
             logger.info("Succeeded to convert_guest_to_nfs with v2v tool")
             time.sleep(10)
         else:
             raise FailException("Failed to convert_guest_to_nfs with v2v tool")
-#         # convert the second guest
-#         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s -on \"Sec_%s\"" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, vm_hostname)
-#         ret, output = self.runcmd_interact(cmd, "convert_guest_to_nfs with v2v tool", targetmachine_ip)
-#         if ret == 0:
-#             logger.info("Succeeded to convert the second guest to nfs with v2v tool")
-#         else:
-#             raise FailException("Failed to convert the second guest to nfs with v2v tool")
 
     # Get storagedomain id 
     def get_domain_id(self, storagedomain_name, rhevm_host_ip):
@@ -514,7 +525,7 @@ class VDSMBase(VIRTWHOBase):
                     self.rhevm_define_guest(rhevm_vm_name)
                     self.create_storage_pool()
                     self.install_virtV2V()
-                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
+#                     self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
                     self.rhevm_undefine_guest(rhevm_vm_name)
                     data_storage_id = self.get_domain_id ("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id ("export_storage", targetmachine_ip)
@@ -857,7 +868,7 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
 
-        # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
+#         system setup for RHEL+RHEVM(VDSM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose)
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # configure env on rhevm(add two host,storage,guest)
