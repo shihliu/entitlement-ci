@@ -11,6 +11,8 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(KVMBase):
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
+            self.vw_start_guests(guest_name)
+            guestip = self.kvm_get_guest_ip(guest_name)
 
             # Check guest uuid before unregister
             self.vw_restart_virtwho()
@@ -36,6 +38,7 @@ class tc_ID174959_validate_mapping_info_after_re_register_host(KVMBase):
         finally:
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
+            self.vw_stop_guests(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

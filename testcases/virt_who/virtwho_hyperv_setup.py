@@ -7,14 +7,9 @@ class virtwho_hyperv_setup(HYPERVBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-#             self.hyperv_run_cmd("getvm rhel7.2")
-#             self.hyperv_run_cmd("get-vm rhel7.2|select *")
-#             self.hyperv_run_cmd("start-vm rhel7.2 -asjob")
-#             self.hyperv_run_cmd("start-vm rhel7.2")
-#             self.hyperv_run_cmd("stop-vm rhel7.2")
-#             self.hyperv_run_cmd("(Get-VMNetworkAdapter -VMName rhel7.2).IpAddresses ")
 #             self.hyperv_run_cmd("'get-vm | where { $_.state -eq 'running'} | get-vmnetworkadapter | Select VMName,@{Name="IP";Expression={$_.IPAddresses | where {$_ -match "^172\."}}} | Sort VMName'")
-            self.hyperv_get_guest_ip()
+#             self.hyperv_start_guest("rhel7.2")
+            self.hyperv_stop_guest("rhel7.2")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

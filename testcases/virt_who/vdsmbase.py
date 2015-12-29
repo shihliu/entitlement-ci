@@ -191,44 +191,6 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to update vm %s to host %s." % (vm_name, rhevm_host_name))
 
-    # parse rhevm-shell result to dict
-    def get_key_rhevm(self, output, non_key_value, key_value, find_value, targetmachine_ip=""):
-        pool_dict = {}
-        if output is not "":
-            datalines = output.splitlines()
-            values1 = False
-            values2 = False
-            ERROR_VALUE = "-1"
-            for line in datalines:
-                line = line.strip()
-                if line.find(non_key_value) == 0:
-                    result_values1 = line[(line.find(':') + 1):].strip()
-                    logger.info("Succeeded to find the non_key_value %s's result_values1 %s" % (non_key_value, result_values1))
-                    values1 = True
-                elif line.find(key_value) == 0:
-                    result_values2 = line[(line.find(':') + 1):].strip()
-                    logger.info("Succeeded to find the key_value %s's result_values2 %s" % (key_value, result_values2))
-                    values2 = True
-                elif (line == "") and (values2 == True) and (values1 == False):
-                    pool_dict[result_values2] = ERROR_VALUE
-                    values2 = False
-                if (values1 == True) and (values2 == True):
-                    pool_dict[result_values2] = result_values1
-                    values1 = False
-                    values2 = False
-            if find_value in pool_dict:
-                findout_value = pool_dict[find_value]
-                if findout_value == ERROR_VALUE:
-                    logger.info("Failed to get the %s's %s, no value" % (find_value, non_key_value))
-                    return ERROR_VALUE
-                else:
-                    logger.info("Succeeded to get the %s's %s is %s" % (find_value, non_key_value, findout_value))
-                    return findout_value
-            else:
-                raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
-        else:
-            raise FailException("Failed to run rhevm-shell cmd.")
-
     # parse rhevm-result to dict
     def rhevm_info_dict(self, output, targetmachine_ip=""):
         rhevm_info_dict = {}
@@ -525,7 +487,7 @@ class VDSMBase(VIRTWHOBase):
                     self.rhevm_define_guest(rhevm_vm_name)
                     self.create_storage_pool()
                     self.install_virtV2V()
-#                     self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
+                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
                     self.rhevm_undefine_guest(rhevm_vm_name)
                     data_storage_id = self.get_domain_id ("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id ("export_storage", targetmachine_ip)
@@ -535,30 +497,39 @@ class VDSMBase(VIRTWHOBase):
 
 # Start VM on RHEVM
     def rhevm_start_vm(self, rhevm_vm_name, rhevm_host_ip):
-        cmd = "rhevm-shell -c -E 'action vm %s start'" % rhevm_vm_name
-        ret, output = self.runcmd(cmd, "start vm on rhevm.", rhevm_host_ip)
-        if ret == 0 and "cannot be accessed" not in output:
-            runtime = 0
-            while True:
-                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
-                ret, output = self.runcmd(cmd, "list vms in rhevm.", rhevm_host_ip)
-                runtime = runtime + 1
-                if ret == 0:
-                    logger.info("Succeeded to list vms")
-                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, rhevm_host_ip)
-                    if status.find("up") >= 0 and status.find("powering") < 0 and output.find("guest_info-ips-ip-address") > 0:
-                        logger.info("Succeeded to up vm %s in rhevm" % rhevm_vm_name)
-                        time.sleep(60)
-                        break
-                    else :
-                        logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(10)
-                    if runtime > 30:
-                        raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-                else:
-                    raise FailException("Failed to list vm %s" % rhevm_vm_name)
-        else:
-            raise FailException("Failed to start vm %s on rhevm" % rhevm_vm_name)
+        runtime_start = 0
+        while True:
+            cmd = "rhevm-shell -c -E 'action vm %s start'" % rhevm_vm_name
+            ret, output = self.runcmd(cmd, "start vm on rhevm.", rhevm_host_ip)            
+            if "Storage Domain cannot be accessed" in output:
+                runtime_start = runtime_start + 1
+                time.sleep(30)
+                if runtime_start > 10:
+                    raise FailException("Failed to run start command as storage is not active")
+            elif ret == 0:
+                logger.info("Success to run start command ")
+                break
+            else:
+                raise FailException("Failed to start vm %s on rhevm" % rhevm_vm_name)
+        runtime = 0
+        while True:
+            cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
+            ret, output = self.runcmd(cmd, "list vms in rhevm.", rhevm_host_ip)
+            runtime = runtime + 1
+            if ret == 0:
+                logger.info("Succeeded to list vms")
+                status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, rhevm_host_ip)
+                if status.find("up") >= 0 and status.find("powering") < 0 and output.find("guest_info-ips-ip-address") > 0:
+                    logger.info("Succeeded to up vm %s in rhevm" % rhevm_vm_name)
+                    time.sleep(60)
+                    break
+                else :
+                    logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
+                time.sleep(10)
+                if runtime > 30:
+                    raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+            else:
+                raise FailException("Failed to list vm %s" % rhevm_vm_name)
 
 # Stop VM on RHEVM
     def rhevm_stop_vm(self, rhevm_vm_name, targetmachine_ip):
@@ -588,31 +559,40 @@ class VDSMBase(VIRTWHOBase):
 
 # Pause VM on RHEVM
     def rhevm_pause_vm(self, rhevm_vm_name, targetmachine_ip):
-        cmd = "rhevm-shell -c -E 'action vm \"%s\" suspend'" % rhevm_vm_name
-        ret, output = self.runcmd(cmd, "stop vm on rhevm.", targetmachine_ip)
-        if ret == 0:
-            runtime = 0
-            while True:
-                cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
-                ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
-                runtime = runtime + 1
-                if ret == 0:
-                    logger.info("Succeeded to list vms")
-                    status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, targetmachine_ip)
+        runtime_suspend = 0
+        while True:
+            cmd = "rhevm-shell -c -E 'action vm \"%s\" suspend'" % rhevm_vm_name
+            ret, output = self.runcmd(cmd, "suspend vm on rhevm.", targetmachine_ip)
+            if "Storage Domain cannot be accessed" in output:
+                runtime_suspend = runtime_suspend + 1
+                time.sleep(30)
+                if runtime_suspend > 10:
+                    raise FailException("Failed to run suspend command as storage is not active")
+            elif ret == 0:
+                logger.info("Success to run suspend command ")
+                break
+            else:
+                raise FailException("Failed to suspended vm %s in rhevm" % rhevm_vm_name)
+        runtime = 0
+        while True:
+            cmd = "rhevm-shell -c -E 'show vm %s'" % rhevm_vm_name
+            ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
+            runtime = runtime + 1
+            if ret == 0:
+                logger.info("Succeeded to list vms")
+                status = self.get_key_rhevm(output, "status-state", "name", rhevm_vm_name, targetmachine_ip)
 #                     if status.find("suspended") >= 0 and status.find("saving_state") < 0:
-                    if "suspended" in status :
-                        logger.info("Succeeded to suspended vm %s in rhevm" % rhevm_vm_name)
-                        break
-                    else :
-                        logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
-                    time.sleep(30)
-                    if runtime > 20:
-                        raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
-                else:
-                    raise FailException("Failed to list vm %s" % rhevm_vm_name)
-        else:
-            raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
-
+                if "suspended" in status :
+                    logger.info("Succeeded to suspended vm %s in rhevm" % rhevm_vm_name)
+                    break
+                else :
+                    logger.info("vm %s status-state is %s" % (rhevm_vm_name, status))
+                time.sleep(30)
+                if runtime > 20:
+                    raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
+            else:
+                raise FailException("Failed to list vm %s" % rhevm_vm_name)
+    
 # Migrate VM on RHEVM
     def rhevm_migrate_vm(self, rhevm_vm_name, dest_ip, dest_host_id, targetmachine_ip):
         cmd = "rhevm-shell -c -E 'action vm \"%s\" migrate --host-name \"%s\"'" % (rhevm_vm_name, dest_ip)
@@ -637,7 +617,7 @@ class VDSMBase(VIRTWHOBase):
                 else:
                     raise FailException("Failed to list vm %s" % rhevm_vm_name)
         else:
-            raise FailException("Failed to run migrate vm %s on rhevm" % rhevm_vm_name)
+            raise FailException("Failed to run migrate vm %s in rhevm" % rhevm_vm_name)
 
     # get guest ip
     def rhevm_get_guest_ip(self, vm_name, targetmachine_ip):
@@ -868,18 +848,18 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
 
-#         system setup for RHEL+RHEVM(VDSM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose)
+        # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
+#         self.config_vdsm_env_setup(rhel_compose)
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
