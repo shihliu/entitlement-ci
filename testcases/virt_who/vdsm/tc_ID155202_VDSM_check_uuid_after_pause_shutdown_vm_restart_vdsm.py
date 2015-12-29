@@ -16,7 +16,7 @@ class tc_ID155202_VDSM_check_uuid_after_pause_shutdown_vm_restart_vdsm(VDSMBase)
             # (1) Restart virt-who and libvirtd service.
             self.vw_restart_virtwho_new()
             self.vw_restart_vdsm_new()
-            time.sleep(60)
+            time.sleep(30)
             # Check guest's uuid and guest's attribute 
             self.vw_check_uuid(guestuuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid)

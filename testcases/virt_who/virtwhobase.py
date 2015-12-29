@@ -967,3 +967,41 @@ EOF''' % (file_name, file_data)
                 return output
             else:
                 raise FailException("Test Failed - Failed to calculate virt-who thread")
+
+    # parse rhevm-shell result to dict
+    def get_key_rhevm(self, output, non_key_value, key_value, find_value, targetmachine_ip=""):
+        pool_dict = {}
+        if output is not "":
+            datalines = output.splitlines()
+            values1 = False
+            values2 = False
+            ERROR_VALUE = "-1"
+            for line in datalines:
+                line = line.strip()
+                if line.find(non_key_value) == 0:
+                    result_values1 = line[(line.find(':') + 1):].strip()
+                    logger.info("Succeeded to find the non_key_value %s's result_values1 %s" % (non_key_value, result_values1))
+                    values1 = True
+                elif line.find(key_value) == 0:
+                    result_values2 = line[(line.find(':') + 1):].strip()
+                    logger.info("Succeeded to find the key_value %s's result_values2 %s" % (key_value, result_values2))
+                    values2 = True
+                elif (line == "") and (values2 == True) and (values1 == False):
+                    pool_dict[result_values2] = ERROR_VALUE
+                    values2 = False
+                if (values1 == True) and (values2 == True):
+                    pool_dict[result_values2] = result_values1
+                    values1 = False
+                    values2 = False
+            if find_value in pool_dict:
+                findout_value = pool_dict[find_value]
+                if findout_value == ERROR_VALUE:
+                    logger.info("Failed to get the %s's %s, no value" % (find_value, non_key_value))
+                    return ERROR_VALUE
+                else:
+                    logger.info("Succeeded to get the %s's %s is %s" % (find_value, non_key_value, findout_value))
+                    return findout_value
+            else:
+                raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
+        else:
+            raise FailException("Failed to run rhevm-shell cmd.")
