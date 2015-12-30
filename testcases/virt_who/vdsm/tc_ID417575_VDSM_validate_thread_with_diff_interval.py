@@ -11,15 +11,15 @@ class tc_ID417575_VDSM_validate_thread_with_diff_interval(VDSMBase):
 
             # (1) Set virt-who interval to 1 then check virt-who thread
             self.update_rhel_vdsm_configure(1)
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.check_virtwho_thread()
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.check_virtwho_thread()
             # (2) Set virt-who interval to 10 then check virt-who thread
             self.update_rhel_vdsm_configure(10)
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.check_virtwho_thread()
-            self.vw_restart_virtwho()
+            self.vw_restart_virtwho_new()
             self.check_virtwho_thread()
             self.assert_(True, case_name)
         except Exception, e:

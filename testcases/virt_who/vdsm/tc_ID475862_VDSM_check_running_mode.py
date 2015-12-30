@@ -14,18 +14,13 @@ class tc_ID475862_VDSM_check_running_mode(VDSMBase):
             rhsmlogfile = "/var/log/rhsm/rhsm.log"
 
             # check running mode 
-            if self.get_os_serials() == "7":
-                cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-                ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f")
-                # ignore restart virt-who serivce since virt-who -b -d will stop
-                self.vw_restart_virtwho_new()
-                time.sleep(10)
-                cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-                ret, output = self.runcmd(cmd, "get log number added to rhsm.log")
-            else: 
-                self.vw_restart_virtwho_new()
-                cmd = "tail -3 %s " % rhsmlogfile
-                ret, output = self.runcmd(cmd, "check output in rhsm.log")
+            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f")
+            # ignore restart virt-who serivce since virt-who -b -d will stop
+            self.vw_restart_virtwho_new()
+            time.sleep(10)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "get log number added to rhsm.log")
             if ret == 0:
                 if "Sending domain info" in output or "Sending list of uuids: " in output or " Sending update in hosts-to-guests mapping:" in output:
                     if 'Using configuration "env/cmdline" ("vdsm" mode)' in output:
