@@ -703,7 +703,6 @@ class VDSMBase(VIRTWHOBase):
             ret, output = self.runcmd(cmd, "vdsmd status", targetmachine_ip)
             if ret == 0 and "running" in output:
                 logger.info("Succeeded to check vdsmd is running.")
-                self.SET_RESULT(0)
             else:
                 raise FailException("Test Failed - Failed to check vdsmd is running.")
 
@@ -727,18 +726,13 @@ class VDSMBase(VIRTWHOBase):
 
     def hypervisor_check_uuid(self, hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', uuidexists=True, targetmachine_ip=""):
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-            # ignore restart virt-who serivce since virt-who -b -d will stop
-            self.vw_restart_virtwho_new(targetmachine_ip)
-            time.sleep(10)
-            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-        else: 
-            self.vw_restart_virtwho_new(targetmachine_ip)
-            cmd = "tail -3 %s " % rhsmlogfile
-            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+        ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        # ignore restart virt-who serivce since virt-who -b -d will stop
+        self.vw_restart_virtwho_new(targetmachine_ip)
+        time.sleep(20)
+        cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
         if ret == 0:
             if "Sending list of uuids: " in output:
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
@@ -783,17 +777,12 @@ class VDSMBase(VIRTWHOBase):
     def hypervisor_check_attr(self, hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-            self.vw_restart_virtwho(targetmachine_ip)
-            time.sleep(10)
-            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-            ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-        else: 
-            self.vw_restart_virtwho(targetmachine_ip)
-            cmd = "tail -3 %s " % rhsmlogfile
-            ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
+        cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+        ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        self.vw_restart_virtwho(targetmachine_ip)
+        time.sleep(20)
+        cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
         if ret == 0:
             ''' get guest uuid.list from rhsm.log '''
             if "Sending list of uuids: " in output:
@@ -834,8 +823,7 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to check guest %s attribute" % guestname)
         else:
-            logger.error("Failed to get uuids in rhsm.log")
-            self.SET_RESULT(1)
+            raise FailException("Failed to get uuids in rhsm.log")
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         self.cm_install_basetool(targetmachine_ip)
@@ -849,17 +837,17 @@ class VDSMBase(VIRTWHOBase):
         rhel_compose = get_exported_param("RHEL_COMPOSE")
 
         # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
-#         self.config_vdsm_env_setup(rhel_compose)
+        self.config_vdsm_env_setup(rhel_compose)
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-#         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()

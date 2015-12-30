@@ -21,17 +21,15 @@ class tc_ID174959_RHEVM_validate_mapping_info_after_re_register_host(VDSMBase):
             self.vw_restart_virtwho_new()
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
             # Check guest uuid after unregister
+            tmp_file = "/tmp/tail.rhsm.log"
             cmd = "subscription-manager unregister"
-            ret, output = self.runcmd(cmd, "unreigster system")
-            if ret == 0 :
-                cmd = "tail -3 /var/log/rhsm/rhsm.log"
-                ret, output = self.runcmd(cmd, "check log after unreigster host")
-                if ret == 0 and "not registered" in output:
-                    logger.info("Success to check virt-who log after unregister host")
-                else:
-                    raise FailException("failed to check virt-who log after unregister host")
+            self.generate_tmp_log(cmd, tmp_file)
+            cmd = "cat %s" % tmp_file
+            ret, output = self.runcmd(cmd, "get temporary log generated")
+            if ret == 0 and "not registered" in output:
+                logger.info("Success to check virt-who log after unregister host")
             else:
-                raise FailException("failed to unregister host")
+                raise FailException("failed to check virt-who log after unregister host")
             self.server_remove_system(hostuuid, SERVER_IP)
             # Check guest uuid after re-register
             self.sub_register(SERVER_USER, SERVER_PASS)

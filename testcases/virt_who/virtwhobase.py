@@ -169,6 +169,23 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to check virt-who thread number is 2.")
 
+    def check_virtwho_null_thread(self, targetmachine_ip=""):
+        cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
+        ret, output = self.runcmd(cmd, "check virt-who thread", targetmachine_ip)
+        if ret == 0 and output.strip() == "0":
+            logger.info("Succeeded to check virt-who thread number is 0 after stop virt-who.")
+        else:
+            raise FailException("Test Failed - Failed to check virt-who thread number is 0 after stop virt-who.")
+
+    def update_config_to_default(self, targetmachine_ip=""):
+        ''' update virt-who configure file to default mode '''
+        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' /etc/sysconfig/virt-who"
+        ret, output = self.runcmd(cmd, "updating virt-who configure file to defualt", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update virt-who configure file to defualt.")
+        else:
+            raise FailException("Failed to virt-who configure file to defualt.")
+
     def config_virtwho_interval(self, interval_value, targetmachine_ip=""):
         # clean # for VIRTWHO_INTERVAL 
         cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
@@ -911,19 +928,6 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
 
     def get_uuid_list_in_rhsm_log(self, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
-#         ''' check if the guest attributions is correctly monitored by virt-who. '''
-#         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-#         if self.get_os_serials(targetmachine_ip) == "7":
-#             cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-#             ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-#             self.vw_restart_virtwho(targetmachine_ip)
-#             time.sleep(10)
-#             cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-#             ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-#         else: 
-#             self.vw_restart_virtwho(targetmachine_ip)
-#             cmd = "tail -3 %s " % rhsmlogfile
-#             ret, output = self.runcmd(cmd, "check output in rhsm.log", targetmachine_ip)
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
         checkcmd = "service virt-who restart"
@@ -1005,3 +1009,27 @@ EOF''' % (file_name, file_data)
                 raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
         else:
             raise FailException("Failed to run rhevm-shell cmd.")
+
+
+    def vw_check_debug_msg_rhsm_log(self, checkcmd, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check whether given message exist or not in rhsm.log. '''
+        tmp_file = "/tmp/tail.rhsm.log"
+        if checkcmd == "virt-who" or checkcmd == "virt-who -d" or checkcmd == "virt-who -d --vdsm" or checkcmd == "virt-who --vdsm":
+            self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        else:
+            raise FailException("Failed to run cmd")
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
+        if ret == 0:
+            if message_exists:
+                if message in output:
+                    logger.info("Succeeded to get message in rhsm.log: %s" % message)
+                else:
+                    raise FailException("Failed to get message in rhsm.log: %s" % message)
+            else:
+                if message not in output:
+                    logger.info("Succeeded to check message not in rhsm.log: %s" % message)
+                else:
+                    raise FailException("Failed to check message not in rhsm.log: %s" % message)
+        else:
+            raise FailException("Failed to get rhsm.log")
