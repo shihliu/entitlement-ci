@@ -1011,25 +1011,39 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to run rhevm-shell cmd.")
 
 
-    def vw_check_debug_msg_rhsm_log(self, checkcmd, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+    def vw_check_debug_msg_cmd_mode(self, cmd, message1, message2="", message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        if checkcmd == "virt-who" or checkcmd == "virt-who -d" or checkcmd == "virt-who -d --vdsm" or checkcmd == "virt-who --vdsm":
-            self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        tmp_cmd_file = "/tmp/virt-who.cmd.log"
+        if cmd == "virt-who": 
+            cmd = "virt-who > %s 2>&1 &" %tmp_cmd_file
+            logger.info("run virt-who command")
+        elif cmd == "virt-who -d": 
+            cmd == "virt-who -d > %s 2>&1 &" %tmp_cmd_file
+            logger.info("run virt-who -d command")
+        elif cmd == "virt-who -d --vdsm": 
+            cmd = "virt-who -d --vdsm > %s 2>&1 &" %tmp_cmd_file
+            logger.info("run virt-who -d --vdsm command")
+        elif cmd == "virt-who --vdsm":
+            cmd = "virt-who --vdsm > %s 2>&1 &" %tmp_cmd_file
+            logger.info("run virt-who --vdsm command")
         else:
             raise FailException("Failed to run cmd")
+        self.generate_tmp_log(cmd, tmp_file, targetmachine_ip)
+        time.sleep(10)
+        self.kill_pid("virt-who")
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
             if message_exists:
-                if message in output:
-                    logger.info("Succeeded to get message in rhsm.log: %s" % message)
+                if message1 in output and message2 in output:
+                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1,message2))
                 else:
-                    raise FailException("Failed to get message in rhsm.log: %s" % message)
+                    raise FailException("Failed to get message in rhsm.log: %s and %s"  % (message1,message2))
             else:
-                if message not in output:
-                    logger.info("Succeeded to check message not in rhsm.log: %s" % message)
+                if message1 not in output and message2 not in output:
+                    logger.info("Succeeded to check message not in rhsm.log: %s and %s"  % (message1,message2))
                 else:
-                    raise FailException("Failed to check message not in rhsm.log: %s" % message)
+                    raise FailException("Failed to check message not in rhsm.log: %s and %s"  % (message1,message2))
         else:
             raise FailException("Failed to get rhsm.log")

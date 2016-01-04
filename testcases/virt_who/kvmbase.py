@@ -335,6 +335,23 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to reset to defualt config.")
 
+    def setup_libvirtd_config(self):
+        cmd = "sed -i -e 's/^#listen_tls = 0/listen_tls = 0/g' -e 's/^#listen_tcp = 1/listen_tcp = 1/g' -e 's/^#auth_tcp = \"sasl\"/auth_tcp = \"sasl\"/g' -e 's/^#tcp_port = \"16509\"/tcp_port = \"16509\"/g' /etc/libvirt/libvirtd.conf"
+        ret, output = self.runcmd(cmd, "setup_libvirtd_config")
+        if ret == 0 :
+            logger.info("Succeeded to setup_libvirtd_config.")
+        else:
+            raise FailException("Test Failed - Failed to setup_libvirtd_config.")
+
+    def restore_libvirtd_config(self):
+        cmd = "sed -i -e 's/^listen_tls = 0/#listen_tls = 0/g' -e 's/^listen_tcp = 1/#listen_tcp = 1/g' -e 's/^auth_tcp = \"sasl\"/#auth_tcp = \"sasl\"/g' -e 's/^tcp_port = \"16509\"/#tcp_port = \"16509\"/g' /etc/libvirt/libvirtd.conf"
+        ret, output = self.runcmd(cmd, "restore_libvirtd_config")
+        if ret == 0 :
+            logger.info("Succeeded to restore_libvirtd_config.")
+        else:
+            raise FailException("Test Failed - Failed to restore_libvirtd_config.")
+
+
     def generate_ssh_key(self, targetmachine_ip=""):
         remote_ip_2 = get_exported_param("REMOTE_IP_2")
         remote_ip = get_exported_param("REMOTE_IP")
