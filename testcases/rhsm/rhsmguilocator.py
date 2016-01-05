@@ -9,6 +9,7 @@ class RHSMGuiLocator(object):
     'main-window-5':                         'Subscription Manager',
     'main-window':                           'frmSubscriptionManager',
     'register-dialog-5':                     'register_dialog',
+    'register-dialog-6':                     'dlgSystemRegistration',
     'register-dialog':                       'dlgregister_dialog',
     'subscribe-dialog-5':                    'Subscribe System',
     'subscribe-dialog':                      'frmSubscribeSystem',
