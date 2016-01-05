@@ -6,38 +6,38 @@ class tc_ID115181_install_one_package(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        try:
-            if not self.skip_satellite():
-                username = self.get_rhsm_cons("username")
-                password = self.get_rhsm_cons("password")
-                self.sub_register(username, password)
-                autosubprod = self.get_rhsm_cons("autosubprod")
-                self.sub_autosubscribe(autosubprod)
-                # get variables form ent_env
-                repoid = self.get_rhsm_cons("productrepo")
-                pid = self.get_rhsm_cons("pid")
-                pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
-                # check repo exist
-                if self.is_enabled_repo(repoid):
-                    # check package to be installed exist
-                    self.check_givenpkg_avail(repoid, pkgtoinstall)
-                    # install test-pkg
-                    self.install_givenpkg(pkgtoinstall)
-                else:
-                    raise FailException("Test Failed - The product repoid is not exist.")
-                # check the cert file exist.
-                certfile = pid + ".pem"
-                self.check_cert_file(certfile)
-                # check productid cert
-                self.sub_checkproductcert(pid)
-                self.assert_(True, case_name)
-        except Exception, e:
-            logger.error("Test Failed - ERROR Message:" + str(e))
-            self.assert_(False, case_name)
-        finally:
-            self.uninstall_givenpkg(pkgtoinstall)
-            self.restore_environment()
-            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+        if not self.skip_satellite():
+            try:
+                    username = self.get_rhsm_cons("username")
+                    password = self.get_rhsm_cons("password")
+                    self.sub_register(username, password)
+                    autosubprod = self.get_rhsm_cons("autosubprod")
+                    self.sub_autosubscribe(autosubprod)
+                    # get variables form ent_env
+                    repoid = self.get_rhsm_cons("productrepo")
+                    pid = self.get_rhsm_cons("pid")
+                    pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
+                    # check repo exist
+                    if self.is_enabled_repo(repoid):
+                        # check package to be installed exist
+                        self.check_givenpkg_avail(repoid, pkgtoinstall)
+                        # install test-pkg
+                        self.install_givenpkg(pkgtoinstall)
+                    else:
+                        raise FailException("Test Failed - The product repoid is not exist.")
+                    # check the cert file exist.
+                    certfile = pid + ".pem"
+                    self.check_cert_file(certfile)
+                    # check productid cert
+                    self.sub_checkproductcert(pid)
+                    self.assert_(True, case_name)
+            except Exception, e:
+                logger.error("Test Failed - ERROR Message:" + str(e))
+                self.assert_(False, case_name)
+            finally:
+                self.uninstall_givenpkg(pkgtoinstall)
+                self.restore_environment()
+                logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
     def is_enabled_repo(self, repoid):
         cmd = "yum repolist"
