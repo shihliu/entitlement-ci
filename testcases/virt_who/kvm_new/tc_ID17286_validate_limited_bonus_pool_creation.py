@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID248787_validate_limited_bonus_pool_creation(KVMBase):
+class tc_ID17286_validate_limited_bonus_pool_creation(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -25,18 +25,12 @@ class tc_ID248787_validate_limited_bonus_pool_creation(KVMBase):
             self.sub_subscribe_sku(test_sku)
 
             # list available pools of guest, check related bonus pool generated.
-            new_available_poollist = self.sub_listavailpools(test_sku, guestip)
-            if new_available_poollist != None:
-                for item in range(0, len(new_available_poollist)):
-                    if "Available" in new_available_poollist[item]:
-                        SKU_Number = "Available"
-                    else:
-                        SKU_Number = "Quantity"
-                    if new_available_poollist[item]["SKU"] == test_sku and self.check_type_virtual(new_available_poollist[item]) and new_available_poollist[item][SKU_Number] == bonus_quantity:
-                        logger.info("Succeeded to list bonus pool of product %s" % sku_name) 
-                self.assert_(True, case_name)
+            if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == True:
+                logger.info("Success to check limit bonus pool on guest")
             else:
-                raise FailException("Failed to get available pool list from guest.")
+                raise FailException("Failed to check limit bonus pool on guest")
+            # subscribe the registered guest to the corresponding bonus pool
+            self.sub_subscribe_to_bonus_pool(test_sku, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

@@ -30,7 +30,7 @@ class tc_ID17290_validate_instance_host_with_multi_sockets_autosubscribe(KVMBase
             self.check_installed_status(installed_status_key, installed_status_value)
 
             #(2).subscribe host to 1 instance pool
-            poolid = self.get_pool_by_SKU(test_sku)
+            self.sub_unsubscribe()
             cmd = "subscription-manager subscribe --pool=%s --quantity=1" % poolid
             ret, output = self.runcmd(cmd, "Check subscribe instance with non-multiple of the instance-multiplier")
             if ret != 0 and (("is not a multiple ") or ("quantity evenly divisible by 2") in output): 

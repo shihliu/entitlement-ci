@@ -16,11 +16,14 @@ class tc_ID17291_validate_instance_guest_compliance_with_one_sockets(KVMBase):
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
 
+            # Set up guest socket to 1
+            self.setup_custom_facts("cpu.cpu_socket(s)", "1")
+            poolid = self.get_pool_by_SKU(test_sku, guestip)
+
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            poolid = self.get_pool_by_SKU(test_sku, guestip)
 
             # (1).subscribe guest to unspecify instance pool
             # check the instance pool Available on guest before subscribed
