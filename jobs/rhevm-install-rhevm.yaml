@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhevm-install-2-provision'
+    name: 'rhevm-install-rhevm-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -46,19 +46,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhevm-install-2-runtest'
+          - project: 'rhevm-install-rhevm-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhevm-install-2-runtest'
+    name: 'rhevm-install-rhevm-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhevm-install-2-provision'
+            project: 'rhevm-install-rhevm-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -105,14 +105,14 @@
             fail-on-missing: true
 
 - job-group:
-    name: rhevm-install-2-provision-runtest
+    name: rhevm-install-rhevm-provision-runtest
     jobs:
-      - 'rhevm-install-2-provision'
-      - 'rhevm-install-2-runtest'
+      - 'rhevm-install-rhevm-provision'
+      - 'rhevm-install-rhevm-runtest'
 
 - project:
-    name: rhevm-install-2-jobs
-    project: rhevm-install-2
+    name: rhevm-install-rhevm-jobs
+    project: rhevm-install-rhevm
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhevm_install
@@ -121,8 +121,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - rhevm-install-2-provision-runtest
-    jslavename: jslave-rhevm-install-2-slave
+      - rhevm-install-rhevm-provision-runtest
+    jslavename: jslave-rhevm-install-rhevm-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium

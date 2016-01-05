@@ -1,7 +1,7 @@
 - job-template:
-    name: 'rhevm-install-2-provision'
+    name: 'rhevm-install-vdsm-provision'
     defaults: virt-who-provision
-    node: '{jmastername}'
+    node: master
     builders:
         - shell: |
             #!/bin/bash
@@ -46,19 +46,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhevm-install-2-runtest'
+          - project: 'rhevm-install-vdsm-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhevm-install-2-runtest'
+    name: 'rhevm-install-vdsm-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhevm-install-2-provision'
+            project: 'rhevm-install-vdsm-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -98,21 +98,21 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-rhel-rhevm-provision'
+          - project: 'virt-who-rhel-vdsm-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
 
 - job-group:
-    name: rhevm-install-2-provision-runtest
+    name: rhevm-install-vdsm-provision-runtest
     jobs:
-      - 'rhevm-install-2-provision'
-      - 'rhevm-install-2-runtest'
+      - 'rhevm-install-vdsm-provision'
+      - 'rhevm-install-vdsm-runtest'
 
 - project:
-    name: rhevm-install-2-jobs
-    project: rhevm-install-2
+    name: rhevm-install-vdsm-jobs
+    project: rhevm-install-vdsm
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhevm_install
@@ -121,9 +121,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - rhevm-install-2-provision-runtest
-    jslavename: jslave-rhevm-install-2-slave
-    jmastername: jslave-static-entitlement-master
+      - rhevm-install-vdsm-provision-runtest
+    jslavename: jslave-rhevm-install-vdsm-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium
