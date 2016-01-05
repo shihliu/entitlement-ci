@@ -37,6 +37,7 @@ class tc_ID248787_validate_limited_bonus_pool_creation(KVMBase):
                 self.assert_(True, case_name)
             else:
                 raise FailException("Failed to get available pool list from guest.")
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
