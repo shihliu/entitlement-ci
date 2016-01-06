@@ -390,10 +390,7 @@ class ESXBase(VIRTWHOBase):
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
             else:
                 rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
-            if len(rex.findall(output)) > 0:
-                mapping_info = rex.findall(output)[0]
-            else:
-                raise FailException("Failed to check, can not find hosts-to-guests mapping info.")
+            mapping_info = rex.findall(output)[0]
             logger.info("Check uuid from following data: \n%s" % mapping_info)
             if uuid_exist == True:
                 if host_uuid in mapping_info and guest_uuid in mapping_info:
