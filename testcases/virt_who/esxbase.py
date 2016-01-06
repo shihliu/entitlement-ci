@@ -387,7 +387,7 @@ class ESXBase(VIRTWHOBase):
         ret, output = self.runcmd(cmd, "feedback tail log for parsing", destination_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
             if self.os_serial == "7":
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?\n}\n', re.S)
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*}\n', re.S)
             else:
                 rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
             mapping_info = rex.findall(output)[0]
