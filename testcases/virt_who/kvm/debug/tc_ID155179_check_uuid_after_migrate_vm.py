@@ -1,19 +1,15 @@
 from utils import *
-from testcases.virt_who.virtwhobase import VIRTWHOBase
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
+from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID155179_check_uuid_after_migrate_vm(VIRTWHOBase):
+class tc_ID155179_check_uuid_after_migrate_vm(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SAM_IP = get_exported_param("SERVER_IP")
-            SAM_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-            SAM_USER = VIRTWHOConstants().get_constant("SAM_USER")
-            SAM_PASS = VIRTWHOConstants().get_constant("SAM_PASS")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = VIRTWHOConstants().get_constant("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
             master_machine_ip = get_exported_param("REMOTE_IP")
@@ -29,7 +25,7 @@ class tc_ID155179_check_uuid_after_migrate_vm(VIRTWHOBase):
             self.vw_migrate_guest(guest_name, slave_machine_ip)
             # (3) Check guest uuid in original host and destination host
             self.vw_check_uuid(guestuuid, uuidexists=False)
-            self.vw_check_uuid(guestuuid, slave_machine_ip)
+            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=slave_machine_ip)
 
             self.assert_(True, case_name)
         except Exception, e:
