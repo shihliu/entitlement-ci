@@ -387,9 +387,9 @@ class ESXBase(VIRTWHOBase):
         ret, output = self.runcmd(cmd, "feedback tail log for parsing", destination_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
             if self.os_serial == "7":
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*}\n', re.S)
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
             else:
-                rex = re.compile(r'Host-to-guest mapping: {.*}\n', re.S)
+                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
             mapping_info = rex.findall(output)[0]
             logger.info("Check uuid from following data: \n%s" % mapping_info)
             if uuid_exist == True:
