@@ -530,10 +530,10 @@ EOF''' % (file_name, file_data)
         if availpoollistguest != None:
             rindex = -1
             for index in range(0, len(availpoollistguest)):
-                if("SKU" in availpoollistguest[index] and availpoollistguest[index]["SKU"] == productid and self.check_type_virtual(availpoollistguest[index])):
+                if("SKU" in availpoollistguest[index] and availpoollistguest[index]["SKU"] == productid and self.check_type_virtual(availpoollistguest[index]) and (self.check_temporary_virtual(availpoollistguest[index]) is True)):
                     rindex = index
                     break
-                elif("ProductId" in availpoollistguest[index] and availpoollistguest[index]["ProductId"] == productid and self.check_type_virtual(availpoollistguest[index])):
+                elif("ProductId" in availpoollistguest[index] and availpoollistguest[index]["ProductId"] == productid and self.check_type_virtual(availpoollistguest[index])and (self.check_temporary_virtual(availpoollistguest[index]) is True)):
                     rindex = index
                     break
             if rindex == -1:
@@ -640,6 +640,40 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to list consumed subscriptions.")
 
+    def sub_check_consumed_pool(self, sku_id, key="PoolID", targetmachine_ip=""):
+        self.sub_refresh(targetmachine_ip)
+        ''' Check consumed subpool exist or not, if it is exist, return consumed pool id. '''
+        cmd = "subscription-manager list --consumed"
+        ret, output = self.runcmd(cmd, "list consumed subscriptions then get cosumed pool id", targetmachine_ip)
+        if ret == 0:
+            if "No consumed subscription pools to list" not in output:
+                if sku_id in output:
+                    consumed_lines = self.__parse_avail_pools(output)
+                    if consumed_lines != None:
+                        for line in range(0, len(consumed_lines)):
+                            if key is not None and key != "":
+                                if consumed_lines[line]["SKU"] == sku_id:
+                                    logger.info("Succeeded to get consumed subscription %s pool id is %s in %s" % (sku_id, consumed_lines[line][key], self.get_hg_info(targetmachine_ip)))
+                                    return consumed_lines[line][key]
+                elif sku_id not in output:
+                    logger.info("Succeeded to check entitlements %s - the product '%s' is not subscribed now." % (self.get_hg_info(targetmachine_ip), sku_id))
+                    return True
+                else:
+                    raise FailException("Failed to list consumed subscription %s - Not the right consumed subscription is listed!" % self.get_hg_info(targetmachine_ip))
+            else:
+                return True
+                logger.info("There is no consumed subscription to list!")
+        else:
+            raise FailException("Failed to list consumed subscriptions.")
+
+    def sub_check_bonus_pool_after_migate(self, before_poolid, after_poolid, targetmachine_ip=""):
+        if after_poolid is True:
+            logger.info("Success to check bonus pool has been revoke after migration in %s" %self.get_hg_info(targetmachine_ip))
+        elif before_poolid not in after_poolid:
+            logger.info("Success to check bonus pool has been updated after migration in %s" %self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to check bonus pool after migration in %s" %self.get_hg_info(targetmachine_ip))
+
     # check "subscription-manager list --consumed" key & value 
     def check_consumed_status(self, sku_id, key="", value="", targetmachine_ip=""):
         ''' check consumed entitlements status details '''
@@ -730,6 +764,16 @@ EOF''' % (file_name, file_data)
         elif "SystemType" in pool_dict.keys():
             TypeName = "SystemType"
         return pool_dict[TypeName] == "Virtual" or pool_dict[TypeName] == "virtual"
+
+    def check_temporary_virtual(self, pool_dict):
+        if "SubscriptionType" in pool_dict.keys():
+            TypeName = "SubscriptionType"
+        if "temporary" in pool_dict[TypeName] or "Temporary" in pool_dict[TypeName]:
+            logger.info("The sku is temporary sku")
+            return False
+        else:
+            logger.info("The sku is not temporary sku")
+            return True
 
     def check_bonus_exist(self, sku_id, bonus_quantity, targetmachine_ip=""):
         # check bonus pool is exist or not

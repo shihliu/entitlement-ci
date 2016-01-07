@@ -24,7 +24,7 @@ class tc_ID17286_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             self.sub_subscribe_sku(test_sku)
 
-            # list available pools of guest, check related bonus pool generated.
+            #(1).list available pools on guest, check limited bonus pool generated.
             if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == True:
                 logger.info("Success to check limit bonus pool on guest")
             else:
@@ -37,10 +37,10 @@ class tc_ID17286_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            # unsubscribe host and stop guest
+            self.sub_unsubscribe()
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            # unsubscribe host
-            self.sub_unsubscribe()
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
