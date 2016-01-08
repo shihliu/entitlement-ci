@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBase):
+class tc_ID17261_check_uuid_after_delete_vm_restart_libvirtd(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -19,9 +19,8 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
 
-            # (1).check if the uuid and attributes are correctly monitored by virt-who.
+            # (1) start guest then check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
 
             # (2). register guest to Server
             if not self.sub_isregistered(guestip):
@@ -33,39 +32,15 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
 
-            # (4). pause guest    
-            self.pause_vm(guest_name)
-            # (5).check if the uuid and attributes are correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 3, guestuuid)
-
-            # (6). resume guest    
-            self.resume_vm(guest_name)
-
-            # (7)check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
-
-            # (8).Check consumed subscriptions on guest
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
-
-            # (9) stop guest    
+            # (4) stop guest then
             self.vw_stop_guests(guest_name)
 
-            # (10)check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 0, 'libvirt', 'QEMU', 5, guestuuid)
+            # (5) Restart libvirtd service then check if the uuid is correctly monitored by virt-who
+            self.vw_check_attr(guest_name, 0, 'libvirt', 'QEMU', 5, guestuuid, checkcmd="service libvirtd restart")
 
-            # (11).restart guest 
+            # (6) restart guest then check bonus pool is not revoke. 
             self.vw_start_guests(guest_name)
-            time.sleep(20)
-
-            # (12)check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
-
-            # (13).Check consumed subscriptions on guest
-            self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
+            self.sub_listconsumed(sku_name, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

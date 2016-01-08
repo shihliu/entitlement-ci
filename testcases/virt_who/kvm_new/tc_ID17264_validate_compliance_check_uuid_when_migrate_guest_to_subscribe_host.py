@@ -2,14 +2,14 @@ from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID17263_validate_compliance_check_uuid_when_migrate_guest_to_unsubscribe_host(KVMBase):
+class tc_ID17264_validate_compliance_check_uuid_when_migrate_guest_to_subscribe_host(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
             master_machine_ip = get_exported_param("REMOTE_IP")
             slave_machine_ip = get_exported_param("REMOTE_IP_2")
@@ -26,23 +26,32 @@ class tc_ID17263_validate_compliance_check_uuid_when_migrate_guest_to_unsubscrib
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            # (1).subscribe host to the physical pool and guest subscribe bonus pool
+
+            # (1).check if the uuid is correctly monitored by virt-who.
+            self.vw_check_uuid(guestuuid, uuidexists=True)
+
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+
+            # (2).subscribe host to the physical pool and guest subscribe bonus pool
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(guest_bonus_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
             before_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
 
-            # (2) check if the uuid is exist before migrate guest .
-            self.vw_check_uuid(guestuuid, uuidexists=True)
-
-            # (3) migrate guest to slave machine
+#             (3).subscribe dest host to the physical pool and guest subscribe bonus pool before migration
+            self.sub_subscribe_sku(test_sku, targetmachine_ip=get_exported_param("REMOTE_IP_2"))
+# 
+            # (4).migrate guest from host1 to host2
             self.vw_migrate_guest(guest_name, slave_machine_ip)
 
-            # (4) Check guest uuid in original host and destination host
+            # (5).check if the uuid is correctly monitored by virt-who in host1 and host2.
             self.vw_check_uuid(guestuuid, uuidexists=False)
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=slave_machine_ip)
-
-            # (5).after migration,list consumed subscriptions on guest
+            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=get_exported_param("REMOTE_IP_2"))
+# 
+            # (6).after migration,list consumed subscriptions on guest
             after_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
             self.sub_check_bonus_pool_after_migate(before_poolid, after_poolid, guestip)
 
