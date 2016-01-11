@@ -34,6 +34,7 @@ class tc_ID17265_validate_compliance_check_uuid_after_ping_pong_migrate(KVMBase)
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(guest_bonus_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
+            before_migrate_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
 
             # (2) check if the uuid is exist before migrate guest .
             self.vw_check_uuid(guestuuid, uuidexists=True)
@@ -42,8 +43,8 @@ class tc_ID17265_validate_compliance_check_uuid_after_ping_pong_migrate(KVMBase)
             self.vw_migrate_guest(guest_name, slave_machine_ip)
 
             # (4).after migration,list consumed subscriptions on guest
-            self.sub_refresh(guestip)
-            self.sub_listconsumed(sku_name, guestip, productexists=False)
+            after_migrate_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
+            self.sub_check_bonus_pool_after_migate(before_migrate_poolid, after_migrate_poolid, guestip)
 
             # (5) after migration, Check guest uuid in original host and destination host
             self.vw_check_uuid(guestuuid, uuidexists=False)
@@ -55,33 +56,33 @@ class tc_ID17265_validate_compliance_check_uuid_after_ping_pong_migrate(KVMBase)
             self.sub_subscribe_to_bonus_pool(guest_bonus_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
+            before_migrate_back_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
 
            # (7). migrate guest back( from destination host to original host)
             self.vw_migrate_guest(guest_name, master_machine_ip, slave_machine_ip)
 
-            # (8). list consumed subscriptions on guest
-            self.sub_refresh(guestip)
-            self.sub_listconsumed(sku_name, guestip, productexists=False)
-
-            # (9).After migration back,check if the guest uuid is correctly monitored by virt-who in original host
+            # (8).After migration back,check if the guest uuid is correctly monitored by virt-who in original host
             self.vw_check_uuid(guestuuid, uuidexists=True)
 
-            # (10).After migration,check if the guest uuid is not monitored by virt-who in destination host
+            # (9).After migration,check if the guest uuid is not monitored by virt-who in destination host
             self.vw_check_uuid(guestuuid, uuidexists=False, targetmachine_ip=get_exported_param("REMOTE_IP_2"))
 
+            # (10). list consumed subscriptions on guest
+            after_migrate_back_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
+            self.sub_check_bonus_pool_after_migate(before_migrate_back_poolid, after_migrate_back_poolid, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
             # unsubscribe host
             self.sub_unsubscribe()
             self.sub_unsubscribe(slave_machine_ip)
 #             self.vw_stop_guests(guest_name)
             self.vw_define_guest(guest_name)
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -620,6 +620,7 @@ EOF''' % (file_name, file_data)
             raise FailException("Failed to unsubscribe all in %s." % self.get_hg_info(targetmachine_ip))
 
     def sub_listconsumed(self, productname, targetmachine_ip="", productexists=True):
+        self.sub_refresh(targetmachine_ip)
         ''' list consumed entitlements. '''
         cmd = "subscription-manager list --consumed"
         ret, output = self.runcmd(cmd, "list consumed subscriptions", targetmachine_ip)
@@ -668,11 +669,11 @@ EOF''' % (file_name, file_data)
 
     def sub_check_bonus_pool_after_migate(self, before_poolid, after_poolid, targetmachine_ip=""):
         if after_poolid is True:
-            logger.info("Success to check bonus pool has been revoke after migration in %s" %self.get_hg_info(targetmachine_ip))
+            logger.info("Success to check bonus pool has been revoke after migration in %s" % self.get_hg_info(targetmachine_ip))
         elif before_poolid not in after_poolid:
-            logger.info("Success to check bonus pool has been updated after migration in %s" %self.get_hg_info(targetmachine_ip))
+            logger.info("Success to check bonus pool has been updated after migration in %s" % self.get_hg_info(targetmachine_ip))
         else:
-            raise FailException("Failed to check bonus pool after migration in %s" %self.get_hg_info(targetmachine_ip))
+            raise FailException("Failed to check bonus pool after migration in %s" % self.get_hg_info(targetmachine_ip))
 
     # check "subscription-manager list --consumed" key & value 
     def check_consumed_status(self, sku_id, key="", value="", targetmachine_ip=""):
@@ -834,12 +835,10 @@ EOF''' % (file_name, file_data)
         cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
         self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
         self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
-        # virtwho_status = self.check_virtwho_status()
-        # if virtwho_status == "running" or virtwho_status == "active":
-        #    logger.info("Succeeded to check, virt-who is running.")
-        # else:
-        #    raise FailException("Failed to check, virt-who is not running or active.")
-        time.sleep(20)
+        if "virt-who" in checkcmd:
+            time.sleep(20)
+        else:
+            time.sleep(120)
         self.kill_pid("tail")
 
     def kill_pid(self, pid_name, destination_ip=""):
@@ -852,13 +851,13 @@ EOF''' % (file_name, file_data)
                 self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)
 
     def kill_virt_who_pid(self, destination_ip=""):
-        pid_name="virtwho.py"
+        pid_name = "virtwho.py"
         self.kill_pid(pid_name, destination_ip)
 
-    def vw_check_uuid(self, guestuuid, uuidexists=True, targetmachine_ip=""):
+    def vw_check_uuid(self, guestuuid, uuidexists=True, checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        checkcmd = "service virt-who restart"
+#         checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -891,10 +890,10 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to get content of %s.") % tmp_file
 
-    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart",targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        checkcmd = "service virt-who restart"
+#         checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -930,10 +929,9 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+    def vw_check_message_in_rhsm_log(self, message, message_exists=True, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -1060,16 +1058,16 @@ EOF''' % (file_name, file_data)
         tmp_file = "/tmp/tail.rhsm.log"
         tmp_cmd_file = "/tmp/virt-who.cmd.log"
         if cmd == "virt-who": 
-            cmd = "virt-who > %s 2>&1 &" %tmp_cmd_file
+            cmd = "virt-who > %s 2>&1 &" % tmp_cmd_file
             logger.info("run virt-who command")
         elif cmd == "virt-who -d": 
-            cmd == "virt-who -d > %s 2>&1 &" %tmp_cmd_file
+            cmd == "virt-who -d > %s 2>&1 &" % tmp_cmd_file
             logger.info("run virt-who -d command")
         elif cmd == "virt-who -d --vdsm": 
-            cmd = "virt-who -d --vdsm > %s 2>&1 &" %tmp_cmd_file
+            cmd = "virt-who -d --vdsm > %s 2>&1 &" % tmp_cmd_file
             logger.info("run virt-who -d --vdsm command")
         elif cmd == "virt-who --vdsm":
-            cmd = "virt-who --vdsm > %s 2>&1 &" %tmp_cmd_file
+            cmd = "virt-who --vdsm > %s 2>&1 &" % tmp_cmd_file
             logger.info("run virt-who --vdsm command")
         else:
             raise FailException("Failed to run cmd")
@@ -1081,13 +1079,13 @@ EOF''' % (file_name, file_data)
         if ret == 0:
             if message_exists:
                 if message1 in output and message2 in output:
-                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1,message2))
+                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1, message2))
                 else:
-                    raise FailException("Failed to get message in rhsm.log: %s and %s"  % (message1,message2))
+                    raise FailException("Failed to get message in rhsm.log: %s and %s" % (message1, message2))
             else:
                 if message1 not in output and message2 not in output:
-                    logger.info("Succeeded to check message not in rhsm.log: %s and %s"  % (message1,message2))
+                    logger.info("Succeeded to check message not in rhsm.log: %s and %s" % (message1, message2))
                 else:
-                    raise FailException("Failed to check message not in rhsm.log: %s and %s"  % (message1,message2))
+                    raise FailException("Failed to check message not in rhsm.log: %s and %s" % (message1, message2))
         else:
             raise FailException("Failed to get rhsm.log")

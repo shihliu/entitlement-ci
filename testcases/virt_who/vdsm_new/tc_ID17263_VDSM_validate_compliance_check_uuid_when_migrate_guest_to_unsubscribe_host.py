@@ -34,6 +34,7 @@ class tc_ID17263_VDSM_validate_compliance_check_uuid_when_migrate_guest_to_unsub
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(guest_bonus_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
+            before_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
 
             # (3).migrate guest from host1 to host2
             self.rhevm_migrate_vm(guest_name, dest_host_name , dest_host_uuid, rhevm_ip)
@@ -43,8 +44,8 @@ class tc_ID17263_VDSM_validate_compliance_check_uuid_when_migrate_guest_to_unsub
             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=get_exported_param("REMOTE_IP_2"))
 
             # (5).after migration,list consumed subscriptions on guest
-            self.sub_refresh(guestip)
-            self.sub_listconsumed(sku_name, guestip, productexists=False)
+            after_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
+            self.sub_check_bonus_pool_after_migate(before_poolid, after_poolid, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:

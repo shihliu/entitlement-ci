@@ -50,7 +50,6 @@ class tc_ID17265_VDSM_validate_compliance_check_uuid_after_ping_pong_migrate(VDS
             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=get_exported_param("REMOTE_IP_2"))
 
             # (7).after migration, list consumed subscriptions on guest
-            self.sub_refresh(guestip)
             after_migrate_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
             self.sub_check_bonus_pool_after_migate(before_migrate_poolid, after_migrate_poolid, guestip)
 #             self.sub_listconsumed(sku_name, guestip, productexists=False)
