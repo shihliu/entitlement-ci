@@ -2,13 +2,13 @@ from utils import *
 from testcases.virt_who.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID115122_check_uuid_with_none_guest(KVMBase):
+class tc_ID17258_check_uuid_with_none_guest(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.vw_undefine_all_guests()
-            # check if the uuid is correctly monitored by virt-who.
+            #(1)check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid("", uuidexists=True)
             self.assert_(True, case_name)
         except Exception, e:

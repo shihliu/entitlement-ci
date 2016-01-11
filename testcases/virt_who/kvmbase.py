@@ -351,7 +351,6 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to restore_libvirtd_config.")
 
-
     def generate_ssh_key(self, targetmachine_ip=""):
         remote_ip_2 = get_exported_param("REMOTE_IP_2")
         remote_ip = get_exported_param("REMOTE_IP")
