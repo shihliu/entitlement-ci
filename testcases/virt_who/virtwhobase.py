@@ -213,6 +213,41 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
+    # creat /etc/virt-who.d/XXX file
+    def set_virtwho_sec_config(self, virtwho_type, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env, targetmachine_ip=""):
+        conf_file = "/etc/virt-who.d/virt-who"
+        conf_data = '''[%s]
+type=%s
+server=%s
+username=%s
+password=%s
+owner=%s
+env=%s''' % (virtwho_type, virtwho_type, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
+        if "kvm" in virtwho_mode:
+            cmd = "virt-who -p -d > %s" % fake_file
+            ret, output = self.runcmd(cmd, "Generate fake file in kvm mode", targetmachine_ip)
+        elif "vdsm" in virtwho_mode:
+            cmd = "virt-who -p -d --vdsm > %s" % fake_file
+            ret, output = self.runcmd(cmd, "Generate fake file in vdsm mode", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to generate fake file.")
+        else:
+            raise FailException("Failed to generate fake file.")
+
+    # creat /etc/virt-who.d/XXX file
+    def set_fake_mode_conf(self, fake_file, is_hypervisor, virtwho_owner, virtwho_env, targetmachine_ip=""):
+        conf_file = "/etc/virt-who.d/fake"
+        conf_data = '''[fake]
+type=fake
+file=%s
+is_hypervisor=%s
+owner=%s
+env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
     def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
         cmd = "rm -f %s" % file_name
         ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
@@ -950,6 +985,43 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to get rhsm.log")
 
+    def vw_check_debug_msg_cmd_mode(self, cmd, message1, message2="", message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check whether given message exist or not in rhsm.log. '''
+        tmp_file = "/tmp/tail.rhsm.log"
+        tmp_cmd_file = "/tmp/virt-who.cmd.log"
+        if cmd == "virt-who": 
+            cmd = "virt-who > %s 2>&1 &" % tmp_cmd_file
+            logger.info("run virt-who command")
+        elif cmd == "virt-who -d": 
+            cmd == "virt-who -d > %s 2>&1 &" % tmp_cmd_file
+            logger.info("run virt-who -d command")
+        elif cmd == "virt-who -d --vdsm": 
+            cmd = "virt-who -d --vdsm > %s 2>&1 &" % tmp_cmd_file
+            logger.info("run virt-who -d --vdsm command")
+        elif cmd == "virt-who --vdsm":
+            cmd = "virt-who --vdsm > %s 2>&1 &" % tmp_cmd_file
+            logger.info("run virt-who --vdsm command")
+        else:
+            raise FailException("Failed to run cmd")
+        self.generate_tmp_log(cmd, tmp_file, targetmachine_ip)
+        time.sleep(10)
+        self.kill_pid("virt-who")
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
+        if ret == 0:
+            if message_exists:
+                if message1 in output and message2 in output:
+                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1, message2))
+                else:
+                    raise FailException("Failed to get message in rhsm.log: %s and %s" % (message1, message2))
+            else:
+                if message1 not in output and message2 not in output:
+                    logger.info("Succeeded to check message not in rhsm.log: %s and %s" % (message1, message2))
+                else:
+                    raise FailException("Failed to check message not in rhsm.log: %s and %s" % (message1, message2))
+        else:
+            raise FailException("Failed to get rhsm.log")
+
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
         availpoollist = self.sub_listavailpools(sku, targetmachine_ip)
@@ -1052,40 +1124,3 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Failed to run rhevm-shell cmd.")
 
-
-    def vw_check_debug_msg_cmd_mode(self, cmd, message1, message2="", message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
-        ''' check whether given message exist or not in rhsm.log. '''
-        tmp_file = "/tmp/tail.rhsm.log"
-        tmp_cmd_file = "/tmp/virt-who.cmd.log"
-        if cmd == "virt-who": 
-            cmd = "virt-who > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who command")
-        elif cmd == "virt-who -d": 
-            cmd == "virt-who -d > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who -d command")
-        elif cmd == "virt-who -d --vdsm": 
-            cmd = "virt-who -d --vdsm > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who -d --vdsm command")
-        elif cmd == "virt-who --vdsm":
-            cmd = "virt-who --vdsm > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who --vdsm command")
-        else:
-            raise FailException("Failed to run cmd")
-        self.generate_tmp_log(cmd, tmp_file, targetmachine_ip)
-        time.sleep(10)
-        self.kill_pid("virt-who")
-        cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
-        if ret == 0:
-            if message_exists:
-                if message1 in output and message2 in output:
-                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1, message2))
-                else:
-                    raise FailException("Failed to get message in rhsm.log: %s and %s" % (message1, message2))
-            else:
-                if message1 not in output and message2 not in output:
-                    logger.info("Succeeded to check message not in rhsm.log: %s and %s" % (message1, message2))
-                else:
-                    raise FailException("Failed to check message not in rhsm.log: %s and %s" % (message1, message2))
-        else:
-            raise FailException("Failed to get rhsm.log")
