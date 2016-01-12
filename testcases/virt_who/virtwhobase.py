@@ -985,42 +985,37 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to get rhsm.log")
 
-    def vw_check_debug_msg_cmd_mode(self, cmd, message1, message2="", message_exists=True, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
-        ''' check whether given message exist or not in rhsm.log. '''
-        tmp_file = "/tmp/tail.rhsm.log"
-        tmp_cmd_file = "/tmp/virt-who.cmd.log"
-        if cmd == "virt-who": 
-            cmd = "virt-who > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who command")
-        elif cmd == "virt-who -d": 
-            cmd == "virt-who -d > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who -d command")
-        elif cmd == "virt-who -d --vdsm": 
-            cmd = "virt-who -d --vdsm > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who -d --vdsm command")
-        elif cmd == "virt-who --vdsm":
-            cmd = "virt-who --vdsm > %s 2>&1 &" % tmp_cmd_file
-            logger.info("run virt-who --vdsm command")
-        else:
-            raise FailException("Failed to run cmd")
-        self.generate_tmp_log(cmd, tmp_file, targetmachine_ip)
-        time.sleep(10)
-        self.kill_pid("virt-who")
-        cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
+    def vw_check_message_in_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
+        ''' check whether given message exist or not in virt-who command line output. '''
+        ''' if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_cmd(cmd, "DEBUG|ERROR")'''
+        ret, output = self.runcmd(cmd, "check virt-who cmd output", targetmachine_ip)
         if ret == 0:
+            msg_list = message.split("|")
             if message_exists:
-                if message1 in output and message2 in output:
-                    logger.info("Succeeded to get message in rhsm.log: %s and %s" % (message1, message2))
-                else:
-                    raise FailException("Failed to get message in rhsm.log: %s and %s" % (message1, message2))
+                for msg in msg_list:
+                    if msg in output:
+                        logger.info("Succeeded to get message in %s output: '%s'" % (cmd, msg))
+                    else:
+                        raise FailException("Failed to get message in %s output: '%s'" % (cmd, msg))
             else:
-                if message1 not in output and message2 not in output:
-                    logger.info("Succeeded to check message not in rhsm.log: %s and %s" % (message1, message2))
-                else:
-                    raise FailException("Failed to check message not in rhsm.log: %s and %s" % (message1, message2))
+                for msg in msg_list:
+                    if msg not in output:
+                        logger.info("Succeeded to check message not in %s output: '%s'" % (cmd, msg))
+                    else:
+                        raise FailException("Failed to check message not in %s output: '%s'" % (cmd, msg))
         else:
-            raise FailException("Failed to get rhsm.log")
+            raise FailException("Failed to excute virt-who cmd %s" % cmd)
+
+    def vw_check_message_in_debug_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
+        ''' check whether given message exist or not in virt-who -d mode.
+        if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR")'''
+        tmp_file = "/tmp/virt-who.cmd.log"
+        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        time.sleep(10)
+        cmd = "cat %s" % tmp_file
+        self.vw_check_message_in_cmd(cmd, message, message_exists, targetmachine_ip)
+        self.kill_pid("virt-who")
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
