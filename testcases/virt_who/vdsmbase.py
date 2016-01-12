@@ -675,14 +675,14 @@ class VDSMBase(VIRTWHOBase):
 
     def vw_restart_vdsm_new(self, targetmachine_ip=""):
         if self.check_systemctl_service("vdsmd", targetmachine_ip):
-            cmd = "systemctl restart vdsmd service; sleep 15"
+            cmd = "systemctl restart vdsmd service; sleep 60"
             ret, output = self.runcmd(cmd, "restart vdsmd service by systemctl.", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to restsart vdsmd")
             else:
                 raise FailException("Test Failed - Failed to restart vdsmd")
         else:
-            cmd = "service vdsmd restart; sleep 15"
+            cmd = "service vdsmd restart; sleep 60"
             ret, output = self.runcmd(cmd, "restart vdsmd by service", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to restsart vdsmd")
