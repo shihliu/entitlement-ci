@@ -39,16 +39,16 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.set_fake_mode_conf(fake_file, "True", remote_owner, remote_env, remote_ip_2)
 
 #             check if guest uuid is correctly monitored by virt-who.
-            check_msg = "Sending update in hosts-to-guests mapping: 1 hypervisors and 1 guests found"
-            self.vw_check_message_in_rhsm_log(check_msg, targetmachine_ip=remote_ip_2)
-#             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
+#             check_msg = "Sending update in hosts-to-guests mapping: 1 hypervisors and 1 guests found"
+#             self.vw_check_message_in_rhsm_log(check_msg, targetmachine_ip=remote_ip_2)
+            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
             # (5) check if error message will show on log file 
-            self.vw_check_message_in_rhsm_log('Using configuration "fake"', remote_ip_2)
+            self.vw_check_message_in_rhsm_log('Using configuration "fake"', targetmachine_ip=remote_ip_2)
 
             # define a guest
             self.vw_undefine_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=False, targetmachine_ip=remote_ip_2)
+            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
 
             self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
 
@@ -63,12 +63,12 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-#             self.vw_define_all_guests()
-#             self.unset_virtwho_d_conf(fake_file, remote_ip_2)
-#             self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
-#             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-#             self.vw_restart_virtwho_new()
-#             self.vw_restart_virtwho_new(remote_ip_2)
+            self.vw_define_all_guests()
+            self.unset_virtwho_d_conf(fake_file, remote_ip_2)
+            self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
+            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
+            self.vw_restart_virtwho_new()
+            self.vw_restart_virtwho_new(remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

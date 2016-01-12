@@ -14,26 +14,21 @@ class tc_ID476228_check_interval_longer_then_response(KVMBase):
 
             # stop virt-who service on host1
             self.vw_stop_virtwho_new()
-            cmd = "sed -i 's/.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=30/g' /etc/sysconfig/virt-who"
+            cmd = "sed -i 's/.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=100/g' /etc/sysconfig/virt-who"
             ret, output = self.runcmd(cmd, "changing interval time in virt-who config file")
             if ret == 0:
-                logger.info("Succeeded to set VIRTWHO_INTERVAL=30.")
+                logger.info("Succeeded to set VIRTWHO_INTERVAL=100.")
             else:
-                logger.error("Failed to set VIRTWHO_INTERVAL=30.")
+                logger.error("Failed to set VIRTWHO_INTERVAL=100.")
 
-            # check if the guest uuid is correctly monitored by virt-who. '''
-            if self.os_serial == "7":
-                cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-                ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f")
-                # ignore restart virt-who serivce since virt-who -b -d will stop
-                self.vw_restart_virtwho_new()
-                time.sleep(65)
-                cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
-                ret, output = self.runcmd(cmd, "get log number added to rhsm.log")
-            else: 
-                self.vw_restart_virtwho_new()
-                cmd = "tail -3 %s " % rhsmlogfile
-                ret, output = self.runcmd(cmd, "check output in rhsm.log")
+        # check if the guest uuid is correctly monitored by virt-who. '''
+            cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+            ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f")
+            # ignore restart virt-who serivce since virt-who -b -d will stop
+            self.vw_restart_virtwho_new()
+            time.sleep(210)
+            cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+            ret, output = self.runcmd(cmd, "get log number added to rhsm.log")
             if ret == 0:
                 if "Sending list of uuids: " in output:
                     cmd = "killall -9 tail ; grep 'Sending list of uuids' /tmp/tail.rhsm.log | wc -l "
