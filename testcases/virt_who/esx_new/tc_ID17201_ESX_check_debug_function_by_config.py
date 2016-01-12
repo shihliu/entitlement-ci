@@ -8,15 +8,17 @@ class tc_ID17201_ESX_check_debug_function_by_config(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            cmd = self.virtwho_cli("esx") + " -d"
-            self.vw_check_message_in_debug_cmd(cmd, "DEBUG")
-            cmd = self.virtwho_cli("esx")
-            self.vw_check_message_in_debug_cmd(cmd, "DEBUG", message_exists=False)
+            self.config_virtwho_debug(1)
+            self.vw_check_message_in_rhsm_log("DEBUG")
+            self.runcmd_service("stop_virtwho")
+            self.config_virtwho_debug(0)
+            self.vw_check_message_in_rhsm_log("DEBUG", message_exists=False)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.config_virtwho_debug(1)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

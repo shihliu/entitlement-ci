@@ -194,7 +194,6 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
         else:
             raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
-
         # set VIRTWHO_INTERVAL value
         cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" % interval_value
         (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" % interval_value, targetmachine_ip)
@@ -202,6 +201,15 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" % interval_value)
         else:
             raise FailException("Failed to set VIRTWHO_INTERVAL=%s" % interval_value)
+
+    def config_virtwho_debug(self, debug_value=1, targetmachine_ip=""):
+        # set VIRTWHO_DEBUG value
+        cmd = "sed -i 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/' /etc/sysconfig/virt-who" % debug_value
+        (ret, output) = self.runcmd(cmd, "set VIRTWHO_DEBUG to %s" % debug_value, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set VIRTWHO_DEBUG=%s" % debug_value)
+        else:
+            raise FailException("Failed to set VIRTWHO_DEBUG=%s" % debug_value)
 
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
         cmd = '''cat > %s <<EOF
@@ -989,7 +997,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
-        self.vw_check_message_in_cmd(cmd, message, message_exists, targetmachine_ip)
+        self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
 
     def vw_check_message_in_debug_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
         ''' check whether given message exist or not in virt-who -d mode.
