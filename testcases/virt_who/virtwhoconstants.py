@@ -30,6 +30,7 @@ class VIRTWHOConstants(object):
     "VIRTWHO_LIBVIRT_OWNER":            "ACME_Corporation",
     "VIRTWHO_LIBVIRT_ENV":              "Library",
     "VIRTWHO_LIBVIRT_USERNAME":         "root",
+    "VIRTWHO_LIBVIRT_PASSWORD":         "",
 
     # limited subscription
     "productid_guest":                  "RH0103708",

@@ -66,6 +66,9 @@ class Base(unittest.TestCase):
         # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         return self.get_vw_cons("VIRTWHO_ESX_OWNER"), self.get_vw_cons("VIRTWHO_ESX_ENV"), self.get_vw_cons("VIRTWHO_ESX_SERVER"), self.get_vw_cons("VIRTWHO_ESX_USERNAME"), self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
+    def get_libvirt_info(self):
+        return self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER"), self.get_vw_cons("VIRTWHO_LIBVIRT_ENV"), self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME"), self.get_vw_cons("VIRTWHO_LIBVIRT_PASSWORD")
+
     def get_hg_info(self, targetmachine_ip=""):
         if targetmachine_ip == "" or targetmachine_ip == None:
             host_guest_info = "in host machine"
