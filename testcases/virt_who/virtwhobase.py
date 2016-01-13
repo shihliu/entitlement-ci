@@ -1070,6 +1070,15 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
 
+    def vw_check_mapping_info_number_in_debug_cmd(self, cmd, mapping_num=1, waiting_time=0, targetmachine_ip=""):
+        tmp_file = "/tmp/virt-who.cmd.log"
+        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        time.sleep(waiting_time)
+        cmd = "cat %s" % tmp_file
+        self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
+        self.kill_pid("virt-who")
+
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
         availpoollist = self.sub_listavailpools(sku, targetmachine_ip)
