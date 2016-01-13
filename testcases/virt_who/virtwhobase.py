@@ -202,14 +202,58 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to set VIRTWHO_INTERVAL=%s" % interval_value)
 
-    def config_virtwho_debug(self, debug_value=1, targetmachine_ip=""):
-        # set VIRTWHO_DEBUG value
+    def config_disable_virtwho_interval(self, targetmachine_ip=""):
+        # clean # for VIRTWHO_INTERVAL 
+        cmd = "sed -i 's/^VIRTWHO_INTERVAL/#VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to comment VIRTWHO_INTERVAL.")
+        else:
+            raise FailException("Failed to comment VIRTWHO_INTERVAL.")
+
+    def config_virtwho_debug(self, debug_value, targetmachine_ip=""):
+        cmd = "sed -i 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to uncomment VIRTWHO_DEBUG.")
+        else:
+            raise FailException("Failed to uncomment VIRTWHO_DEBUG.")
         cmd = "sed -i 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/' /etc/sysconfig/virt-who" % debug_value
         (ret, output) = self.runcmd(cmd, "set VIRTWHO_DEBUG to %s" % debug_value, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set VIRTWHO_DEBUG=%s" % debug_value)
         else:
             raise FailException("Failed to set VIRTWHO_DEBUG=%s" % debug_value)
+
+    def config_disable_virtwho_debug(self, targetmachine_ip=""):
+        cmd = "sed -i 's/^VIRTWHO_DEBUG/#VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to comment VIRTWHO_DEBUG.")
+        else:
+            raise FailException("Failed to comment VIRTWHO_DEBUG.")
+
+    def config_virtwho_one_shot(self, oneshot_value, targetmachine_ip=""):
+        cmd = "sed -i 's/^#VIRTWHO_ONE_SHOT/VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to uncomment VIRTWHO_ONE_SHOT.")
+        else:
+            raise FailException("Failed to uncomment VIRTWHO_ONE_SHOT.")
+        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT=.*/VIRTWHO_ONE_SHOT=%s/' /etc/sysconfig/virt-who" % oneshot_value
+        (ret, output) = self.runcmd(cmd, "set VIRTWHO_ONE_SHOT to %s" % oneshot_value, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
+        else:
+            raise FailException("Failed to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
+
+    def config_disable_virtwho_one_shot(self, targetmachine_ip=""):
+        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT/#VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to comment VIRTWHO_ONE_SHOT.")
+        else:
+            raise FailException("Failed to comment VIRTWHO_ONE_SHOT.")
 
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
         cmd = '''cat > %s <<EOF
@@ -933,7 +977,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to get content of %s.") % tmp_file
 
-    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart",targetmachine_ip=""):
+    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
 #         checkcmd = "service virt-who restart"
@@ -1009,6 +1053,22 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         cmd = "cat %s" % tmp_file
         self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
         self.kill_pid("virt-who")
+
+    def vw_check_mapping_info_number(self, cmd, mapping_num=1, targetmachine_ip=""):
+        ret, output = self.runcmd(cmd, "run command to check mapping info number", targetmachine_ip)
+        if ret == 0 and output is not None and  "ERROR" not in output:
+            if self.os_serial == "7":
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
+            else:
+                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
+            mapping_info = rex.findall(output)
+            logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
+            if len(mapping_info) == mapping_num:
+                logger.info("Succeeded to check hosts-to-guests mapping info number as %s" % mapping_num)
+            else:
+                raise FailException("Failed to check hosts-to-guests mapping info number as %s" % mapping_num)
+        else:
+            raise FailException("Failed to check, there is an error message found or no output data.")
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
