@@ -98,9 +98,13 @@ class VIRTWHOBase(Base):
 
     # only return CLI for virt-who esx mode, don't run cli 
     def virtwho_cli(self, mode):
-        esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         if mode == "esx":
+            esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
+        elif mode == "libvirt":
+            libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
+            libvirt_server = get_exported_param("REMOTE_IP")
+            cmd = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (libvirt_owner, libvirt_env, libvirt_server, libvirt_username, libvirt_password)
         else:
             raise FailException("Failed to execute virt-who with one shot")
         return cmd
@@ -108,15 +112,15 @@ class VIRTWHOBase(Base):
     # run virt-who oneshot by cli, return the output
     def virtwho_oneshot(self, mode, targetmachine_ip=""):
         cmd = self.virtwho_cli(mode) + " -o -d "
-        self.service_command("stop_virtwho")
-        ret, output = self.runcmd(cmd, "executing virt-who with one shot")
-        self.service_command("restart_virtwho")
+        self.service_command("stop_virtwho", targetmachine_ip)
+        ret, output = self.runcmd(cmd, "executing virt-who with one shot", targetmachine_ip)
+#         self.service_command("restart_virtwho")
         if ret == 0:
             logger.info("Succeeded to execute virt-who with one shot ")
             return ret, output
         else:
             raise FailException("Failed to execute virt-who with one shot")
-    
+
     # check uuid from oneshot output 
     def check_uuid_oneshot(self, uuid, mode, targetmachine_ip=""):
         ret, output = self.virtwho_oneshot(mode, targetmachine_ip)
@@ -266,15 +270,20 @@ EOF''' % (file_name, file_data)
             raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
     # creat /etc/virt-who.d/XXX file
-    def set_virtwho_sec_config(self, virtwho_type, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env, targetmachine_ip=""):
+    def set_virtwho_sec_config(self, mode, targetmachine_ip=""):
         conf_file = "/etc/virt-who.d/virt-who"
+        if mode == "esx":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
+        elif mode == "libvirt":
+            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
+            virtwho_server = get_exported_param("REMOTE_IP")
         conf_data = '''[%s]
 type=%s
 server=%s
 username=%s
 password=%s
 owner=%s
-env=%s''' % (virtwho_type, virtwho_type, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
