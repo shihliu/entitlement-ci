@@ -935,11 +935,12 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             time.sleep(20)
         else:
             time.sleep(120)
-        self.kill_pid("tail")
+        self.kill_pid("tail", targetmachine_ip)
 
     def kill_pid(self, pid_name, destination_ip=""):
         cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
-        ret, output = self.runcmd(cmd, "start to check %s pid" % pid_name, destination_ip)
+#         ret, output = self.runcmd(cmd, "start to check %s pid" %pid_name, destination_ip)
+        ret, output = self.runcmd(cmd, "start to check pid", destination_ip)
         if ret == 0 and output is not None:
             pids = output.strip().split('\n')
             for pid in pids:
@@ -1068,8 +1069,10 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         if ret == 0 and output is not None and  "ERROR" not in output:
             if self.os_serial == "7":
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
-            else:
+            elif "Host-to-guest mapping" in output:
                 rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
+            elif "Sending domain info" in output:
+                rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
             mapping_info = rex.findall(output)
             logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
             if len(mapping_info) == mapping_num:
@@ -1086,6 +1089,32 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         time.sleep(waiting_time)
         cmd = "cat %s" % tmp_file
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
+        self.kill_pid("virt-who")
+
+    def vw_check_mapping_info_number_in_rhsm_log(self, checkcmd="service virt-who restart", mapping_num=1, waiting_time=0, targetmachine_ip=""):
+        ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
+        tmp_file = "/tmp/tail.rhsm.log"
+        cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
+        self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
+        time.sleep(waiting_time)
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
+        if ret == 0 and output is not None and  "ERROR" not in output:
+            if self.os_serial == "7":
+                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
+            elif "Host-to-guest mapping" in output:
+                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
+            elif "Sending domain info" in output:
+                rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
+            mapping_info = rex.findall(output)
+            logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
+            if len(mapping_info) == mapping_num:
+                logger.info("Succeeded to check hosts-to-guests mapping info number as %s" % mapping_num)
+            else:
+                raise FailException("Failed to check hosts-to-guests mapping info number as %s" % mapping_num)
+        else:
+            raise FailException("Failed to check, there is an error message found or no output data.")
         self.kill_pid("virt-who")
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
@@ -1189,4 +1218,74 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
                 raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))
         else:
             raise FailException("Failed to run rhevm-shell cmd.")
+
+    def run_paramiko_interact_sshkeygen(self, cmd, remote_ip, username, password, timeout=None):
+        """Execute the given commands in an interactive shell."""
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(remote_ip, 22, username, password)
+        channel = ssh.get_transport().open_session()
+        channel.settimeout(600)
+        channel.get_pty()
+        channel.exec_command(cmd)
+        output = ""
+        while True:
+            data = channel.recv(1048576)
+            output += data
+            logger.debug("output: %s" % data)
+            if channel.send_ready():
+                if data.strip().endswith('yes/no)?'):
+                    logger.debug("interactive input: yes")
+                    channel.send("yes" + '\n')
+                if data.strip().endswith('\'s password:'):
+                    logger.debug("interactive input: red2015")
+                    channel.send("red2015" + '\n')
+                if data.strip().endswith('[Foreman] Username:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('[Foreman] Password for admin:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('(/root/.ssh/id_rsa):'):
+                    logger.debug("interactive input: enter")
+                    channel.send('\n')
+                if data.strip().endswith('y/n)?'):
+                    logger.debug("interactive input: yes")
+                    channel.send("y" + '\n')
+                if data.strip().endswith('(empty for no passphrase):'):
+                    logger.debug("empty for no passphrase input: enter")
+                    channel.send('\n')
+                if data.strip().endswith('same passphrase again:'):
+                    logger.debug("input same passphrase again: enter")
+                    channel.send('\n')
+                if channel.exit_status_ready():
+                    break
+        if channel.recv_ready():
+            data = channel.recv(1048576)
+            output += data
+        return channel.recv_exit_status(), output
+
+    def run_interact_sshkeygen(self, cmd, targetmachine_ip, username, password, timeout=None, comments=True):
+        ret, output = self.run_paramiko_interact_sshkeygen(cmd, targetmachine_ip, username, password, timeout)
+        return ret, output
+
+    def generate_ssh_key(self, targetmachine_ip=""):
+        remote_ip_2 = get_exported_param("REMOTE_IP_2")
+        remote_ip = get_exported_param("REMOTE_IP")
+        username = "root"
+        password = "red2015"
+        # generate pub-key in host2, then copy the key to host1
+        cmd = "ssh-keygen"
+        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
+        if ret == 0:
+            logger.info("Succeeded to generate ssh-keygen.")
+        else:
+            raise FailException("Test Failed - Failed to generate ssh-keygen.")
+        cmd = "ssh-copy-id -i ~/.ssh/id_rsa.pub %s" % remote_ip
+        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
+        if ret == 0:
+            logger.info("Succeeded to scp id_rsa.pub to remote host")
+        else:
+            raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
 

@@ -312,11 +312,8 @@ class KVMBase(VIRTWHOBase):
             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
 
     def set_remote_libvirt_conf(self, virtwho_remote_server_ip, targetmachine_ip=""):
-        VIRTWHO_LIBVIRT_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
-        VIRTWHO_LIBVIRT_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
-        VIRTWHO_LIBVIRT_USERNAME = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
-        VIRTWHO_LIBVIRT_SERVER = "qemu+ssh:\/\/" + virtwho_remote_server_ip + "\/system"
-
+        VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV, VIRTWHO_LIBVIRT_USERNAME, VIRTWHO_LIBVIRT_PASSWORD = self.get_libvirt_info()
+        VIRTWHO_LIBVIRT_SERVER = virtwho_remote_server_ip
         cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/.*VIRTWHO_LIBVIRT=.*/VIRTWHO_LIBVIRT=1/g' -e 's/.*VIRTWHO_LIBVIRT_OWNER=.*/VIRTWHO_LIBVIRT_OWNER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_ENV=.*/VIRTWHO_LIBVIRT_ENV=%s/g' -e 's/.*VIRTWHO_LIBVIRT_SERVER=.*/VIRTWHO_LIBVIRT_SERVER=%s/g' -e 's/.*VIRTWHO_LIBVIRT_USERNAME=.*/VIRTWHO_LIBVIRT_USERNAME=%s/g' -e 's/.*VIRTWHO_LIBVIRT_PASSWORD=.*/VIRTWHO_LIBVIRT_PASSWORD=/g' /etc/sysconfig/virt-who" % (VIRTWHO_LIBVIRT_OWNER, VIRTWHO_LIBVIRT_ENV, VIRTWHO_LIBVIRT_SERVER, VIRTWHO_LIBVIRT_USERNAME)
         # set remote libvirt value
         ret, output = self.runcmd(cmd, "setting value for remote libvirt conf.", targetmachine_ip)
@@ -350,76 +347,6 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to restore_libvirtd_config.")
         else:
             raise FailException("Test Failed - Failed to restore_libvirtd_config.")
-
-    def generate_ssh_key(self, targetmachine_ip=""):
-        remote_ip_2 = get_exported_param("REMOTE_IP_2")
-        remote_ip = get_exported_param("REMOTE_IP")
-        username = "root"
-        password = "red2015"
-        # generate pub-key in host2, then copy the key to host1
-        cmd = "ssh-keygen"
-        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
-        if ret == 0:
-            logger.info("Succeeded to generate ssh-keygen.")
-        else:
-            raise FailException("Test Failed - Failed to generate ssh-keygen.")
-        cmd = "ssh-copy-id -i ~/.ssh/id_rsa.pub %s" % remote_ip
-        ret, output = self.run_interact_sshkeygen(cmd, remote_ip_2, username, password)
-        if ret == 0:
-            logger.info("Succeeded to scp id_rsa.pub to remote host")
-        else:
-            raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
-
-    def run_interact_sshkeygen(self, cmd, targetmachine_ip, username, password, timeout=None, comments=True):
-        ret, output = self.run_paramiko_interact_sshkeygen(cmd, targetmachine_ip, username, password, timeout)
-        return ret, output
-
-    def run_paramiko_interact_sshkeygen(self, cmd, remote_ip, username, password, timeout=None):
-        """Execute the given commands in an interactive shell."""
-        ssh = paramiko.SSHClient()
-        ssh.load_system_host_keys()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(remote_ip, 22, username, password)
-        channel = ssh.get_transport().open_session()
-        channel.settimeout(600)
-        channel.get_pty()
-        channel.exec_command(cmd)
-        output = ""
-        while True:
-            data = channel.recv(1048576)
-            output += data
-            logger.debug("output: %s" % data)
-            if channel.send_ready():
-                if data.strip().endswith('yes/no)?'):
-                    logger.debug("interactive input: yes")
-                    channel.send("yes" + '\n')
-                if data.strip().endswith('\'s password:'):
-                    logger.debug("interactive input: red2015")
-                    channel.send("red2015" + '\n')
-                if data.strip().endswith('[Foreman] Username:'):
-                    logger.debug("interactive input: admin")
-                    channel.send("admin" + '\n')
-                if data.strip().endswith('[Foreman] Password for admin:'):
-                    logger.debug("interactive input: admin")
-                    channel.send("admin" + '\n')
-                if data.strip().endswith('(/root/.ssh/id_rsa):'):
-                    logger.debug("interactive input: enter")
-                    channel.send('\n')
-                if data.strip().endswith('y/n)?'):
-                    logger.debug("interactive input: yes")
-                    channel.send("y" + '\n')
-                if data.strip().endswith('(empty for no passphrase):'):
-                    logger.debug("empty for no passphrase input: enter")
-                    channel.send('\n')
-                if data.strip().endswith('same passphrase again:'):
-                    logger.debug("input same passphrase again: enter")
-                    channel.send('\n')
-                if channel.exit_status_ready():
-                    break
-        if channel.recv_ready():
-            data = channel.recv(1048576)
-            output += data
-        return channel.recv_exit_status(), output
 
     # ========================================================
     #       KVM - test env set up function
