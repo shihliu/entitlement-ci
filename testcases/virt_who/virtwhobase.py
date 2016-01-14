@@ -1091,31 +1091,11 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
         self.kill_pid("virt-who")
 
-    def vw_check_mapping_info_number_in_rhsm_log(self, checkcmd="service virt-who restart", mapping_num=1, waiting_time=0, targetmachine_ip=""):
-        ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
+    def vw_check_mapping_info_number_in_rhsm_log(self, mapping_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
-        cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
-        self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-        self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
-        time.sleep(waiting_time)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
         cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
-        if ret == 0 and output is not None and  "ERROR" not in output:
-            if self.os_serial == "7":
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Host-to-guest mapping" in output:
-                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Sending domain info" in output:
-                rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
-            mapping_info = rex.findall(output)
-            logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
-            if len(mapping_info) == mapping_num:
-                logger.info("Succeeded to check hosts-to-guests mapping info number as %s" % mapping_num)
-            else:
-                raise FailException("Failed to check hosts-to-guests mapping info number as %s" % mapping_num)
-        else:
-            raise FailException("Failed to check, there is an error message found or no output data.")
-        self.kill_pid("virt-who")
+        self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
