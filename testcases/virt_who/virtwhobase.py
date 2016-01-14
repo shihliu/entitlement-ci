@@ -927,7 +927,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
-    def generate_tmp_log(self, checkcmd, tmp_file, targetmachine_ip=""):
+    def generate_tmp_log(self, checkcmd, tmp_file, waiting_time=0, targetmachine_ip=""):
         cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
         self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
         self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
@@ -935,6 +935,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             time.sleep(20)
         else:
             time.sleep(120)
+        time.sleep(waiting_time)
         self.kill_pid("tail", targetmachine_ip)
 
     def kill_pid(self, pid_name, destination_ip=""):
@@ -1093,7 +1094,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
 
     def vw_check_mapping_info_number_in_rhsm_log(self, mapping_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip)
         cmd = "cat %s" % tmp_file
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
 

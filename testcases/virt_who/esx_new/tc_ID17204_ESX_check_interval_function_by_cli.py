@@ -12,7 +12,7 @@ class tc_ID17204_ESX_check_interval_function_by_cli(ESXBase):
             self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
             cmd = self.virtwho_cli("esx") + " -d -i 0"
             self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
-            for interval in range(3, 5, 15, 30, 60):
+            for interval in [3, 5, 15, 30, 60]:
                 cmd = self.virtwho_cli("esx") + " -d -i %s" % interval
                 self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
             self.check_virtwho_null_thread()
