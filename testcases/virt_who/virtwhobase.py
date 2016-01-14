@@ -1065,23 +1065,31 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
         self.kill_pid("virt-who")
 
-    def vw_check_mapping_info_number(self, cmd, mapping_num=1, targetmachine_ip=""):
-        ret, output = self.runcmd(cmd, "run command to check mapping info number", targetmachine_ip)
+    def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
+        ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
-            if self.os_serial == "7":
+            if "Sending update in hosts-to-guests mapping" in output:
                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
             elif "Host-to-guest mapping" in output:
                 rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
             elif "Sending domain info" in output:
                 rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
+            elif "Associations found" in output:
+                rex = re.compile(r'Associations found: {.*?}\n+(?=201|$)', re.S)
+            else:
+                raise FailException("Failed to find hosts-to-guests mapping info in output data")
             mapping_info = rex.findall(output)
             logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
-            if len(mapping_info) == mapping_num:
-                logger.info("Succeeded to check hosts-to-guests mapping info number as %s" % mapping_num)
-            else:
-                raise FailException("Failed to check hosts-to-guests mapping info number as %s" % mapping_num)
+            return mapping_info
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def vw_check_mapping_info_number(self, cmd, mapping_num=1, targetmachine_ip=""):
+        mapping_info = self.vw_get_mapping_info(cmd, targetmachine_ip)
+        if len(mapping_info) == mapping_num:
+            logger.info("Succeeded to check hosts-to-guests mapping info number as %s" % mapping_num)
+        else:
+            raise FailException("Failed to check hosts-to-guests mapping info number as %s" % mapping_num)
 
     def vw_check_mapping_info_number_in_debug_cmd(self, cmd, mapping_num=1, waiting_time=0, targetmachine_ip=""):
         tmp_file = "/tmp/virt-who.cmd.log"
