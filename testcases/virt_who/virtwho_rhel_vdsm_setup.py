@@ -9,7 +9,7 @@ class virtwho_rhel_vdsm_setup(VDSMBase):
         try:
             self.rhel_rhevm_sys_setup()
             self.rhel_vdsm_setup()
-#             #self.generate_ssh_key()
+            self.generate_ssh_key()
 #             self.install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
