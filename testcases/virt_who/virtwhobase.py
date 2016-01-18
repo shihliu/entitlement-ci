@@ -1068,14 +1068,18 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
     def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
         ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
-            if "Sending update in hosts-to-guests mapping" in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Host-to-guest mapping" in output:
-                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Sending domain info" in output:
-                rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
-            elif "Associations found" in output:
-                rex = re.compile(r'Associations found: {.*?}\n+(?=201|$)', re.S)
+            if "Sending update in hosts-to-guests mapping: {" in output:
+                logger.info("Found: Sending update in hosts-to-guests mapping")
+                rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
+            elif "Host-to-guest mapping: {" in output:
+                logger.info("Found: Host-to-guest mapping")
+                rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
+            elif "Sending domain info: {" in output:
+                logger.info("Found: Sending domain info")
+                rex = re.compile(r'(?<=Sending domain info: )[.*?]\n+(?=201|$)', re.S)
+            elif "Associations found: {" in output:
+                logger.info("Found: Associations found")
+                rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
             else:
                 raise FailException("Failed to find hosts-to-guests mapping info in output data")
             mapping_info = rex.findall(output)
