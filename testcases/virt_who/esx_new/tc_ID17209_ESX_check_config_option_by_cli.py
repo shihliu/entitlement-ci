@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17209_ESX_check_config_function_by_cli(ESXBase):
+class tc_ID17209_ESX_check_config_option_by_cli(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

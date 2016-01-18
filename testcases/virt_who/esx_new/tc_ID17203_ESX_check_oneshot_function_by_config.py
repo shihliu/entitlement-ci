@@ -8,8 +8,8 @@ class tc_ID17203_ESX_check_oneshot_function_by_config(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            self.config_disable_virtwho_interval()
-            self.config_virtwho_one_shot(1)
+            self.config_option_disable("VIRTWHO_INTERVAL")
+            self.config_option_setup_value("VIRTWHO_ONE_SHOT", 1)
             tmp_file = "/tmp/tail.rhsm.log"
             checkcmd = self.get_service_cmd("restart_virtwho")
             self.generate_tmp_log(checkcmd, tmp_file)
@@ -21,7 +21,7 @@ class tc_ID17203_ESX_check_oneshot_function_by_config(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.config_disable_virtwho_one_shot()
+            self.config_option_disable("VIRTWHO_ONE_SHOT")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

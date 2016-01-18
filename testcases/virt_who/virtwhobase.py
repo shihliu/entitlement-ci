@@ -190,74 +190,33 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to virt-who configure file to defualt.")
 
-    def config_virtwho_interval(self, interval_value, targetmachine_ip=""):
-        # clean # for VIRTWHO_INTERVAL 
-        cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+    def config_option_disable(self, option, targetmachine_ip=""):
+        # comment option in /etc/sysconfig/virt-who if given option enabled
+        cmd = "sed -i 's/^%s/#%s/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "Disable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
+            logger.info("Succeeded to disable %s." % option)
         else:
-            raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
-        # set VIRTWHO_INTERVAL value
-        cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" % interval_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" % interval_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" % interval_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_INTERVAL=%s" % interval_value)
+            raise FailException("Failed to disable %s." % option)
 
-    def config_disable_virtwho_interval(self, targetmachine_ip=""):
-        # clean # for VIRTWHO_INTERVAL 
-        cmd = "sed -i 's/^VIRTWHO_INTERVAL/#VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+    def config_option_enable(self, option, targetmachine_ip=""):
+        # uncomment option in /etc/sysconfig/virt-who if given option disabled
+        cmd = "sed -i 's/#%s/%s/' /etc/sysconfig/virt-who"
+        (ret, output) = self.runcmd(cmd, "Enable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_INTERVAL.")
+            logger.info("Succeeded to enable %s." % option)
         else:
-            raise FailException("Failed to comment VIRTWHO_INTERVAL.")
+            raise FailException("Failed to enable %s." % option)
 
-    def config_virtwho_debug(self, debug_value, targetmachine_ip=""):
-        cmd = "sed -i 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
+    def config_option_setup_value(self, option, value="", targetmachine_ip=""):
+        # setup value for option in /etc/sysconfig/virt-who
+        self.config_option_enable(option, targetmachine_ip)
+        cmd = "sed -i 's/^%s=.*/%s=%s/' /etc/sysconfig/virt-who" % (option, option, value)
+        (ret, output) = self.runcmd(cmd, "set %s to %s" % (option, value), targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_DEBUG.")
+            logger.info("Succeeded to set %s=%s" % (option, value))
         else:
-            raise FailException("Failed to uncomment VIRTWHO_DEBUG.")
-        cmd = "sed -i 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/' /etc/sysconfig/virt-who" % debug_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_DEBUG to %s" % debug_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_DEBUG=%s" % debug_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_DEBUG=%s" % debug_value)
-
-    def config_disable_virtwho_debug(self, targetmachine_ip=""):
-        cmd = "sed -i 's/^VIRTWHO_DEBUG/#VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_DEBUG.")
-        else:
-            raise FailException("Failed to comment VIRTWHO_DEBUG.")
-
-    def config_virtwho_one_shot(self, oneshot_value, targetmachine_ip=""):
-        cmd = "sed -i 's/^#VIRTWHO_ONE_SHOT/VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_ONE_SHOT.")
-        else:
-            raise FailException("Failed to uncomment VIRTWHO_ONE_SHOT.")
-        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT=.*/VIRTWHO_ONE_SHOT=%s/' /etc/sysconfig/virt-who" % oneshot_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_ONE_SHOT to %s" % oneshot_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
-
-    def config_disable_virtwho_one_shot(self, targetmachine_ip=""):
-        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT/#VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_ONE_SHOT.")
-        else:
-            raise FailException("Failed to comment VIRTWHO_ONE_SHOT.")
+            raise FailException("Failed to set %s=%s" % (option, value))
 
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
         cmd = '''cat > %s <<EOF
@@ -1027,10 +986,10 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def vw_check_message(self, cmd, message, message_exists=True, targetmachine_ip=""):
+    def vw_check_message(self, cmd, message, message_exists=True, cmd_retcode=0, targetmachine_ip=""):
         ''' check whether given message exist or not, if multiple check needed, seperate them via '|' '''
         ret, output = self.runcmd(cmd, "check message in output", targetmachine_ip)
-        if ret == 0:
+        if ret == cmd_retcode:
             msg_list = message.split("|")
             if message_exists:
                 for msg in msg_list:
