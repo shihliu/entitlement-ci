@@ -25,7 +25,7 @@ class tc_ID17233_VDSM_check_uuid_when_config_file_and_cli(VDSMBase):
             self.set_virtwho_sec_config(mode, remote_ip_2)
             # (3) on host2, run commond line mode to monitor remote libvirt
             cmd = "virt-who --vdsm -o -d"
-            check_msg = "\"vdsm\" mode|Using configuration \"libvirt\"|Using configuration \"env/cmdline\"" 
+            check_msg = "\"vdsm\" mode|Using configuration \"libvirt\"|Using configuration \"env/cmdline\"|\"libvirt\" mode" 
             self.vw_check_message(cmd, check_msg, targetmachine_ip=remote_ip_2 )
 
             self.assert_(True, case_name)
