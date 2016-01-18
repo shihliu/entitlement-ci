@@ -192,7 +192,7 @@ class VIRTWHOBase(Base):
 
     def config_option_disable(self, option, targetmachine_ip=""):
         # comment option in /etc/sysconfig/virt-who if given option enabled
-        cmd = "sed -i 's/^%s/#%s/' /etc/sysconfig/virt-who"
+        cmd = "sed -i 's/^%s/#%s/' /etc/sysconfig/virt-who" % (option, option)
         (ret, output) = self.runcmd(cmd, "Disable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to disable %s." % option)
@@ -201,7 +201,7 @@ class VIRTWHOBase(Base):
 
     def config_option_enable(self, option, targetmachine_ip=""):
         # uncomment option in /etc/sysconfig/virt-who if given option disabled
-        cmd = "sed -i 's/#%s/%s/' /etc/sysconfig/virt-who"
+        cmd = "sed -i 's/#%s/%s/' /etc/sysconfig/virt-who" % (option, option)
         (ret, output) = self.runcmd(cmd, "Enable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to enable %s." % option)
@@ -993,6 +993,8 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             msg_list = message.split("|")
             if message_exists:
                 for msg in msg_list:
+                    # logger.info("----------------------%s" % msg)
+                    # logger.info("----------------------%s" % output)
                     if msg in output:
                         logger.info("Succeeded to get message in %s output: '%s'" % (cmd, msg))
                     else:
@@ -1009,19 +1011,19 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
     def vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
-        self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
+        self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
 
     def vw_check_message_in_debug_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
         ''' check whether given message exist or not in virt-who -d mode.
         if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR")'''
         tmp_file = "/tmp/virt-who.cmd.log"
         cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
-        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip=targetmachine_ip)
         time.sleep(10)
         cmd = "cat %s" % tmp_file
-        self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
+        self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
         self.kill_pid("virt-who")
 
     def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
