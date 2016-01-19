@@ -190,74 +190,33 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to virt-who configure file to defualt.")
 
-    def config_virtwho_interval(self, interval_value, targetmachine_ip=""):
-        # clean # for VIRTWHO_INTERVAL 
-        cmd = "sed -i 's/^#VIRTWHO_INTERVAL/VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+    def config_option_disable(self, option, targetmachine_ip=""):
+        # comment option in /etc/sysconfig/virt-who if given option enabled
+        cmd = "sed -i 's/^%s/#%s/' /etc/sysconfig/virt-who" % (option, option)
+        (ret, output) = self.runcmd(cmd, "Disable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_INTERVAL.")
+            logger.info("Succeeded to disable %s." % option)
         else:
-            raise FailException("Failed to uncomment VIRTWHO_INTERVAL.")
-        # set VIRTWHO_INTERVAL value
-        cmd = "sed -i 's/^VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/' /etc/sysconfig/virt-who" % interval_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_INTERVAL to %s" % interval_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_INTERVAL=%s" % interval_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_INTERVAL=%s" % interval_value)
+            raise FailException("Failed to disable %s." % option)
 
-    def config_disable_virtwho_interval(self, targetmachine_ip=""):
-        # clean # for VIRTWHO_INTERVAL 
-        cmd = "sed -i 's/^VIRTWHO_INTERVAL/#VIRTWHO_INTERVAL/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_INTERVAL firstly in virt-who config file", targetmachine_ip)
+    def config_option_enable(self, option, targetmachine_ip=""):
+        # uncomment option in /etc/sysconfig/virt-who if given option disabled
+        cmd = "sed -i 's/#%s/%s/' /etc/sysconfig/virt-who" % (option, option)
+        (ret, output) = self.runcmd(cmd, "Enable %s in /etc/sysconfig/virt-who" % option, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_INTERVAL.")
+            logger.info("Succeeded to enable %s." % option)
         else:
-            raise FailException("Failed to comment VIRTWHO_INTERVAL.")
+            raise FailException("Failed to enable %s." % option)
 
-    def config_virtwho_debug(self, debug_value, targetmachine_ip=""):
-        cmd = "sed -i 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
+    def config_option_setup_value(self, option, value="", targetmachine_ip=""):
+        # setup value for option in /etc/sysconfig/virt-who
+        self.config_option_enable(option, targetmachine_ip)
+        cmd = "sed -i 's/^%s=.*/%s=%s/' /etc/sysconfig/virt-who" % (option, option, value)
+        (ret, output) = self.runcmd(cmd, "set %s to %s" % (option, value), targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_DEBUG.")
+            logger.info("Succeeded to set %s=%s" % (option, value))
         else:
-            raise FailException("Failed to uncomment VIRTWHO_DEBUG.")
-        cmd = "sed -i 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/' /etc/sysconfig/virt-who" % debug_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_DEBUG to %s" % debug_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_DEBUG=%s" % debug_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_DEBUG=%s" % debug_value)
-
-    def config_disable_virtwho_debug(self, targetmachine_ip=""):
-        cmd = "sed -i 's/^VIRTWHO_DEBUG/#VIRTWHO_DEBUG/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_DEBUG firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_DEBUG.")
-        else:
-            raise FailException("Failed to comment VIRTWHO_DEBUG.")
-
-    def config_virtwho_one_shot(self, oneshot_value, targetmachine_ip=""):
-        cmd = "sed -i 's/^#VIRTWHO_ONE_SHOT/VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "uncomment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to uncomment VIRTWHO_ONE_SHOT.")
-        else:
-            raise FailException("Failed to uncomment VIRTWHO_ONE_SHOT.")
-        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT=.*/VIRTWHO_ONE_SHOT=%s/' /etc/sysconfig/virt-who" % oneshot_value
-        (ret, output) = self.runcmd(cmd, "set VIRTWHO_ONE_SHOT to %s" % oneshot_value, targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
-        else:
-            raise FailException("Failed to set VIRTWHO_ONE_SHOT=%s" % oneshot_value)
-
-    def config_disable_virtwho_one_shot(self, targetmachine_ip=""):
-        cmd = "sed -i 's/^VIRTWHO_ONE_SHOT/#VIRTWHO_ONE_SHOT/' /etc/sysconfig/virt-who"
-        (ret, output) = self.runcmd(cmd, "comment VIRTWHO_ONE_SHOT firstly in virt-who config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to comment VIRTWHO_ONE_SHOT.")
-        else:
-            raise FailException("Failed to comment VIRTWHO_ONE_SHOT.")
+            raise FailException("Failed to set %s=%s" % (option, value))
 
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
         cmd = '''cat > %s <<EOF
@@ -1027,13 +986,15 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def vw_check_message(self, cmd, message, message_exists=True, targetmachine_ip=""):
+    def vw_check_message(self, cmd, message, message_exists=True, cmd_retcode=0, targetmachine_ip=""):
         ''' check whether given message exist or not, if multiple check needed, seperate them via '|' '''
         ret, output = self.runcmd(cmd, "check message in output", targetmachine_ip)
-        if ret == 0:
+        if ret == cmd_retcode:
             msg_list = message.split("|")
             if message_exists:
                 for msg in msg_list:
+                    # logger.info("----------------------%s" % msg)
+                    # logger.info("----------------------%s" % output)
                     if msg in output:
                         logger.info("Succeeded to get message in %s output: '%s'" % (cmd, msg))
                     else:
@@ -1050,32 +1011,36 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
     def vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
-        self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
+        self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
 
     def vw_check_message_in_debug_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
         ''' check whether given message exist or not in virt-who -d mode.
         if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR")'''
         tmp_file = "/tmp/virt-who.cmd.log"
         cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
-        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip=targetmachine_ip)
         time.sleep(10)
         cmd = "cat %s" % tmp_file
-        self.vw_check_message(cmd, message, message_exists, targetmachine_ip)
+        self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
         self.kill_pid("virt-who")
 
     def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
         ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
-            if "Sending update in hosts-to-guests mapping" in output:
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Host-to-guest mapping" in output:
-                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
-            elif "Sending domain info" in output:
-                rex = re.compile(r'Sending domain info: [.*?]\n+(?=201|$)', re.S)
-            elif "Associations found" in output:
-                rex = re.compile(r'Associations found: {.*?}\n+(?=201|$)', re.S)
+            if "Sending update in hosts-to-guests mapping: {" in output:
+                logger.info("Found: Sending update in hosts-to-guests mapping")
+                rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
+            elif "Host-to-guest mapping: {" in output:
+                logger.info("Found: Host-to-guest mapping")
+                rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
+            elif "Sending domain info: {" in output:
+                logger.info("Found: Sending domain info")
+                rex = re.compile(r'(?<=Sending domain info: )[.*?]\n+(?=201|$)', re.S)
+            elif "Associations found: {" in output:
+                logger.info("Found: Associations found")
+                rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
             else:
                 raise FailException("Failed to find hosts-to-guests mapping info in output data")
             mapping_info = rex.findall(output)

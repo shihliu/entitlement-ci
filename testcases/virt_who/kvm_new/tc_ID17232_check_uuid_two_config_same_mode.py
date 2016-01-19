@@ -23,7 +23,7 @@ class tc_ID17232_check_uuid_two_config_same_mode(KVMBase):
             self.set_virtwho_sec_config(mode, remote_ip_2)
             # (3) on host2, configure remote libvirt mode in config file /etc/sysconfig/virt-who
             self.set_remote_libvirt_conf(get_exported_param("REMOTE_IP"), remote_ip_2)
-            self.vw_check_mapping_info_number_in_rhsm_log(mapping_num=2, waiting_time=80, targetmachine_ip=remote_ip_2)
+            self.vw_check_mapping_info_number_in_rhsm_log(2, 80, targetmachine_ip=remote_ip_2)
 
             self.assert_(True, case_name)
         except Exception, e:
