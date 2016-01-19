@@ -1,5 +1,5 @@
 from utils import *
-from testcases.virt_who.esxbase import ESXBase
+from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
 class tc_ID17214_ESX_check_owner_option_by_config(ESXBase):
