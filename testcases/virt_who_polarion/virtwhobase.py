@@ -96,11 +96,14 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
 
-    # only return CLI for virt-who esx mode, don't run cli 
     def virtwho_cli(self, mode):
+    # only return CLI for virt-who esx, remote libvirt, hyperv mode, don't run cli 
         if mode == "esx":
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
+        elif mode == "hyperv":
+            hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
+            cmd = "virt-who --hyperv --hyperv-owner=%s --hyperv-env=%s --hyperv-server=%s --hyperv-username=%s --hyperv-password=%s" % (hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
         elif mode == "libvirt":
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
             libvirt_server = get_exported_param("REMOTE_IP")
