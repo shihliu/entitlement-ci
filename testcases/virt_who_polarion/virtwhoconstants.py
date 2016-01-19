@@ -32,6 +32,16 @@ class VIRTWHOConstants(object):
     "VIRTWHO_LIBVIRT_USERNAME":         "root",
     "VIRTWHO_LIBVIRT_PASSWORD":         "",
 
+    # for hyperv
+    "HYPERV_HOST":                         "10.66.128.9",
+    "HYPERV_PORT":                         6555,
+    "HYPERV_GUEST_NAME":                   "rhel7.2",
+    "VIRTWHO_HYPERV_OWNER":                "ACME_Corporation",
+    "VIRTWHO_HYPERV_ENV":                  "Library",
+    "VIRTWHO_HYPERV_SERVER":               "10.66.128.9",
+    "VIRTWHO_HYPERV_USERNAME":             "administrator",
+    "VIRTWHO_HYPERV_PASSWORD":             "qwer1234P",
+
     # limited subscription
     "productid_guest":                  "RH0103708",
     "productname_guest":                "Red Hat Enterprise Linux Server, Premium",
