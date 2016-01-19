@@ -182,7 +182,7 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to check virt-who thread number is 0 after stop virt-who.")
 
     def update_config_to_default(self, targetmachine_ip=""):
-        ''' update virt-who configure file to default mode '''
+        # update virt-who configure file to default mode
         cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' /etc/sysconfig/virt-who"
         ret, output = self.runcmd(cmd, "updating virt-who configure file to defualt", targetmachine_ip)
         if ret == 0:

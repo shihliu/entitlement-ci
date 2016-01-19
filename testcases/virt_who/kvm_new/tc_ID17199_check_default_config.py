@@ -9,7 +9,6 @@ class tc_ID17199_check_default_config(KVMBase):
         try:
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            self.vw_start_guests(guest_name)
 
             # (1) Set virt-who config to default.
             self.update_config_to_default()

@@ -75,7 +75,7 @@ class ESXBase(VIRTWHOBase):
                 raise FailException("Failed to uncompress guest '%s'." % guest_name)
 
     def update_esx_vw_configure(self, esx_owner, esx_env, esx_server, esx_username, esx_password, background=1, debug=1):
-        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_ESX'''
+        # update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_ESX'''
         cmd = "sed -i -e 's/^#VIRTWHO_DEBUG/VIRTWHO_DEBUG/g' -e 's/^#VIRTWHO_ESX/VIRTWHO_ESX/g' -e 's/^#VIRTWHO_ESX_OWNER/VIRTWHO_ESX_OWNERs/g' -e 's/^#VIRTWHO_ESX_ENV/VIRTWHO_ESX_ENV/g' -e 's/^#VIRTWHO_ESX_SERVER/VIRTWHO_ESX_SERVER/g' -e 's/^#VIRTWHO_ESX_USERNAME/VIRTWHO_ESX_USERNAME/g' -e 's/^#VIRTWHO_ESX_PASSWORD/VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
         ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_ESX")
         if ret == 0:
@@ -83,7 +83,7 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to enable VIRTWHO_ESX.")
 
-        ''' update virt-who configure file /etc/sysconfig/virt-who for setting VIRTWHO_ESX'''
+        # update virt-who configure file /etc/sysconfig/virt-who for setting VIRTWHO_ESX'''
         cmd = "sed -i -e 's/^VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/^VIRTWHO_ESX=.*/VIRTWHO_ESX=1/g' -e 's/^VIRTWHO_ESX_OWNER=.*/VIRTWHO_ESX_OWNER=%s/g' -e 's/^VIRTWHO_ESX_ENV=.*/VIRTWHO_ESX_ENV=%s/g' -e 's/^VIRTWHO_ESX_SERVER=.*/VIRTWHO_ESX_SERVER=%s/g' -e 's/^VIRTWHO_ESX_USERNAME=.*/VIRTWHO_ESX_USERNAME=%s/g' -e 's/^VIRTWHO_ESX_PASSWORD=.*/VIRTWHO_ESX_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, esx_owner, esx_env, esx_server, esx_username, esx_password)
         ret, output = self.runcmd(cmd, "updating virt-who configure file setting VIRTWHO_ESX")
         if ret == 0:
