@@ -919,7 +919,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         tmp_file = "/tmp/tail.rhsm.log"
 #         checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
@@ -955,7 +955,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         tmp_file = "/tmp/tail.rhsm.log"
 #         checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
@@ -1070,7 +1070,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
 
     def vw_check_mapping_info_number_in_rhsm_log(self, mapping_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
 
@@ -1098,7 +1098,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         tmp_file = "/tmp/tail.rhsm.log"
         checkcmd = "service virt-who restart"
 #         self.generate_tmp_log(tmp_file, targetmachine_ip)
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
