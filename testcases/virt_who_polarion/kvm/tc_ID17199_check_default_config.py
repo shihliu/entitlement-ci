@@ -26,7 +26,7 @@ class tc_ID17199_check_default_config(KVMBase):
             # (6) Run virt-who commond line, check debug info is not exist on virt-who log.
             self.vw_check_message_in_debug_cmd("virt-who", "DEBUG|ERROR", message_exists=False)
             # (7) Run virt-who commond line, check guest uuid exist on virt-who log.
-            self.vw_check_message_in_debug_cmd("virt-who", "%|using libvirt as backend" % guestuuid, message_exists=True)
+            self.vw_check_message_in_debug_cmd("virt-who", "%s|using libvirt as backend" % guestuuid, message_exists=True)
             self.assert_(True, case_name)
 
         except Exception, e:

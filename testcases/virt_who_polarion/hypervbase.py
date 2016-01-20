@@ -34,7 +34,7 @@ class HYPERVBase(VIRTWHOBase):
 #             raise FailException("Failed to get hyperv guest ip address")
 
     def hyperv_get_guest_status(self, guest_name, targetmachine_ip=""):
-    # Get guest's status's from guest's detail info
+    # Get guest's status
         output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
         if output is not "":
             logger.info("Success to run command to get vm %s status" % guest_name)

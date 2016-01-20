@@ -40,7 +40,7 @@ class VIRTWHOConstants(object):
     "VIRTWHO_HYPERV_ENV":                  "Library",
     "VIRTWHO_HYPERV_SERVER":               "10.66.128.9",
     "VIRTWHO_HYPERV_USERNAME":             "administrator",
-    "VIRTWHO_HYPERV_PASSWORD":             "qwer1234P",
+    "VIRTWHO_HYPERV_PASSWORD":             "Welcome1",
 
     # limited subscription
     "productid_guest":                  "RH0103708",

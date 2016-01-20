@@ -31,8 +31,6 @@ class HYPERVBase(VIRTWHOBase):
             guest_ip = re.findall(r'\d+.\d+.\d+.\d+', output)
             logger.info("hyperv guest ip address is %s" % guest_ip)
             return guest_ip
-#         else:
-#             raise FailException("Failed to get hyperv guest ip address")
 
     def hyperv_get_guest_status(self, guest_name, targetmachine_ip=""):
     # Get guest's status's from guest's detail info
@@ -43,6 +41,16 @@ class HYPERVBase(VIRTWHOBase):
             return status
         else:
             raise FailException("Failed to run command to get vm %s status" % guest_name)
+
+    def hyperv_get_guest_uuid(self, guest_name, targetmachine_ip=""):
+    # Get guest's status's from guest's detail info
+        output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
+        if output is not "":
+            logger.info("Success to run command to get vm %s uuid" % guest_name)
+            guest_uuid = self.get_key_rhevm(output, "VMId", "VMName", guest_name)
+            return guest_uuid
+        else:
+            raise FailException("Failed to run command to get vm %s uuid " % guest_name)
 
     def hyperv_start_guest(self, guest_name, targetmachine_ip=""):
      # Start hyperv guest
