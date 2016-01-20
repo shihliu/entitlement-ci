@@ -3,7 +3,7 @@ from utils.tools.shell import command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.virt_who.virtwhoconstants import VIRTWHOConstants
+from testcases.virt_who_polarion.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
     # ========================================================
