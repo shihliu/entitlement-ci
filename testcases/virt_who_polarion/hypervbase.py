@@ -9,6 +9,7 @@ class HYPERVBase(VIRTWHOBase):
     # Run cmd on hyperv
         hyperv_ip = self.get_vw_cons("HYPERV_HOST")
         hyperv_port = self.get_vw_cons("HYPERV_PORT")
+#         hyperv_ip = "10.66.128.9"
 #         hyperv_port = 6555
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # listen to socket
         s.connect((hyperv_ip, hyperv_port))  # connect to the socket
@@ -42,6 +43,16 @@ class HYPERVBase(VIRTWHOBase):
             return status
         else:
             raise FailException("Failed to run command to get vm %s status" % guest_name)
+
+    def hyperv_get_guest_id(self, guest_name, targetmachine_ip=""):
+    # Get guest's status
+        output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
+        if output is not "":
+            logger.info("Success to run command to get vm %s ID" % guest_name)
+            guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
+            return guest_id 
+        else:
+            raise FailException("Failed to run command to get vm %s ID" % guest_name)
 
     def hyperv_start_guest(self, guest_name, targetmachine_ip=""):
      # Start hyperv guest
