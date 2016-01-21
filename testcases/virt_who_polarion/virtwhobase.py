@@ -232,7 +232,7 @@ EOF''' % (file_name, file_data)
             raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
     def set_virtwho_sec_config(self, mode, targetmachine_ip=""):
-    # Configure the second virt-who configure file (/etc/virt-who.d/virt-who) to different mode.
+        # configure the second virt-who configure file (/etc/virt-who.d/virt-who) to different mode.
         conf_file = "/etc/virt-who.d/virt-who"
         if mode == "esx":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
@@ -249,6 +249,26 @@ password=%s
 owner=%s
 env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_virtwho_sec_config_with_keyvalue(self, mode, key, value, targetmachine_ip=""):
+        # configure virt-who.d with given key value
+        conf_file = "/etc/virt-who.d/virt-who"
+        if mode == "esx":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
+        elif mode == "libvirt":
+            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
+            virtwho_server = get_exported_param("REMOTE_IP")
+        elif mode == "hyperv":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
+        conf_data = '''[%s]
+type=%s
+server=%s
+username=%s
+password=%s
+owner=%s
+env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+        pattern = re.compile(r'%s=.*?(?=\n|$)' % key)
+        self.set_virtwho_d_conf(conf_file, pattern.sub("%s=%s" % (key, value), conf_data), targetmachine_ip)
 
     def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
         if "kvm" in virtwho_mode:

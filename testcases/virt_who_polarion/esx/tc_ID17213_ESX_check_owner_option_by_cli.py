@@ -7,12 +7,13 @@ class tc_ID17213_ESX_check_owner_option_by_cli(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            error_msg = "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set"
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             self.runcmd_service("stop_virtwho")
             cmd_without_owner = "virt-who --esx --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_env, esx_server, esx_username, esx_password) + " -o -d"
-            self.vw_check_message(cmd_without_owner, "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set", cmd_retcode=1)
+            self.vw_check_message(cmd_without_owner, error_msg, cmd_retcode=1)
             cmd_with_wrong_owner = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % ("xxxxxxx", esx_env, esx_server, esx_username, esx_password) + " -o -d"
-            self.vw_check_message(cmd_with_wrong_owner, "", cmd_retcode=1)
+            self.vw_check_message(cmd_with_wrong_owner, error_msg, cmd_retcode=1)
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password) + " -o -d"
             self.vw_check_mapping_info_number(cmd, 1)
             self.assert_(True, case_name)
