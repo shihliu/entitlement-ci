@@ -9,12 +9,11 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
-            self.vw_check_mapping_info_number_in_rhsm_log(1, 80)
-            self.config_option_setup_value("VIRTWHO_INTERVAL", 0)
-            self.vw_check_mapping_info_number_in_rhsm_log(1, 80)
-            for interval in [3, 5, 15, 30, 60]:
-                self.config_option_setup_value("VIRTWHO_INTERVAL", interval)
-                self.vw_check_mapping_info_number_in_rhsm_log(1, 80)
+            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 3, 150)
+            self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
+            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 3, 150)
+            self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
+            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 2, 150)
             self.check_virtwho_thread()
             self.assert_(True, case_name)
         except Exception, e:

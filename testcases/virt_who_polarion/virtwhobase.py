@@ -896,11 +896,13 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
         self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
         self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
-        if "virt-who" in checkcmd:
-            time.sleep(20)
+        if waiting_time == 0:
+            if "virt-who" in checkcmd:
+                time.sleep(20)
+            else:
+                time.sleep(120)
         else:
-            time.sleep(120)
-        time.sleep(waiting_time)
+            time.sleep(waiting_time)
         self.kill_pid("tail", targetmachine_ip)
 
     def kill_pid(self, pid_name, destination_ip=""):
@@ -1076,6 +1078,35 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
+
+    def vw_check_message_number(self, cmd, message, number, targetmachine_ip=""):
+        ret, output = self.runcmd(cmd, "run command to get message", targetmachine_ip)
+        if ret == 0 and output is not None and  "ERROR" not in output:
+            rex = re.compile(r'%s' % message, re.S)
+            message_list = rex.findall(output)
+            logger.info("all message list as follows: \n%s" % message_list)
+            if len(message_list) == number:
+                logger.info("Succeeded to check message number as %s" % number)
+            else:
+                raise FailException("Failed to check message number as %s" % number)
+            return message_list
+        else:
+            raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def vw_check_message_number_in_debug_cmd(self, cmd, message, msg_num=1, waiting_time=0, targetmachine_ip=""):
+        tmp_file = "/tmp/virt-who.cmd.log"
+        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        time.sleep(waiting_time)
+        cmd = "cat %s" % tmp_file
+        self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
+        self.kill_pid("virt-who")
+
+    def vw_check_message_number_in_rhsm_log(self, message, msg_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
