@@ -50,9 +50,50 @@ class HYPERVBase(VIRTWHOBase):
         if output is not "":
             logger.info("Success to run command to get vm %s ID" % guest_name)
             guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
+            logger.info("before decode guest uuid is %s" %guest_id)
+            guest_uuid_after_decode = self.decodeWinUUID(guest_id)
+            logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
             return guest_id 
         else:
             raise FailException("Failed to run command to get vm %s ID" % guest_name)
+
+    @classmethod
+    def decodeWinUUID(cls, uuid):
+    # Decode host and guest uuid in hyperv
+        """ Windows UUID needs to be decoded using following key
+        From: {78563412-AB90-EFCD-1234-567890ABCDEF}
+        To:    12345678-90AB-CDEF-1234-567890ABCDEF
+        """
+        if uuid[0] == "{":
+            s = uuid[1:-1]
+        else:
+            s = uuid
+        return s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
+
+    def hyperv_get_guest_guid(self, targetmachine_ip=""):
+    # Get guest's status
+        output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | select ElementName, BIOSGUID')
+        if output is not "":
+#             logger.info("Success to run command to get vm %s ID" % guest_name)
+#             guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
+#             logger.info("before decode guest uuid is %s" %guest_id)
+            guest_uuid_after_decode = self.decodeWinUUID("7E0A7132-A994-45A4-944E-16C01BFA63B3")
+#             logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
+#             return guest_id 
+            logger.info("output is %s" %output)
+            logger.info("after decode is %s" %guest_uuid_after_decode)
+        else:
+            raise FailException("Failed to run command to get vm %s ID" )
+
+    def hyperv_get_host_uuid(self, targetmachine_ip=""):
+    # Get host's uuid
+        output = self.hyperv_run_cmd('gwmi -namespace "root/cimv2" Win32_ComputerSystemProduct | select UUID ')
+        datalines = output.splitlines()
+        for line in datalines:
+            if "--" not in line and "UUID" not in line:
+                host_uuid = self.decodeWinUUID("%s" %line)
+                logger.info("Success to get hyperv's uuid after decode, uuid is %s" %host_uuid)
+                return host_uuid
 
     def hyperv_start_guest(self, guest_name, targetmachine_ip=""):
      # Start hyperv guest
@@ -150,3 +191,4 @@ class HYPERVBase(VIRTWHOBase):
 #         # self.esx_service_restart(ESX_HOST)
 #         self.hyperv_stop_guest(guest_name, hyperv_host)
         self.vw_restart_virtwho()
+
