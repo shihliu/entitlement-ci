@@ -31,6 +31,15 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to install base tool to support automation in %s." % self.get_hg_info(targetmachine_ip))
 
+    def cm_check_file_mode(self, file, mode, targetmachine_ip=""):
+        # check file mode with given value
+        cmd = "stat -c %%a %s" % file
+        (ret, output) = self.runcmd(cmd, "get file mode", targetmachine_ip)
+        if ret == 0 and output.strip() == mode:
+            logger.info("Succeeded to check file: %s mode as: %s" % (file, mode))
+        else:
+            raise FailException("Test Failed - Failed to check file: %s mode as: %s" % (file, mode))
+
     # ========================================================
     #       Basic Functions
     # ========================================================
