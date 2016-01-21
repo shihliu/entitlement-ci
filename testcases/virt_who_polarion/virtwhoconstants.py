@@ -82,7 +82,7 @@ class VIRTWHOConstants(object):
     "stop_virtwho":                     "service virt-who stop",
     "stop_virtwho_systemd":             "systemctl stop virt-who.service",
     
-    "status_virtwho":                   "service status restart",
+    "status_virtwho":                   "service virt-who status",
     "status_virtwho_systemd":           "systemctl status virt-who.service",
     
     "restart_libvirtd":                 "service libvirtd restart",

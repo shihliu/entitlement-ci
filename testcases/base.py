@@ -60,6 +60,12 @@ class Base(unittest.TestCase):
         cmd = self.get_service_cmd(command, targetmachine_ip)
         return self.runcmd(cmd, "run service cmd: %s" % cmd, targetmachine_ip)
 
+    def runcmd_local(self, cmd, timeout=None, showlogger=True):
+        return command.runcmd_local(cmd, timeout, showlogger)
+
+    def runcmd_local_pexpect(self, cmd, password=""):
+        return command.runcmd_local_pexpect(cmd, password)
+
     def get_os_serials(self, targetmachine_ip=""):
         cmd = "uname -r | awk -F \"el\" '{print substr($2,1,1)}'"
         (ret, output) = self.runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)

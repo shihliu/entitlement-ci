@@ -50,6 +50,12 @@ def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
     return commander.run_interact(cmd, timeout, cmddesc)
 
+def runcmd_local(cmd, timeout=None, showlogger=True):
+    return LocalSH.local_run(cmd, timeout, showlogger)
+
+def runcmd_local_pexpect(cmd, password=""):
+    return LocalSH.run_pexpect(cmd, password)
+
 if __name__ == "__main__":
     commander = Command("10.34.35.76", "root", "red2015")
     cmd = "scp /root/images_nfs/test.xml root@10.16.67.184:/root/"
