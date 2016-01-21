@@ -231,14 +231,16 @@ EOF''' % (file_name, file_data)
         else:
             raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
-    # creat /etc/virt-who.d/XXX file
     def set_virtwho_sec_config(self, mode, targetmachine_ip=""):
+    # Configure the second virt-who configure file (/etc/virt-who.d/virt-who) to different mode.
         conf_file = "/etc/virt-who.d/virt-who"
         if mode == "esx":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
         elif mode == "libvirt":
             virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
             virtwho_server = get_exported_param("REMOTE_IP")
+        elif mode == "hyperv":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
         conf_data = '''[%s]
 type=%s
 server=%s
@@ -272,6 +274,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
+    # Delete any file
         cmd = "rm -f %s" % file_name
         ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
         if ret == 0:
@@ -1038,9 +1041,9 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             elif "Host-to-guest mapping: {" in output:
                 logger.info("Found: Host-to-guest mapping")
                 rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
-            elif "Sending domain info: {" in output:
+            elif "Sending domain info: [" in output:
                 logger.info("Found: Sending domain info")
-                rex = re.compile(r'(?<=Sending domain info: )[.*?]\n+(?=201|$)', re.S)
+                rex = re.compile(r'(?<=Sending domain info: )\[.*?\]\n+(?=201|$)', re.S)
             elif "Associations found: {" in output:
                 logger.info("Found: Associations found")
                 rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
