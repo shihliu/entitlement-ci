@@ -8,12 +8,13 @@ class tc_ID17204_ESX_check_interval_function_by_cli(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
+            loop_msg = "Waiting for ESX changes"
             cmd = self.virtwho_cli("esx") + " -d"
-            self.vw_check_message_number_in_debug_cmd(cmd, "Waiting for ESX changes", 3, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 3, 150)
             cmd = self.virtwho_cli("esx") + " -d -i 10"
-            self.vw_check_message_number_in_debug_cmd(cmd, "Waiting for ESX changes", 3, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 3, 150)
             cmd = self.virtwho_cli("esx") + " -d -i 120"
-            self.vw_check_message_number_in_debug_cmd(cmd, "Waiting for ESX changes", 2, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 2, 150)
             self.check_virtwho_null_thread()
             self.assert_(True, case_name)
         except Exception, e:

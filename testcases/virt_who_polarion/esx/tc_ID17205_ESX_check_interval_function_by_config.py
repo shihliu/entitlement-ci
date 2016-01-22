@@ -8,14 +8,15 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
+            loop_msg = "Waiting for ESX changes"
             self.config_option_disable("VIRTWHO_INTERVAL")
-            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 3, 150)
+            self.vw_check_message_number_in_rhsm_log(loop_msg, 3, 150)
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
-            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 3, 150)
+            self.vw_check_message_number_in_rhsm_log(loop_msg, 3, 150)
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
-            self.vw_check_message_number_in_rhsm_log("Waiting for ESX changes", 2, 150)
+            self.vw_check_message_number_in_rhsm_log(loop_msg, 2, 150)
             self.check_virtwho_thread()
             self.assert_(True, case_name)
         except Exception, e:
