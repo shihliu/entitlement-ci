@@ -11,7 +11,7 @@
     builders:
         - shell: |
             #!/bin/bash
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export RHEL_COMPOSE= (optional)
@@ -62,7 +62,7 @@
     builders:
         - shell: |
             #!/bin/bash
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.englab.nay.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export RHEL_COMPOSE= (optional)
