@@ -549,7 +549,8 @@ class ESXBase(VIRTWHOBase):
                         "env=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env)
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-    def esx_set_encrypted_password(self, encrypted_password, conf_file, esx_owner, esx_env, esx_server, esx_username, destination_ip=""):
+    def esx_set_encrypted_password(self, encrypted_password, esx_owner, esx_env, esx_server, esx_username, destination_ip=""):
+            conf_file = "/etc/virt-who.d/virt-who"
             conf_data = "[test-esx1]\n"\
                         "type=esx\n"\
                         "server=%s\n"\
