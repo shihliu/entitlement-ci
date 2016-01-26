@@ -8,13 +8,16 @@ class tc_ID17204_check_interval_function_by_cli(KVMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
+            check_msg = "No change in report"
+            #(1) Check virt-who refresh default interval is 60s
             cmd = "virt-who -d"
-            self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
-            cmd = "virt-who -d -i 0"
-            self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
-            for interval in [3, 5, 15, 30, 60]:
-                cmd = "virt-who -d -i %s" % interval
-                self.vw_check_mapping_info_number_in_debug_cmd(cmd, 1, 80)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
+            #(2) Check virt-who refresh interval is 60 when config interval less than 60s
+            cmd = "virt-who -d -i 10"
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
+            #(3) Check virt-who refresh interval is equal to config interval when config interval over 60s
+            cmd = "virt-who -d -i 120"
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
             self.check_virtwho_null_thread()
 
             self.assert_(True, case_name)
