@@ -105,8 +105,9 @@ class VIRTWHOBase(Base):
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             cmd = "virt-who --hyperv --hyperv-owner=%s --hyperv-env=%s --hyperv-server=%s --hyperv-username=%s --hyperv-password=%s" % (hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
         if mode == "rhevm":
-            rhevm_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
-            cmd = "virt-who --esx --rhevm_owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
+            rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
+            rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
+            cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
         elif mode == "libvirt":
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
             libvirt_server = get_exported_param("REMOTE_IP")
@@ -1204,6 +1205,107 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             return log_uuid_list
         else:
             raise FailException("Failed to get uuid list in rhsm.log")
+
+    def hypervisor_check_uuid(self, hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', uuidexists=True, targetmachine_ip=""):
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+        ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        # ignore restart virt-who serivce since virt-who -b -d will stop
+        self.vw_restart_virtwho_new(targetmachine_ip)
+        time.sleep(20)
+        cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        if ret == 0:
+            if "Sending list of uuids: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update to updateConsumer: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending domain info" in output:
+                log_uuid_list = output.split('Sending domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update in hosts-to-guests mapping" in output:
+                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            else:
+                raise FailException("Failed to get uuid list from rhsm.log")
+            hostloc = log_uuid_list.find(hostuuid)
+            if hostloc >= 0:
+                if uuidexists:
+                    khrightloc = log_uuid_list.find("[", hostloc, -1)
+                    khleftloc = log_uuid_list.find("]", hostloc, -1)
+                    ulst = log_uuid_list[khrightloc:khleftloc - 1]
+                    if guestuuid == "" and len(ulst) == 0:
+                        logger.info("Succeeded to get none uuid list")
+                    else:
+                        if guestuuid in ulst:
+                            logger.info("Succeeded to check guestuuid %s in host %s" % (guestuuid, hostuuid))
+                        else:
+                            raise FailException("Failed to check guestuuid %s in host %s" % (guestuuid, hostuuid))
+                else:
+                    khrightloc = log_uuid_list.find("[", hostloc, -1)
+                    khleftloc = log_uuid_list.find("]", hostloc, -1)
+                    ulst = log_uuid_list[khrightloc:khleftloc + 1]
+                    if guestuuid not in ulst:
+                        logger.info("Succeeded to check guestuuid %s not in host %s" % (guestuuid, hostuuid))
+                    else:
+                        raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
+            else:
+                raise FailException("Failed to get rhsm.log")
+        else:
+            raise FailException("Test Failed - log file has problem, please check it !")
+
+    def hypervisor_check_attr(self, hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
+        ''' check if the guest attributions is correctly monitored by virt-who. '''
+        rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
+        cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
+        ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        self.vw_restart_virtwho(targetmachine_ip)
+        time.sleep(20)
+        cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
+        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        if ret == 0:
+            ''' get guest uuid.list from rhsm.log '''
+            if "Sending list of uuids: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update to updateConsumer: " in output:
+                log_uuid_list = output.split('Sending list of uuids: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending domain info" in output:
+                log_uuid_list = output.split('Sending domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Sending update in hosts-to-guests mapping"in output:
+                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            else:
+                raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
+            hostloc = log_uuid_list.find(hostuuid)
+            khrightloc = log_uuid_list.find("[", hostloc, -1)
+            khleftloc = log_uuid_list.find("]", hostloc, -1)
+            ulst = log_uuid_list[khrightloc:khleftloc + 1]
+            logger.info("ulst is %s" % ulst)
+#             loglist = eval(ulst[:ulst.rfind("]\n") + 1].strip())
+            loglist = eval(ulst[:ulst.rfind("]") + 1].strip())
+            logger.info("loglist is %s" % loglist)
+#             loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
+            for item in loglist:
+                if item['guestId'] == guestuuid:
+                    attr_status = item['attributes']['active']
+                    logger.info("guest's active status is %s." % attr_status)
+                    attr_type = item['attributes']['virtWhoType']
+                    logger.info("guest virtwhotype is %s." % attr_type)
+                    attr_hypertype = item['attributes']['hypervisorType']
+                    logger.info("guest hypervisortype is %s." % attr_hypertype)
+                    attr_state = item['state']
+                    logger.info("guest state is %s." % attr_state)
+            if guestname != "" and (guest_status == attr_status) and (guest_type in attr_type) and (guest_hypertype in attr_hypertype) and (guest_state == attr_state):
+                logger.info("successed to check guest %s attribute" % guestname)
+            else:
+                raise FailException("Failed to check guest %s attribute" % guestname)
+        else:
+            raise FailException("Failed to get uuids in rhsm.log")
 
     def cal_virtwho_thread(self, targetmachine_ip=""):
             self.vw_restart_virtwho()
