@@ -85,6 +85,10 @@ class Base(unittest.TestCase):
         # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         return self.get_vw_cons("VIRTWHO_HYPERV_OWNER"), self.get_vw_cons("VIRTWHO_HYPERV_ENV"), self.get_vw_cons("VIRTWHO_HYPERV_SERVER"), self.get_vw_cons("VIRTWHO_HYPERV_USERNAME"), self.get_vw_cons("VIRTWHO_HYPERV_PASSWORD")
 
+    def get_rhevm_info(self):
+        # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
+        return self.get_vw_cons("VIRTWHO_RHEVM_OWNER"), self.get_vw_cons("VIRTWHO_RHEVM_ENV"), self.get_vw_cons("VIRTWHO_RHEVM_USERNAME"), self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
+
     def get_libvirt_info(self):
         return self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER"), self.get_vw_cons("VIRTWHO_LIBVIRT_ENV"), self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME"), self.get_vw_cons("VIRTWHO_LIBVIRT_PASSWORD")
 

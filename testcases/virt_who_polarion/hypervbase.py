@@ -47,19 +47,6 @@ class HYPERVBase(VIRTWHOBase):
         else:
             raise FailException("Failed to run command to get vm %s status" % guest_name)
 
-    def hyperv_get_guest_id(self, guest_name, targetmachine_ip=""):
-    # Get guest's status
-        output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
-        if output is not "":
-            logger.info("Success to run command to get vm %s ID" % guest_name)
-            guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
-            logger.info("before decode guest uuid is %s" %guest_id)
-            guest_uuid_after_decode = self.decodeWinUUID(guest_id)
-            logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
-            return guest_id 
-        else:
-            raise FailException("Failed to run command to get vm %s ID" % guest_name)
-
     @classmethod
     def decodeWinUUID(cls, uuid):
     # Decode host and guest uuid in hyperv
@@ -72,6 +59,19 @@ class HYPERVBase(VIRTWHOBase):
         else:
             s = uuid
         return s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
+
+    def hyperv_get_guest_id(self, guest_name, targetmachine_ip=""):
+    # Get guest's status
+        output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
+        if output is not "":
+            logger.info("Success to run command to get vm %s ID" % guest_name)
+            guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
+            logger.info("before decode guest uuid is %s" %guest_id)
+            guest_uuid_after_decode = self.decodeWinUUID(guest_id)
+            logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
+            return guest_id 
+        else:
+            raise FailException("Failed to run command to get vm %s ID" % guest_name)
 
     def hyperv_get_guest_guid(self, guest_name, targetmachine_ip=""):
     # Get guest's guid
