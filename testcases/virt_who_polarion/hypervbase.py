@@ -28,11 +28,12 @@ class HYPERVBase(VIRTWHOBase):
     # Get guest's IP
         output = self.hyperv_run_cmd("(Get-VMNetworkAdapter -VMName %s).IpAddresses" % guest_name)
         if output is not "":
-            guest_ip = re.findall(r'\d+.\d+.\d+.\d+', output)
-            logger.info("hyperv guest ip address is %s" % guest_ip)
-            return guest_ip
-#         else:
-#             raise FailException("Failed to get hyperv guest ip address")
+            datalines = output.splitlines()
+            for line in datalines:
+                if ":" not in line:
+                    guest_ip = line
+                    logger.info("hyperv guest ip address is %s" % guest_ip)
+                    return guest_ip
 
     def hyperv_get_guest_status(self, guest_name, targetmachine_ip=""):
     # Get guest's status
@@ -70,10 +71,35 @@ class HYPERVBase(VIRTWHOBase):
             s = uuid
         return s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
 
-    def hyperv_get_guest_guid(self, targetmachine_ip=""):
+    def hyperv_get_guest_guid(self, key, targetmachine_ip=""):
     # Get guest's status
         output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | select ElementName, BIOSGUID')
         if output is not "":
+            datalines = output.splitlines()
+            pool_list = []
+            data_segs = []
+            segs = []
+            for line in datalines:
+                if "  " in line:
+                    segs.append(line)
+                elif segs:
+                    # change this section for more than 1 lines without ":" exist
+                    if ":" in line:
+                        segs.append(line)
+                    else:
+                        segs[-1] = segs[-1] + " " + line.strip()
+                if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line):
+                    data_segs.append(segs)
+                    segs = []
+            # parse detail information for each pool
+            for seg in data_segs:
+                pool_dict = {}
+                for item in seg:
+                    keyitem = item.split(":")[0].replace(" ", "")
+                    valueitem = item.split(":")[1].strip()
+                    pool_dict[keyitem] = valueitem
+                pool_list.append(pool_dict)
+            return pool_list
 #             logger.info("Success to run command to get vm %s ID" % guest_name)
 #             guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
 #             logger.info("before decode guest uuid is %s" %guest_id)
