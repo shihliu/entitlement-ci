@@ -508,8 +508,8 @@ class ESXBase(VIRTWHOBase):
                         "env=%s" % (esx_server, esx_username, esx_password, hypervisor_id, esx_owner, esx_env)
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-    def esx_set_rhsm_user_pass(self, rhsm_username, rhsm_password, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+    def esx_set_rhsm_user_pass(self, rhsm_username, rhsm_password, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+            conf_file = "/etc/virt-who.d/virt-who"
             conf_data = "[test-esx1]\n"\
                         "type=esx\n"\
                         "server=%s\n"\
