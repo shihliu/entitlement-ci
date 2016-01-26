@@ -9,11 +9,12 @@ class HYPERVBase(VIRTWHOBase):
     # Run cmd on hyperv
         hyperv_ip = self.get_vw_cons("HYPERV_HOST")
         hyperv_port = self.get_vw_cons("HYPERV_PORT")
-#         hyperv_ip = "10.66.128.9"
-#         hyperv_port = 6555
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # listen to socket
-        s.connect((hyperv_ip, hyperv_port))  # connect to the socket
-        s.sendall(cmd)  # send the command
+        # listen to socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # connect to the socket
+        s.connect((hyperv_ip, hyperv_port))
+        # send the command
+        s.sendall(cmd)
         data = ""
         while True:
             buf = s.recv(1024)
@@ -22,7 +23,8 @@ class HYPERVBase(VIRTWHOBase):
             data = data + buf
         logger.info ("After run %s, the output is \n%s" % (cmd, data))
         return data
-        s.close()  # close the socket
+        # close the socket
+        s.close()
 
     def hyperv_get_guest_ip(self, guest_name, targetmachine_ip=""):
     # Get guest's IP
@@ -71,45 +73,24 @@ class HYPERVBase(VIRTWHOBase):
             s = uuid
         return s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
 
-    def hyperv_get_guest_guid(self, key, targetmachine_ip=""):
-    # Get guest's status
+    def hyperv_get_guest_guid(self, guest_name, targetmachine_ip=""):
+    # Get guest's guid
         output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | select ElementName, BIOSGUID')
         if output is not "":
             datalines = output.splitlines()
-            pool_list = []
-            data_segs = []
             segs = []
             for line in datalines:
-                if "  " in line:
-                    segs.append(line)
-                elif segs:
-                    # change this section for more than 1 lines without ":" exist
-                    if ":" in line:
-                        segs.append(line)
-                    else:
-                        segs[-1] = segs[-1] + " " + line.strip()
-                if ("Machine Type:" in line) or ("MachineType:" in line) or ("System Type:" in line):
-                    data_segs.append(segs)
-                    segs = []
-            # parse detail information for each pool
-            for seg in data_segs:
-                pool_dict = {}
-                for item in seg:
-                    keyitem = item.split(":")[0].replace(" ", "")
-                    valueitem = item.split(":")[1].strip()
-                    pool_dict[keyitem] = valueitem
-                pool_list.append(pool_dict)
-            return pool_list
-#             logger.info("Success to run command to get vm %s ID" % guest_name)
-#             guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
-#             logger.info("before decode guest uuid is %s" %guest_id)
-            guest_uuid_after_decode = self.decodeWinUUID("7E0A7132-A994-45A4-944E-16C01BFA63B3")
-#             logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
-#             return guest_id 
-            logger.info("output is %s" %output)
-            logger.info("after decode is %s" %guest_uuid_after_decode)
+                segs.append(line)
+            for item in segs:
+                if guest_name in item:
+                    item = item.strip()
+                    before_guest_uuid = item[item.index("{")+1:item.index("}")].strip()
+                    logger.info("Before decode, guest %s guid is %s" %(guest_name,before_guest_uuid))
+                    guest_uuid = self.decodeWinUUID("%s" %before_guest_uuid)
+                    logger.info("After decode, guest %s guid is %s" %(guest_name,before_guest_uuid))
+                    return guest_uuid
         else:
-            raise FailException("Failed to run command to get vm %s ID" )
+            raise FailException("Failed to run command to get vm %s ID" %guest_name)
 
     def hyperv_get_host_uuid(self, targetmachine_ip=""):
     # Get host's uuid
