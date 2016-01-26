@@ -382,28 +382,28 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Failed to get uuids in rhsm.log")
 
-    def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, tmp_file, uuid_exist=True, destination_ip=""):
-        cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "feedback tail log for parsing", destination_ip)
-        if ret == 0 and output is not None and  "ERROR" not in output:
-            if self.os_serial == "7":
-                rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
-            else:
-                rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
-            mapping_info = rex.findall(output)[0]
-            logger.info("Check uuid from following data: \n%s" % mapping_info)
-            if uuid_exist == True:
-                if host_uuid in mapping_info and guest_uuid in mapping_info:
-                    logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
-                else:
-                    raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
-            else:
-                if host_uuid not in mapping_info and guest_uuid not in mapping_info:
-                    logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
-                else:
-                    raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
-        else:
-            raise FailException("Failed to check, there is an error message found or no output data.")
+#     def esx_check_host_guest_uuid_exist_in_file(self, host_uuid, guest_uuid, tmp_file, uuid_exist=True, destination_ip=""):
+#         cmd = "cat %s" % tmp_file
+#         ret, output = self.runcmd(cmd, "feedback tail log for parsing", destination_ip)
+#         if ret == 0 and output is not None and  "ERROR" not in output:
+#             if self.os_serial == "7":
+#                 rex = re.compile(r'Sending update in hosts-to-guests mapping: {.*?}\n+(?=201|$)', re.S)
+#             else:
+#                 rex = re.compile(r'Host-to-guest mapping: {.*?}\n+(?=201|$)', re.S)
+#             mapping_info = rex.findall(output)[0]
+#             logger.info("Check uuid from following data: \n%s" % mapping_info)
+#             if uuid_exist == True:
+#                 if host_uuid in mapping_info and guest_uuid in mapping_info:
+#                     logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+#                 else:
+#                     raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+#             else:
+#                 if host_uuid not in mapping_info and guest_uuid not in mapping_info:
+#                     logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+#                 else:
+#                     raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+#         else:
+#             raise FailException("Failed to check, there is an error message found or no output data.")
 
     def esx_get_host_uuids_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
             # disable esx config

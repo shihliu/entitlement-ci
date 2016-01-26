@@ -297,13 +297,22 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
-    # Delete any file
+        # delete configure file in /etc/virt-who.d/virt-who
         cmd = "rm -f %s" % file_name
         ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to remove %s" % file_name)
         else:
             raise FailException("Test Failed - Failed to remove %s" % file_name)
+
+    def unset_all_virtwho_d_conf(self, targetmachine_ip=""):
+        # delete all configure file in /etc/virt-who.d/virt-who
+        cmd = "rm -f /etc/virt-who.d/*"
+        ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to remove all configure file in /etc/virt-who.d/virt-who")
+        else:
+            raise FailException("Test Failed - Failed to remove all configure file in /etc/virt-who.d/virt-who")
 
     def run_virt_who_password(self, input_password, timeout=None):
         import paramiko
@@ -920,10 +929,10 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
         self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
         if waiting_time == 0:
-            if "virt-who" in checkcmd:
-                time.sleep(20)
-            else:
+            if "vdsmd" in checkcmd:
                 time.sleep(120)
+            else:
+                time.sleep(20)
         else:
             time.sleep(waiting_time)
         self.kill_pid("tail", targetmachine_ip)
@@ -1079,6 +1088,22 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             return mapping_info
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid, checkcmd="service virt-who restart", uuid_exist=True, targetmachine_ip=""):
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        mapping_info = ''.join(self.vw_get_mapping_info(cmd, targetmachine_ip))
+        if uuid_exist == True:
+            if host_uuid in mapping_info and guest_uuid in mapping_info:
+                logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+            else:
+                raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+        else:
+            if host_uuid not in mapping_info and guest_uuid not in mapping_info:
+                logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+            else:
+                raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
 
     def vw_check_mapping_info_number(self, cmd, mapping_num=1, targetmachine_ip=""):
         mapping_info = self.vw_get_mapping_info(cmd, targetmachine_ip)
