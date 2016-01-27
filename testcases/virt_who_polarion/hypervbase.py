@@ -87,7 +87,7 @@ class HYPERVBase(VIRTWHOBase):
                     before_guest_uuid = item[item.index("{")+1:item.index("}")].strip()
                     logger.info("Before decode, guest %s guid is %s" %(guest_name,before_guest_uuid))
                     guest_uuid = self.decodeWinUUID("%s" %before_guest_uuid)
-                    logger.info("After decode, guest %s guid is %s" %(guest_name,before_guest_uuid))
+                    logger.info("After decode, guest %s guid is %s" %(guest_name,guest_uuid))
                     return guest_uuid
         else:
             raise FailException("Failed to run command to get vm %s ID" %guest_name)
