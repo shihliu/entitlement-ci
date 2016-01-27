@@ -262,6 +262,8 @@ class KVMBase(VIRTWHOBase):
         ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
         if ret == 0 or "already active" in output:
             logger.info("Succeeded to start guest %s." % guest_name)
+        elif "Domain not found" in output:
+            self.define_vm(guest_name, targetmachine_ip)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
         return self.__check_vm_available(guest_name, targetmachine_ip=targetmachine_ip)

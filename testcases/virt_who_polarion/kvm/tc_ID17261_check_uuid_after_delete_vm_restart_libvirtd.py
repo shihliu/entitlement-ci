@@ -12,35 +12,19 @@ class tc_ID17261_check_uuid_after_delete_vm_restart_libvirtd(KVMBase):
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
 
-            test_sku = self.get_vw_cons("productid_unlimited_guest")
-            bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
-            sku_name = self.get_vw_cons("productname_unlimited_guest")
-
-            self.vw_start_guests(guest_name)
-            guestip = self.kvm_get_guest_ip(guest_name)
-
-            # (1) start guest then check if the uuid is correctly monitored by virt-who.
+            #(1) Check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-
-            # (2). register guest to Server
-            if not self.sub_isregistered(guestip):
-                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
-                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-
-            #(3).subscribe host to the physical pool and guest subscribe bonus pool
-            self.sub_subscribe_sku(test_sku)
-            self.sub_subscribe_to_bonus_pool(test_sku, guestip)
-            self.sub_listconsumed(sku_name, guestip)
-
-            # (4) stop guest then
-            self.vw_stop_guests(guest_name)
-
-            # (5) Restart libvirtd service then check if the uuid is correctly monitored by virt-who
-            self.vw_check_attr(guest_name, 0, 'libvirt', 'QEMU', 5, guestuuid, checkcmd="service libvirtd restart")
-
-            # (6) restart guest then check bonus pool is not revoke. 
+            #(2) Undefine guest
+            self.vw_undefine_all_guests()
+            #(3) Restart libvirtd service then check if the uuid is not monitored by virt-who
+            self.vw_check_uuid(guestuuid, uuidexists=False, checkcmd="service libvirtd restart")
+            #(4) Redefine guest then restart guest
+            self.vw_define_all_guests()
+            guestuuid = self.vw_get_uuid(guest_name)
             self.vw_start_guests(guest_name)
-            self.sub_listconsumed(sku_name, guestip)
+            # (6) restart guest then check bonus pool is not revoke. 
+            self.vw_check_uuid(guestuuid, uuidexists=True)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
 
             self.assert_(True, case_name)
         except Exception, e:
@@ -48,10 +32,6 @@ class tc_ID17261_check_uuid_after_delete_vm_restart_libvirtd(KVMBase):
             self.assert_(False, case_name)
         finally:
             self.vw_define_all_guests()
-            # unsubscribe host
-            self.sub_unsubscribe()
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
