@@ -167,7 +167,8 @@ class HYPERVBase(VIRTWHOBase):
         else:
             raise FailException("Failed to suspend command vm %s" % guest_name)
 
-    def update_vm_hyperv_configure(self, hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password, debug=1, targetmachine_ip=""):
+    def set_hyperv_conf(self, debug=1, targetmachine_ip=""):
+        hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
     # Configure hyperv mode in /etc/sysconfig/virt-who
         cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/.*VIRTWHO_HYPERV=.*/VIRTWHO_HYPERV=1/g' -e 's/.*VIRTWHO_HYPERV_OWNER=.*/VIRTWHO_HYPERV_OWNER=%s/g' -e 's/.*VIRTWHO_HYPERV_ENV=.*/VIRTWHO_HYPERV_ENV=%s/g' -e 's/.*VIRTWHO_HYPERV_SERVER=.*/VIRTWHO_HYPERV_SERVER=%s/g' -e 's/.*VIRTWHO_HYPERV_USERNAME=.*/VIRTWHO_HYPERV_USERNAME=%s/g' -e 's/.*VIRTWHO_HYPERV_PASSWORD=.*/VIRTWHO_HYPERV_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
         ret, output = self.runcmd(cmd, "Setting hyperv mode in /etc/sysconfig/virt-who.", targetmachine_ip)
@@ -184,18 +185,11 @@ class HYPERVBase(VIRTWHOBase):
     # 1. Configure virt-who run at hyperv mode
     # 2. Register system to server 
         server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-        hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
         hyperv_host = self.get_vw_cons("HYPERV_HOST")
-        self.update_vm_hyperv_configure(hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
-        self.vw_restart_virtwho()
+        self.set_hyperv_conf()
+        self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
-#         self.wget_images(self.get_vw_cons("esx_guest_url"), guest_name, hyperv_host)
-#         self.esx_add_guest(guest_name, hyperv_host)
-#         self.hyperv_start_guest(guest_name, hyperv_host)
-#         # self.esx_service_restart(ESX_HOST)
-#         self.hyperv_stop_guest(guest_name, hyperv_host)
-        self.vw_restart_virtwho()
 
