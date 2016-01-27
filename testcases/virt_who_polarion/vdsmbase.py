@@ -724,6 +724,17 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to enable VIRTWHO_RHEVM.")
 
+    def set_rhevm_conf(self, debug=1, targetmachine_ip=""):
+        # Configure rhevm mode in /etc/sysconfig/virt-who
+        rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
+        rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
+        cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/.*VIRTWHO_RHEVM=.*/VIRTWHO_RHEVM=1/g' -e 's/.*VIRTWHO_RHEVM_OWNER=.*/VIRTWHO_RHEVM_OWNER=%s/g' -e 's/.*VIRTWHO_RHEVM_ENV=.*/VIRTWHO_RHEVM_ENV=%s/g' -e 's/.*VIRTWHO_RHEVM_SERVER=.*/VIRTWHO_RHEVM_SERVER=%s/g' -e 's/.*VIRTWHO_RHEVM_USERNAME=.*/VIRTWHO_RHEVM_USERNAME=%s/g' -e 's/.*VIRTWHO_RHEVM_PASSWORD=.*/VIRTWHO_RHEVM_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
+        ret, output = self.runcmd(cmd, "Setting rhevm mode in /etc/sysconfig/virt-who.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set rhevm mode in /etc/sysconfig/virt-who.")
+        else:
+            raise FailException("Test Failed - Failed  to set rhevm mode in /etc/sysconfig/virt-who.")
+
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         self.cm_install_basetool(targetmachine_ip)
         RHEVM_IP = get_exported_param("RHEVM_IP")
@@ -771,16 +782,10 @@ class VDSMBase(VIRTWHOBase):
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         RHEVM_IP = get_exported_param("RHEVM_IP")
-
-        VIRTWHO_RHEVM_OWNER = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
-        VIRTWHO_RHEVM_ENV = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
-        VIRTWHO_RHEVM_SERVER = "https:\/\/" + RHEVM_IP + ":443"
-        VIRTWHO_RHEVM_USERNAME = self.get_vw_cons("VIRTWHO_RHEVM_USERNAME")
-        VIRTWHO_RHEVM_PASSWORD = self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who configure file
-        self.update_rhel_rhevm_configure("5", VIRTWHO_RHEVM_OWNER, VIRTWHO_RHEVM_ENV, VIRTWHO_RHEVM_SERVER, VIRTWHO_RHEVM_USERNAME, VIRTWHO_RHEVM_PASSWORD, debug=1)
+        # update virt-who to rhevm mode in /etc/sysconfig/virt-who
+        self.set_rhevm_conf()
         self.service_command("restart_virtwho")

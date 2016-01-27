@@ -10,7 +10,8 @@ class tc_ID17215_HYPERV_check_owner_option_by_virtwho_d(HYPERVBase):
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             error_msg = "Option `owner` needs to be set in config `hyperv`"
             self.runcmd_service("stop_virtwho")
-            self.unset_hyperv_conf()
+            self.config_option_disable("VIRTWHO_HYPERV")
+
             #(1) When "owner" is not exist, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("hyperv", "owner", "")
             self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg, cmd_retcode=1)
@@ -26,7 +27,9 @@ class tc_ID17215_HYPERV_check_owner_option_by_virtwho_d(HYPERVBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.update_vm_hyperv_configure(hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
+            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who")
+            self.set_hyperv_conf()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

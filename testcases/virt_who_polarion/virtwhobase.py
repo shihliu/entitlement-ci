@@ -190,7 +190,7 @@ class VIRTWHOBase(Base):
 
     def update_config_to_default(self, targetmachine_ip=""):
         ''' update virt-who configure file to default mode '''
-        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' /etc/sysconfig/virt-who"
+        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' -e 's/^.*VIRTWHO_RHEVM=.*/#VIRTWHO_RHEVM=0/g' -e 's/^.*VIRTWHO_HYPERV=.*/#VIRTWHO_HYPERV=0/g' -e 's/^.*VIRTWHO_ESX=.*/#VIRTWHO_ESX=0/g' /etc/sysconfig/virt-who"
         ret, output = self.runcmd(cmd, "updating virt-who configure file to defualt", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update virt-who configure file to defualt.")
@@ -245,7 +245,17 @@ EOF''' % (file_name, file_data)
             virtwho_server = get_exported_param("REMOTE_IP")
         elif mode == "hyperv":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
-        conf_data = '''[%s]
+            conf_data = '''[%s]
+type=%s
+server=%s
+username=%s
+password=%s
+owner=%s
+env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+        elif mode == "rhevm":
+            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_rhevm_info()
+            virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
+            conf_data = '''[%s]
 type=%s
 server=%s
 username=%s
@@ -933,7 +943,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             if "vdsmd" in checkcmd or "libvirtd" in checkcmd:
                 time.sleep(120)
             elif "rhsmcertd" in checkcmd:
-                time.sleep(60)
+                time.sleep(100)
             else:
                 time.sleep(20)
         else:
