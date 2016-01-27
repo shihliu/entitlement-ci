@@ -7,7 +7,6 @@ class tc_ID17239_ESX_check_filter_host_parents_in_virtwho_d(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
@@ -16,30 +15,29 @@ class tc_ID17239_ESX_check_filter_host_parents_in_virtwho_d(ESXBase):
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             host_uuid_second = self.esx_get_host_uuid(esx_host_ip_second)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
-            host_parents_list = self.esx_get_host_parents_list(esx_owner, esx_env, esx_server, esx_username, esx_password)
+            host_parents_list = self.get_host_parents_list("esx")
             host_parents = host_parents_1 = host_parents_2 = host_parents_3 = ""
             for host_parent in host_parents_list:
                 host_parents = host_parents + "\"%s\"," % host_parent
                 host_parents_1 = host_parents_1 + "\"%s\"," % host_parent
                 host_parents_2 = host_parents_2 + "\'%s\'," % host_parent
                 host_parents_3 = host_parents_3 + "\"%s\", " % host_parent
-
-            self.esx_set_filter_host_parents(host_parents, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx", host_parents)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            self.esx_set_filter_host_parents("\"\"", esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx", "\"\"")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            self.esx_set_filter_host_parents("\'\'", esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx", "\'\'")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            self.esx_set_filter_host_parents("", esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx", "")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
 
-            self.esx_set_filter_host_parents(host_parents_1, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_second, "")
-            self.esx_set_filter_host_parents(host_parents_2, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_second, "")
-            self.esx_set_filter_host_parents(host_parents_3, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.set_filter_host_parents("esx")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_second, "")
             self.assert_(True, case_name)

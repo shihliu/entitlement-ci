@@ -225,64 +225,118 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to set %s=%s" % (option, value))
 
+    def set_virtwho_sec_config(self, mode, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_virtwho_sec_config_with_keyvalue(self, mode, key, value, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        pattern = re.compile(r'%s=.*?(?=\n|$)' % key)
+        self.set_virtwho_d_conf(conf_file, pattern.sub("%s=%s" % (key, value), conf_data), targetmachine_ip)
+
+    def set_virtwho_d_data(self, mode, targetmachine_ip=""):
+        # prepare virt_who.d data.
+        conf_file = "/etc/virt-who.d/virt-who"
+        if mode == "esx":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
+        elif mode == "libvirt":
+            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
+            virtwho_server = get_exported_param("REMOTE_IP")
+        elif mode == "hyperv":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
+        elif mode == "rhevm":
+            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_rhevm_info()
+            virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
+        # set conf data for all mode
+        conf_data = "[%s]\n"\
+                    "type=%s\n"\
+                    "server=%s\n"\
+                    "username=%s\n"\
+                    "password=%s\n"\
+                    "owner=%s\n"\
+                    "env=%s\n" % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+        return conf_file, conf_data
+
     def set_virtwho_d_conf(self, file_name, file_data, targetmachine_ip=""):
-        cmd = '''cat > %s <<EOF
-%s 
-EOF''' % (file_name, file_data)
+        cmd = "cat > %s <<EOF\n"\
+                        "%s\n"\
+                        "EOF" % (file_name, file_data)
         ret, output = self.runcmd(cmd, "create config file: %s" % file_name, targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to create config file: %s" % file_name)
         else:
             raise FailException("Test Failed - Failed to create config file %s" % file_name)
 
-    def set_virtwho_sec_config(self, mode, targetmachine_ip=""):
-        # configure the second virt-who configure file (/etc/virt-who.d/virt-who) to different mode.
-        conf_file = "/etc/virt-who.d/virt-who"
-        if mode == "esx":
-            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
-        elif mode == "libvirt":
-            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
-            virtwho_server = get_exported_param("REMOTE_IP")
-        elif mode == "hyperv":
-            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
-            conf_data = '''[%s]
-type=%s
-server=%s
-username=%s
-password=%s
-owner=%s
-env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
-        elif mode == "rhevm":
-            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_rhevm_info()
-            virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
-            conf_data = '''[%s]
-type=%s
-server=%s
-username=%s
-password=%s
-owner=%s
-env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
+    def get_host_uuids_list(self, mode, targetmachine_ip=""):
+        self.set_filter_host_parents(mode, "", targetmachine_ip)
+        # run virt-who one-shot with above config
+        cmd = "virt-who -o -d"
+        ret, output = self.runcmd(cmd, "executing virt-who with -o -d", targetmachine_ip)
+        if ret == 0 and output is not None:
+            host_list = re.findall(r"(?<=')host-.*?(?=')", output, re.I)
+            if len(host_list) > 0:
+                logger.info("Succeeded to get host_uuids_list: %s" % host_list)
+                return host_list
+            else:
+                raise FailException("Failed, no host uuids found.")
+        else:
+            raise FailException("Failed to execute virt-who with -o -d")
+        # remove above /etc/virt-who.d/virt.esx
+        self.unset_all_virtwho_d_conf(targetmachine_ip)
+
+    def get_host_parents_list(self, mode, targetmachine_ip=""):
+        self.set_filter_host_parents(mode, "", targetmachine_ip)
+        # run virt-who one-shot with above config
+        cmd = "virt-who -o -d"
+        ret, output = self.runcmd(cmd, "executing virt-who with -o -d", targetmachine_ip)
+        if ret == 0 and output is not None:
+            domain_list = re.findall(r"(?<=')domain-.*?(?=')", output, re.I)
+            if len(domain_list) > 0:
+                # domain_list = ','.join(list(set(domain_list))).replace("'", "\"")
+                logger.info("Succeeded to get host_parents_list: %s" % domain_list)
+                return domain_list
+            else:
+                raise FailException("Failed, no domain host found.")
+        else:
+            raise FailException("Failed to execute virt-who with -o -d")
+        # remove above /etc/virt-who.d/virt.esx
+        self.unset_all_virtwho_d_conf(targetmachine_ip)
+
+    def set_filter_host_uuids(self, mode, host_uuids, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "filter_host_uuids=%s\n" % host_uuids
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
-    def set_virtwho_sec_config_with_keyvalue(self, mode, key, value, targetmachine_ip=""):
-        # configure virt-who.d with given key value
-        conf_file = "/etc/virt-who.d/virt-who"
-        if mode == "esx":
-            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
-        elif mode == "libvirt":
-            virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
-            virtwho_server = get_exported_param("REMOTE_IP")
-        elif mode == "hyperv":
-            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
-        conf_data = '''[%s]
-type=%s
-server=%s
-username=%s
-password=%s
-owner=%s
-env=%s''' % (mode, mode, virtwho_server, virtwho_username, virtwho_password, virtwho_owner, virtwho_env)
-        pattern = re.compile(r'%s=.*?(?=\n|$)' % key)
-        self.set_virtwho_d_conf(conf_file, pattern.sub("%s=%s" % (key, value), conf_data), targetmachine_ip)
+    def set_exclude_host_uuids(self, mode, host_uuids, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "exclude_host_uuids=%s\n" % host_uuids
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_filter_host_parents(self, mode, host_parents, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "filter_host_parents=%s\n" % host_parents
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_exclude_host_parents(self, mode, host_parents, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "exclude_host_parents=%s\n" % host_parents
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_hypervisor_id(self, mode, hypervisor_id, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "hypervisor_id=%s\n" % hypervisor_id
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_rhsm_user_pass(self, mode, rhsm_username, rhsm_password, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "rhsm_username=%s\nrhsm_password=%s" % (rhsm_username, rhsm_password)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_encrypted_password(self, mode, encrypted_password, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        pattern = re.compile(r'password=.*?(?=\n|$)')
+        self.set_virtwho_d_conf(conf_file, pattern.sub("encrypted_password=%s" % encrypted_password, conf_data), targetmachine_ip)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
         if "kvm" in virtwho_mode:

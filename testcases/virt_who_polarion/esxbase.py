@@ -405,119 +405,119 @@ class ESXBase(VIRTWHOBase):
 #         else:
 #             raise FailException("Failed to check, there is an error message found or no output data.")
 
-    def esx_get_host_uuids_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        # disable esx config
-        self.unset_esx_conf(destination_ip)
-        # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
-        self.esx_set_filter_host_parents("", esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
-        # run virt-who one-shot with above config
-        cmd = "virt-who -o -d"
-        ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
-        if ret == 0 and output is not None:
-            host_list = re.findall(r"(?<=')host-.*?(?=')", output, re.I)
-            if len(host_list) > 0:
-                logger.info("Succeeded to get host_uuids_list: %s" % host_list)
-                return host_list
-            else:
-                raise FailException("Failed, no host uuids found.")
-        else:
-            raise FailException("Failed to execute virt-who with -o -d")
-        # remove above /etc/virt-who.d/virt.esx
-        self.unset_all_virtwho_d_conf(destination_ip)
-
-    def esx_get_host_parents_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        # disable esx config
-        self.unset_esx_conf(destination_ip)
-        # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
-        self.esx_set_filter_host_parents("", esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
-        # run virt-who one-shot with above config
-        cmd = "virt-who -o -d"
-        ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
-        if ret == 0 and output is not None:
-            domain_list = re.findall(r"(?<=')domain-.*?(?=')", output, re.I)
-            if len(domain_list) > 0:
-                # domain_list = ','.join(list(set(domain_list))).replace("'", "\"")
-                logger.info("Succeeded to get host_parents_list: %s" % domain_list)
-                return domain_list
-            else:
-                raise FailException("Failed, no domain host found.")
-        else:
-            raise FailException("Failed to execute virt-who with -o -d")
-        # remove above /etc/virt-who.d/virt.esx
-        self.unset_all_virtwho_d_conf(destination_ip)
-
-    def esx_set_filter_host_uuids(self, host_uuids, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        conf_file = "/etc/virt-who.d/virt-who"
-        conf_data = "[test-esx1]\n"\
-                    "type=esx\n"\
-                    "server=%s\n"\
-                    "username=%s\n"\
-                    "password=%s\n"\
-                    "filter_host_uuids=%s\n"\
-                    "owner=%s\n"\
-                    "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
-        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
-
-    def esx_set_exclude_host_uuids(self, host_uuids, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        conf_file = "/etc/virt-who.d/virt-who"
-        conf_data = "[test-esx1]\n"\
-                    "type=esx\n"\
-                    "server=%s\n"\
-                    "username=%s\n"\
-                    "password=%s\n"\
-                    "exclude_host_uuids=%s\n"\
-                    "owner=%s\n"\
-                    "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
-        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
-
-    def esx_set_filter_host_parents(self, host_parents, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        conf_file = "/etc/virt-who.d/virt-who"
-        conf_data = "[test-esx1]\n"\
-                    "type=esx\n"\
-                    "server=%s\n"\
-                    "username=%s\n"\
-                    "password=%s\n"\
-                    "filter_host_parents=%s\n"\
-                    "owner=%s\n"\
-                    "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
-        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
-
-    def esx_set_exclude_host_parents(self, host_parents, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        conf_file = "/etc/virt-who.d/virt-who"
-        conf_data = "[test-esx1]\n"\
-                    "type=esx\n"\
-                    "server=%s\n"\
-                    "username=%s\n"\
-                    "password=%s\n"\
-                    "exclude_host_parents=%s\n"\
-                    "owner=%s\n"\
-                    "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
-        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
-
-    def esx_set_hypervisor_id(self, hypervisor_id, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
-            conf_data = "[test-esx1]\n"\
-                        "type=esx\n"\
-                        "server=%s\n"\
-                        "username=%s\n"\
-                        "password=%s\n"\
-                        "hypervisor_id=%s\n"\
-                        "owner=%s\n"\
-                        "env=%s" % (esx_server, esx_username, esx_password, hypervisor_id, esx_owner, esx_env)
-            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
-
-    def esx_set_rhsm_user_pass(self, rhsm_username, rhsm_password, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-        conf_file = "/etc/virt-who.d/virt-who"
-        conf_data = "[test-esx1]\n"\
-                    "type=esx\n"\
-                    "server=%s\n"\
-                    "username=%s\n"\
-                    "password=%s\n"\
-                    "owner=%s\n"\
-                    "env=%s\n"\
-                    "rhsm_username=%s\n"\
-                    "rhsm_password=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env, rhsm_username, rhsm_password)
-        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+#     def esx_get_host_uuids_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         # disable esx config
+#         self.unset_esx_conf(destination_ip)
+#         # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+#         self.esx_set_filter_host_parents("", esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
+#         # run virt-who one-shot with above config
+#         cmd = "virt-who -o -d"
+#         ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
+#         if ret == 0 and output is not None:
+#             host_list = re.findall(r"(?<=')host-.*?(?=')", output, re.I)
+#             if len(host_list) > 0:
+#                 logger.info("Succeeded to get host_uuids_list: %s" % host_list)
+#                 return host_list
+#             else:
+#                 raise FailException("Failed, no host uuids found.")
+#         else:
+#             raise FailException("Failed to execute virt-who with -o -d")
+#         # remove above /etc/virt-who.d/virt.esx
+#         self.unset_all_virtwho_d_conf(destination_ip)
+# 
+#     def esx_get_host_parents_list(self, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         # disable esx config
+#         self.unset_esx_conf(destination_ip)
+#         # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+#         self.esx_set_filter_host_parents("", esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip)
+#         # run virt-who one-shot with above config
+#         cmd = "virt-who -o -d"
+#         ret, output = self.runcmd(cmd, "executing virt-who with -o -d", destination_ip)
+#         if ret == 0 and output is not None:
+#             domain_list = re.findall(r"(?<=')domain-.*?(?=')", output, re.I)
+#             if len(domain_list) > 0:
+#                 # domain_list = ','.join(list(set(domain_list))).replace("'", "\"")
+#                 logger.info("Succeeded to get host_parents_list: %s" % domain_list)
+#                 return domain_list
+#             else:
+#                 raise FailException("Failed, no domain host found.")
+#         else:
+#             raise FailException("Failed to execute virt-who with -o -d")
+#         # remove above /etc/virt-who.d/virt.esx
+#         self.unset_all_virtwho_d_conf(destination_ip)
+# 
+#     def esx_set_filter_host_uuids(self, host_uuids, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         conf_file = "/etc/virt-who.d/virt-who"
+#         conf_data = "[test-esx1]\n"\
+#                     "type=esx\n"\
+#                     "server=%s\n"\
+#                     "username=%s\n"\
+#                     "password=%s\n"\
+#                     "filter_host_uuids=%s\n"\
+#                     "owner=%s\n"\
+#                     "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
+#         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+# 
+#     def esx_set_exclude_host_uuids(self, host_uuids, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         conf_file = "/etc/virt-who.d/virt-who"
+#         conf_data = "[test-esx1]\n"\
+#                     "type=esx\n"\
+#                     "server=%s\n"\
+#                     "username=%s\n"\
+#                     "password=%s\n"\
+#                     "exclude_host_uuids=%s\n"\
+#                     "owner=%s\n"\
+#                     "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
+#         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+# 
+#     def esx_set_filter_host_parents(self, host_parents, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         conf_file = "/etc/virt-who.d/virt-who"
+#         conf_data = "[test-esx1]\n"\
+#                     "type=esx\n"\
+#                     "server=%s\n"\
+#                     "username=%s\n"\
+#                     "password=%s\n"\
+#                     "filter_host_parents=%s\n"\
+#                     "owner=%s\n"\
+#                     "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
+#         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+# 
+#     def esx_set_exclude_host_parents(self, host_parents, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         conf_file = "/etc/virt-who.d/virt-who"
+#         conf_data = "[test-esx1]\n"\
+#                     "type=esx\n"\
+#                     "server=%s\n"\
+#                     "username=%s\n"\
+#                     "password=%s\n"\
+#                     "exclude_host_parents=%s\n"\
+#                     "owner=%s\n"\
+#                     "env=%s" % (esx_server, esx_username, esx_password, host_parents, esx_owner, esx_env)
+#         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+# 
+#     def esx_set_hypervisor_id(self, hypervisor_id, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#             # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+#             conf_data = "[test-esx1]\n"\
+#                         "type=esx\n"\
+#                         "server=%s\n"\
+#                         "username=%s\n"\
+#                         "password=%s\n"\
+#                         "hypervisor_id=%s\n"\
+#                         "owner=%s\n"\
+#                         "env=%s" % (esx_server, esx_username, esx_password, hypervisor_id, esx_owner, esx_env)
+#             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+# 
+#     def esx_set_rhsm_user_pass(self, rhsm_username, rhsm_password, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#         conf_file = "/etc/virt-who.d/virt-who"
+#         conf_data = "[test-esx1]\n"\
+#                     "type=esx\n"\
+#                     "server=%s\n"\
+#                     "username=%s\n"\
+#                     "password=%s\n"\
+#                     "owner=%s\n"\
+#                     "env=%s\n"\
+#                     "rhsm_username=%s\n"\
+#                     "rhsm_password=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env, rhsm_username, rhsm_password)
+#         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
     def esx_create_offline_data(self, offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
@@ -536,16 +536,16 @@ class ESXBase(VIRTWHOBase):
                         "env=%s" % (offline_data, esx_owner, esx_env)
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-    def esx_set_config_file(self, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
-            conf_data = "[test-esx1]\n"\
-                        "type=esx\n"\
-                        "server=%s\n"\
-                        "username=%s\n"\
-                        "password=%s\n"\
-                        "owner=%s\n"\
-                        "env=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env)
-            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+#     def esx_set_config_file(self, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#             # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
+#             conf_data = "[test-esx1]\n"\
+#                         "type=esx\n"\
+#                         "server=%s\n"\
+#                         "username=%s\n"\
+#                         "password=%s\n"\
+#                         "owner=%s\n"\
+#                         "env=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env)
+#             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
     def esx_set_encrypted_password(self, encrypted_password, esx_owner, esx_env, esx_server, esx_username, destination_ip=""):
             conf_file = "/etc/virt-who.d/virt-who"
@@ -558,12 +558,12 @@ class ESXBase(VIRTWHOBase):
                         "env=%s" % (esx_server, esx_username, encrypted_password, esx_owner, esx_env)
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-    def esx_get_hostname(self, targetmachine_ip=""):
-        cmd = "hostname -f"
-        ret, output = self.runcmd_esx(cmd, "geting esx machine's hostname", targetmachine_ip)
-        if ret == 0:
-            hostname = output.strip(' \r\n').strip('\r\n') 
-            logger.info("Succeeded to get the machine's hostname %s." % hostname) 
-            return hostname
-        else:
-            raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
+#     def esx_get_hostname(self, targetmachine_ip=""):
+#         cmd = "hostname -f"
+#         ret, output = self.runcmd_esx(cmd, "geting esx machine's hostname", targetmachine_ip)
+#         if ret == 0:
+#             hostname = output.strip(' \r\n').strip('\r\n') 
+#             logger.info("Succeeded to get the machine's hostname %s." % hostname) 
+#             return hostname
+#         else:
+#             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))

@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17234_ESX_check_encrypted_passwd_in_virtwho_d(ESXBase):
+class tc_ID17241_ESX_check_filter_exclude_host_uuids_in_virtwho_d(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -10,11 +10,14 @@ class tc_ID17234_ESX_check_encrypted_passwd_in_virtwho_d(ESXBase):
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
-            encrypted_password = self.run_virt_who_password(esx_password)
-            self.set_encrypted_password("esx", encrypted_password)
-            self.vw_check_mapping_info_number_in_rhsm_log()
-            self.set_encrypted_password("esx", "xxxxxxxxxxxxxxxxxxx")
-            self.vw_check_message_in_rhsm_log("Password can't be decrypted, possibly corrupted")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
+            esx_host_ip_second = self.get_vw_cons("ESX_HOST_SECOND")
+            host_uuid = self.esx_get_host_uuid(esx_host_ip)
+            host_uuid_second = self.esx_get_host_uuid(esx_host_ip_second)
+            guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
+            self.esx_set_filter_host_uuids(host_uuid, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
