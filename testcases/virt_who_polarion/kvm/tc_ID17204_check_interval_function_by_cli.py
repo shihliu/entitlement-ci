@@ -17,7 +17,7 @@ class tc_ID17204_check_interval_function_by_cli(KVMBase):
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
             #(3) Check virt-who refresh interval is equal to config interval when config interval over 60s
             cmd = "virt-who -d -i 120"
-            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 1, 150)
             self.check_virtwho_null_thread()
 
             self.assert_(True, case_name)

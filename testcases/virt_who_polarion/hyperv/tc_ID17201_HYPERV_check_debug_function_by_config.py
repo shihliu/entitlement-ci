@@ -22,6 +22,7 @@ class tc_ID17201_HYPERV_check_debug_function_by_config(HYPERVBase):
             self.assert_(False, case_name)
         finally:
             self.config_option_setup_value("VIRTWHO_DEBUG", 1)
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

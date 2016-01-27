@@ -930,7 +930,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
         self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
         if waiting_time == 0:
-            if "vdsmd" in checkcmd:
+            if "vdsmd" in checkcmd or "libvirtd" in checkcmd:
                 time.sleep(120)
             else:
                 time.sleep(20)
