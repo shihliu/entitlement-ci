@@ -28,6 +28,7 @@ class tc_ID17205_check_interval_function_by_config(KVMBase):
             self.assert_(False, case_name)
         finally:
             self.config_option_disable("VIRTWHO_INTERVAL")
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -21,20 +21,16 @@ class tc_ID17260_check_uuid_after_add_vm_restart_libvirtd(KVMBase):
 
             # (1) start guest then check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-
             # (2). register guest to Server
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-
             #(3).subscribe host to the physical pool and guest subscribe bonus pool
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
-
             # (4) Restart libvirtd service then check if the uuid is correctly monitored by virt-who
             self.vw_check_message_in_rhsm_log("No change in report gathered", checkcmd="service virt-who libvirtd")
-
             # (5) restart guest then check bonus pool is not revoke. 
             self.sub_listconsumed(sku_name, guestip)
 
@@ -44,11 +40,11 @@ class tc_ID17260_check_uuid_after_add_vm_restart_libvirtd(KVMBase):
             self.assert_(False, case_name)
         finally:
             self.vw_define_all_guests()
-            # unsubscribe host
-            self.sub_unsubscribe()
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name)
+            # unsubscribe host
+            self.sub_unsubscribe()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

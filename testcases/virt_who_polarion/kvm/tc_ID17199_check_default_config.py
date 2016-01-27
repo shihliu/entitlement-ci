@@ -35,7 +35,7 @@ class tc_ID17199_check_default_config(KVMBase):
         finally:
             self.vw_stop_guests(guest_name)
             self.update_vw_configure()
-            self.vw_restart_virtwho_new()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
