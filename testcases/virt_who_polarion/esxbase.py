@@ -448,17 +448,17 @@ class ESXBase(VIRTWHOBase):
             # remove above /etc/virt-who.d/virt.esx
             self.unset_virtwho_d_conf(conf_file, destination_ip)
 
-    def esx_set_filter_host_uuids(self, host_uuids, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
-            conf_data = "[test-esx1]\n"\
-                        "type=esx\n"\
-                        "server=%s\n"\
-                        "username=%s\n"\
-                        "password=%s\n"\
-                        "filter_host_uuids=%s\n"\
-                        "owner=%s\n"\
-                        "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
-            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+    def esx_set_filter_host_uuids(self, host_uuids, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+        conf_file = "/etc/virt-who.d/virt-who"
+        conf_data = "[test-esx1]\n"\
+                    "type=esx\n"\
+                    "server=%s\n"\
+                    "username=%s\n"\
+                    "password=%s\n"\
+                    "filter_host_uuids=%s\n"\
+                    "owner=%s\n"\
+                    "env=%s" % (esx_server, esx_username, esx_password, host_uuids, esx_owner, esx_env)
+        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
     def esx_set_exclude_host_uuids(self, host_uuids, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
             # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
@@ -509,17 +509,17 @@ class ESXBase(VIRTWHOBase):
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
     def esx_set_rhsm_user_pass(self, rhsm_username, rhsm_password, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            conf_file = "/etc/virt-who.d/virt-who"
-            conf_data = "[test-esx1]\n"\
-                        "type=esx\n"\
-                        "server=%s\n"\
-                        "username=%s\n"\
-                        "password=%s\n"\
-                        "owner=%s\n"\
-                        "env=%s\n"\
-                        "rhsm_username=%s\n"\
-                        "rhsm_password=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env, rhsm_username, rhsm_password)
-            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+        conf_file = "/etc/virt-who.d/virt-who"
+        conf_data = "[test-esx1]\n"\
+                    "type=esx\n"\
+                    "server=%s\n"\
+                    "username=%s\n"\
+                    "password=%s\n"\
+                    "owner=%s\n"\
+                    "env=%s\n"\
+                    "rhsm_username=%s\n"\
+                    "rhsm_password=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env, rhsm_username, rhsm_password)
+        self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
     def esx_create_offline_data(self, offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
