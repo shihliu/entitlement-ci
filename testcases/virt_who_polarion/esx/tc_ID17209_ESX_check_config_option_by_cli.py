@@ -7,10 +7,9 @@ class tc_ID17209_ESX_check_config_option_by_cli(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             self.runcmd_service("stop_virtwho")
-            conf_file = "/tmp/esx.conf"
-            self.esx_set_config_file(conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password)
+            conf_file, conf_data = self.set_virtwho_d_data("esx")
+            self.set_virtwho_d_conf(conf_file, conf_data)
             cmd = "virt-who -c %s -o -d" % conf_file
             self.vw_check_mapping_info_number(cmd, 1)
             cmd = "virt-who --config=%s  -o -d" % conf_file
