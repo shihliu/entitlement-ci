@@ -114,8 +114,8 @@
         - shell: |
             #!/bin/bash
             # switch, run virt-who sam test on rhel 6 or rhel 7
-            #RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            #export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
             export SAM_COMPOSE=`curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
@@ -153,8 +153,8 @@
         - shell: |
             #!/bin/bash
             # switch, run virt-who satellite test on rhel 6 or rhel 7
-            #RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+            export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+            #export RHEL_COMPOSE=`curl -s -k http://download.eng.pnq.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
             export SATELLITE_COMPOSE=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
