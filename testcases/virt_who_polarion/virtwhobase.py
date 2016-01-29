@@ -336,7 +336,6 @@ class VIRTWHOBase(Base):
         conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
         pattern = re.compile(r'password=.*?(?=\n|$)')
         self.set_virtwho_d_conf(conf_file, pattern.sub("encrypted_password=%s" % encrypted_password, conf_data), targetmachine_ip)
-        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
         if "kvm" in virtwho_mode:
@@ -380,6 +379,7 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             raise FailException("Test Failed - Failed to remove all configure file in /etc/virt-who.d/virt-who")
 
     def run_virt_who_password(self, input_password, timeout=None):
+    # Get encrypted password
         import paramiko
         remote_ip = get_exported_param("REMOTE_IP")
         username = "root"
