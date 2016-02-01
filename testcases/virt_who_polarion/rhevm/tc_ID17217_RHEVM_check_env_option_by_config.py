@@ -18,7 +18,7 @@ class tc_ID17217_RHEVM_check_env_option_by_config(VDSMBase):
             self.config_option_enable("VIRTWHO_RHEVM_ENV")
             self.config_option_setup_value("VIRTWHO_RHEVM_ENV", "xxxxxxx")
             self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg, cmd_retcode=1)
-            #(3) When "VIRTWHO_HYPERV_ENV" with correct config, virt-who should show error info
+            #(3) When "VIRTWHO_RHEVM_ENV" with correct config, virt-who should show error info
             self.config_option_setup_value("VIRTWHO_RHEVM_ENV", rhevm_env)
             self.vw_check_mapping_info_number_in_rhsm_log()
 
@@ -27,7 +27,7 @@ class tc_ID17217_RHEVM_check_env_option_by_config(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.config_option_setup_value("VIRTWHO_HYPERV_ENV", rhevm_env)
+            self.config_option_setup_value("VIRTWHO_RHEVM_ENV", rhevm_env)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

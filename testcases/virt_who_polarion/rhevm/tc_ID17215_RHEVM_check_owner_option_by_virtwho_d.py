@@ -29,7 +29,7 @@ class tc_ID17215_RHEVM_check_owner_option_by_virtwho_d(VDSMBase):
             self.assert_(False, case_name)
         finally:
 #             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who")
-            self.set_hyperv_conf()
+            self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

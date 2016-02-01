@@ -18,7 +18,7 @@ class tc_ID17216_RHEVM_check_env_option_by_cli(VDSMBase):
             cmd_with_wrong_owner = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, "xxxxxxx", rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_message(cmd_with_wrong_owner, error_msg, cmd_retcode=1)
             #(3) When "--rhevm-env" with correct config, virt-who should show error info
-            cmd = "virt-who --rhevm --hyperv-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
+            cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_mapping_info_number(cmd, 1)
 
             self.assert_(True, case_name)
