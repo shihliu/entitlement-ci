@@ -8,12 +8,12 @@ class tc_ID17208_RHEVM_check_print_function_by_cli(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-#           (1) Check "DEBUG" info will not exist when run "virt-who --hyperv -p"
+#           (1) Check "DEBUG" info will not exist when run "virt-who --rhevm -p"
             self.config_option_setup_value("VIRTWHO_DEBUG", 0)
             # need to sleep for a second, or else virt-who pid hung up
             cmd = self.virtwho_cli("rhevm") + " -p | sleep 10"
             self.vw_check_message(cmd, "DEBUG", message_exists=False)
-#           (2) Check "DEBUG" info is exist when run "virt-who --hyperv -p -d"
+#           (2) Check "DEBUG" info is exist when run "virt-who --rhevm -p -d"
             cmd = self.virtwho_cli("rhevm") + " -p -d"
             self.vw_check_message(cmd, "DEBUG")
 #           (3) Check jason info is exist in tmp_json.log

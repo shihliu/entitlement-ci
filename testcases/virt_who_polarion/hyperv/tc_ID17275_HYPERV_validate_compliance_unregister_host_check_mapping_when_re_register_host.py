@@ -37,7 +37,7 @@ class tc_ID17275_HYPERV_validate_compliance_unregister_host_check_mapping_when_r
             self.generate_tmp_log(cmd, tmp_file)
             cmd = "cat %s" % tmp_file
             ret, output = self.runcmd(cmd, "get temporary log generated")
-            if ret == 0 and "not registered" in output:
+            if ret == 0 and ("not registered" in output or "Successfully un-registered" in output):
                 logger.info("Success to check virt-who log after unregister host")
             else:
                 raise FailException("failed to check virt-who log after unregister host")

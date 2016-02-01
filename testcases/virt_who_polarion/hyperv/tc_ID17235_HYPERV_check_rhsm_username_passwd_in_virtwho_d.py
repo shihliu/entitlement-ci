@@ -1,18 +1,23 @@
 from utils import *
-from testcases.virt_who_polarion.vdsmbase import VDSMBase
+from testcases.virt_who_polarion.hypervbase import HYPERVBase
 from utils.exception.failexception import FailException
 
-class tc_ID17225_HYPERV_config_one_hypervisor_in_virtwho_d(VDSMBase):
+class tc_ID17235_HYPERV_check_rhsm_username_passwd_in_virtwho_d(HYPERVBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
+
             #(1) Disable hyperv mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_HYPERV")
-            #(2) Config hyperv mode in /etc/virt-who.d
-            self.set_virtwho_sec_config("hyperv")
+            #(2) Config hyperv mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
+            self.set_rhsm_user_pass("hyperv", server_user, server_pass)
             self.vw_check_mapping_info_number_in_rhsm_log()
+            #(3) Config hyperv mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
+            self.set_rhsm_user_pass("hyperv", server_user, "xxxxxxxx")
+            self.vw_check_message_in_rhsm_log("BUG yet")
 
             self.assert_(True, case_name)
         except Exception, e:
