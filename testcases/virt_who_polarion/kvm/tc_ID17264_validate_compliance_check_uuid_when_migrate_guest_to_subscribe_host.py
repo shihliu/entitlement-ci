@@ -60,14 +60,12 @@ class tc_ID17264_validate_compliance_check_uuid_when_migrate_guest_to_subscribe_
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.vw_define_guest(guest_name)
             # unsubscribe host1 and host2
             self.sub_unsubscribe()
             self.sub_unsubscribe(get_exported_param("REMOTE_IP_2"))
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.vw_migrate_guest(guest_name, master_machine_ip, slave_machine_ip)
-            self.vw_stop_guests(guest_name)
+            self.vw_stop_guests(guest_name,get_exported_param("REMOTE_IP_2"))
             self.vw_define_guest(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
