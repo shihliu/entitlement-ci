@@ -1033,6 +1033,8 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
                 log_uuid_list = output.split('Sending list of uuids: ')[1]
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
+            elif "Domain info" in output:
+                log_uuid_list = output.split('Domain info: ')[1]
             elif "Sending update in hosts-to-guests mapping" in output:
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
             else:
@@ -1072,7 +1074,10 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")    
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Domain info" in output:
+                log_uuid_list = output.split('Domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
             loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
@@ -1145,6 +1150,9 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             elif "Sending domain info: [" in output:
                 logger.info("Found: Sending domain info")
                 rex = re.compile(r'(?<=Sending domain info: )\[.*?\]\n+(?=201|$)', re.S)
+            elif "Domain info: [" in output:
+                logger.info("Found: Domain info")
+                rex = re.compile(r'(?<=Domain info: )\[.*?\]\n+(?=201|$)', re.S)
             elif "Associations found: {" in output:
                 logger.info("Found: Associations found")
                 rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
@@ -1266,6 +1274,11 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
                 log_uuid_list = output.split('Sending domain info: ')[1].strip()
                 logger.info("log_uuid_list is %s" % log_uuid_list)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Domain info" in output:
+                # log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
+                log_uuid_list = output.split('Domain info: ')[1].strip()
+                logger.info("log_uuid_list is %s" % log_uuid_list)
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get guest uuid.list from rhsm.log")
             return log_uuid_list
@@ -1296,6 +1309,9 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Sending update in hosts-to-guests mapping" in output:
                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Domain info" in output:
+                log_uuid_list = output.split('Domain info: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get uuid list from rhsm.log")
