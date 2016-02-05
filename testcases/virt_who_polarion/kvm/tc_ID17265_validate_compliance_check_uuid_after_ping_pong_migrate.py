@@ -79,9 +79,9 @@ class tc_ID17265_validate_compliance_check_uuid_after_ping_pong_migrate(KVMBase)
             # unsubscribe host
             self.sub_unsubscribe()
             self.sub_unsubscribe(slave_machine_ip)
+            self.vw_define_guest(guest_name)
             self.vw_stop_guests(guest_name, slave_machine_ip)
             self.vw_stop_guests(guest_name)
-            self.vw_define_guest(guest_name)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

@@ -18,6 +18,7 @@ class tc_ID17282_validate_datacenter_host_compliance_with_multi_sockets(KVMBase)
             poolid = self.get_pool_by_SKU(test_sku)
 
             #(1).subscribe host to unspecify datacenter pool
+            self.sub_disable_auto_subscribe()
             self.sub_subscribetopool(poolid)
             # check consumed subscriptions' quality, should be 2 on host 
             consumed_quantity_key = "QuantityUsed"
