@@ -22,8 +22,8 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
             self.generate_ssh_key()
 
             # (1) stop virt-who service on host1 and host2
-            self.vw_stop_virtwho_new()
-            self.vw_stop_virtwho_new(remote_ip_2)
+            self.runcmd_service("stop_virtwho")
+            self.runcmd_service("stop_virtwho", remote_ip_2)
             # (2) on host2, configure remote libvirt mode in config file /etc/virt-who.d/virtwho
             self.set_virtwho_sec_config(mode, remote_ip_2)
             # (3).check if the uuid and attributes are correctly monitored by virt-who.
@@ -53,8 +53,8 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.update_vm_to_host(guest_name, remote_host_name, rhevm_ip)
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-            self.vw_restart_virtwho_new()
-            self.vw_restart_virtwho_new(remote_ip_2)
+            self.runcmd_service("restart_virtwho")
+            self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
