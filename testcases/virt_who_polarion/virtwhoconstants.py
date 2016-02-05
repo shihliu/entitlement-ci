@@ -72,7 +72,7 @@ class VIRTWHOConstants(object):
     }
 
     stage_cons = {
-    "username":                         "stage_virtwho_test",
+    "username":                         "stage_virtwho_test_2016",
     "password":                         "redhat",
     }
 
