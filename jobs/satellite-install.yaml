@@ -100,6 +100,11 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
+          - project: 'virt-who-hyperv-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
           - project: 'rhsm-level-1-provision'
             current-parameters: false
             condition: 'SUCCESS'
@@ -118,11 +123,6 @@
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
-          - project: 'virt-who-hyperv-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
 
 - job-group:
     name: satellite-install-provision-runtest
