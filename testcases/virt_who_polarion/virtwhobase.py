@@ -97,14 +97,14 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
 
     def virtwho_cli(self, mode):
-    # only return CLI for virt-who esx, remote libvirt, hyperv mode, don't run cli 
+        # only return CLI for virt-who esx, remote libvirt, hyperv mode, don't run cli 
         if mode == "esx":
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s" % (esx_owner, esx_env, esx_server, esx_username, esx_password)
         elif mode == "hyperv":
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             cmd = "virt-who --hyperv --hyperv-owner=%s --hyperv-env=%s --hyperv-server=%s --hyperv-username=%s --hyperv-password=%s" % (hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
-        if mode == "rhevm":
+        elif mode == "rhevm":
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
@@ -113,7 +113,7 @@ class VIRTWHOBase(Base):
             libvirt_server = get_exported_param("REMOTE_IP")
             cmd = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (libvirt_owner, libvirt_env, libvirt_server, libvirt_username, libvirt_password)
         else:
-            raise FailException("Failed to execute virt-who with one shot")
+            raise FailException("Failed to get virt-who comand line with %s mode" % mode)
         return cmd
 
     # run virt-who oneshot by cli, return the output
