@@ -21,7 +21,7 @@
             env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
-            jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -74,7 +74,7 @@
             env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
-            jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -131,7 +131,7 @@
             env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
-            jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
@@ -172,7 +172,7 @@
             env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
-            jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
         - inject:
             properties-file: $WORKSPACE/BUILD.txt
     publishers:
