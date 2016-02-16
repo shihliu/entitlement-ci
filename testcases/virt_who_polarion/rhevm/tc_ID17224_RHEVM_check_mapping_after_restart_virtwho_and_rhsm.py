@@ -15,6 +15,7 @@ class tc_ID17224_RHEVM_check_mapping_after_restart_virtwho_and_rhsm(VDSMBase):
 
             #(1) Check host/guest mapping info is exist 
             self.hypervisor_check_uuid(hostuuid, guestuuid)
+#             self.vw_check_mapping_info_in_rhsm_log(hostuuid, guestuuid)
             #(2) Check host/guest mapping info is not exist after restart rhsmcert
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False, checkcmd="service rhsmcertd restart")
