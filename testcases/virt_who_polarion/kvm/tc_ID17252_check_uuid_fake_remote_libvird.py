@@ -34,16 +34,14 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
             # (4) configure fake mode on host2
             self.set_fake_mode_conf(fake_file, "True", remote_owner, remote_env, remote_ip_2)
-#             check_msg = "Sending update in hosts-to-guests mapping: 1 hypervisors and 1 guests found"
-#             self.vw_check_message_in_rhsm_log(check_msg, targetmachine_ip=remote_ip_2)
             # (5) check if guest uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("%s" % guestuuid, message_exists=True, targetmachine_ip=remote_ip_2)
             # (6) check if virt-who run at fake mode 
             self.vw_check_message_in_rhsm_log('Using configuration "fake"', targetmachine_ip=remote_ip_2)
             # (7) undefine a guest
             self.vw_undefine_guest(guest_name)
             # (8) check if the uuid still monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("%s" % guestuuid, message_exists=True, targetmachine_ip=remote_ip_2)
             # (9) configure error fake mode on host2
             self.unset_virtwho_d_conf(fake_config_file, targetmachine_ip=remote_ip_2)
             self.set_fake_mode_conf(fake_file, "False", remote_owner, remote_env, remote_ip_2)

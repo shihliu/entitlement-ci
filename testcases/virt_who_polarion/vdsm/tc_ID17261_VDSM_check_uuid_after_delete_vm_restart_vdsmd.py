@@ -41,8 +41,8 @@ class tc_ID17261_VDSM_check_uuid_after_delete_vm_restart_vdsmd(VDSMBase):
             self.vw_check_uuid(guestuuid, uuidexists=False, checkcmd="service vdsmd restart")
 
             # (6) restart guest then check bonus pool is not revoke. 
-            self.rhevm_start_vm(guest_name, rhevm_ip)
-            self.sub_listconsumed(sku_name, guestip)
+#             self.rhevm_start_vm(guest_name, rhevm_ip)
+#             self.sub_listconsumed(sku_name, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:
@@ -50,10 +50,10 @@ class tc_ID17261_VDSM_check_uuid_after_delete_vm_restart_vdsmd(VDSMBase):
             self.assert_(False, case_name)
         finally:
             # unsubscribe host
-            self.sub_unsubscribe()
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.sub_unsubscribe()
+#             if guestip != None and guestip != "":
+#                 self.sub_unregister(guestip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -13,8 +13,8 @@ class tc_ID17199_check_default_config(KVMBase):
 
             # (1) Set virt-who config to default.
             self.update_config_to_default()
-            # (2) Check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True)
+            # (2) Check if debug info is not show on virt-who log.
+            self.vw_check_message_in_rhsm_log("1 guests found", message_exists=True)
             # (3) Check debug info is not exist on virt-who log.
             self.vw_check_message_in_rhsm_log("DEBUG", message_exists=False)
             # (4) Check virt-who processes and virt-who service status.
@@ -26,7 +26,7 @@ class tc_ID17199_check_default_config(KVMBase):
             # (6) Run virt-who commond line, check debug info is not exist on virt-who log.
             self.vw_check_message_in_debug_cmd("virt-who", "DEBUG|ERROR", message_exists=False)
             # (7) Run virt-who commond line, check guest uuid exist on virt-who log.
-            self.vw_check_message_in_debug_cmd("virt-who", "%s|using libvirt as backend" % guestuuid, message_exists=True)
+            self.vw_check_message_in_debug_cmd("virt-who", "Sending update in guests lists for config|using libvirt as backend", message_exists=True)
             self.assert_(True, case_name)
 
         except Exception, e:

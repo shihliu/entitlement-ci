@@ -7,7 +7,8 @@ class tc_ID17218_ESX_check_env_option_by_virtwho_d(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            error_msg = "Option --esx-env (or VIRTWHO_ESX_ENV environment variable) needs to be set"
+#            error_msg = "Option --esx-env (or VIRTWHO_ESX_ENV environment variable) needs to be set"
+            error_msg = "Option `env` needs to be set in config `esx`"
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
             self.set_virtwho_sec_config_with_keyvalue("esx", "env", "")
