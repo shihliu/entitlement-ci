@@ -312,6 +312,11 @@ class VIRTWHOBase(Base):
         conf_data = conf_data + "exclude_host_uuids=%s\n" % host_uuids
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
+    def set_filter_exclude_host_uuids(self, mode, filter_host_uuids, exclude_host_uuids, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "filter_host_uuids=%s\n" % filter_host_uuids + "exclude_host_uuids=%s\n" % exclude_host_uuids
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
     def set_filter_host_parents(self, mode, host_parents, targetmachine_ip=""):
         conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
         conf_data = conf_data + "filter_host_parents=%s\n" % host_parents
@@ -320,6 +325,11 @@ class VIRTWHOBase(Base):
     def set_exclude_host_parents(self, mode, host_parents, targetmachine_ip=""):
         conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
         conf_data = conf_data + "exclude_host_parents=%s\n" % host_parents
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_filter_exclude_host_parents(self, mode, filter_host_parents, exclude_host_parents, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "filter_host_parents=%s\n" % filter_host_parents + "exclude_host_parents=%s\n" % exclude_host_parents
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
     def set_hypervisor_id(self, mode, hypervisor_id, targetmachine_ip=""):
@@ -1164,21 +1174,21 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         else:
             raise FailException("Failed to check, there is an error message found or no output data.")
 
-    def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid, checkcmd="service virt-who restart", uuid_exist=True, targetmachine_ip=""):
+    def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid="", checkcmd="service virt-who restart", uuid_exist=True, targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         mapping_info = ''.join(self.vw_get_mapping_info(cmd, targetmachine_ip))
         if uuid_exist == True:
-            if host_uuid in mapping_info and guest_uuid in mapping_info:
-                logger.info("Succeeded to check, can find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+            if host_uuid in mapping_info and (guest_uuid in mapping_info if guest_uuid != "" else True):
+                logger.info("Succeeded to check, can find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
             else:
-                raise FailException("Failed to check, can not find host_uuid %s and guest_uuid %s" % (host_uuid, guest_uuid))
+                raise FailException("Failed to check, can not find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
         else:
-            if host_uuid not in mapping_info and guest_uuid not in mapping_info:
-                logger.info("Succeeded to check, no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+            if host_uuid not in mapping_info and (guest_uuid not in mapping_info if guest_uuid != "" else True):
+                logger.info("Succeeded to check, no host_uuid '%s' and guest_uuid '%s' found." % (host_uuid, guest_uuid))
             else:
-                raise FailException("Failed to check, should be no host_uuid %s and guest_uuid %s found." % (host_uuid, guest_uuid))
+                raise FailException("Failed to check, should be no host_uuid '%s' and guest_uuid '%s' found." % (host_uuid, guest_uuid))
 
     def vw_check_mapping_info_number(self, cmd, mapping_num=1, targetmachine_ip=""):
         mapping_info = self.vw_get_mapping_info(cmd, targetmachine_ip)
