@@ -1286,13 +1286,6 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             raise FailException("Failed to get uuid list in rhsm.log")
 
     def hypervisor_check_uuid(self, hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", uuidexists=True, targetmachine_ip=""):
-#         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-#         cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-#         ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-#         # ignore restart virt-who serivce since virt-who -b -d will stop
-#         self.vw_restart_virtwho_new(targetmachine_ip)
-#         time.sleep(20)
-#         cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -1307,11 +1300,14 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update in hosts-to-guests mapping" in output:
-                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+#             elif "Sending update in hosts-to-guests mapping" in output:
+#                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             elif "Domain info" in output:
                 log_uuid_list = output.split('Domain info: ')[1]
+                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Host-to-guest mapping" in output:
+                log_uuid_list = output.split('Host-to-guest mapping: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get uuid list from rhsm.log")
@@ -1343,12 +1339,6 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
 
     def hypervisor_check_attr(self, hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
-#         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-#         cmd = "nohup tail -f -n 0 %s > /tmp/tail.rhsm.log 2>&1 &" % rhsmlogfile
-#         ret, output = self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-#         self.vw_restart_virtwho(targetmachine_ip)
-#         time.sleep(20)
-#         cmd = "killall -9 tail ; cat /tmp/tail.rhsm.log"
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -1364,8 +1354,11 @@ env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
             elif "Sending domain info" in output:
                 log_uuid_list = output.split('Sending domain info: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update in hosts-to-guests mapping"in output:
-                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+#             elif "Sending update in hosts-to-guests mapping"in output:
+#                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
+#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
+            elif "Host-to-guest mapping" in output:
+                log_uuid_list = output.split('Host-to-guest mapping: ')[1]
                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
             else:
                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
