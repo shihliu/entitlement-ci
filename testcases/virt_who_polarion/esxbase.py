@@ -558,12 +558,12 @@ class ESXBase(VIRTWHOBase):
                         "env=%s" % (esx_server, esx_username, encrypted_password, esx_owner, esx_env)
             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-#     def esx_get_hostname(self, targetmachine_ip=""):
-#         cmd = "hostname -f"
-#         ret, output = self.runcmd_esx(cmd, "geting esx machine's hostname", targetmachine_ip)
-#         if ret == 0:
-#             hostname = output.strip(' \r\n').strip('\r\n') 
-#             logger.info("Succeeded to get the machine's hostname %s." % hostname) 
-#             return hostname
-#         else:
-#             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
+    def esx_get_hostname(self, targetmachine_ip=""):
+        cmd = "hostname -f"
+        ret, output = self.runcmd_esx(cmd, "geting esx machine's hostname", targetmachine_ip)
+        if ret == 0:
+            hostname = output.strip(' \r\n').strip('\r\n') 
+            logger.info("Succeeded to get the machine's hostname %s." % hostname) 
+            return hostname
+        else:
+            raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
