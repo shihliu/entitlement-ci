@@ -52,7 +52,6 @@ class LocalSH(object):
         logger.info(">>>Local Interactive Run: %s" % cmd)
         child = pexpect.spawn(cmd, timeout=600, maxread=2000, logfile=None)
         while True:
-#             print child.exitstatus, child.before
             index = child.expect(['(yes\/no)', '(?i)password:', pexpect.EOF, pexpect.TIMEOUT])
             if index == 0:
                 child.sendline("yes")
