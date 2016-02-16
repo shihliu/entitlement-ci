@@ -9,13 +9,13 @@ class tc_ID17220_ESX_vw_service_by_ssh(ESXBase):
         try:
             ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("restart_virtwho")
             ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
-            if ret == 0 and "Starting virt-who: [  OK  ]" in output:
+            if "Starting virt-who: [  OK  ]" in output:
                 logger.info("Succeeded to run virt-who restart by ssh")
             else:
                 raise FailException("Failed to run virt-who restart by ssh")
             ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("status_virtwho")
             ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
-            if ret == 0 and "is running" in output:
+            if "is running" in output:
                 logger.info("Succeeded to run virt-who status by ssh")
             else:
                 raise FailException("Failed to run virt-who status by ssh")
