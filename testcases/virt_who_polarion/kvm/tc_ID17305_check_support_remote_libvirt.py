@@ -16,18 +16,18 @@ class tc_ID17305_check_support_remote_libvirt(KVMBase):
             guestuuid = self.vw_get_uuid(guest_name)
 
             # stop virt-who service on host1
-            self.vw_stop_virtwho_new()
+            self.runcmd_service("stop_virtwho")
             # configure remote libvirt mode on host2
             self.set_remote_libvirt_conf(remote_ip, remote_ip_2)
             # undefine a guest    
             self.vw_undefine_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=False, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("%s" % guestuuid, message_exists=False, targetmachine_ip=remote_ip_2)
             # define a guest
             self.vw_define_guest(guest_name)
             guestuuid = self.vw_get_uuid(guest_name)
             # check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("%s" % guestuuid, message_exists=True, targetmachine_ip=remote_ip_2)
 
             self.assert_(True, case_name)
 
@@ -37,7 +37,7 @@ class tc_ID17305_check_support_remote_libvirt(KVMBase):
         finally:
             self.vw_define_all_guests()
             self.clean_remote_libvirt_conf(remote_ip_2)
-            self.vw_restart_virtwho_new()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

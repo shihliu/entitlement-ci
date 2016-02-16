@@ -16,14 +16,15 @@ class tc_ID17291_VDSM_validate_instance_guest_compliance_with_one_sockets(VDSMBa
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-            # Set up guest socket to 1
-            self.setup_custom_facts("cpu.cpu_socket(s)", "1")
-            poolid = self.get_pool_by_SKU(test_sku, guestip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+
+            # Set up guest socket to 1
+            self.setup_custom_facts("cpu.cpu_socket(s)", "1")
+            poolid = self.get_pool_by_SKU(test_sku, guestip)
 
             # (1).subscribe guest to unspecify instance pool
             # check the instance pool Available on guest before subscribed
