@@ -22,6 +22,7 @@ class tc_ID17217_ESX_check_env_option_by_config(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.config_option_setup_value("VIRTWHO_ESX_ENV", esx_owner)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
