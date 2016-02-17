@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17250_ESX_check_bonus_subscribe_in_fake_mode(ESXBase):
+class tc_ID17251_ESX_check_bonus_revoke_in_fake_mode(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -45,6 +45,21 @@ class tc_ID17250_ESX_check_bonus_subscribe_in_fake_mode(ESXBase):
 
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
+
+            # unregister host from SAM server.
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
+
+            # refresh on the guest 
+            self.sub_refresh(guestip)
+
+            # check bonus pool is revoked on guest
+            self.check_bonus_exist(sku_id, sku_quantity, guestip, bonus_exist=False)
+
+            # list consumed subscriptions on the guest, should be revoked
+            self.sub_listconsumed(sku_name, guestip, productexists=False)
+# 
+#             # check the status of installed product, should be "Not Subscribed"
+#             self.check_installed_status("Status", "Not Subscribed", guestip)
 
             self.assert_(True, case_name)
         except Exception, e:
