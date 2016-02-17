@@ -25,10 +25,8 @@ class tc_ID17286_validate_limited_bonus_pool_creation(KVMBase):
             self.sub_subscribe_sku(test_sku)
 
             #(1). list available pools on guest, check related bonus pool generated.
-            if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == True:
-                logger.info("Success to check limit bonus pool on guest")
-            else:
-                raise FailException("Failed to check limit bonus pool on guest")
+            self.check_bonus_exist(test_sku, bonus_quantity, guestip)
+
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
 

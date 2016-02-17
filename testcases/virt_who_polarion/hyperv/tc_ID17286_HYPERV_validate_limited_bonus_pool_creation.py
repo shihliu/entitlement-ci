@@ -26,10 +26,8 @@ class tc_ID17286_HYPERV_validate_limited_bonus_pool_creation(HYPERVBase):
             self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
 
             #(1). list available pools on guest, check limited bonus pool generated.
-            if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == True:
-                logger.info("Success to check limit bonus pool on guest")
-            else:
-                raise FailException("Failed to check limit bonus pool on guest")
+            self.check_bonus_exist(test_sku, bonus_quantity, guestip)
+
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
 

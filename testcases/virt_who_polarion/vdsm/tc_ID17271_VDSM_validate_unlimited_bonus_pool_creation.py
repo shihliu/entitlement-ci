@@ -24,11 +24,9 @@ class tc_ID17271_VDSM_validate_unlimited_bonus_pool_creation(VDSMBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             self.sub_subscribe_sku(test_sku)
 
-            #(1). list available pools on guest, check unlimited bonus pool generated.
-            if self.check_bonus_exist(test_sku, bonus_quantity, guestip) == True:
-                logger.info("Success to check limit bonus pool on guest")
-            else:
-                raise FailException("Failed to check limit bonus pool on guest")
+            # (1). list available pools on guest, check unlimited bonus pool generated.
+            self.check_bonus_exist(test_sku, bonus_quantity, guestip)
+
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
 

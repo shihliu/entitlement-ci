@@ -16,7 +16,7 @@ class tc_ID17249_ESX_check_fake_mode_for_single_hypervisor_in_virtwho_d(ESXBase)
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             fake_file = self.generate_fake_file("esx")
-            conf_file = self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
+            self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.assert_(True, case_name)
         except Exception, e:

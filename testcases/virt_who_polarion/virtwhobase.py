@@ -956,7 +956,7 @@ class VIRTWHOBase(Base):
             logger.info("The sku is not temporary sku")
             return True
 
-    def check_bonus_exist(self, sku_id, bonus_quantity, targetmachine_ip=""):
+    def check_bonus_exist(self, sku_id, bonus_quantity, targetmachine_ip="", bonus_exist=True):
         # check bonus pool is exist or not
         cmd = "subscription-manager list --available"
         ret, output = self.runcmd(cmd, "run 'subscription-manager list --available'", targetmachine_ip)
@@ -970,8 +970,14 @@ class VIRTWHOBase(Base):
                         else:
                             SKU_Number = "Quantity"
                         if pool_list[item]["SKU"] == sku_id and self.check_type_virtual(pool_list[item]) and pool_list[item][SKU_Number] == bonus_quantity:
-                            return True
-                    return False
+                            if bonus_exist:
+                                logger.info("Succeeded to check the bonus pool %s exist, and bonus quantity is %s" % (sku_id, bonus_quantity))
+                            else:
+                                raise FailException("Failed to check the bonus pool %s exist, and bonus quantity is %s" % (sku_id, bonus_quantity))
+                    if not bonus_exist:
+                        logger.info("Succeeded to check the bonus pool %s not exist" % bonus_quantity)
+                    else:
+                        raise FailException("Failed to check the bonus pool %s not exist" % bonus_quantity)
                 else:
                     raise FailException("Failed to list available pool, the pool is None.")
             else:
