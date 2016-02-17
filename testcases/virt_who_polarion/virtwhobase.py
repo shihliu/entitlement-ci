@@ -357,28 +357,30 @@ class VIRTWHOBase(Base):
         pattern = re.compile(r'password=.*?(?=\n|$)')
         self.set_virtwho_d_conf(conf_file, pattern.sub("encrypted_password=%s" % encrypted_password, conf_data), targetmachine_ip)
 
-    def generate_fake_file(self, virtwho_mode, fake_file, targetmachine_ip=""):
+    def generate_fake_file(self, virtwho_mode, fake_file="/tmp/fake_file", targetmachine_ip=""):
         if "kvm" in virtwho_mode:
             cmd = "virt-who -p -d > %s" % fake_file
-            ret, output = self.runcmd(cmd, "Generate fake file in kvm mode", targetmachine_ip)
         elif "vdsm" in virtwho_mode:
             cmd = "virt-who -p -d --vdsm > %s" % fake_file
-            ret, output = self.runcmd(cmd, "Generate fake file in vdsm mode", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to generate fake file.")
         else:
-            raise FailException("Failed to generate fake file.")
+            cmd = self.virtwho_cli(virtwho_mode) + " -p -d > %s" % fake_file
+        ret, output = self.runcmd(cmd, "Generate fake file in %s mode" % virtwho_mode, targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to generate fake file in %s mode" % virtwho_mode)
+            return fake_file
+        else:
+            raise FailException("Failed to generate fake file in %s mode" % virtwho_mode)
 
-    # creat /etc/virt-who.d/XXX file
     def set_fake_mode_conf(self, fake_file, is_hypervisor, virtwho_owner, virtwho_env, targetmachine_ip=""):
         conf_file = "/etc/virt-who.d/fake"
-        conf_data = '''[fake]
-type=fake
-file=%s
-is_hypervisor=%s
-owner=%s
-env=%s''' % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
+        conf_data = "[fake]\n"\
+                    "type=fake\n"\
+                    "file=%s\n"\
+                    "is_hypervisor=%s\n"\
+                    "owner=%s\n"\
+                    "env=%s" % (fake_file, is_hypervisor, virtwho_owner, virtwho_env)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+        return conf_file
 
     def unset_virtwho_d_conf(self, file_name, targetmachine_ip=""):
         # delete configure file in /etc/virt-who.d/virt-who

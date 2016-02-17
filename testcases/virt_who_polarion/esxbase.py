@@ -519,22 +519,22 @@ class ESXBase(VIRTWHOBase):
 #                     "rhsm_password=%s" % (esx_server, esx_username, esx_password, esx_owner, esx_env, rhsm_username, rhsm_password)
 #         self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
-    def esx_create_offline_data(self, offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
-            cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
-            ret, output = self.runcmd(cmd, "executing virt-who with -p -d for offline mode.", destination_ip)
-            if ret == 0:
-                logger.info("Succeeded to execute virt-who with -p -d for offline mode. ")
-            else:
-                raise FailException("Failed to execute virt-who with -o -d")
-
-    def esx_set_offline(self, offline_data, conf_file, esx_owner, esx_env, destination_ip=""):
-            conf_data = "[fake-virt]\n"\
-                        "type=fake\n"\
-                        "file=%s\n"\
-                        "is_hypervisor=True\n"\
-                        "owner=%s\n"\
-                        "env=%s" % (offline_data, esx_owner, esx_env)
-            self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
+#     def esx_create_offline_data(self, offline_data, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
+#             cmd = "virt-who --esx --esx-owner=%s --esx-env=%s --esx-server=%s --esx-username=%s --esx-password=%s -p -d > %s" % (esx_owner, esx_env, esx_server, esx_username, esx_password, offline_data)
+#             ret, output = self.runcmd(cmd, "executing virt-who with -p -d for offline mode.", destination_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to execute virt-who with -p -d for offline mode. ")
+#             else:
+#                 raise FailException("Failed to execute virt-who with -o -d")
+# 
+#     def esx_set_offline(self, offline_data, conf_file, esx_owner, esx_env, destination_ip=""):
+#             conf_data = "[fake-virt]\n"\
+#                         "type=fake\n"\
+#                         "file=%s\n"\
+#                         "is_hypervisor=True\n"\
+#                         "owner=%s\n"\
+#                         "env=%s" % (offline_data, esx_owner, esx_env)
+#             self.set_virtwho_d_conf(conf_file, conf_data, destination_ip)
 
 #     def esx_set_config_file(self, conf_file, esx_owner, esx_env, esx_server, esx_username, esx_password, destination_ip=""):
 #             # creat /etc/virt-who.d/virt.esx file for esxi with filter_host_parents="" to parser domain-xxx info
