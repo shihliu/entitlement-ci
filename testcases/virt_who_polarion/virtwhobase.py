@@ -974,10 +974,12 @@ class VIRTWHOBase(Base):
                                 logger.info("Succeeded to check the bonus pool %s exist, and bonus quantity is %s" % (sku_id, bonus_quantity))
                             else:
                                 raise FailException("Failed to check the bonus pool %s exist, and bonus quantity is %s" % (sku_id, bonus_quantity))
+                            return True
                     if not bonus_exist:
-                        logger.info("Succeeded to check the bonus pool %s not exist" % bonus_quantity)
+                        logger.info("Succeeded to check the bonus pool %s not exist" % sku_id)
                     else:
-                        raise FailException("Failed to check the bonus pool %s not exist" % bonus_quantity)
+                        raise FailException("Failed to check the bonus pool %s not exist" % sku_id)
+                    return False
                 else:
                     raise FailException("Failed to list available pool, the pool is None.")
             else:

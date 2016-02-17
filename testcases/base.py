@@ -357,7 +357,7 @@ class Base(unittest.TestCase):
         location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
         consumer_pool_id = self.post_json(location, json_data)["results"][0]["id"]
-        logger.info ("attch reture is %s" % consumer_pool_id)
+        logger.info ("attch return is %s" % consumer_pool_id)
         return consumer_pool_id
 
     def st_unattach(self, uuid, consumed_pool_id):
@@ -409,7 +409,7 @@ class Base(unittest.TestCase):
             verify=False)
         ret, output = result.status_code, result.json()
         logger.info("Status Code >>>: %s" % ret)
-        logger.info("Result >>>: %s" % output)
+        # logger.info("Result >>>: %s" % output)
         if ret not in (200,):
             raise FailException("Failed to run requests get: %s" % sat_api)
         else:
@@ -431,7 +431,7 @@ class Base(unittest.TestCase):
             headers=post_headers)
         ret, output = result.status_code, result.json()
         logger.info("Status Code >>>: %s" % ret)
-        logger.info("Result >>>: %s" % output)
+        # logger.info("Result >>>: %s" % output)
         if ret not in (200, 201):
             raise FailException("Failed to run requests post: %s" % sat_api)
         else:
@@ -453,7 +453,7 @@ class Base(unittest.TestCase):
             headers=post_headers)
         ret, output = result.status_code, result.json()
         logger.info("Status Code >>>: %s" % ret)
-        logger.info("Result >>>: %s" % output)
+        # logger.info("Result >>>: %s" % output)
         if ret not in (200,):
             raise FailException("Failed to run requests put: %s" % sat_api)
         else:
@@ -472,7 +472,7 @@ class Base(unittest.TestCase):
             verify=False)
         ret, output = result.status_code, result
         logger.info("Status Code >>>: %s" % ret)
-        logger.info("Result >>>: %s" % output)
+        # logger.info("Result >>>: %s" % output)
         if ret not in (200, 202, 204):
             raise FailException("Failed to run requests delete: %s" % sat_api)
         else:
