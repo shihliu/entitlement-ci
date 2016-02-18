@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.hypervbase import HYPERVBase
 from utils.exception.failexception import FailException
 
-class tc_ID17240_HYPERV_check_exclude_host_parents_in_virtwho_d(HYPERVBase):
+class tc_ID17246_HYPERV_check_hypervisor_id_in_virtwho_d(HYPERVBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -14,11 +14,18 @@ class tc_ID17240_HYPERV_check_exclude_host_parents_in_virtwho_d(HYPERVBase):
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
+            hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
 
-            #(1) Set Filter_hosts_parents, it will show error info,it will filter host/guest mapping info
-            self.set_exclude_host_parents("hyperv", "host_parents")
-            self.vw_check_message_in_rhsm_log("exclude_host_parents is not supported in hyperv mode, ignoring it", message_exists=True)
+            #(1) Set hypervisor_id=uuid, it will show uuid 
+            self.set_hypervisor_id("hyperv", "uuid")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            #(2) Set hypervisor_id=hostname, it will show hostname 
+            self.set_hypervisor_id("hyperv", "hostname")
+            self.vw_check_mapping_info_in_rhsm_log(hyperv_host_name, guest_uuid)
+            #(3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
+            self.set_hypervisor_id("hyperv", "hwuuid")
+            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in hyperv backend", message_exists=True)
 
             self.assert_(True, case_name)
         except Exception, e:

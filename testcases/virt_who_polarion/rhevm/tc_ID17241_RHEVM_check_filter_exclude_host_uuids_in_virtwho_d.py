@@ -17,7 +17,6 @@ class tc_ID17241_RHEVM_check_filter_exclude_host_uuids_in_virtwho_d(VDSMBase):
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("REMOTE_IP_2"),rhevm_ip)
 
-
             #(1) Set filter_host_uuid=host_uuid and exclude_host_uuid=host_uuid_sec, it will show host_uuid not host_uuid_sec
             self.set_filter_exclude_host_uuids("rhevm", host_uuid, host_uuid_sec)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
