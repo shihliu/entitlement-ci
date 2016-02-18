@@ -26,6 +26,14 @@ class HYPERVBase(VIRTWHOBase):
         # close the socket
         s.close()
 
+    def hyperv_get_hostname(self, guest_name, targetmachine_ip=""):
+    # Get host's name
+        output = self.hyperv_run_cmd("(Get-WMIObject  Win32_ComputerSystem).DNSHostName")
+        if output is not "":
+            hostname = output
+            logger.info("hyperv hostname is %s" % hostname)
+            return hostname
+
     def hyperv_get_guest_ip(self, guest_name, targetmachine_ip=""):
     # Get guest's IP
         output = self.hyperv_run_cmd("(Get-VMNetworkAdapter -VMName %s).IpAddresses" % guest_name)
@@ -61,7 +69,7 @@ class HYPERVBase(VIRTWHOBase):
         return s[6:8] + s[4:6] + s[2:4] + s[0:2] + "-" + s[11:13] + s[9:11] + "-" + s[16:18] + s[14:16] + s[18:]
 
     def hyperv_get_guest_id(self, guest_name, targetmachine_ip=""):
-    # Get guest's status
+    # Get guest's id
         output = self.hyperv_run_cmd("Get-VM %s | select *" % guest_name)
         if output is not "":
             logger.info("Success to run command to get vm %s ID" % guest_name)

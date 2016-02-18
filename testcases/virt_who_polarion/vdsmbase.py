@@ -664,6 +664,20 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to list HOST %s." % host_name) 
 
+    def get_host_hwuuid_on_rhevm(self, host_name, targetmachine_ip=""):
+        ''' get the guest uuid. '''
+        cmd = "rhevm-shell -c -E 'show host %s'" % host_name
+        ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
+        if ret == 0:
+            hostid = self.get_key_rhevm(output, "hardware_information-uuid", "name", host_name, targetmachine_ip)
+            if hostid is not "":
+                logger.info("Succeeded to get host %s hardware_information-uuid is %s" % (host_name, hostid))
+                return hostid
+            else:
+                logger.error("Failed to get guest %s hardware_information-uuid is %s" % (host_name, hostid))
+        else:
+            raise FailException("Failed to list HOST %s." % host_name) 
+
     def vw_restart_vdsm(self, targetmachine_ip=""):
         ''' restart vdsmd service. '''
         cmd = "service vdsmd restart"

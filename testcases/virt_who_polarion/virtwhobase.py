@@ -342,6 +342,16 @@ class VIRTWHOBase(Base):
         conf_data = conf_data + "filter_host_parents=%s\n" % filter_host_parents + "exclude_host_parents=%s\n" % exclude_host_parents
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
+    def set_filter_host_uuids_exclude_parents(self, mode, filter_host_uuids, exclude_host_parents, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "filter_host_uuids=%s\n" % filter_host_uuids + "exclude_host_parents=%s\n" % exclude_host_parents
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_exclude_host_uuids_filter_parents(self, mode, exclude_host_uuids, filter_host_parents, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "exclude_host_uuids=%s\n" % exclude_host_uuids + "filter_host_parents=%s\n" % filter_host_parents
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
     def set_hypervisor_id(self, mode, hypervisor_id, targetmachine_ip=""):
         conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
         conf_data = conf_data + "hypervisor_id=%s\n" % hypervisor_id
