@@ -155,6 +155,29 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to maintenance host %s on rhevm" % rhevm_host_name)
 
+    def rhevm_delete_host(self, rhevm_host_name, targetmachine_ip):
+    # Delete Host on RHEVM
+        cmd = "rhevm-shell -c -E 'action host \"%s\" delete'" % rhevm_host_name
+        ret, output = self.runcmd(cmd, "Maintenance host on rhevm.", targetmachine_ip)
+        if ret == 0:
+            runtime = 0
+            while True:
+                cmd = "list hosts"
+                ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
+                runtime = runtime + 1
+                if ret == 0:
+                    logger.info("Succeeded to list host")
+                    if rhevm_host_name not in output:
+                        logger.info("Succeeded to remove host %s in rhevm" % rhevm_host_name)
+                        break
+                    time.sleep(20)
+                    if runtime > 30:
+                        raise FailException("Failed to delete host %s after many time's retry" % rhevm_host_name)
+                else:
+                    raise FailException("Failed to list host %s" % rhevm_host_name)
+        else:
+            raise FailException("Failed to delete host %s on rhevm" % rhevm_host_name)
+
     def rhevm_active_host(self, rhevm_host_name, targetmachine_ip):
     # Active Host on RHEVM
         cmd = "rhevm-shell -c -E 'action host \"%s\" activate'" % rhevm_host_name
@@ -740,7 +763,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to enable VIRTWHO_RHEVM.")
 
     def set_rhevm_conf(self, debug=1, targetmachine_ip=""):
-        # Configure rhevm mode in /etc/sysconfig/virt-who
+    # Configure rhevm mode in /etc/sysconfig/virt-who
         rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
         rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
         cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/.*VIRTWHO_RHEVM=.*/VIRTWHO_RHEVM=1/g' -e 's/.*VIRTWHO_RHEVM_OWNER=.*/VIRTWHO_RHEVM_OWNER=%s/g' -e 's/.*VIRTWHO_RHEVM_ENV=.*/VIRTWHO_RHEVM_ENV=%s/g' -e 's/.*VIRTWHO_RHEVM_SERVER=.*/VIRTWHO_RHEVM_SERVER=%s/g' -e 's/.*VIRTWHO_RHEVM_USERNAME=.*/VIRTWHO_RHEVM_USERNAME=%s/g' -e 's/.*VIRTWHO_RHEVM_PASSWORD=.*/VIRTWHO_RHEVM_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (debug, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
