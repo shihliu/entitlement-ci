@@ -10,12 +10,12 @@ class tc_ID17235_RHEVM_check_rhsm_username_passwd_in_virtwho_d(VDSMBase):
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
-            #(1) Disable rhevm mode in /etc/sysconfig/virt-who
+            # (1) Disable rhevm mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_RHEVM")
-            #(2) Config rhevm mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
+            # (2) Config rhevm mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
             self.set_rhsm_user_pass("rhevm", server_user, server_pass)
             self.vw_check_mapping_info_number_in_rhsm_log()
-            #(3) Config rhevm mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
+            # (3) Config rhevm mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
             self.set_rhsm_user_pass("rhevm", server_user, "xxxxxxxx")
             self.vw_check_message_in_rhsm_log("BUG yet")
 

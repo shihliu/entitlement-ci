@@ -8,7 +8,7 @@ class tc_ID17203_HYPERV_check_oneshot_function_by_config(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Enable VIRTWHO_ONE_SHOT, check h/g mapping info show only once
+            # (1) Enable VIRTWHO_ONE_SHOT, check h/g mapping info show only once
             self.config_option_disable("VIRTWHO_INTERVAL")
             self.config_option_setup_value("VIRTWHO_ONE_SHOT", 1)
             tmp_file = "/tmp/tail.rhsm.log"

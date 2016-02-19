@@ -28,7 +28,7 @@ class tc_ID17283_HYPERV_validate_datacenter_guest_compliance_with_multi_sockets(
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
 
-            #(1).subscribe guest to unspecify datacenter pool
+            # (1) Subscribe guest to unspecify datacenter pool
             gpoolid = self.get_pool_by_SKU(guest_bonus_sku, guestip)
             self.sub_subscribetopool(gpoolid, guestip)
             # check consumed subscriptions' quality, should be 1 on guest 
@@ -41,15 +41,14 @@ class tc_ID17283_HYPERV_validate_datacenter_guest_compliance_with_multi_sockets(
             installed_status_key = "Status"
             installed_status_value = "Subscribed"
             self.check_installed_status(installed_status_key, installed_status_value, guestip)
-
-            #(2).subscribe the registered guest to 1 bonus pool
+            # (2) Subscribe the registered guest to 1 bonus pool
             self.sub_unsubscribe(guestip)
             self.sub_limited_subscribetopool(gpoolid, "1", guestip)
             # check consumed subscriptions' quality, should be 1 on guest 
             consumed_quantity_key = "QuantityUsed"
             consumed_quantity_value = "1"
             self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, guestip)
-            # .check the Status of installed product, should be 'Subscribed' status
+            # check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"
             installed_status_value = "Subscribed"
             self.check_installed_status(installed_status_key, installed_status_value, guestip)

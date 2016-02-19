@@ -8,8 +8,8 @@ class tc_ID17202_HYPERV_check_oneshot_function_by_cli(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Check h/g mapping info show only once when run "virt-who --hyperv -o -d"
-            #also check virt-who threads will not increase after run "-o -d" many times
+            # (1) Check h/g mapping info show only once when run "virt-who --hyperv -o -d"
+            # also check virt-who threads will not increase after run "-o -d" many times
             cmd = self.virtwho_cli("hyperv") + " -o -d"
             for i in range(1, 5):
                 self.vw_check_mapping_info_number(cmd, 1)

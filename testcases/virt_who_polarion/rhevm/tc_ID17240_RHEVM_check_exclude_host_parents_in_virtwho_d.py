@@ -16,7 +16,7 @@ class tc_ID17240_RHEVM_check_exclude_host_parents_in_virtwho_d(VDSMBase):
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
-            #(1) Set Filter_hosts_parents, it will show error info,it will filter host/guest mapping info
+            # (1) Set Filter_hosts_parents, it will show error info,it will filter host/guest mapping info
             self.set_exclude_host_parents("rhevm", "host_parents")
             self.vw_check_message_in_rhsm_log("exclude_host_parents is not supported in rhevm mode, ignoring it", message_exists=True)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

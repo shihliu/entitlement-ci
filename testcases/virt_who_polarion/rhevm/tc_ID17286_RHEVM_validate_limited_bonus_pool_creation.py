@@ -27,7 +27,7 @@ class tc_ID17286_RHEVM_validate_limited_bonus_pool_creation(VDSMBase):
             # Hypervisor subscribe physical pool which can generate limited bonus pool
             self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
 
-            # (1) list available pools on guest, check limited bonus pool generated.
+            # (1) List available pools on guest, check limited bonus pool generated.
             self.check_bonus_exist(test_sku, bonus_quantity, guestip)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)

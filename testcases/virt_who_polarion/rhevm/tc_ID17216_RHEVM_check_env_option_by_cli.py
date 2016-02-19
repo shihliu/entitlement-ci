@@ -11,13 +11,14 @@ class tc_ID17216_RHEVM_check_env_option_by_cli(VDSMBase):
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             error_msg = "Option --rhevm-env (or VIRTWHO_RHEVM_ENV environment variable) needs to be set"
             self.runcmd_service("stop_virtwho")
-            #(1) When "--rhevm-env" is not exist, virt-who should show error info
+
+            # (1) When "--rhevm-env" is not exist, virt-who should show error info
             cmd_without_owner = "virt-who --rhevm --rhevm-owner=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_message(cmd_without_owner, error_msg, cmd_retcode=1)
-            #(2) When "--rhevm-env" with wrong config, virt-who should show error info
+            # (2) When "--rhevm-env" with wrong config, virt-who should show error info
             cmd_with_wrong_owner = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, "xxxxxxx", rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_message(cmd_with_wrong_owner, error_msg, cmd_retcode=1)
-            #(3) When "--rhevm-env" with correct config, virt-who should show error info
+            # (3) When "--rhevm-env" with correct config, virt-who should show error info
             cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_mapping_info_number(cmd, 1)
 

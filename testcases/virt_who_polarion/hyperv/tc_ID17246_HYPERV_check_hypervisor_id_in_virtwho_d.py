@@ -14,16 +14,15 @@ class tc_ID17246_HYPERV_check_hypervisor_id_in_virtwho_d(HYPERVBase):
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
-            hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
 
-            #(1) Set hypervisor_id=uuid, it will show uuid 
+            # (1) Set hypervisor_id=uuid, it will show uuid 
             self.set_hypervisor_id("hyperv", "uuid")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            #(2) Set hypervisor_id=hostname, it will show hostname 
+            # (2) Set hypervisor_id=hostname, it will show hostname 
             self.set_hypervisor_id("hyperv", "hostname")
             self.vw_check_mapping_info_in_rhsm_log(hyperv_host_name, guest_uuid)
-            #(3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
+            # (3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
             self.set_hypervisor_id("hyperv", "hwuuid")
             self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in hyperv backend", message_exists=True)
 

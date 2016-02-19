@@ -16,31 +16,31 @@ class tc_ID17238_HYPERV_check_exclude_host_uuids_in_virtwho_d(HYPERVBase):
             host_uuid = self.hyperv_get_host_uuid()
             host_uuid_sec = "test"
 
-            #(1) Exclude_host_uuid=host_uuid, check host_uuid will not send.
+            # (1) Exclude_host_uuid=host_uuid, check host_uuid will not send.
             self.set_exclude_host_uuids("hyperv", host_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            #(2) Exclude_host_uuid=host_uuid_sec, check host_uuid will send. host_uuid will not send out
+            # (2) Exclude_host_uuid=host_uuid_sec, check host_uuid will send. host_uuid will not send out
             self.set_exclude_host_uuids("hyperv", host_uuid_sec)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
-            #(3) Exclude_host_uuid="",check host/guest mapping will send out.
+            # (3) Exclude_host_uuid="",check host/guest mapping will send out.
             self.set_exclude_host_uuids("hyperv", "\"\"")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            #(4) Exclude_host_uuid='',check host/guest mapping will send out.
+            # (4) Exclude_host_uuid='',check host/guest mapping will send out.
             self.set_exclude_host_uuids("hyperv", "\'\'")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            #(5) Exclude_host_uuid=, check host/guest mapping will send out.
+            # (5) Exclude_host_uuid=, check host/guest mapping will send out.
             self.set_exclude_host_uuids("hyperv", "")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            #(6) Exclude_host_uuid="host_uuid","host_uuid_sec", virt-who will not send host_uuid, host_uuid_sec
+            # (6) Exclude_host_uuid="host_uuid","host_uuid_sec", virt-who will not send host_uuid, host_uuid_sec
             self.set_exclude_host_uuids("hyperv", "\"%s\",\"%s\"" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
-            #(7) Exclude_host_uuid='host_uuid','host_uuid_sec', virt-who will not send host_uuid, host_uuid_sec
+            # (7) Exclude_host_uuid='host_uuid','host_uuid_sec', virt-who will not send host_uuid, host_uuid_sec
             self.set_exclude_host_uuids("hyperv", "\'%s\',\'%s\'" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
-            #(8) Exclude_host_uuid='host_uuid', 'host_uuid_sec',virt-who will not send host_uuid, host_uuid_sec
+            # (8) Exclude_host_uuid='host_uuid', 'host_uuid_sec',virt-who will not send host_uuid, host_uuid_sec
             self.set_exclude_host_uuids("hyperv", "\'%s\',  \'%s\'" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)

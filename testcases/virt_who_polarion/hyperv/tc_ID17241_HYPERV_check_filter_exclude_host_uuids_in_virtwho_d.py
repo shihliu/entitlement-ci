@@ -16,11 +16,11 @@ class tc_ID17241_HYPERV_check_filter_exclude_host_uuids_in_virtwho_d(HYPERVBase)
             host_uuid = self.hyperv_get_host_uuid()
             host_uuid_sec = "test"
 
-            #(1) Set filter_host_uuid=host_uuid and exclude_host_uuid=host_uuid_sec, it will show host_uuid not host_uuid_sec
+            # (1) Set filter_host_uuid=host_uuid and exclude_host_uuid=host_uuid_sec, it will show host_uuid not host_uuid_sec
             self.set_filter_exclude_host_uuids("hyperv", host_uuid, host_uuid_sec)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, uuid_exist=False)
-            #(2) Set filter_host_uuid=host_uuid_sec and exclude_host_uuid=host_uuid_sec, it will not show host_uuid and host_uuid_sec
+            # (2) Set filter_host_uuid=host_uuid_sec and exclude_host_uuid=host_uuid_sec, it will not show host_uuid and host_uuid_sec
             self.set_filter_exclude_host_uuids("hyperv", host_uuid_sec, host_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, uuid_exist=False)

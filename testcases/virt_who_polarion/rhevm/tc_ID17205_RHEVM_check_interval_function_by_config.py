@@ -10,13 +10,13 @@ class tc_ID17205_RHEVM_check_interval_function_by_config(VDSMBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
             check_msg = "haven't changed, not sending"
-            #(1) Check virt-who refresh default interval is 60s
+            # (1) Check virt-who refresh default interval is 60s
             self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
-            #(2) Check virt-who refresh interval is 60 when config interval less than 60s
+            # (2) Check virt-who refresh interval is 60 when config interval less than 60s
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
             self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
-            #(3) Check virt-who refresh interval is equal to config interval when config interval over 60s
+            # (3) Check virt-who refresh interval is equal to config interval when config interval over 60s
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
             self.vw_check_message_number_in_rhsm_log(check_msg, 1, 150)
