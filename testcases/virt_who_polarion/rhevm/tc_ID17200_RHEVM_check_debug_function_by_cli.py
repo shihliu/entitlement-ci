@@ -8,10 +8,10 @@ class tc_ID17200_RHEVM_check_debug_function_by_cli(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Check "DEBUG" info is exist when run "virt-who --rhevm -d"
+            # (1) Check "DEBUG" info is exist when run "virt-who --rhevm -d"
             cmd = self.virtwho_cli("rhevm") + " -d"
             self.vw_check_message_in_debug_cmd(cmd, "DEBUG")
-            #(2) Check "DEBUG" info is not exist when run "virt-who --rhevm",no "-d" option
+            # (2) Check "DEBUG" info is not exist when run "virt-who --rhevm",no "-d" option
             cmd = self.virtwho_cli("rhevm")
             self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR", message_exists=False)
 

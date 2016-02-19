@@ -8,11 +8,11 @@ class tc_ID17201_RHEVM_check_debug_function_by_config(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Check "DEBUG" info is exist when run enable "VIRTWHO_DEBUG" in /etc/sysconfig/virt-who
+            # (1) Check "DEBUG" info is exist when run enable "VIRTWHO_DEBUG" in /etc/sysconfig/virt-who
             self.config_option_setup_value("VIRTWHO_DEBUG", 1)
             self.vw_check_message_in_rhsm_log("DEBUG")
             self.runcmd_service("stop_virtwho")
-            #(2) Check "DEBUG" info is not exist when run disable "VIRTWHO_DEBUG" in /etc/sysconfig/virt-who
+            # (2) Check "DEBUG" info is not exist when run disable "VIRTWHO_DEBUG" in /etc/sysconfig/virt-who
             self.config_option_setup_value("VIRTWHO_DEBUG", 0)
             self.vw_check_message_in_rhsm_log("DEBUG", message_exists=False)
 

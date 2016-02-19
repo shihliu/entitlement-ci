@@ -4,7 +4,7 @@ from utils.exception.failexception import FailException
 
 class VDSMBase(VIRTWHOBase):
     def configure_rhel_host_bridge(self, targetmachine_ip=""):
-        # Configure rhevm bridge on RHEL host
+    # Configure rhevm bridge on RHEL host
         network_dev = ""
         cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
         ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
@@ -25,6 +25,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
 
     def get_rhevm_repo_file(self, compose_name, targetmachine_ip=""):
+    # Get rhevm repo from 10.66.100.116
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
             cmd = "wget -P /etc/yum.repos.d/ http://10.66.100.116/projects/sam-virtwho/rhevm_repo/rhevm_7.x.repo"
@@ -54,8 +55,8 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
     def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip=""):
+    # System setup for RHEL+RHEVM testing env
         self.cm_install_basetool(targetmachine_ip)
-        # system setup for RHEL+RHEVM testing env
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip)
         if ret == 0:
@@ -72,8 +73,7 @@ class VDSMBase(VIRTWHOBase):
         self.stop_firewall(targetmachine_ip)
 
     def conf_rhevm_shellrc(self, targetmachine_ip=""):
-        ''' Config the env to login to rhevm_rhell '''
-#         tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+    # Config the env to login to rhevm_rhell
         tagetmachine_hostname = self.get_hostname(targetmachine_ip)
         cmd = "echo -e '[ovirt-shell]\nusername = admin@internal\nca_file = /etc/pki/ovirt-engine/ca.pem\nurl = https://%s:443/api\ninsecure = False\nno_paging = False\nfilter = False\ntimeout = -1\npassword = redhat' > /root/.rhevmshellrc" % tagetmachine_hostname
         ret, output = self.runcmd(cmd, "config rhevm_shell env on rhevm", targetmachine_ip)
@@ -82,9 +82,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to config rhevm_shell env on rhevm in %s." % self.get_hg_info(targetmachine_ip))
 
-    # Add cluster cpu 
     def update_cluster_cpu(self, cluster_name, cpu_type, targetmachine_ip):
-        # cmd = "rhevm-shell -c -E 'update cluster %s --cpu-id \"%s\"'" % (cluster_name, cpu_type)
+    # Add cluster cpu 
         cmd = "rhevm-shell -c -E \"update cluster %s --cpu-id '%s' \"" % (cluster_name, cpu_type)
         ret, output = self.runcmd(cmd, "update cluster cpu", targetmachine_ip)
         if ret == 0:
@@ -92,8 +91,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to update cluster %s cpu to %s." % (cluster_name, cpu_type))
 
-    # Add host to rhevm
     def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
+    # Add host to rhevm
         while True:
             cmd = " rhevm-shell -c -E 'list hosts --show-all'"
             ret, output = self.runcmd(cmd, "list hosts in rhevm before add host", targetmachine_ip)
@@ -130,8 +129,8 @@ class VDSMBase(VIRTWHOBase):
                 else:
                     raise FailException("Failed to add host %s to rhevm" % rhevm_host_name)
 
-# Maintenance Host on RHEVM
     def rhevm_mantenance_host(self, rhevm_host_name, targetmachine_ip):
+    # Maintenance Host on RHEVM
         cmd = "rhevm-shell -c -E 'action host \"%s\" deactivate'" % rhevm_host_name
         ret, output = self.runcmd(cmd, "Maintenance host on rhevm.", targetmachine_ip)
         if ret == 0:
@@ -156,8 +155,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to maintenance host %s on rhevm" % rhevm_host_name)
 
-# Active Host on RHEVM
     def rhevm_active_host(self, rhevm_host_name, targetmachine_ip):
+    # Active Host on RHEVM
         cmd = "rhevm-shell -c -E 'action host \"%s\" activate'" % rhevm_host_name
         ret, output = self.runcmd(cmd, "Active host on rhevm.", targetmachine_ip)
         if ret == 0:
@@ -182,8 +181,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to active host %s on rhevm" % rhevm_host_name)
 
-    # Add vm to special host
     def update_vm_to_host(self, vm_name, rhevm_host_name, targetmachine_ip):
+    # Add vm to special host
         cmd = "rhevm-shell -c -E 'update vm %s --placement_policy-host-name %s'" % (vm_name, rhevm_host_name)
         ret, output = self.runcmd(cmd, "update vm to special host", targetmachine_ip)
         if ret == 0:
@@ -191,8 +190,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to update vm %s to host %s." % (vm_name, rhevm_host_name))
 
-    # parse rhevm-result to dict
     def rhevm_info_dict(self, output, targetmachine_ip=""):
+    # parse rhevm-result to dict
         rhevm_info_dict = {}
         if output is not "":
             datalines = output.splitlines()
@@ -206,8 +205,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to get output in rhevm-result file.")
 
-    # wait for a while until expect status shown in /tmp/rhevm-result file
     def wait_for_status(self, cmd, status_key, status_value, targetmachine_ip, timeout=600):
+    # Wait for a while until expect status shown in /tmp/rhevm-result file
         timout = 0
         while True:
             timout = timout + 1
@@ -231,9 +230,8 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("sleep 10 in wait_for_status.")
                 time.sleep(10)
 
-    # Add storagedomain in rhevm
     def add_storagedomain_to_rhevm(self, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, targetmachine_ip): 
-        # Create storage nfs folder and active it
+    # Add storagedomain in rhevm and active it
         cmd = "mkdir %s" % storage_dir
         self.runcmd(cmd, "create storage nfs folder", NFS_server)
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (storage_dir.replace('/', '\/'), storage_dir)
@@ -290,7 +288,7 @@ class VDSMBase(VIRTWHOBase):
     #             raise FailException("Failed to activate storagedomains %s in rhevm." % storage_name)
 
     def install_virtV2V(self, targetmachine_ip=""):
-        '''install virt-V2V'''
+    # Install virt-V2V
         cmd = "rpm -q virt-v2v"
         ret, output = self.runcmd(cmd, "check whether virt-V2V exist", targetmachine_ip)
         if ret == 0:
@@ -305,6 +303,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Failed to install virt-V2V")
 
     def rhevm_define_guest(self, vm_name, targetmachine_ip=""):
+    # Define guest
         ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
         cmd = "test -d /home/rhevm_guest/ && echo presence || echo absence"
         ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
@@ -365,15 +364,16 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to define kvm guest")
 
     def rhevm_undefine_guest(self, vm_name, targetmachine_ip=""):
-        # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+    # Undefine guest
         cmd = "virsh undefine %s" % vm_name
         ret, output = self.runcmd(cmd, "undefine kvm guest", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to undefine kvm guest")
         else:
             raise FailException("Failed to undefine kvm guest")
-    # create_storage_pool
+
     def create_storage_pool(self, targetmachine_ip=""):
+    # Create_storage_pool
         ''' wget autotest_pool.xml '''
         cmd = "wget -P /tmp/ http://10.66.100.116/projects/sam-virtwho/autotest_pool.xml"
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
@@ -417,8 +417,8 @@ class VDSMBase(VIRTWHOBase):
                 else:
                     raise FailException("Failed to start storage pool.")
 
-    # convert_guest_to_nfs with v2v tool
     def convert_guest_to_nfs(self, origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname, targetmachine_ip=""):
+    # Convert_guest_to_nfs with v2v tool
         cmd = "sed -i 's/^.*auth_unix_rw/auth_unix_rw/' /etc/libvirt/libvirtd.conf"
         (ret, output) = self.runcmd(cmd, "Enable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
         if ret == 0:
@@ -439,8 +439,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to convert_guest_to_nfs with v2v tool")
 
-    # Get storagedomain id 
     def get_domain_id(self, storagedomain_name, rhevm_host_ip):
+    # Get storagedomain id 
         cmd = "rhevm-shell -c -E 'list storagedomains ' "
         ret, output = self.runcmd(cmd, "list storagedomains in rhevm.", rhevm_host_ip)
         if ret == 0 and storagedomain_name in output:
@@ -451,9 +451,9 @@ class VDSMBase(VIRTWHOBase):
         else :
             raise FailException("Failed to list storagedomains %s in rhevm." % storagedomain_name)
 
-    # import guest to rhevm
+
     def import_vm_to_rhevm(self, guest_name, nfs_dir_for_storage_id, nfs_dir_for_export_id, rhevm_host_ip):
-        # action vm "7.1_Server_x86_64" import_vm --storagedomain-identifier export_storage  --cluster-name Default --storage_domain-name data_storage
+    # Import guest to rhevm
         # cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-name %s' " % (guest_name, nfs_dir_for_export, nfs_dir_for_storage)
         cmd = "rhevm-shell -c -E 'action vm \"%s\" import_vm --storagedomain-identifier %s --cluster-name Default --storage_domain-id %s' " % (guest_name, nfs_dir_for_export_id, nfs_dir_for_storage_id)
         ret, output = self.runcmd(cmd, "import guest %s in rhevm." % guest_name, rhevm_host_ip)
@@ -476,6 +476,7 @@ class VDSMBase(VIRTWHOBase):
                     raise FailException("%s status has problem,status is %s." % (guest_name, status))
 
     def add_vm_to_rhevm(self, rhevm_vm_name, NFSserver_ip, nfs_dir_for_export, targetmachine_ip):
+    # Add guest to rhevm
         while True:
             cmd = "rhevm-shell -c -E ' list vms --name %s'" % rhevm_vm_name
             ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip)
@@ -495,8 +496,8 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to list vm in rhevm")
 
-# Start VM on RHEVM
     def rhevm_start_vm(self, rhevm_vm_name, rhevm_host_ip):
+    # Start VM on RHEVM
         runtime_start = 0
         while True:
             cmd = "rhevm-shell -c -E 'action vm %s start'" % rhevm_vm_name
@@ -531,8 +532,8 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to list vm %s" % rhevm_vm_name)
 
-# Stop VM on RHEVM
     def rhevm_stop_vm(self, rhevm_vm_name, targetmachine_ip):
+    # Stop VM on RHEVM
         cmd = "rhevm-shell -c -E 'action vm \"%s\" stop'" % rhevm_vm_name
         ret, output = self.runcmd(cmd, "stop vm on rhevm.", targetmachine_ip)
         if ret == 0:
@@ -557,8 +558,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to stop vm %s on rhevm" % rhevm_vm_name)
 
-# Pause VM on RHEVM
     def rhevm_pause_vm(self, rhevm_vm_name, targetmachine_ip):
+    # Pause VM on RHEVM
         runtime_suspend = 0
         while True:
             cmd = "rhevm-shell -c -E 'action vm \"%s\" suspend'" % rhevm_vm_name
@@ -592,9 +593,9 @@ class VDSMBase(VIRTWHOBase):
                     raise FailException("%s's status has problem,status is %s." % (rhevm_vm_name, status))
             else:
                 raise FailException("Failed to list vm %s" % rhevm_vm_name)
-    
-# Migrate VM on RHEVM
+
     def rhevm_migrate_vm(self, rhevm_vm_name, dest_ip, dest_host_id, targetmachine_ip):
+    # Migrate VM on RHEVM
         cmd = "rhevm-shell -c -E 'action vm \"%s\" migrate --host-name \"%s\"'" % (rhevm_vm_name, dest_ip)
         ret, output = self.runcmd(cmd, "migrate vm on rhevm.", targetmachine_ip)
         if ret == 0 and "complete" in output:
@@ -619,8 +620,8 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to run migrate vm %s in rhevm" % rhevm_vm_name)
 
-    # get guest ip
     def rhevm_get_guest_ip(self, vm_name, targetmachine_ip):
+    # Get guest ip
         cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
         ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
         if ret == 0:
@@ -636,7 +637,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to list VM %s." % vm_name) 
 
     def vdsm_get_vm_uuid(self, vm_name, targetmachine_ip=""):
-        ''' get the guest uuid. '''
+    # Get the guest uuid
         cmd = "rhevm-shell -c -E 'show vm %s'" % vm_name
         ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
         if ret == 0:
@@ -651,7 +652,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to list VM %s." % vm_name) 
 
     def get_host_uuid_on_rhevm(self, host_name, targetmachine_ip=""):
-        ''' get the guest uuid. '''
+    # Get the host uuid
         cmd = "rhevm-shell -c -E 'show host %s'" % host_name
         ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
         if ret == 0:
@@ -665,7 +666,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to list HOST %s." % host_name) 
 
     def get_host_hwuuid_on_rhevm(self, host_name, targetmachine_ip=""):
-        ''' get the guest uuid. '''
+    # Get the host hwuuid
         cmd = "rhevm-shell -c -E 'show host %s'" % host_name
         ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
         if ret == 0:
@@ -679,7 +680,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to list HOST %s." % host_name) 
 
     def vw_restart_vdsm(self, targetmachine_ip=""):
-        ''' restart vdsmd service. '''
+    # restart vdsmd service
         cmd = "service vdsmd restart"
         ret, output = self.runcmd(cmd, "restart vdsmd", targetmachine_ip)
         if ret == 0:
@@ -704,7 +705,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to restart vdsmd")
 
     def vw_check_vdsm_status(self, targetmachine_ip=""):
-        ''' Check the vdsmd status. '''
+    # Check the vdsmd status
         if self.get_os_serials(targetmachine_ip) == "7":
             cmd = "systemctl status vdsmd; sleep 15"
             ret, output = self.runcmd(cmd, "vdsmd status", targetmachine_ip)
@@ -721,7 +722,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to check vdsmd is running.")
 
     def update_rhel_vdsm_configure(self, interval_value, targetmachine_ip=""):
-        ''' update virt-who configure file to vdsm mode /etc/sysconfig/virt-who. '''
+    # Update virt-who configure file to vdsm mode /etc/sysconfig/virt-who
         cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=1/g' -e 's/^.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/g' -e 's/^.*VIRTWHO_VDSM=.*/VIRTWHO_VDSM=1/g' /etc/sysconfig/virt-who" % interval_value
         ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
         if ret == 0:
@@ -730,7 +731,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to update virt-who configure file.")
 
     def update_rhel_rhevm_configure(self, rhevm_interval, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password, debug=1, targetmachine_ip=""):
-        ''' update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM'''
+    # Update virt-who configure file /etc/sysconfig/virt-who for enable VIRTWHO_RHEVM
         cmd = "sed -i -e 's/.*VIRTWHO_INTERVAL=.*/VIRTWHO_INTERVAL=%s/g' -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' -e 's/#VIRTWHO_RHEVM=.*/VIRTWHO_RHEVM=1/g' -e 's/#VIRTWHO_RHEVM_OWNER=.*/VIRTWHO_RHEVM_OWNER=%s/g' -e 's/#VIRTWHO_RHEVM_ENV=.*/VIRTWHO_RHEVM_ENV=%s/g' -e 's/#VIRTWHO_RHEVM_SERVER=.*/VIRTWHO_RHEVM_SERVER=%s/g' -e 's/#VIRTWHO_RHEVM_USERNAME=.*/VIRTWHO_RHEVM_USERNAME=%s/g' -e 's/#VIRTWHO_RHEVM_PASSWORD=.*/VIRTWHO_RHEVM_PASSWORD=%s/g' /etc/sysconfig/virt-who" % (rhevm_interval, debug, rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
         ret, output = self.runcmd(cmd, "updating virt-who configure file for enable VIRTWHO_RHEVM", targetmachine_ip)
         if ret == 0:

@@ -8,10 +8,10 @@ class tc_ID17200_HYPERV_check_debug_function_by_cli(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Check "DEBUG" info is exist when run "virt-who --hyperv -d"
+            # (1) Check "DEBUG" info is exist when run "virt-who --hyperv -d"
             cmd = self.virtwho_cli("hyperv") + " -d"
             self.vw_check_message_in_debug_cmd(cmd, "DEBUG")
-            #(2) Check "DEBUG" info is not exist when run "virt-who --hyperv",no "-d" option
+            # (2) Check "DEBUG" info is not exist when run "virt-who --hyperv",no "-d" option
             cmd = self.virtwho_cli("hyperv")
             self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR", message_exists=False)
 

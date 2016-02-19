@@ -15,7 +15,7 @@ class tc_ID17242_HYPERV_check_filter_exclude_host_parents_in_virtwho_d(HYPERVBas
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
 
-            #(1) Set Filter_host_parents and exclude_host_parentss, it will show error info,it will filter host/guest mapping info
+            # (1) Set Filter_host_parents and exclude_host_parentss, it will show error info,it will filter host/guest mapping info
             self.set_filter_exclude_host_parents("hyperv", "host_parents_filter", "host_parents_exclude")
             chkmsg = "filter_host_parents is not supported in hyperv mode, ignoring it|exclude_host_parents is not supported in hyperv mode, ignoring it"
             self.vw_check_message_in_rhsm_log(chkmsg, message_exists=True)

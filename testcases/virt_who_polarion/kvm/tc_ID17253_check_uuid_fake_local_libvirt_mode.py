@@ -18,7 +18,6 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
             # define a guest
             self.vw_define_guest(guest_name)
             guestuuid = self.vw_get_uuid(guest_name)
-            # stop virt-who service
             self.vw_stop_virtwho_new()
 
             # (1) generate fake file

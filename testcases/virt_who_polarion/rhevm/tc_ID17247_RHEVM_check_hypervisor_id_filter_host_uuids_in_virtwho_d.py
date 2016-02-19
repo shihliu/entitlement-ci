@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID17246_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
+class tc_ID17247_RHEVM_check_hypervisor_id_filter_host_uuids_in_virtwho_d(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -17,16 +17,24 @@ class tc_ID17246_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
             host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP"), rhevm_ip)
+            host_name_sec = self.get_hostname(get_exported_param("REMOTE_IP_2"))
+            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
+            host_hwuuid_sec = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
 
-            # (1) Set hypervisor_id=uuid, it will show uuid 
-            self.set_hypervisor_id("rhevm", "uuid")
+            # (1) Set hypervisor_id=uuid, and fitler_host_uuids, it will only show host/guest uuid mapping info
+            self.set_hypervisor_id_filter_host_uuids("rhevm", "uuid", host_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            # (2) Set hypervisor_id=hostname, it will show hostname 
-            self.set_hypervisor_id("rhevm", "hostname")
+            self.vw_check_mapping_info_in_rhsm_log(host_name, uuid_exist=False)
+            self.vw_check_message_in_rhsm_log("%s|%s|%s|%s" % (host_hwuuid, host_name_sec, host_uuid_sec, host_hwuuid_sec), message_exists=False)
+            # (2) Set hypervisor_id=hostname, and fitler_host_uuids, it will show host/guest name mapping info
+            self.set_hypervisor_id_filter_host_uuids("rhevm", "hostname", host_name)
             self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid)
-            # (3) Set hypervisor_id=hwuuid, it will show hwuuid
-            self.set_hypervisor_id("rhevm", "hwuuid")
+            self.vw_check_message_in_rhsm_log("%s|%s|%s|%s|%s" % (host_uuid, host_hwuuid, host_name_sec, host_uuid_sec, host_hwuuid_sec), message_exists=False)
+            # (3) Set hypervisor_id=hwuuid, and fitler_host_uuids, it will show host/guest hwuuid mapping info
+            self.set_hypervisor_id_filter_host_uuids("rhevm", "hwuuid", host_hwuuid)
             self.vw_check_mapping_info_in_rhsm_log(host_hwuuid, guest_uuid)
+            self.vw_check_mapping_info_in_rhsm_log(host_name, uuid_exist=False)
+            self.vw_check_message_in_rhsm_log("%s|%s|%s|%s" % (host_uuid, host_name_sec, host_uuid_sec, host_hwuuid_sec), message_exists=False)
 
             self.assert_(True, case_name)
         except Exception, e:

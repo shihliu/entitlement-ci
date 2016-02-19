@@ -16,27 +16,27 @@ class tc_ID17237_HYPERV_check_filter_host_uuids_in_virtwho_d(HYPERVBase):
             host_uuid = self.hyperv_get_host_uuid()
             host_uuid_sec = "test"
 
-            #(1) Filter_host_uuid=host_uuid, check virt-who send correct host/guest mapping to server
+            # (1) Filter_host_uuid=host_uuid, check virt-who send correct host/guest mapping to server
             self.set_filter_host_uuids("hyperv", host_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            #(2) Filter_host_uuid="", check host/guest mapping 
+            # (2) Filter_host_uuid="", check host/guest mapping 
             self.set_filter_host_uuids("hyperv", "\"\"")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            #(3) Filter_host_uuid='', check host/guest mapping 
+            # (3) Filter_host_uuid='', check host/guest mapping 
             self.set_filter_host_uuids("hyperv", "\'\'")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            #(4) Filter_host_uuid=, check host/guest mapping 
+            # (4) Filter_host_uuid=, check host/guest mapping 
             self.set_filter_host_uuids("hyperv", "")
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
-            #(5) Filter_host_uuid="host_uuid","host_uuid_sec", virt-who will filter out host_uuid, it will not filter host_uuid_sec
+            # (5) Filter_host_uuid="host_uuid","host_uuid_sec", virt-who will filter out host_uuid, it will not filter host_uuid_sec
             self.set_filter_host_uuids("hyperv", "\"%s\",\"%s\"" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
-            #(6) Filter_host_uuid='host_uuid','host_uuid_sec', virt-who will filter out host_uuid, it will not filter host_uuid_sec
+            # (6) Filter_host_uuid='host_uuid','host_uuid_sec', virt-who will filter out host_uuid, it will not filter host_uuid_sec
             self.set_filter_host_uuids("hyperv", "\'%s\',\'%s\'" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
-            #(7) Filter_host_uuid='host_uuid', 'host_uuid_sec', virt-who will filter out host_uuid, it will not filter host_uuid_sec
+            # (7) Filter_host_uuid='host_uuid', 'host_uuid_sec', virt-who will filter out host_uuid, it will not filter host_uuid_sec
             self.set_filter_host_uuids("hyperv", "\'%s\',  \'%s\'" % (host_uuid, host_uuid_sec))
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)

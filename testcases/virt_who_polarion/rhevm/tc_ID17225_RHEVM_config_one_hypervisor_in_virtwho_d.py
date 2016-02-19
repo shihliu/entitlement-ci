@@ -8,9 +8,10 @@ class tc_ID17225_RHEVM_config_one_hypervisor_in_virtwho_d(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            #(1) Disable rhevm mode in /etc/sysconfig/virt-who
+
+            # (1) Disable rhevm mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_RHEVM")
-            #(2) Config rhevm mode in /etc/virt-who.d
+            # (2) Config rhevm mode in /etc/virt-who.d
             self.set_virtwho_sec_config("rhevm")
             self.vw_check_mapping_info_number_in_rhsm_log()
 

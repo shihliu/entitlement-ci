@@ -16,7 +16,7 @@ class tc_ID17288_HYPERV_validate_instance_host_compliance_with_one_sockets(HYPER
             self.setup_custom_facts("cpu.cpu_socket(s)", "1")
             poolid = self.get_pool_by_SKU(test_sku)
 
-            # (1).subscribe host to unspecify instance pool
+            # (1) Subscribe host to unspecify instance pool
             self.sub_subscribetopool(poolid)
             # check consumed subscriptions' quality, should be 1 on guest 
             consumed_quantity_key = "QuantityUsed"
@@ -29,7 +29,7 @@ class tc_ID17288_HYPERV_validate_instance_host_compliance_with_one_sockets(HYPER
             installed_status_value = "Subscribed"
             self.check_installed_status(installed_status_key, installed_status_value)
 
-            #(2).subscribe host to 1 instance pool
+            # (2) Subscribe host to 1 instance pool
             self.sub_unsubscribe()
             cmd = "subscription-manager subscribe --pool=%s --quantity=1" % poolid
             ret, output = self.runcmd(cmd, "Check subscribe instance with non-multiple of the instance-multiplier")
@@ -38,7 +38,7 @@ class tc_ID17288_HYPERV_validate_instance_host_compliance_with_one_sockets(HYPER
             else:
                 raise FailException("Failed to check subscribe instance with non-multiple of the instance-multiplier.")
 
-            #(3).subscribe host to 2 instance pool
+            # (3) Subscribe host to 2 instance pool
             self.sub_unsubscribe()
             self.sub_limited_subscribetopool(poolid, "2")
             # check consumed subscriptions' quality, should be 1 on guest 

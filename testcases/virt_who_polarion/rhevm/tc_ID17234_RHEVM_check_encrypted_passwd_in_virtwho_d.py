@@ -10,13 +10,13 @@ class tc_ID17234_RHEVM_check_encrypted_passwd_in_virtwho_d(VDSMBase):
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             self.runcmd_service("stop_virtwho")
 
-            #(1) Disable rhevm mode in /etc/sysconfig/virt-who
+            # (1) Disable rhevm mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_RHEVM")
-            #(2) Config correct encryped password of rhevm mode in /etc/virt-who.d/virtwho, check virt-who send h/g mapping successfully
+            # (2) Config correct encryped password of rhevm mode in /etc/virt-who.d/virtwho, check virt-who send h/g mapping successfully
             encrypted_password = self.run_virt_who_password(rhevm_password)
             self.set_encrypted_password("rhevm", encrypted_password)
             self.vw_check_mapping_info_number_in_rhsm_log()
-            #(3) Config wrong encryped password of rhevm mode in /etc/virt-who.d/virtwho, check virt-who can't send h/g mapping 
+            # (3) Config wrong encryped password of rhevm mode in /etc/virt-who.d/virtwho, check virt-who can't send h/g mapping 
             self.set_encrypted_password("rhevm", "xxxxxxxxxxxxxxxxxxx")
             self.vw_check_message_in_rhsm_log("Password can't be decrypted, possibly corrupted")
 

@@ -11,14 +11,15 @@ class tc_ID17217_RHEVM_check_env_option_by_config(VDSMBase):
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             error_msg = "Option --rhevm-env (or VIRTWHO_RHEVM_ENV environment variable) needs to be set"
             self.runcmd_service("stop_virtwho")
-            #(1) When "VIRTWHO_RHEVM_ENV" is not exist, virt-who should show error info
+
+            # (1) When "VIRTWHO_RHEVM_ENV" is not exist, virt-who should show error info
             self.config_option_disable("VIRTWHO_RHEVM_ENV")
             self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg , cmd_retcode=1)
-            #(2) When "VIRTWHO_RHEVM_ENV" with wrong config, virt-who should show error info
+            # (2) When "VIRTWHO_RHEVM_ENV" with wrong config, virt-who should show error info
             self.config_option_enable("VIRTWHO_RHEVM_ENV")
             self.config_option_setup_value("VIRTWHO_RHEVM_ENV", "xxxxxxx")
             self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg, cmd_retcode=1)
-            #(3) When "VIRTWHO_RHEVM_ENV" with correct config, virt-who should show error info
+            # (3) When "VIRTWHO_RHEVM_ENV" with correct config, virt-who should show error info
             self.config_option_setup_value("VIRTWHO_RHEVM_ENV", rhevm_env)
             self.vw_check_mapping_info_number_in_rhsm_log()
 

@@ -24,7 +24,7 @@ class tc_ID17275_RHEVM_validate_compliance_unregister_host_check_mapping_when_re
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            #(1) Validate guest consumed bonus pool will revoke after unregister host
+            # (1) Validate guest consumed bonus pool will revoke after unregister host
             # subscribe the host to the physical pool which can generate bonus pool
             # host subscribe physical pool
             self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
@@ -32,7 +32,7 @@ class tc_ID17275_RHEVM_validate_compliance_unregister_host_check_mapping_when_re
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
-            #(2) Check guest uuid after unregister host and hypervisor
+            # (2) Check guest uuid after unregister host and hypervisor
             tmp_file = "/tmp/tail.rhsm.log"
             cmd = "subscription-manager unregister"
             self.generate_tmp_log(cmd, tmp_file)
@@ -43,11 +43,10 @@ class tc_ID17275_RHEVM_validate_compliance_unregister_host_check_mapping_when_re
             else:
                 raise FailException("failed to check virt-who log after unregister host")
             self.server_remove_system(hostuuid, SERVER_IP)
-#             time.sleep(60)
             self.sub_refresh(guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)
-            #(3). Check guest uuid after re-register
+            # (3) Check guest uuid after re-register
             self.sub_register(SERVER_USER, SERVER_PASS)
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
 
