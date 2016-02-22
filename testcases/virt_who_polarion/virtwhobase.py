@@ -1096,7 +1096,7 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to get content of %s.") % tmp_file
 
-    def vw_check_attr(self, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
+    def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
 #         checkcmd = "service virt-who restart"
@@ -1131,7 +1131,7 @@ class VIRTWHOBase(Base):
                     logger.info("guest hypervisortype is %s." % attr_hypertype)
                     attr_state = item['state']
                     logger.info("guest state is %s." % attr_state)
-            if guestname != "" and (guest_status == attr_status) and (guest_type in attr_type) and (guest_hypertype in attr_hypertype) and (guest_state == attr_state):
+            if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
                 logger.info("successed to check guest %s attribute" % guestname)
             else:
                 raise FailException("Failed to check guest %s attribute" % guestname)
@@ -1210,12 +1210,12 @@ class VIRTWHOBase(Base):
         cmd = "cat %s" % tmp_file
         mapping_info = ''.join(self.vw_get_mapping_info(cmd, targetmachine_ip))
         if uuid_exist == True:
-            if host_uuid in mapping_info and (guest_uuid in mapping_info if guest_uuid != "" else True):
+            if (host_uuid in mapping_info if host_uuid != "" else True) and (guest_uuid in mapping_info if guest_uuid != "" else True):
                 logger.info("Succeeded to check, can find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
             else:
                 raise FailException("Failed to check, can not find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
         else:
-            if host_uuid not in mapping_info and (guest_uuid not in mapping_info if guest_uuid != "" else True):
+            if (host_uuid not in mapping_info if host_uuid != "" else True) and (guest_uuid not in mapping_info if guest_uuid != "" else True):
                 logger.info("Succeeded to check, no host_uuid '%s' and guest_uuid '%s' found." % (host_uuid, guest_uuid))
             else:
                 raise FailException("Failed to check, should be no host_uuid '%s' and guest_uuid '%s' found." % (host_uuid, guest_uuid))

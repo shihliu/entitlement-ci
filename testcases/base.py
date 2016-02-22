@@ -357,7 +357,7 @@ class Base(unittest.TestCase):
         location = "systems/%s/subscriptions/" % uuid
         json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
         consumer_pool_id = self.post_json(location, json_data)["results"][0]["id"]
-        logger.info ("attch return is %s" % consumer_pool_id)
+        logger.info ("Attch return is %s" % consumer_pool_id)
         return consumer_pool_id
 
     def st_unattach(self, uuid, consumed_pool_id):

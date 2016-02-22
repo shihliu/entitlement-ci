@@ -27,7 +27,7 @@ class tc_ID17251_ESX_check_bonus_revoke_in_fake_mode(ESXBase):
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)
-            self.esx_start_guest(guest_name)
+            self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
 
             # register guest to server

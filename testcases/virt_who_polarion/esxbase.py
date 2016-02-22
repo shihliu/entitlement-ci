@@ -3,15 +3,13 @@ from testcases.virt_who_polarion.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
 class ESXBase(VIRTWHOBase):
+
     def esx_setup(self):
         server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
-        # update virt-who configure file
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        # restart virt-who service
         self.vw_restart_virtwho()
-        # if host was already registered for hyperV, need to unregistered firstly, and then config and register the host again
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
@@ -201,14 +199,14 @@ class ESXBase(VIRTWHOBase):
         else:
             raise FailException("Failed to remove guest '%s' from vCenter" % guest_name)
 
-    def esx_destroy_guest(self, guest_name, esx_host):
-        ''' destroy guest from esx'''
-        cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
-        ret, output = self.runcmd_esx(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
-        if ret == 0:
-            logger.info("Succeeded to destroy guest '%s'" % guest_name)
-        else:
-            raise FailException("Failed to destroy guest '%s'" % guest_name)
+#     def esx_destroy_guest(self, guest_name, esx_host):
+#         ''' destroy guest from esx'''
+#         cmd = "rm -rf /vmfs/volumes/datastore*/%s" % guest_name
+#         ret, output = self.runcmd_esx(cmd, "destroy guest '%s' in ESX" % guest_name, esx_host)
+#         if ret == 0:
+#             logger.info("Succeeded to destroy guest '%s'" % guest_name)
+#         else:
+#             raise FailException("Failed to destroy guest '%s'" % guest_name)
 
 #     def esx_check_host_exist(self, esx_host, vCenter, vCenter_user, vCenter_pass):
 #         ''' check whether esx host exist in vCenter '''
@@ -225,17 +223,16 @@ class ESXBase(VIRTWHOBase):
 #     def esx_remove_all_guests(self, guest_name, destination_ip):
 #         return
 
-    def esx_start_guest(self, guest_name):
+    def esx_start_guest(self, guest_name, destination_ip):
         ''' start guest in esx host '''
-        esx_host_ip = self.get_vw_cons("ESX_HOST")
         cmd = "vim-cmd vmsvc/power.on /vmfs/volumes/datastore*/%s/%s.vmx" % (guest_name, guest_name)
-        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, esx_host_ip)
+        ret, output = self.runcmd_esx(cmd, "start guest '%s' in ESX" % guest_name, destination_ip)
         if ret == 0:
             logger.info("Succeeded to start guest '%s' in ESX host" % guest_name)
         else:
             raise FailException("Failed to start guest '%s' in ESX host" % guest_name)
         ''' check whethre guest can be accessed by ip '''
-        self.esx_check_ip_accessable(guest_name, esx_host_ip, accessable=True)
+        self.esx_check_ip_accessable(guest_name, destination_ip, accessable=True)
 
     def esx_stop_guest(self, guest_name, destination_ip):
         ''' stop guest in esx host '''
