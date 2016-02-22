@@ -12,22 +12,22 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
-
+ 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
-
+ 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
-
+ 
             # register guest to server
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
-
+ 
             # subscribe esx host
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
             # list available pools of guest, check related bonus pool generated.
@@ -35,7 +35,7 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
-
+ 
             self.esx_pause_guest(guest_name, esx_host_ip)
             self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 3, guest_uuid)
             self.esx_resume_guest(guest_name, esx_host_ip)

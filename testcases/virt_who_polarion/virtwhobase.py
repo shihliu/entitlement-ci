@@ -1099,44 +1099,24 @@ class VIRTWHOBase(Base):
     def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-#         checkcmd = "service virt-who restart"
-#         self.generate_tmp_log(tmp_file, targetmachine_ip)
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
-        if ret == 0:
-            ''' get guest uuid.list from rhsm.log '''
-            if "Sending list of uuids: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update to updateConsumer: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending domain info" in output:
-                log_uuid_list = output.split('Sending domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Domain info" in output:
-                log_uuid_list = output.split('Domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            else:
-                raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-            loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
-            for item in loglist:
-                if item['guestId'] == guestuuid:
-                    attr_status = item['attributes']['active']
-                    logger.info("guest's active status is %s." % attr_status)
-                    attr_type = item['attributes']['virtWhoType']
-                    logger.info("guest virtwhotype is %s." % attr_type)
-                    attr_hypertype = item['attributes']['hypervisorType']
-                    logger.info("guest hypervisortype is %s." % attr_hypertype)
-                    attr_state = item['state']
-                    logger.info("guest state is %s." % attr_state)
-            if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
-                logger.info("successed to check guest %s attribute" % guestname)
-            else:
-                raise FailException("Failed to check guest %s attribute" % guestname)
+        mapping_info = json.loads(''.join(self.vw_get_mapping_info(cmd, targetmachine_ip)))
+        for host in mapping_info.keys():
+            for guest in mapping_info[host]:
+                if guest["guestId"] == guestuuid:
+                    attr_state = guest['state']
+                    logger.info("Guest state is %s." % attr_state)
+                    attr_status = guest['attributes']['active']
+                    logger.info("Guest's active status is %s." % attr_status)
+                    attr_type = guest['attributes']['virtWhoType']
+                    logger.info("Guest virtwhotype is %s." % attr_type)
+                    attr_hypertype = guest['attributes']['hypervisorType']
+                    logger.info("Guest hypervisortype is %s." % attr_hypertype)
+        if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
+            logger.info("successed to check guest %s attribute" % guestname)
         else:
-            raise FailException("Failed to get uuids in rhsm.log")
+            raise FailException("Failed to check guest %s attribute" % guestname)
 
     def vw_check_message(self, cmd, message, message_exists=True, cmd_retcode=0, targetmachine_ip=""):
         ''' check whether given message exist or not, if multiple check needed, seperate them via '|' '''

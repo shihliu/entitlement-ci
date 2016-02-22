@@ -253,7 +253,6 @@ class ESXBase(VIRTWHOBase):
             logger.info("Succeeded to suspend guest '%s' in ESX host" % guest_name)
         else:
             raise FailException("Failed to suspend guest '%s' in ESX host" % guest_name)
-
         ''' check whethre guest can not be accessed by ip '''
         self.esx_check_ip_accessable(guest_name, destination_ip, accessable=False)
 
@@ -266,7 +265,6 @@ class ESXBase(VIRTWHOBase):
             logger.info("Succeeded to resume guest '%s' in ESX host" % guest_name)
         else:
             raise FailException("Failed to resume guest '%s' in ESX host" % guest_name)
-
         ''' check whethre guest can be accessed by ip '''
         self.esx_check_ip_accessable(guest_name, destination_ip, accessable=True)
 
@@ -279,7 +277,6 @@ class ESXBase(VIRTWHOBase):
             logger.info("Succeeded to get guest mac address '%s' in ESX host" % guest_name)
         else:
             raise FailException("Failed to get guest mac address '%s' in ESX host" % guest_name)
-
         return macAddress
 
     def esx_get_guest_ip(self, guest_name, destination_ip):
