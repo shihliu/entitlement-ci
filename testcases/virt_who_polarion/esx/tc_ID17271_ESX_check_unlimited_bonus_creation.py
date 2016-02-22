@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(ESXBase):
+class tc_ID17271_ESX_check_unlimited_bonus_creation(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -11,7 +11,6 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
-            guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
@@ -32,26 +31,6 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
             # list available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, sku_quantity, guestip)
-            self.sub_subscribe_to_bonus_pool(sku_id, guestip)
-            # list consumed subscriptions on the guest, should be listed
-            self.sub_listconsumed(sku_name, guestip)
-
-            self.esx_pause_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 3, guest_uuid)
-            self.esx_resume_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 1, guest_uuid)
-            # refresh on the guest 
-            self.sub_refresh(guestip)
-            # list consumed subscriptions on the guest, should be not revoked
-            self.sub_listconsumed(sku_name, guestip)
-            self.esx_stop_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 0, "esx", "VMware ESXi", 5, guest_uuid)
-            self.esx_start_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 1, guest_uuid)
-            # refresh on the guest 
-            self.sub_refresh(guestip)
-            # list consumed subscriptions on the guest, should be not revoked
-            self.sub_listconsumed(sku_name, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:
