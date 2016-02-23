@@ -23,26 +23,26 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
             self.vw_check_uuid(guestuuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
 
-            # (2). register guest to Server
+            # (2).register guest to Server
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
 
-            #(3).subscribe host to the physical pool and guest subscribe bonus pool
+            # (3).subscribe host to the physical pool and guest subscribe bonus pool
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
 
-            # (4). pause guest    
+            # (4).pause guest    
             self.pause_vm(guest_name)
             # (5).check if the uuid and attributes are correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 3, guestuuid)
 
-            # (6). resume guest    
+            # (6).resume guest    
             self.resume_vm(guest_name)
 
-            # (7)check if the uuid is correctly monitored by virt-who.
+            # (7) check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
 
