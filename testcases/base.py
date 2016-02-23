@@ -191,6 +191,9 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         else:
             raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
+        # workaround for bug https://bugzilla.redhat.com/show_bug.cgi?id=1310827
+        cmd = "echo '{\"proc_cpuinfo.common.flags\":\"*****************\"}' > /etc/rhsm/facts/cpuinfo_override.facts"
+        self.runcmd(cmd, "update rhsm facts due to bug 1310827", targetmachine_ip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname, targetmachine_ip=""):
         if "satellite" in satellitehostname:
