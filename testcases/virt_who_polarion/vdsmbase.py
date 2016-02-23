@@ -162,7 +162,7 @@ class VDSMBase(VIRTWHOBase):
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "list hosts"
+                cmd = "rhevm-shell -c -E 'list hosts'"
                 ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
