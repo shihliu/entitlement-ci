@@ -15,7 +15,7 @@ class tc_ID17204_ESX_check_interval_function_by_cli(ESXBase):
             self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 3, 150)
             cmd = self.virtwho_cli("esx") + " -d -i 120"
             self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 2, 150)
-            self.check_virtwho_null_thread()
+            self.check_virtwho_thread(0)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

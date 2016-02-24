@@ -20,7 +20,7 @@ class tc_ID17205_HYPERV_check_interval_function_by_config(HYPERVBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
             self.vw_check_message_number_in_rhsm_log(check_msg, 1, 150)
-            self.check_virtwho_thread()
+            self.check_virtwho_thread(2)
 
             self.assert_(True, case_name)
         except Exception, e:

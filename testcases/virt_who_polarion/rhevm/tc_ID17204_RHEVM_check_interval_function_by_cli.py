@@ -18,7 +18,7 @@ class tc_ID17204_RHEVM_check_interval_function_by_cli(VDSMBase):
             #(3) Check virt-who refresh interval is equal to config interval when config interval over 60s
             cmd = self.virtwho_cli("rhevm") + " -d -i 120"
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 1, 150)
-            self.check_virtwho_null_thread()
+            self.check_virtwho_thread(0)
 
             self.assert_(True, case_name)
         except Exception, e:

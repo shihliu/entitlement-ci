@@ -10,7 +10,7 @@ class tc_ID17202_check_oneshot_function_by_cli(KVMBase):
             self.runcmd_service("stop_virtwho")
             for i in range(1, 5):
                 self.vw_check_mapping_info_number("virt-who -o -d", 1)
-            self.check_virtwho_null_thread()
+            self.check_virtwho_thread(0)
 
             self.assert_(True, case_name)
         except Exception, e:

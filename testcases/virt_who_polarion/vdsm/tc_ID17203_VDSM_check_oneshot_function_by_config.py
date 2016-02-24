@@ -15,7 +15,7 @@ class tc_ID17203_VDSM_check_oneshot_function_by_config(VDSMBase):
             self.generate_tmp_log(checkcmd, tmp_file)
             cmd = "cat %s" % tmp_file
             self.vw_check_mapping_info_number(cmd, 1)
-            self.check_virtwho_null_thread()
+            self.check_virtwho_thread(0)
 
             self.assert_(True, case_name)
         except Exception, e:

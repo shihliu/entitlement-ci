@@ -171,22 +171,14 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to restart virt-who service.")
 
-    def check_virtwho_thread(self, targetmachine_ip=""):
+    def check_virtwho_thread(self, number, targetmachine_ip=""):
         ''' check virt-who thread number '''
-        cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
+        cmd = "ps -ef | grep -v grep | grep virt-who | wc -l"
         ret, output = self.runcmd(cmd, "check virt-who thread", targetmachine_ip)
-        if ret == 0 and output.strip() == "2":
-            logger.info("Succeeded to check virt-who thread number is 2.")
+        if ret == 0 and int(output.strip()) == number:
+            logger.info("Succeeded to check virt-who thread number is %s." % number)
         else:
-            raise FailException("Test Failed - Failed to check virt-who thread number is 2.")
-
-    def check_virtwho_null_thread(self, targetmachine_ip=""):
-        cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
-        ret, output = self.runcmd(cmd, "check virt-who thread", targetmachine_ip)
-        if ret == 0 and output.strip() == "0":
-            logger.info("Succeeded to check virt-who thread number is 0 after stop virt-who.")
-        else:
-            raise FailException("Test Failed - Failed to check virt-who thread number is 0 after stop virt-who.")
+            raise FailException("Test Failed - Failed to check virt-who thread number is %s." % number)
 
     def update_config_to_default(self, targetmachine_ip=""):
         ''' update virt-who configure file to default mode '''
