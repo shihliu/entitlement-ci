@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17272_ESX_check_unlimited_bonus_subscribe(ESXBase):
+class tc_ID17274_ESX_check_bonus_revoke_after_unsubscribe_host(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -32,7 +32,11 @@ class tc_ID17272_ESX_check_unlimited_bonus_subscribe(ESXBase):
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
-
+            self.sub_unsubscribe()
+            self.check_bonus_exist(sku_id, sku_quantity, guestip, bonus_exist=True)
+            self.sub_refresh(guestip)
+            # list consumed subscriptions on the guest, should be not revoked
+            self.sub_listconsumed(sku_name, guestip, productexists=True)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
@@ -40,7 +44,7 @@ class tc_ID17272_ESX_check_unlimited_bonus_subscribe(ESXBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.server_unsubscribe_all_system(host_uuid, server_ip)
+            self.sub_register(server_user, server_pass)
             self.esx_stop_guest(guest_name, esx_host_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

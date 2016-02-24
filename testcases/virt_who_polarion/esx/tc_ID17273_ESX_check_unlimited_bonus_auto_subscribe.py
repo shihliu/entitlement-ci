@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID17272_ESX_check_unlimited_bonus_subscribe(ESXBase):
+class tc_ID17273_ESX_check_unlimited_bonus_auto_subscribe(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -29,7 +29,9 @@ class tc_ID17272_ESX_check_unlimited_bonus_subscribe(ESXBase):
 
             # subscribe esx host
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
-            self.sub_subscribe_to_bonus_pool(sku_id, guestip)
+
+            self.sub_auto_subscribe(guestip)
+
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
 
