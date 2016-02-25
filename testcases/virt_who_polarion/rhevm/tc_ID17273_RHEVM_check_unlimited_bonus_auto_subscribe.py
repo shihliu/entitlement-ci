@@ -1,15 +1,15 @@
 from utils import *
-from testcases.virt_who_polarion.hypervbase import HYPERVBase
+from testcases.virt_who_polarion.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID17273_HYPERV_check_unlimited_bonus_auto_subscribe(HYPERVBase):
+class tc_ID17273_RHEVM_check_unlimited_bonus_auto_subscribe(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
-            host_uuid = self.hyperv_get_host_uuid()
+            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            rhevm_ip = get_exported_param("RHEVM_IP")
 
             test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
@@ -17,8 +17,8 @@ class tc_ID17273_HYPERV_check_unlimited_bonus_auto_subscribe(HYPERVBase):
             sku_name = self.get_vw_cons("datacenter_name")
 
             # (1) Start guest
-            self.hyperv_start_guest(guest_name)
-            guestip = self.hyperv_get_guest_ip(guest_name)
+            self.rhevm_start_vm(guest_name, rhevm_ip)
+            (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             # (2) Register guest to server
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)
@@ -39,7 +39,7 @@ class tc_ID17273_HYPERV_check_unlimited_bonus_auto_subscribe(HYPERVBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.hyperv_stop_guest(guest_name)
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
