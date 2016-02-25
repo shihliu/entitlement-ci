@@ -34,7 +34,8 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
 
-            self.server_unsubscribe_all_system(host_uuid, server_ip)
+            self.sub_unregister()
+            self.server_remove_system(host_uuid, server_ip)
             self.check_virtwho_status()
             self.check_virtwho_thread(2)
 
