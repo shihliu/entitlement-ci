@@ -9,9 +9,6 @@ class tc_ID17251_RHEVM_check_bonus_revoke_in_fake_mode(VDSMBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            self.runcmd_service("stop_virtwho")
-            self.config_option_disable("VIRTWHO_RHEVM")
-
             virtwho_owner = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
             virtwho_env = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
@@ -25,6 +22,9 @@ class tc_ID17251_RHEVM_check_bonus_revoke_in_fake_mode(VDSMBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister rhevm hypervisor in server 
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            self.runcmd_service("stop_virtwho")
+            self.config_option_disable("VIRTWHO_RHEVM")
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register rhevm hypervisor with fake mode
             fake_file = self.generate_fake_file("rhevm")
@@ -52,11 +52,11 @@ class tc_ID17251_RHEVM_check_bonus_revoke_in_fake_mode(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_all_virtwho_d_conf()
             self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")
+            self.sub_unregister(guestip)
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
