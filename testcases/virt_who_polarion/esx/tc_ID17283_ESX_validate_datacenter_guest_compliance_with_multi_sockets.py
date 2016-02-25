@@ -53,6 +53,7 @@ class tc_ID17283_ESX_validate_datacenter_guest_compliance_with_multi_sockets(ESX
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)

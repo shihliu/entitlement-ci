@@ -65,11 +65,10 @@ class tc_ID17292_ESX_validate_instance_guest_compliance_with_multi_sockets(ESXBa
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            # resume guest facts
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.hyperv_stop_guest(guest_name)
+            self.esx_stop_guest(guest_name, esx_host_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
