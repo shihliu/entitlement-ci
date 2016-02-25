@@ -971,7 +971,7 @@ class VIRTWHOBase(Base):
                             SKU_Number = "Available"
                         else:
                             SKU_Number = "Quantity"
-                        if pool_list[item]["SKU"] == sku_id and self.check_type_virtual(pool_list[item]) and pool_list[item][SKU_Number] == bonus_quantity:
+                        if pool_list[item]["SKU"] == sku_id and self.check_type_virtual(pool_list[item]) and pool_list[item][SKU_Number] == bonus_quantity and (self.check_temporary_virtual(pool_list[item]) is True):
                             if bonus_exist:
                                 logger.info("Succeeded to check the bonus pool %s exist, and bonus quantity is %s" % (sku_id, bonus_quantity))
                             else:

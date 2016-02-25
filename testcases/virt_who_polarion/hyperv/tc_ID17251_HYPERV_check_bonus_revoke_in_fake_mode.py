@@ -9,8 +9,6 @@ class tc_ID17251_HYPERV_check_bonus_revoke_in_fake_mode(HYPERVBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            self.runcmd_service("stop_virtwho")
-            self.config_option_disable("VIRTWHO_HYPERV")
             guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
@@ -23,6 +21,9 @@ class tc_ID17251_HYPERV_check_bonus_revoke_in_fake_mode(HYPERVBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister hyperv hypervisor in server 
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            self.runcmd_service("stop_virtwho")
+            self.config_option_disable("VIRTWHO_HYPERV")
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register hyperv hypervisor with fake mode
             fake_file = self.generate_fake_file("hyperv")

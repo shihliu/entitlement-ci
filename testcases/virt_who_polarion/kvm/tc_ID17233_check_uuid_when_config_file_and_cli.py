@@ -22,10 +22,10 @@ class tc_ID17233_check_uuid_when_config_file_and_cli(KVMBase):
             # (2) on host2, configure remote libvirt mode in config file /etc/virt-who.d/virtwho
             self.set_virtwho_sec_config(mode, remote_ip_2)
             # (3) on host2, run commond line mode to monitor remote libvirt
-#             cmd = self.virtwho_cli("libvirt") + "-o -d"
-#             check_msg = "%s|Using configuration \"libvirt\"|Using configuration \"env/cmdline\"" %guestuuid
-#             self.vw_check_message(cmd, check_msg, targetmachine_ip=remote_ip_2 )
-            raise FailException("Failed to run this case as bug 1297623" )
+            cmd = self.virtwho_cli("libvirt") + " -o -d"
+            check_msg = "%s|Using configuration \"libvirt\"|Using configuration \"env/cmdline\"" %guestuuid
+            self.vw_check_message(cmd, check_msg, targetmachine_ip=remote_ip_2 )
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
