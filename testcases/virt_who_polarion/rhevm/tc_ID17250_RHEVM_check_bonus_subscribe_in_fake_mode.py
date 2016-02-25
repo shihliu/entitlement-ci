@@ -49,11 +49,11 @@ class tc_ID17250_RHEVM_check_bonus_subscribe_in_fake_mode(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_all_virtwho_d_conf()
             self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")
+            self.sub_unregister(guestip)
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

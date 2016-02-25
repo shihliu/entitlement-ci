@@ -169,11 +169,11 @@ class HYPERVBase(VIRTWHOBase):
             logger.info("Success to run Resume command vm %s" % guest_name)
             status = self.hyperv_get_guest_status(guest_name)
             if "Running" in status:
-                logger.info("Success to suspend vm %s" % guest_name)
+                logger.info("Success to restart vm %s" % guest_name)
             else:
-                raise FailException("Failed to suspend vm %s" % guest_name)
+                raise FailException("Failed to restart vm %s" % guest_name)
         else:
-            raise FailException("Failed to suspend command vm %s" % guest_name)
+            raise FailException("Failed to run command vm %s" % guest_name)
 
     def set_hyperv_conf(self, debug=1, targetmachine_ip=""):
         hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
