@@ -34,7 +34,6 @@ class tc_ID17274_ESX_check_bonus_revoke_after_unsubscribe_host(ESXBase):
             self.sub_listconsumed(sku_name, guestip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             self.check_bonus_exist(sku_id, sku_quantity, guestip, bonus_exist=False)
-            self.sub_refresh(guestip)
             # list consumed subscriptions on the guest, should be not revoked
             self.sub_listconsumed(sku_name, guestip, productexists=False)
             self.assert_(True, case_name)

@@ -36,10 +36,9 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
 
             self.sub_unregister()
             self.server_remove_system(host_uuid, server_ip)
-            self.check_virtwho_status()
+            self.vw_check_virtwho_status()
             self.check_virtwho_thread(2)
 
-            self.sub_refresh(guestip)
             # list consumed subscriptions on the guest, should be not revoked
             self.sub_listconsumed(sku_name, guestip, productexists=False)
 

@@ -144,24 +144,6 @@ class VIRTWHOBase(Base):
             return True
         return False
 
-    # check virt-who servcie status, rhel7:"active" "failed" "unknown", rhel6:"running" "stopped"
-    def check_virtwho_status(self, targetmachine_ip=""):
-        if self.check_systemctl_service("virt-who", targetmachine_ip):
-            # will feedback "active" "failed" "unknow"
-            cmd = "systemctl is-active virt-who"
-            ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
-            return output.strip()
-        else:
-            # will feedback "running" "stopped" "failed"
-            cmd = "service virt-who status"
-            ret, output = self.runcmd(cmd, "check virt-who service status by sysvinit", targetmachine_ip)
-            if "running" in output:
-                return "running"
-            elif "stopped" in output:
-                return "stopped"
-            else:
-                return "failed"
-
     def vw_restart_virtwho(self, targetmachine_ip=""):
         ''' restart virt-who service. '''
         cmd = "service virt-who restart"
@@ -513,6 +495,24 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to stop virt-who")
             else:
                 raise FailException("Test Failed - Failed to stop virt-who")
+
+#     # check virt-who servcie status, rhel7:"active" "failed" "unknown", rhel6:"running" "stopped"
+#     def check_virtwho_status(self, targetmachine_ip=""):
+#         if self.get_os_serials(targetmachine_ip) == "7":
+#             # will feedback "active" "failed" "unknow"
+#             cmd = "systemctl is-active virt-who"
+#             ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
+#             return output.strip()
+#         else:
+#             # will feedback "running" "stopped" "failed"
+#             cmd = "service virt-who status"
+#             ret, output = self.runcmd(cmd, "check virt-who service status by sysvinit", targetmachine_ip)
+#             if "running" in output:
+#                 return "running"
+#             elif "stopped" in output:
+#                 return "stopped"
+#             else:
+#                 return "failed"
 
     def vw_check_virtwho_status(self, targetmachine_ip=""):
         ''' Check the virt-who status. '''
