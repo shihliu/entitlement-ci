@@ -44,6 +44,7 @@ class tc_ID17274_ESX_check_bonus_revoke_after_unsubscribe_host(ESXBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.esx_stop_guest(guest_name, esx_host_ip)
+            self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

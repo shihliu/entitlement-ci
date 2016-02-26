@@ -53,6 +53,7 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.esx_stop_guest(guest_name, esx_host_ip)
+            self.sub_register(server_user, server_pass)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
