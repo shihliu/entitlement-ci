@@ -58,6 +58,7 @@ class tc_ID17263_validate_compliance_check_uuid_when_migrate_guest_to_unsubscrib
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name, slave_machine_ip)
+            self.vw_undefine_guest(guest_name, slave_machine_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

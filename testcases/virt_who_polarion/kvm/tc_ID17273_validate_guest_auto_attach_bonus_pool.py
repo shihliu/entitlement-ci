@@ -26,12 +26,8 @@ class tc_ID17273_validate_guest_auto_attach_bonus_pool(KVMBase):
             # subscribe the host to the physical pool which can generate bonus pool
             self.sub_subscribe_sku(test_sku)
             #(1). guest auto subscribe bonus pool
-            cmd = "subscription-manager subscribe --auto"
-            ret, output = self.runcmd(cmd, "guest auto subscribe bonus pool", guestip)
-            if ret == 0:
-                logger.info("Succeeded to auto subscribe bonus pool on %s." % self.get_hg_info(guestip))
-            else:
-                raise FailException("Failed to auto subscribe to a pool on %s." % self.get_hg_info(guestip))
+            self.sub_unsubscribe(guestip)
+            self.sub_auto_subscribe(guestip)
             #(2). Check consumed subscriptions' name on guest
             self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
             #(3). check the Status of installed product, should be 'Subscribed' status
