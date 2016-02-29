@@ -44,11 +44,11 @@ class tc_ID17260_VDSM_check_uuid_after_add_vm_restart_vdsmd(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
             # unsubscribe host
             self.sub_unsubscribe()
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

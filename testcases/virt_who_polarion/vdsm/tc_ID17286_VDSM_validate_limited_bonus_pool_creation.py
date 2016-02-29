@@ -26,8 +26,8 @@ class tc_ID17286_VDSM_validate_limited_bonus_pool_creation(VDSMBase):
 
             #(1).list available pools on guest, check limited bonus pool generated.
             self.check_bonus_exist(test_sku, bonus_quantity, guestip)
-
-            # subscribe the registered guest to the corresponding bonus pool
+            #(2). Subscribe the registered guest to the corresponding bonus pool
+            self.sub_unsubscribe(guestip)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
 
             self.assert_(True, case_name)
