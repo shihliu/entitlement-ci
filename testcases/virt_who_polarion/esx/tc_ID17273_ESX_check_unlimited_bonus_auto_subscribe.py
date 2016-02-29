@@ -12,9 +12,10 @@ class tc_ID17273_ESX_check_unlimited_bonus_auto_subscribe(ESXBase):
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
 
-            sku_id = self.get_vw_cons("productid_unlimited_guest")
-            sku_name = self.get_vw_cons("productname_unlimited_guest")
-            sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_id = self.get_vw_cons("datacenter_sku_id")
+            sku_bonus_id = self.get_vw_cons("datacenter_bonus_sku_id")
+            sku_name = self.get_vw_cons("datacenter_name")
+            sku_quantity = self.get_vw_cons("datacenter_bonus_quantity")
 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
@@ -26,10 +27,13 @@ class tc_ID17273_ESX_check_unlimited_bonus_auto_subscribe(ESXBase):
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
+            self.sub_disable_auto_subscribe(guestip)
 
             # subscribe esx host
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
-
+            # list available pools of guest, check related bonus pool generated.
+            self.check_bonus_exist(sku_bonus_id, sku_quantity, guestip)
+            self.sub_unsubscribe(guestip)
             self.sub_auto_subscribe(guestip)
 
             # list consumed subscriptions on the guest, should be listed
