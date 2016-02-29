@@ -12,9 +12,9 @@ class tc_ID17286_ESX_check_limited_bonus_creation(ESXBase):
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
 
-            sku_id = self.get_vw_cons("productid_unlimited_guest")
-            sku_name = self.get_vw_cons("productname_unlimited_guest")
-            sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_id = self.get_vw_cons("productid_guest")
+            sku_name = self.get_vw_cons("productname_guest")
+            sku_quantity = self.get_vw_cons("guestlimit")
 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
@@ -34,7 +34,7 @@ class tc_ID17286_ESX_check_limited_bonus_creation(ESXBase):
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
-            self.check_bonus_exist(sku_id, sku_quantity, guestip, bonus_exist=False)
+            # self.check_bonus_exist(sku_id, sku_quantity, guestip, bonus_exist=False)
 
             self.assert_(True, case_name)
         except Exception, e:

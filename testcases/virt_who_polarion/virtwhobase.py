@@ -1152,7 +1152,7 @@ class VIRTWHOBase(Base):
 
     def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
         ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
-        if ret == 0 and output is not None and  "ERROR" not in output:
+        if ret == 0 and output is not None and ("ERROR" not in output or "Unable to read cache" in output):
             if "Sending update in hosts-to-guests mapping: {" in output:
                 logger.info("Found: Sending update in hosts-to-guests mapping")
                 rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
