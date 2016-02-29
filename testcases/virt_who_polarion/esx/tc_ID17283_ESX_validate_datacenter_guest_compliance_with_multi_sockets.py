@@ -30,22 +30,23 @@ class tc_ID17283_ESX_validate_datacenter_guest_compliance_with_multi_sockets(ESX
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
 
+            # subscribe esx host
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
+            self.check_bonus_exist(sku_bonus_id, sku_quantity, guestip)
+
             gpoolid = self.get_pool_by_SKU(sku_id, guestip)
 
-            # subscribe esx host
-            self.server_subscribe_system(host_uuid, gpoolid, server_ip)
-            self.check_bonus_exist(sku_bonus_id, sku_quantity, guestip)
-            self.sub_subscribe_to_bonus_pool(sku_bonus_id, guestip)
+            self.sub_subscribetopool(gpoolid, guestip)
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
 
-            self.check_consumed_status(sku_bonus_id, "QuantityUsed", "1")
+            self.check_consumed_status(sku_bonus_id, "QuantityUsed", "1", guestip)
             self.check_installed_status("Status", "Subscribed", guestip)
 
             self.sub_unsubscribe(guestip)
             self.sub_limited_subscribetopool(gpoolid, "1", guestip)
 
-            self.check_consumed_status(sku_bonus_id, "QuantityUsed", "1")
+            self.check_consumed_status(sku_bonus_id, "QuantityUsed", "1", guestip)
             self.check_installed_status("Status", "Subscribed", guestip)
 
             self.assert_(True, case_name)
