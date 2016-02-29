@@ -220,7 +220,7 @@ class Base(unittest.TestCase):
             raise FailException("Failed to configure /etc/hosts")
 
     def configure_stage_host(self, stage_name, targetmachine_ip=""):
-        cmd = "sed -i -e 's/hostname = subscription.rhsm.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % stage_name
+        cmd = "sed -i -e 's/hostname = subscription.rhsm.redhat.com/hostname = %s/g' -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % (stage_name, stage_name)
         ret, output = self.runcmd(cmd, "configure rhsm.conf for stage", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure rhsm.conf for stage")
