@@ -1094,8 +1094,8 @@ class VIRTWHOBase(Base):
         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         mapping_info = json.loads(''.join(self.vw_get_mapping_info(cmd, targetmachine_ip)))
-        for host in mapping_info.keys():
-            for guest in mapping_info[host]:
+        if virtWhoType == "libvirt" or virtWhoType == "vdsm":
+            for guest in mapping_info:
                 if guest["guestId"] == guestuuid:
                     attr_state = guest['state']
                     logger.info("Guest state is %s." % attr_state)
@@ -1105,6 +1105,18 @@ class VIRTWHOBase(Base):
                     logger.info("Guest virtwhotype is %s." % attr_type)
                     attr_hypertype = guest['attributes']['hypervisorType']
                     logger.info("Guest hypervisortype is %s." % attr_hypertype)
+        else:
+            for host in mapping_info.keys():
+                for guest in mapping_info[host]:
+                    if guest["guestId"] == guestuuid:
+                        attr_state = guest['state']
+                        logger.info("Guest state is %s." % attr_state)
+                        attr_status = guest['attributes']['active']
+                        logger.info("Guest's active status is %s." % attr_status)
+                        attr_type = guest['attributes']['virtWhoType']
+                        logger.info("Guest virtwhotype is %s." % attr_type)
+                        attr_hypertype = guest['attributes']['hypervisorType']
+                        logger.info("Guest hypervisortype is %s." % attr_hypertype)
         if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
             logger.info("successed to check guest %s attribute" % guestname)
         else:
