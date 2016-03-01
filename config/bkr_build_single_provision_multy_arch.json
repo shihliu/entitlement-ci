@@ -8,7 +8,7 @@
                     "arch": "os_arch",
                     "variant": "os_variant",
                     "keyvalue": ["DISKSPACE>=20000","HVM=1"],
-                    "hostrequire": ["arch like os_arch"]
+                    "hostrequire": ["arch=os_arch"]
                 }
             ]
         }
