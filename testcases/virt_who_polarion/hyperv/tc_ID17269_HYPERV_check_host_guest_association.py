@@ -8,7 +8,7 @@ class tc_ID17269_HYPERV_check_host_guest_association(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()

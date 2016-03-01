@@ -36,7 +36,7 @@ class VIRTWHOConstants(object):
     # for hyperv
     "HYPERV_HOST":                         "10.73.5.212",
     "HYPERV_PORT":                         6555,
-    "HYPERV_GUEST_NAME":                   "rhel7.2",
+    "HYPERV_GUEST_NAME":                   "HYPERV_7.2_Server_x86_64",
     "VIRTWHO_HYPERV_OWNER":                "ACME_Corporation",
     "VIRTWHO_HYPERV_ENV":                  "Library",
     "VIRTWHO_HYPERV_SERVER":               "10.73.5.212",

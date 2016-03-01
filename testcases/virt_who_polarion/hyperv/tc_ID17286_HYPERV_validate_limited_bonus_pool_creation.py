@@ -9,7 +9,7 @@ class tc_ID17286_HYPERV_validate_limited_bonus_pool_creation(HYPERVBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             test_sku = self.get_vw_cons("productid_guest")
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")

@@ -8,7 +8,7 @@ class tc_ID17273_HYPERV_check_unlimited_bonus_auto_subscribe(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             host_uuid = self.hyperv_get_host_uuid()
 
             test_sku = self.get_vw_cons("datacenter_sku_id")

@@ -9,7 +9,7 @@ class tc_ID17251_HYPERV_check_bonus_revoke_in_fake_mode(HYPERVBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()

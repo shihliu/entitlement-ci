@@ -7,7 +7,7 @@ class tc_ID17224_HYPERV_check_mapping_after_restart_virtwho_and_rhsm(HYPERVBase)
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             guestuuid = self.hyperv_get_guest_guid(guest_name)
             hostuuid = self.hyperv_get_host_uuid()
 

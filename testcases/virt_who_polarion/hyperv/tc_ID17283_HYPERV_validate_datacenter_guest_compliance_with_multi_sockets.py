@@ -9,7 +9,7 @@ class tc_ID17283_HYPERV_validate_datacenter_guest_compliance_with_multi_sockets(
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             host_test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")

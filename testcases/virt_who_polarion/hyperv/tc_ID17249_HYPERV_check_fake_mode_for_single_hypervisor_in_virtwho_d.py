@@ -12,7 +12,7 @@ class tc_ID17249_HYPERV_check_fake_mode_for_single_hypervisor_in_virtwho_d(HYPER
 
             virtwho_owner = self.get_vw_cons("VIRTWHO_HYPERV_OWNER")
             virtwho_env = self.get_vw_cons("VIRTWHO_HYPERV_ENV")
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()

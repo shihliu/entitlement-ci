@@ -9,7 +9,7 @@ class tc_ID17292_HYPERV_validate_instance_guest_compliance_with_multi_sockets(HY
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             test_sku = self.get_vw_cons("instancebase_sku_id")
             sku_name = self.get_vw_cons("instancebase_name")
 
