@@ -6,7 +6,7 @@
       - string:
           name: RHEL_COMPOSE
           default:
-          description: rhel build, such as: RHEL-6.8-20160225.0
+          description: rhel build, such as RHEL-6.8-20160225.0
       - string:
           name: SERVER_IP
           default:
