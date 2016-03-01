@@ -1,7 +1,34 @@
 - job-template:
-    name: 'virt-who-kvm-rhel-workstation-provision'
+    name: 'virt-who-kvm-multy-variant-provision'
     defaults: virt-who-provision
     node: master
+    parameters:
+      - string:
+          name: RHEL_COMPOSE
+          default:
+          description: rhel build, such as: RHEL-6.8-20160225.0
+      - string:
+          name: SERVER_IP
+          default:
+          description: sam or satellite server ip, leave blank for stage
+      - string:
+          name: SERVER_HOSTNAME
+          default:
+          description: sam or satellite server hostname, leave blank for stage
+      - choice:
+          name: SERVER_TYPE
+          choices:
+            - SAM
+            - SATELLITE
+            - STAGE
+          description: select server type
+      - choice:
+          name: OS_VARIANT
+          choices:
+            - Client
+            - Workstation
+            - ComputeNode
+          description: select os variant
     builders:
         - shell: |
             #!/bin/bash
@@ -28,11 +55,11 @@
             sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             if [ "$RHEL_COMPOSE" != "" ]
             then
-                sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_double_provision_workstation.json
+                sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/bkr_build_double_provision_multy_variant.json
                 chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
                 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
                 $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/bkr_build_double_provision_workstation --ssh_keyfile={beaker_keyfile} --name={project}
+                --topology={topology_path}/bkr_build_double_provision_multy_variant --ssh_keyfile={beaker_keyfile} --name={project}
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
@@ -54,19 +81,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'virt-who-kvm-rhel-workstation-runtest'
+          - project: 'virt-who-kvm-multy-variant-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'virt-who-kvm-rhel-workstation-runtest'
+    name: 'virt-who-kvm-multy-variant-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'virt-who-kvm-rhel-workstation-provision'
+            project: 'virt-who-kvm-multy-variant-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -114,14 +141,14 @@
       - default-virt-who-publishers
 
 - job-group:
-    name: virt-who-kvm-rhel-workstation-provision-runtest
+    name: virt-who-kvm-multy-variant-provision-runtest
     jobs:
-      - 'virt-who-kvm-rhel-workstation-provision'
-      - 'virt-who-kvm-rhel-workstation-runtest'
+      - 'virt-who-kvm-multy-variant-provision'
+      - 'virt-who-kvm-multy-variant-runtest'
 
 - project:
-    name: virt-who-kvm-rhel-workstation-jobs
-    project: virt-who-kvm-rhel-workstation
+    name: virt-who-kvm-multy-variant-jobs
+    project: virt-who-kvm-multy-variant
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_virt-who_kvm_rhel_6
@@ -130,8 +157,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - virt-who-kvm-rhel-workstation-provision-runtest
-    jslavename: jslave-virt-who-kvm-rhel-workstation-slave
+      - virt-who-kvm-multy-variant-provision-runtest
+    jslavename: jslave-virt-who-kvm-multy-variant-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium

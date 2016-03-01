@@ -6,7 +6,8 @@
                 {
                     "distro": "url_compose",
                     "arch": "X86_64",
-                    "variant": "Workstation",
+                    "variant": "os_variant",
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
                     "hostrequire": ["arch=X86_64"],
                     "bkr_data": {
                         "role": "Master",
@@ -16,7 +17,8 @@
                 {
                     "distro": "url_compose",
                     "arch": "X86_64",
-                    "variant": "Workstation",
+                    "variant": "os_variant",
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1"],
                     "hostrequire": ["arch=X86_64"],
                     "bkr_data": {
                         "role": "Slave",
