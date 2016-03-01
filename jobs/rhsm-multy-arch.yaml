@@ -5,15 +5,15 @@
     parameters:
       - string:
           name: RHEL_COMPOSE
-          default: 
+          default:
           description: rhel build, such as: RHEL-6.8-20160225.0
       - string:
           name: SERVER_IP
-          default: 
+          default:
           description: sam or satellite server ip, leave blank for stage
       - string:
           name: SERVER_HOSTNAME
-          default: 
+          default:
           description: sam or satellite server hostname, leave blank for stage
       - choice:
           name: SERVER_TYPE
