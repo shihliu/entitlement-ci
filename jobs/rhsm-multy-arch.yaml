@@ -80,8 +80,8 @@
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -128,7 +128,7 @@
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
@@ -143,7 +143,7 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - default-rhsm-publishers
+      - default-rhsm-multy-publishers
 
 - job-group:
     name: rhsm-multy-arch-provision-runtest

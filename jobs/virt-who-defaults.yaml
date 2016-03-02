@@ -98,6 +98,21 @@
                 - recipients
 
 - publisher:
+    name: default-rhsm-multy-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT $OS_ARCH) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
     name: default-brew-publishers
     publishers:
           - email-ext:
