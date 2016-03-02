@@ -83,6 +83,21 @@
                 - recipients
 
 - publisher:
+    name: default-virt-who-multy-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
     name: default-rhsm-publishers
     publishers:
           - email-ext:
