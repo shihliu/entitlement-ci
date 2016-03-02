@@ -39,8 +39,8 @@ class tc_ID17263_RHEVM_validate_compliance_check_uuid_when_migrate_guest_to_unsu
             # (2) Migrate guest from host1 to host2
             self.rhevm_migrate_vm(guest_name, dest_host_name , dest_host_uuid, rhevm_ip)
             # (3) Check guest uuid in original host and destination host
-            self.vw_check_uuid(guestuuid, uuidexists=False)
-            self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=dest_ip)
+            self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False)
+            self.hypervisor_check_uuid(dest_host_uuid, guestuuid, uuidexists=True)
             # (4) After migration,list consumed subscriptions on guest
             after_poolid = self.sub_check_consumed_pool(guest_bonus_sku, key="PoolID", targetmachine_ip=guestip)
             self.sub_check_bonus_pool_after_migate(before_poolid, after_poolid, guestip)
