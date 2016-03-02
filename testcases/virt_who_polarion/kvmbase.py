@@ -308,7 +308,7 @@ class KVMBase(VIRTWHOBase):
         ''' undefine guest in host machine. '''
         cmd = "virsh undefine %s" % guestname
         ret, output = self.runcmd(cmd, "undefine guest in %s" % targetmachine_ip, targetmachine_ip)
-        if "Domain %s has been undefined" % guestname in output:
+        if "Domain %s has been undefined" % guestname in output or "failed to get domain" in output:
             logger.info("Succeeded to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
         else:
             raise FailException("Failed to undefine the guest '%s' in machine %s." % (guestname, targetmachine_ip))
