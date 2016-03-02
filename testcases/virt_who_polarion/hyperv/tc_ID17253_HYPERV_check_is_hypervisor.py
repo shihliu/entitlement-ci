@@ -10,8 +10,8 @@ class tc_ID17253_HYPERV_check_is_hypervisor(HYPERVBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
 
-            virtwho_owner = self.get_vw_cons("VIRTWHO_HYPERV_OWNER")
-            virtwho_env = self.get_vw_cons("VIRTWHO_HYPERV_ENV")
+            virtwho_owner = self.get_vw_cons("server_owner")
+            virtwho_env = self.get_vw_cons("server_env")
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)

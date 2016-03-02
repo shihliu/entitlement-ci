@@ -12,8 +12,8 @@ class tc_ID17250_RHEVM_check_bonus_subscribe_in_fake_mode(VDSMBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
 
-            virtwho_owner = self.get_vw_cons("VIRTWHO_RHEVM_OWNER")
-            virtwho_env = self.get_vw_cons("VIRTWHO_RHEVM_ENV")
+            virtwho_owner = self.get_vw_cons("server_owner")
+            virtwho_env = self.get_vw_cons("server_env")
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)

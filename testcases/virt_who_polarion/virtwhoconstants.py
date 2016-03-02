@@ -12,8 +12,6 @@ class VIRTWHOConstants(object):
     "ESX_HOST_SECOND":                  "10.66.128.77",
     "ESX_GUEST_NAME":                   "ESX_7.1_Server_x86_64",
     "VMWARE_CMD_IP":                    "10.66.78.42",
-    "VIRTWHO_ESX_OWNER":                "ACME_Corporation",
-    "VIRTWHO_ESX_ENV":                  "Library",
     "VIRTWHO_ESX_SERVER":               "10.66.79.5",
     "VIRTWHO_ESX_USERNAME":             "administrator@vsphere.local",
     "VIRTWHO_ESX_PASSWORD":             "qwer1234P!",
@@ -24,12 +22,8 @@ class VIRTWHOConstants(object):
     "RHEL_RHEVM_GUEST_NAME":            "6.7_Server_x86_64",
     "NFS_DIR_FOR_storage":              "/root/data",
     "NFS_DIR_FOR_export":               "/root/export",
-    "VIRTWHO_RHEVM_OWNER":              "ACME_Corporation",
-    "VIRTWHO_RHEVM_ENV":                "Library",
     "VIRTWHO_RHEVM_USERNAME":           "admin@internal",
     "VIRTWHO_RHEVM_PASSWORD":           "redhat",
-    "VIRTWHO_LIBVIRT_OWNER":            "ACME_Corporation",
-    "VIRTWHO_LIBVIRT_ENV":              "Library",
     "VIRTWHO_LIBVIRT_USERNAME":         "root",
     "VIRTWHO_LIBVIRT_PASSWORD":         "",
 
@@ -37,8 +31,6 @@ class VIRTWHOConstants(object):
     "HYPERV_HOST":                         "10.73.5.212",
     "HYPERV_PORT":                         6555,
     "HYPERV_GUEST_NAME":                   "HYPERV_7.2_Server_x86_64",
-    "VIRTWHO_HYPERV_OWNER":                "ACME_Corporation",
-    "VIRTWHO_HYPERV_ENV":                  "Library",
     "VIRTWHO_HYPERV_SERVER":               "10.73.5.212",
     "VIRTWHO_HYPERV_USERNAME":             "administrator",
     "VIRTWHO_HYPERV_PASSWORD":             "Welcome1",
@@ -64,16 +56,22 @@ class VIRTWHOConstants(object):
     sam_cons = {
     "username":                         "admin",
     "password":                         "admin",
+    "server_owner":                     "ACME_Corporation",
+    "server_env":                       "Library",
     }
 
     satellite_cons = {
     "username":                         "admin",
     "password":                         "admin",
+    "server_owner":                     "ACME_Corporation",
+    "server_env":                       "Library",
     }
 
     stage_cons = {
     "username":                         "stage_virtwho_test_2016",
     "password":                         "redhat",
+    "server_owner":                     "7715246",
+    "server_env":                       "7715246",
     }
 
     virt_who_commands = {

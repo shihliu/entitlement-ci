@@ -13,8 +13,8 @@ class tc_ID17251_HYPERV_check_bonus_revoke_in_fake_mode(HYPERVBase):
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
-            virtwho_owner = self.get_vw_cons("VIRTWHO_HYPERV_OWNER")
-            virtwho_env = self.get_vw_cons("VIRTWHO_HYPERV_ENV")
+            virtwho_owner = self.get_vw_cons("server_owner")
+            virtwho_env = self.get_vw_cons("server_env")
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")

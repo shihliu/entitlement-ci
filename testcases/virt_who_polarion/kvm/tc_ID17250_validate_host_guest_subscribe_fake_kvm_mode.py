@@ -12,8 +12,8 @@ class tc_ID17250_validate_host_guest_subscribe_fake_kvm_mode(KVMBase):
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
-            VIRTWHO_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
-            VIRTWHO_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+            VIRTWHO_OWNER = self.get_vw_cons("server_owner")
+            VIRTWHO_ENV = self.get_vw_cons("server_env")
             fake_file = "/tmp/fake_file"
             fake_config_file = "/etc/virt-who.d/fake"
 

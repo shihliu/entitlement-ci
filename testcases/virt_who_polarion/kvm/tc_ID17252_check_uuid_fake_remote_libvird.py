@@ -14,8 +14,8 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             guestuuid = self.vw_get_uuid(guest_name)
             mode="libvirt"
             VIRTWHO_SERVER = "qemu+ssh://" + remote_ip + "/system"
-            remote_owner = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
-            remote_env = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+            remote_owner = self.get_vw_cons("server_owner")
+            remote_env = self.get_vw_cons("server_env")
             remote_user = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
             fake_file = "/tmp/fake_file"
             fake_config_file = "/etc/virt-who.d/fake"

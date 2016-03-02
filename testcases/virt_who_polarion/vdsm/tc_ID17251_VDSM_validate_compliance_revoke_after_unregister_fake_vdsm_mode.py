@@ -13,8 +13,8 @@ class tc_ID17251_VDSM_validate_compliance_revoke_after_unregister_fake_vdsm_mode
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
-            VIRTWHO_OWNER = self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER")
-            VIRTWHO_ENV = self.get_vw_cons("VIRTWHO_LIBVIRT_ENV")
+            VIRTWHO_OWNER = self.get_vw_cons("server_owner")
+            VIRTWHO_ENV = self.get_vw_cons("server_env")
             fake_file = "/tmp/fake_file"
             fake_config_file = "/etc/virt-who.d/fake"
 

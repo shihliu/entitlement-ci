@@ -79,18 +79,16 @@ class Base(unittest.TestCase):
 
     def get_esx_info(self):
         # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
-        return self.get_vw_cons("VIRTWHO_ESX_OWNER"), self.get_vw_cons("VIRTWHO_ESX_ENV"), self.get_vw_cons("VIRTWHO_ESX_SERVER"), self.get_vw_cons("VIRTWHO_ESX_USERNAME"), self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
+        return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_ESX_SERVER"), self.get_vw_cons("VIRTWHO_ESX_USERNAME"), self.get_vw_cons("VIRTWHO_ESX_PASSWORD")
 
     def get_hyperv_info(self):
-        # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
-        return self.get_vw_cons("VIRTWHO_HYPERV_OWNER"), self.get_vw_cons("VIRTWHO_HYPERV_ENV"), self.get_vw_cons("VIRTWHO_HYPERV_SERVER"), self.get_vw_cons("VIRTWHO_HYPERV_USERNAME"), self.get_vw_cons("VIRTWHO_HYPERV_PASSWORD")
+        return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_HYPERV_SERVER"), self.get_vw_cons("VIRTWHO_HYPERV_USERNAME"), self.get_vw_cons("VIRTWHO_HYPERV_PASSWORD")
 
     def get_rhevm_info(self):
-        # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
-        return self.get_vw_cons("VIRTWHO_RHEVM_OWNER"), self.get_vw_cons("VIRTWHO_RHEVM_ENV"), self.get_vw_cons("VIRTWHO_RHEVM_USERNAME"), self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
+        return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_RHEVM_USERNAME"), self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
 
     def get_libvirt_info(self):
-        return self.get_vw_cons("VIRTWHO_LIBVIRT_OWNER"), self.get_vw_cons("VIRTWHO_LIBVIRT_ENV"), self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME"), self.get_vw_cons("VIRTWHO_LIBVIRT_PASSWORD")
+        return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME"), self.get_vw_cons("VIRTWHO_LIBVIRT_PASSWORD")
 
     def get_hg_info(self, targetmachine_ip=""):
         if targetmachine_ip == "" or targetmachine_ip == None:
