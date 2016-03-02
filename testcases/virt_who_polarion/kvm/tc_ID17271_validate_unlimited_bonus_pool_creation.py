@@ -14,6 +14,7 @@ class tc_ID17271_validate_unlimited_bonus_pool_creation(KVMBase):
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
+            self.vw_define_guest(guest_name)
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
 

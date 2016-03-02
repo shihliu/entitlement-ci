@@ -790,6 +790,7 @@ class VDSMBase(VIRTWHOBase):
         # configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
