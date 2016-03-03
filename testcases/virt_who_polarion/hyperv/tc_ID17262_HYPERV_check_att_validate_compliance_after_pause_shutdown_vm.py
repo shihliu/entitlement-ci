@@ -32,24 +32,24 @@ class tc_ID17262_HYPERV_check_att_validate_compliance_after_pause_shutdown_vm(HY
             self.sub_listconsumed(sku_name, guestip)
             # (2) Start guest , check guest's uuid and guest's attribute 
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.hypervisor_check_attr(host_uuid, guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
             # (3) Pause guest    
             self.hyperv_suspend_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.hypervisor_check_attr(host_uuid, guest_name, 1, 'hyperv', 'hyperv', 3, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 3, guest_uuid)
             # (4) Resume guest    
             self.hyperv_resume_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who on host1 and host2
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.hypervisor_check_attr(host_uuid, guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
             # consumed subscriptions is still exist on guest
             self.sub_listconsumed(sku_name, guestip)
             # (5) Stop guest    
             self.hyperv_stop_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.hypervisor_check_attr(host_uuid, guest_name, 0, 'hyperv', 'hyperv', 5, guest_uuid)
+            self.vw_check_attr(guest_name, 0, 'hyperv', 'hyperv', 5, guest_uuid)
 
             self.assert_(True, case_name)
         except Exception, e:

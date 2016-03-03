@@ -34,7 +34,7 @@ class tc_ID17262_RHEVM_check_att_validate_compliance_after_pause_shutdown_vm(VDS
             self.sub_listconsumed(sku_name, guestip)
             # (2) Start guest , check guest's uuid and guest's attribute 
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
-            self.hypervisor_check_attr(hostuuid, guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
             # (3) Pause guest    
             self.rhevm_pause_vm(guest_name, rhevm_ip)
             # check if the uuid is correctly monitored by virt-who.
@@ -43,7 +43,7 @@ class tc_ID17262_RHEVM_check_att_validate_compliance_after_pause_shutdown_vm(VDS
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # check if the uuid is correctly monitored by virt-who on host1 and host2
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
-            self.hypervisor_check_attr(hostuuid, guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'rhevm', 'qemu', 1, guestuuid)
             # consumed subscriptions is still exist on guest
             self.sub_listconsumed(sku_name, guestip)
             # (5) Stop guest    
