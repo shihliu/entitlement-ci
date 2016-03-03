@@ -8,8 +8,11 @@ class SAM_Install_Base(Base):
         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
 #         self.__set_hosts_file(server_ip, server_user, server_passwd)
-#         self.__auto_subscribe(server_ip, server_user, server_passwd)
-        self.__add_sam_repo(compose, server_ip, server_user, server_passwd)
+        # install sam via product cdn
+        self.__auto_subscribe(server_ip, server_user, server_passwd)
+        self.__enable_sam_repo(server_ip, server_user, server_passwd)
+        # install sam via data server
+        # self.__add_sam_repo(compose, server_ip, server_user, server_passwd)
         self.__install_katello(server_ip, server_user, server_passwd)
         self.__deploy_sam(server_ip, server_user, server_passwd)
         self.__import_manifest(server_ip, server_user, server_passwd)
@@ -75,7 +78,7 @@ class SAM_Install_Base(Base):
 
     def __auto_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
 #         too slow for local install, add rhel repo instead
-        cmd = "subscription-manager register --username=qa@redhat.com --password=QMdMJ8jvSWUwB6WZ --auto-attach"
+        cmd = "subscription-manager register --username=qa@redhat.com --password=a85xH8a5w8EaZbdS --auto-attach"
         ret, output = self.runcmd(cmd, "auto attach", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to auto attach.")
@@ -95,6 +98,14 @@ class SAM_Install_Base(Base):
 #             'EOF'
 #             )
 #         self.runcmd(cmd)
+
+    def __enable_sam_repo(self, server_ip=None, server_user=None, server_passwd=None):
+        cmd = "yum-config-manager --enable rhel-6-server-sam-rpms"
+        ret, output = self.runcmd(cmd, "enable sam repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to enable sam repo")
+        else:
+            raise FailException("Test Failed - Failed to enable sam repo")
 
     def __satellite_subscribe(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "subscription-manager register --username=rhn-engineering-automation --password=KoKMAtikw1ifEPSe"
