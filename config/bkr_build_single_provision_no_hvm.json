@@ -4,11 +4,11 @@
             "job_group": "Entitlement-QA",
             "recipesets": [
                 {
-                    "distro": "RHEL-6.7-20150702.0",
+                    "distro": "url_compose",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "keyvalue": ["DISKSPACE>=50000"],
-                    "hostrequire": ["arch=X86_64","memory>=4096"]
+                    "keyvalue": ["DISKSPACE>=20000"],
+                    "hostrequire": ["arch=X86_64"]
                 }
             ]
         }

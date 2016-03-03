@@ -29,11 +29,11 @@
             sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
             if [ "$RHEL_COMPOSE" != "" ]
             then
-                sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/bkr_build_single_provision.json
+                sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/{topology}.json
                 chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
                 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
                 $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/bkr_build_single_provision --ssh_keyfile={beaker_keyfile} --name={project}
+                --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name={project}
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
@@ -137,7 +137,7 @@
     project: brew-virt-who-kvm
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: bkr_brew_virt-who_kvm_rhel_7
+    topology: bkr_build_single_provision
     beaker_keyfile: entitlement-ci/config/keys/beaker-key
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     tests_path: entitlement-ci/tests
