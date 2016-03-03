@@ -115,11 +115,7 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhevm-install-vdsm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-          - project: 'rhevm-install-rhevm-provision'
+          - project: 'rhevm-install-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt

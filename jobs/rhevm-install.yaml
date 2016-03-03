@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhevm-install-vdsm-provision'
+    name: 'rhevm-install-provision'
     defaults: virt-who-provision
     node: master
     builders:
@@ -46,19 +46,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhevm-install-vdsm-runtest'
+          - project: 'rhevm-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhevm-install-vdsm-runtest'
+    name: 'rhevm-install-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhevm-install-vdsm-provision'
+            project: 'rhevm-install-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -98,21 +98,21 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-rhel-vdsm-provision'
+          - project: 'virt-who-rhel-rhevm-vdsm-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
 
 - job-group:
-    name: rhevm-install-vdsm-provision-runtest
+    name: rhevm-install-provision-runtest
     jobs:
-      - 'rhevm-install-vdsm-provision'
-      - 'rhevm-install-vdsm-runtest'
+      - 'rhevm-install-provision'
+      - 'rhevm-install-runtest'
 
 - project:
-    name: rhevm-install-vdsm-jobs
-    project: rhevm-install-vdsm
+    name: rhevm-install-jobs
+    project: rhevm-install
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_rhevm_install
@@ -121,8 +121,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - rhevm-install-vdsm-provision-runtest
-    jslavename: jslave-rhevm-install-vdsm-slave
+      - rhevm-install-provision-runtest
+    jslavename: jslave-rhevm-install-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium

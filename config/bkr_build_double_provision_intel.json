@@ -1,0 +1,31 @@
+{
+    "resources": [
+        {
+            "job_group": "Entitlement-QA",
+            "recipesets": [
+                {
+                    "distro": "url_compose",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1","CPUVENDOR=genuineintel"],
+                    "hostrequire": ["arch=X86_64","memory>=4000"],
+                    "bkr_data": {
+                        "role": "Master",
+                        "name": "MasterMachine"
+                    }
+                },
+                {
+                    "distro": "url_compose",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "keyvalue": ["DISKSPACE>=20000","HVM=1","CPUVENDOR=genuineintel"],
+                    "hostrequire": ["arch=X86_64","memory>=4000"],
+                    "bkr_data": {
+                        "role": "Slave",
+                        "name": "SlaveMachine"
+                    }
+                }
+            ]
+        }
+   ]
+}
