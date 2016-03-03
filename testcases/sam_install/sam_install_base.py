@@ -100,7 +100,7 @@ class SAM_Install_Base(Base):
 #         self.runcmd(cmd)
 
     def __enable_sam_repo(self, server_ip=None, server_user=None, server_passwd=None):
-        cmd = "yum-config-manager --enable rhel-6-server-sam-rpms"
+        cmd = "yum-config-manager --disable; yum-config-manager --enable rhel-6-server-sam-rpms rhel-6-server-rpms"
         ret, output = self.runcmd(cmd, "enable sam repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to enable sam repo")
