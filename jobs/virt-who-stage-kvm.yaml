@@ -23,7 +23,7 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources Machine
-            sed -i 's/MAX_QUEUED_ATTEMPTS = 4/MAX_QUEUED_ATTEMPTS = 400/' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
+            chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
             if [ "$RHEL_COMPOSE" != "" ]
             then
                 sed -i "s/url_compose/$RHEL_COMPOSE/" $WORKSPACE/entitlement-ci/config/{topology}.json
