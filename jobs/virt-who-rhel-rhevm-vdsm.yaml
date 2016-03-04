@@ -116,7 +116,7 @@
       - trigger-parameterized-builds:
           - project: 'virt-who-rhel-vdsm-runtest'
             current-parameters: true
-            condition: 'SUCCESS'
+            condition: 'ALWAYS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
       - default-virt-who-runtest-publishers
