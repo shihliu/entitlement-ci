@@ -134,10 +134,11 @@ class SAM_Install_Base(Base):
             raise FailException("Test Failed - Failed to enable rhscl repo.")
 
     def __add_sam_repo(self, sam_compose, server_ip=None, server_user=None, server_passwd=None):
+        # http://download.devel.redhat.com/devel/candidate-trees/SAM/%s/compose/SAM/x86_64/os/
         cmd = ('cat <<EOF > /etc/yum.repos.d/sam.repo\n'
             '[sam]\n'
             'name=sam\n'
-            'baseurl=http://download.devel.redhat.com/devel/candidate-trees/SAM/%s/compose/SAM/x86_64/os/\n'
+            'baseurl=http://download.eng.bos.redhat.com/released/RHEL-6-SAM/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
             'EOF' % sam_compose
