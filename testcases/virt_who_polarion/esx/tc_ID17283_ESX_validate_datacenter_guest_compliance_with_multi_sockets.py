@@ -34,7 +34,7 @@ class tc_ID17283_ESX_validate_datacenter_guest_compliance_with_multi_sockets(ESX
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
             self.check_bonus_exist(sku_bonus_id, sku_quantity, guestip)
 
-            gpoolid = self.get_pool_by_SKU(sku_id, guestip)
+            gpoolid = self.get_pool_by_SKU(sku_bonus_id, guestip)
 
             self.sub_subscribetopool(gpoolid, guestip)
             # list consumed subscriptions on the guest, should be listed
