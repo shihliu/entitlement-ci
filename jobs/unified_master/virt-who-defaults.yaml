@@ -57,7 +57,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, gxing@redhat.com, qianzhan@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
               body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
@@ -72,7 +72,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
@@ -87,7 +87,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
               body: $DEFAULT_CONTENT
@@ -102,7 +102,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
@@ -117,7 +117,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT $OS_ARCH) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
               body: $DEFAULT_CONTENT
@@ -132,7 +132,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
@@ -147,7 +147,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
               body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
@@ -162,7 +162,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
@@ -177,7 +177,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
               body: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS, please check console output at $BUILD_URL'
@@ -192,7 +192,7 @@
     publishers:
           - email-ext:
               recipients: sgao@redhat.com
-              reply-to: $DEFAULT_REPLYTO
+              reply-to: sgao@redhat.com
               content-type: default
               subject: $DEFAULT_SUBJECT
               body: $DEFAULT_CONTENT
