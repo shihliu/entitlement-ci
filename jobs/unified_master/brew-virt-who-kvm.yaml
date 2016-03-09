@@ -101,22 +101,16 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
-            nosetests tc_ID155138_validate_unlimited_bonus_pool_creation.py \
-                tc_ID155146_validate_compliance_when_unregister_host.py \
-                tc_ID155175_check_uuid_after_delete_vm_restart_libvirtd.py \
-                tc_ID155180_check_uuid_after_add_vm.py \
-                tc_ID174959_validate_mapping_info_after_re_register_host.py \
-                tc_ID155181_check_uuid_after_pause_shutdown_vm.py \
-                tc_ID214402_check_virtwho_o.py \
-                tc_ID248787_validate_limited_bonus_pool_creation.py \
-                tc_ID269395_Datacenter_guest_auto_attach_bonus_pool.py \
-                tc_ID289216_Datacenter_1_subscription_sufficient_to_guest.py \
-                tc_ID301085_Instance_compliance_in_guest_regardless_sockets_RAM_cores.py \
-                tc_ID301665_Instance_host_autosubscribe_instance.py \
-                tc_ID322864_check_log_small_interval_after_add_guest.py \
-                tc_ID327394_Validate_killpid_restart_virtwho.py \
-                tc_ID414166_check_guest_attr_stat.py \
-                tc_ID417575_thread_not_increase_restart_virtwho.py \
+            nosetests tc_ID17199_check_default_config.py \
+                tc_ID17202_check_oneshot_function_by_cli.py \
+                tc_ID17233_check_uuid_when_config_file_and_cli.py \
+                tc_ID17252_check_uuid_fake_remote_libvird.py \
+                tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest.py \
+                tc_ID17275_validate_compliance_unregister_host_check_mapping_when_re_register_host.py \
+                tc_ID17283_validate_datacenter_guest_compliance_with_multi_sockets.py \
+                tc_ID17286_validate_limited_bonus_pool_creation.py \
+                tc_ID17292_validate_instance_guest_compliance_with_multi_sockets.py \
+                tc_ID17305_check_support_remote_libvirt.py \
             --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:

@@ -75,7 +75,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
@@ -90,7 +90,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
@@ -105,7 +105,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
@@ -120,7 +120,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT $OS_ARCH) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
@@ -135,7 +135,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
@@ -165,7 +165,7 @@
               reply-to: sgao@redhat.com
               content-type: default
               subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
-              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport BREW_VIRTWHO=$BREW_VIRTWHO\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
+              body: "[$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:\n\nRuntime Info As Follows:\n\nexport RHEL_COMPOSE=$RHEL_COMPOSE\nexport REMOTE_IP=$REMOTE_IP\nexport REMOTE_IP_2=$REMOTE_IP_2\nexport SERVER_TYPE=$SERVER_TYPE\nexport SERVER_IP=$SERVER_IP\nexport SERVER_HOSTNAME=$SERVER_HOSTNAME\nexport GITHUB_URL=$GITHUB_URL\n\nDetails:\n\nCheck console output at $BUILD_URL\nCheck text log at ${BUILD_URL}consoleText/\nCheck report at ${BUILD_URL}testReport/"
               attach-build-log: false
               always: true
               send-to:
