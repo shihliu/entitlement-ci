@@ -96,11 +96,11 @@
             echo "********************************runtime env********************************"
             env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
             nosetests brew_virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/kvm/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
             nosetests tc_ID17199_check_default_config.py \
                 tc_ID17202_check_oneshot_function_by_cli.py \
                 tc_ID17233_check_uuid_when_config_file_and_cli.py \

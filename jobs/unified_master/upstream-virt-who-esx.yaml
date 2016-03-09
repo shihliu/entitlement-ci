@@ -98,11 +98,11 @@
             env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|GITHUB_URL)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
             nosetests upstream_virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/esx/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/esx/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
