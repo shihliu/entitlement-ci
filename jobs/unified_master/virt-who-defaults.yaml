@@ -83,6 +83,21 @@
                 - recipients
 
 - publisher:
+    name: default-virt-who-multy-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
     name: default-rhsm-publishers
     publishers:
           - email-ext:
@@ -98,10 +113,25 @@
                 - recipients
 
 - publisher:
+    name: default-rhsm-multy-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, gxing@redhat.com, qianzhan@redhat.com, liliu@redhat.com
+              reply-to: $DEFAULT_REPLYTO
+              content-type: default
+              subject: '[Entitlement-CI]($SERVER_TYPE $OS_VARIANT $OS_ARCH) $PROJECT_NAME on $RHEL_COMPOSE - $BUILD_STATUS!'
+              body: $DEFAULT_CONTENT
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
     name: default-brew-publishers
     publishers:
           - email-ext:
-              recipients: rnovacek@redhat.com, sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: $DEFAULT_SUBJECT
@@ -116,7 +146,7 @@
     name: default-brew-trigger-publishers
     publishers:
           - email-ext:
-              recipients: rnovacek@redhat.com, sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
+              recipients: sgao@redhat.com, shihliu@redhat.com, hsun@redhat.com, liliu@redhat.com
               reply-to: $DEFAULT_REPLYTO
               content-type: default
               subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'

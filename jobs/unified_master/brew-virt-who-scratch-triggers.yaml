@@ -1,6 +1,6 @@
 - job-template:
     name: 'brew-virt-who-scratch-7-trigger'
-    node: '{jmastername}'
+    node: master
     triggers:
         - ci-trigger:
             jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el7'"
@@ -20,7 +20,7 @@
 
 - job-template:
     name: 'brew-virt-who-scratch-6-trigger'
-    node: '{jmastername}'
+    node: master
     triggers:
         - ci-trigger:
             jms-selector: "CI_TYPE = 'build' AND name = 'virt-who'"

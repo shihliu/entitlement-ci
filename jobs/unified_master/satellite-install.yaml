@@ -15,7 +15,7 @@
             if [ "$JSLAVENAME" != "master" ]
             then
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/ent_jslave --ssh_keyfile={ssh_keyfile} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
                 --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
                 --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
                 TR_STATUS=$?
@@ -100,6 +100,11 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
+          - project: 'virt-who-hyperv-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
           - project: 'rhsm-level-1-provision'
             current-parameters: false
             condition: 'SUCCESS'
@@ -110,16 +115,7 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhsm-gui-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-          - project: 'rhevm-install-vdsm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-          - project: 'rhevm-install-rhevm-provision'
+          - project: 'rhevm-install-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
