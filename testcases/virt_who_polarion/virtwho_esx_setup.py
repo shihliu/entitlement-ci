@@ -13,6 +13,7 @@ class virtwho_esx_setup(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.set_virtwho_version()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

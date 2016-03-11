@@ -21,6 +21,9 @@ class VIRTWHOBase(Base):
         cmd = "git clone %s; cd virt-who; make install" % github_url
         ret, output = self.runcmd(cmd, "install virt-who via upstream", targetmachine_ip)
 
+    def set_virtwho_version(self, targetmachine_ip=None):
+        os.environ["VIRTWHO_VERSION"] = self.cm_get_rpm_version("virt-who", targetmachine_ip)
+
     def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
         # system setup for virt-who testing

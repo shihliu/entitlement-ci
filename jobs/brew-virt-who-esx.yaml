@@ -94,9 +94,6 @@
             #export RHEL_COMPOSE=
             #export BREW_VIRTWHO=
             echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
-            echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
             nosetests brew_virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
@@ -115,6 +112,12 @@
                 tc_ID17286_ESX_check_limited_bonus_creation.py \
             --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
+
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|BREW_VIRTWHO|VIRTWHO_VERSION)' | sort | xargs -i -d "\n" echo {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RUNTIME_INFO.txt
     publishers:
       - archive:
           artifacts: '**/**'
