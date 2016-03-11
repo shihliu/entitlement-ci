@@ -103,14 +103,14 @@
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
             nosetests tc_ID17199_check_default_config.py \
                 tc_ID17202_check_oneshot_function_by_cli.py \
-                tc_ID17233_check_uuid_when_config_file_and_cli.py \
-                tc_ID17252_check_uuid_fake_remote_libvird.py \
+                tc_ID17205_check_interval_function_by_config.py \
+                tc_ID17260_check_uuid_after_add_vm_restart_libvirtd.py \
                 tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest.py \
                 tc_ID17275_validate_compliance_unregister_host_check_mapping_when_re_register_host.py \
                 tc_ID17283_validate_datacenter_guest_compliance_with_multi_sockets.py \
                 tc_ID17286_validate_limited_bonus_pool_creation.py \
                 tc_ID17292_validate_instance_guest_compliance_with_multi_sockets.py \
-                tc_ID17305_check_support_remote_libvirt.py \
+                tc_ID17306_check_thread_after_config_libvirt.py \
             --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
