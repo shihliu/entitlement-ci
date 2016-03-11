@@ -41,7 +41,7 @@ class Base(unittest.TestCase):
             raise FailException("Test Failed - Failed to check file: %s mode as: %s" % (file, mode))
 
     def cm_get_rpm_version(self, rpm, targetmachine_ip=""):
-        ret, output = self.runcmd("rpm -qa | grep %s", "get %s version" % (rpm, rpm))
+        ret, output = self.runcmd("rpm -qa | grep %s", "get %s version") % (rpm, rpm)
         version = output.strip()
         if ret == 0:
             logger.info("Succeeded to get %s version %s." % (rpm, version))
