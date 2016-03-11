@@ -47,7 +47,8 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to get %s version %s." % (rpm, version))
             return version
         else:
-            raise FailException("Test Failed - Failed to get %s version %s." % (rpm, version))
+            logger.info("Failed to get %s version %s." % (rpm, version))
+            return "null"
 
     def cm_set_rhsm_version(self, targetmachine_ip=""):
         os.environ["RHSM"] = self.cm_get_rpm_version("subscription-manager", targetmachine_ip)
