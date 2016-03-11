@@ -22,12 +22,6 @@ class RHSMBase(Base):
     def restore_environment(self):
         self.sub_unregister()
 
-    def set_rhsm_version(self):
-        os.environ["RHSM"] = self.cm_get_rpm_version("subscription-manager")
-        os.environ["RHSM_GUI"] = self.cm_get_rpm_version("subscription-manager-gui")
-        os.environ["RHSM_FIRSTBOOT"] = self.cm_get_rpm_version("subscription-manager-firstboot")
-        os.environ["PYTHON_RHSM"] = self.cm_get_rpm_version("python-rhsm")
-
     # ========================================================
     #       1. Keyword Functions
     # ========================================================

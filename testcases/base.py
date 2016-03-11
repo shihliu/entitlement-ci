@@ -49,6 +49,12 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to get %s version %s." % (rpm, version))
 
+    def cm_set_rhsm_version(self, targetmachine_ip=""):
+        os.environ["RHSM"] = self.cm_get_rpm_version("subscription-manager", targetmachine_ip)
+        os.environ["RHSM_GUI"] = self.cm_get_rpm_version("subscription-manager-gui", targetmachine_ip)
+        os.environ["RHSM_FIRSTBOOT"] = self.cm_get_rpm_version("subscription-manager-firstboot", targetmachine_ip)
+        os.environ["PYTHON_RHSM"] = self.cm_get_rpm_version("python-rhsm", targetmachine_ip)
+
     # ========================================================
     #       Basic Functions
     # ========================================================

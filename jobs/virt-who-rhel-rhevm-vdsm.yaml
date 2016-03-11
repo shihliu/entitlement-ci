@@ -97,10 +97,6 @@
             #export SERVER_HOSTNAME=
             #export RHEVM_IP=
             echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' >> $WORKSPACE/RESOURCES.txt
-            echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
             nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
@@ -109,6 +105,12 @@
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/rhevm/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
+
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RUNTIME_INFO.txt
     publishers:
       - archive:
           artifacts: '**/**'
@@ -152,7 +154,7 @@
             popd
 
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|VIRTWHO_VERSION)' | sort | xargs -i -d "\n" echo {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RUNTIME_INFO.txt

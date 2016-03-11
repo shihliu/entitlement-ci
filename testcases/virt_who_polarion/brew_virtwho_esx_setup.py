@@ -15,6 +15,7 @@ class brew_virtwho_esx_setup(ESXBase):
             self.assert_(False, case_name)
         finally:
             self.set_virtwho_version()
+            self.cm_set_rhsm_version()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
