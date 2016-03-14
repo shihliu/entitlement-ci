@@ -8,6 +8,12 @@ def get_log_file():
     """
     return os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir)), LOGGER_FILE)
 
+def get_properties_file():
+    """
+    Returns correct path to properties-file
+    """
+    return os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)), PROPERTIES_FILE)
+
 # create a logger
 logger = logging.getLogger("%s" % LOGGER_NAME)
 logger.setLevel(logging.DEBUG)

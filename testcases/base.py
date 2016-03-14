@@ -50,11 +50,18 @@ class Base(unittest.TestCase):
             logger.info("Failed to get %s version %s." % (rpm, version))
             return "null"
 
+    def cm_set_rpm_version(self, rpm_key, rpm_name, targetmachine_ip=""):
+        properties_file = get_properties_file()
+        rpm_version = self.cm_get_rpm_version("%s" % rpm_name, targetmachine_ip)
+        fileHandle = open(properties_file, 'a')
+        fileHandle.write(rpm_key + "=" + rpm_version)
+        fileHandle.close()
+
     def cm_set_rhsm_version(self, targetmachine_ip=""):
-        os.environ["RHSM"] = self.cm_get_rpm_version("subscription-manager", targetmachine_ip)
-        os.environ["RHSM_GUI"] = self.cm_get_rpm_version("subscription-manager-gui", targetmachine_ip)
-        os.environ["RHSM_FIRSTBOOT"] = self.cm_get_rpm_version("subscription-manager-firstboot", targetmachine_ip)
-        os.environ["PYTHON_RHSM"] = self.cm_get_rpm_version("python-rhsm", targetmachine_ip)
+        self.cm_set_rpm_version("RHSM", "subscription-manager", targetmachine_ip)
+        self.cm_set_rpm_version("RHSM_GUI", "subscription-manager-gui", targetmachine_ip)
+        self.cm_set_rpm_version("RHSM_FIRSTBOOT", "subscription-manager-firstboot", targetmachine_ip)
+        self.cm_set_rpm_version("PYTHON_RHSM", "python-rhsm", targetmachine_ip)
 
     # ========================================================
     #       Basic Functions

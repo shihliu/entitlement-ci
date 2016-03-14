@@ -22,7 +22,7 @@ class VIRTWHOBase(Base):
         ret, output = self.runcmd(cmd, "install virt-who via upstream", targetmachine_ip)
 
     def set_virtwho_version(self, targetmachine_ip=None):
-        os.environ["VIRTWHO_VERSION"] = self.cm_get_rpm_version("virt-who", targetmachine_ip)
+        self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
     def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
