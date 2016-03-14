@@ -90,9 +90,6 @@
             #export REMOTE_IP_2=
             #export SERVER_TYPE=
             echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
-            echo "********************************runtime env********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
             nosetests virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
@@ -101,6 +98,12 @@
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
+
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RUNTIME_INFO.txt
     publishers:
       - archive:
           artifacts: '**/**'

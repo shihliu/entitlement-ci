@@ -1,6 +1,6 @@
 - job-template:
     name: 'brew-virt-who-7-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
         - ci-trigger:
             jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el7' AND tag LIKE '%candidate'"
@@ -34,7 +34,7 @@
 
 - job-template:
     name: 'brew-virt-who-6-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
         - ci-trigger:
             jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el6' AND tag LIKE '%candidate'"

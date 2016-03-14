@@ -1,6 +1,6 @@
 - job-template:
     name: 'upstream-virt-who-trigger'
-    node: master
+    node: '{jmastername}'
     builders:
         - shell: |
             #!/bin/bash

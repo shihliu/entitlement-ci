@@ -1,6 +1,6 @@
 - job-template:
     name: 'qe-rhel-6-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
       - pollurl:
           cron: 'H/9 * * * *'
@@ -53,7 +53,7 @@
 
 - job-template:
     name: 'qe-rhel-7-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
       - pollurl:
           cron: 'H/9 * * * *'
@@ -106,7 +106,7 @@
 
 - job-template:
     name: 'qe-sam-1-4-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
       - pollurl:
           cron: 'H/9 * * * *'
@@ -147,7 +147,7 @@
 
 - job-template:
     name: 'qe-satellite-6-1-trigger'
-    node: master
+    node: '{jmastername}'
     triggers:
       - pollurl:
           cron: 'H/9 * * * *'
