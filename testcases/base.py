@@ -56,6 +56,7 @@ class Base(unittest.TestCase):
         fileHandle = open(properties_file, 'a')
         fileHandle.write(rpm_key + "=" + rpm_version)
         fileHandle.close()
+        logger.info("Succeeded to set %s version %s." % (rpm_key, rpm_name))
 
     def cm_set_rhsm_version(self, targetmachine_ip=""):
         self.cm_set_rpm_version("RHSM", "subscription-manager", targetmachine_ip)
