@@ -54,7 +54,7 @@ class Base(unittest.TestCase):
         properties_file = get_properties_file()
         rpm_version = self.cm_get_rpm_version("%s" % rpm_name, targetmachine_ip)
         fileHandle = open(properties_file, 'a')
-        fileHandle.write(rpm_key + "=" + rpm_version)
+        fileHandle.write(rpm_key + "=" + rpm_version + "\n")
         fileHandle.close()
         logger.info("Succeeded to set %s version %s." % (rpm_key, rpm_name))
 
