@@ -185,10 +185,10 @@
     jobs:
       - virt-who-rhel-rhevm-vdsm-provision-runtest
     jslavename: jslave-virt-who-rhel-rhevm-vdsm-slave
-    jmastername: jslave-static-entitlement-master
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
     jslaveteardown: True
+    jmastername: jslave-static-entitlement-master

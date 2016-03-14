@@ -131,10 +131,10 @@
     jobs:
       - virt-who-esx-provision-runtest
     jslavename: jslave-virt-who-esx-slave
-    jmastername: jslave-static-entitlement-master
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
     jslaveteardown: True
+    jmastername: jslave-static-entitlement-master
