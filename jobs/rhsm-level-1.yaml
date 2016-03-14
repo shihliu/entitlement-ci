@@ -102,7 +102,7 @@
             popd
 
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RUNTIME_INFO.txt
