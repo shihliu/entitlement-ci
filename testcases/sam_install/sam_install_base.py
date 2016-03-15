@@ -150,46 +150,46 @@ class SAM_Install_Base(Base):
             raise FailException("Test Failed - Failed to add sam repo.")
 
     def __add_satellite_repo(self, satellite_compose, server_ip=None, server_user=None, server_passwd=None):
+        cmd = ('cat <<EOF > /etc/yum.repos.d/satellite.repo\n'
+            '[sat6]\n'
+            'name=sat6\n'
+            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Satellite/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+             
+            '[sat6-capsule]\n'
+            'name=Satellite 6 Capsule Packages\n'
+            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Capsule/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+             
+            '[sat6-rhcommon]\n'
+            'name=Satellite 6 RH Common Packages\n'
+            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/sattools/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            'EOF' % (satellite_compose, satellite_compose, satellite_compose)
+            )
 #         cmd = ('cat <<EOF > /etc/yum.repos.d/satellite.repo\n'
 #             '[sat6]\n'
 #             'name=sat6\n'
-#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Satellite/x86_64/os/\n'
+#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/Satellite/x86_64/os/\n'
 #             'enabled=1\n'
 #             'gpgcheck=0\n'
 #             
 #             '[sat6-capsule]\n'
 #             'name=Satellite 6 Capsule Packages\n'
-#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Capsule/x86_64/os/\n'
+#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/Capsule/x86_64/os/\n'
 #             'enabled=1\n'
 #             'gpgcheck=0\n'
 #             
 #             '[sat6-rhcommon]\n'
 #             'name=Satellite 6 RH Common Packages\n'
-#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/sattools/x86_64/os/\n'
+#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/sattools/x86_64/os/\n'
 #             'enabled=1\n'
 #             'gpgcheck=0\n'
 #             'EOF' % (satellite_compose, satellite_compose, satellite_compose)
 #             )
-        cmd = ('cat <<EOF > /etc/yum.repos.d/satellite.repo\n'
-            '[sat6]\n'
-            'name=sat6\n'
-            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/Satellite/x86_64/os/\n'
-            'enabled=1\n'
-            'gpgcheck=0\n'
-            
-            '[sat6-capsule]\n'
-            'name=Satellite 6 Capsule Packages\n'
-            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/Capsule/x86_64/os/\n'
-            'enabled=1\n'
-            'gpgcheck=0\n'
-            
-            '[sat6-rhcommon]\n'
-            'name=Satellite 6 RH Common Packages\n'
-            'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/%s/compose/sattools/x86_64/os/\n'
-            'enabled=1\n'
-            'gpgcheck=0\n'
-            'EOF' % (satellite_compose, satellite_compose, satellite_compose)
-            )
         ret, output = self.runcmd(cmd, "add satellite repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to add satellite repo.")
@@ -222,8 +222,8 @@ class SAM_Install_Base(Base):
             raise FailException("Test Failed - Failed to run yum install -y katello.")
 
     def __deploy_satellite(self, server_ip=None, server_user=None, server_passwd=None):
-        # cmd = "katello-installer --foreman-admin-password=admin"
-        cmd = "foreman-installer --scenario katello --foreman-admin-password=admin"
+        cmd = "katello-installer --foreman-admin-password=admin"
+#         cmd = "foreman-installer --scenario katello --foreman-admin-password=admin"
         ret, output = self.runcmd(cmd, "katello-installer", server_ip, server_user, server_passwd, timeout=1800)
 #         if ret == 0:
 #             logger.info("Succeeded to run katello-installer --foreman-admin-password=admin.")
