@@ -130,7 +130,7 @@
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'virt-who-rhel-rhevm-runtest'
+            project: 'virt-who-rhel-rhevm-vdsm-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
