@@ -119,7 +119,7 @@
           - project: 'virt-who-rhel-vdsm-runtest'
             current-parameters: true
             condition: 'ALWAYS'
-            property-file: $WORKSPACE/RESOURCES.txt
+            property-file: $WORKSPACE/RUNTIME_INFO.txt
             fail-on-missing: true
       - default-virt-who-runtest-publishers
       - default-virt-who-publishers
@@ -129,10 +129,6 @@
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
-        - copyartifact:
-            project: 'virt-who-rhel-rhevm-vdsm-provision'
-            filter: '*.txt, *.json'
-            target: $WORKSPACE
         - shell: |
             #!/bin/bash
             echo "*********************************setup env*********************************"
