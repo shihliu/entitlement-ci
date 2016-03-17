@@ -7,11 +7,18 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
             #export RHEL_COMPOSE=
             #export SERVER_IP=
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
+
+            if [ "$SWITCH"x = "true"x ]
+            then
+                echo "switch is true, esx will not run ..."; exit 1;
+            fi
+
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave

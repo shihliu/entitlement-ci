@@ -7,6 +7,7 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
             kinit -k -t $KEYTAB $PRINCIPAL
@@ -32,8 +33,8 @@
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -72,6 +73,7 @@
             export REMOTE_IP=$EXISTING_NODES
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
             #export REMOTE_IP=
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
@@ -82,6 +84,7 @@
             echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
+            echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
     publishers:
