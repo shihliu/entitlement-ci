@@ -1,5 +1,6 @@
 - job-template:
     name: 'qe-rhel-6-trigger'
+    defaults: virt-who-runtest
     node: master
     triggers:
       - pollurl:
@@ -20,7 +21,7 @@
             echo "*********************************setup env*********************************"
             if [ "$SWITCH"x = ""x ]
             then
-                . $WORKSPACE/utils/tools/get_switch.sh; export SWITCH=$switch
+                . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
             fi
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
