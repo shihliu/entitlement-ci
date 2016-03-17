@@ -8,7 +8,7 @@ class tc_ID17204_HYPERV_check_interval_function_by_cli(HYPERVBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            check_msg = "haven't changed, not sending"
+            check_msg = "hasn't changed, not sending"
             # (1) Check virt-who refresh default interval is 60s
             cmd = self.virtwho_cli("hyperv") + " -d"
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)

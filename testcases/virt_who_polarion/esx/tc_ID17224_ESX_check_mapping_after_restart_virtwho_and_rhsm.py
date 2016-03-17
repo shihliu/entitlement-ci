@@ -12,7 +12,9 @@ class tc_ID17224_ESX_check_mapping_after_restart_virtwho_and_rhsm(ESXBase):
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, checkcmd="service rhsmcertd restart")
+#             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, checkcmd="service rhsmcertd restart")
+            self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd="service virt-who restart")
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

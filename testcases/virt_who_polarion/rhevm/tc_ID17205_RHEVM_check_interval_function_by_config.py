@@ -9,7 +9,7 @@ class tc_ID17205_RHEVM_check_interval_function_by_config(VDSMBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
-            check_msg = "haven't changed, not sending"
+            check_msg = "hasn't changed, not sending"
             # (1) Check virt-who refresh default interval is 60s
             self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
             # (2) Check virt-who refresh interval is 60 when config interval less than 60s
