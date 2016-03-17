@@ -10,6 +10,16 @@
             #export SWITCH=true/false
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
+
+            #convert switch for testing against satellite
+            if [ "$SWITCH"x = "true"x ]
+            then
+                export SWITCH=false
+            else
+                export SWITCH=true
+            fi
+            
+
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
