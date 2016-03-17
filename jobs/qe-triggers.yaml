@@ -14,11 +14,17 @@
             export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            # if SWITCH is true, run kvm/hyper-v against sam, esx/rhevm agaist satellite, vice versa
+            #export SWITCH=true/false
             #export RHEL_COMPOSE= (optional)
             echo "*********************************setup env*********************************"
+            if [ "$SWITCH"x = ""x ]
+            then
+                . $WORKSPACE/utils/tools/get_switch.sh; export SWITCH=$switch
+            fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
             #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
