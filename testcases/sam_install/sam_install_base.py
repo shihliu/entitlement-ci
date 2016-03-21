@@ -270,8 +270,8 @@ class SAM_Install_Base(Base):
             'baseurl=http://sat-perf-02.sat6.lab.eng.bos.redhat.com/pulp/repos/Sat6-CI/Library/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
             'enabled=1\n'
             'gpgcheck=0'
-        'EOF' % (satellite_compose, satellite_compose, satellite_compose)
-        )
+            'EOF'
+            )
         ret, output = self.runcmd(cmd, "add satellite repo", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to add satellite repo.")
