@@ -42,6 +42,10 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
+          - project: 'satellite62-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
           - project: 'sam-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
