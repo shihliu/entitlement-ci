@@ -14,7 +14,8 @@ class tc_ID17273_ESX_check_unlimited_bonus_auto_subscribe(ESXBase):
 
             sku_id = self.get_vw_cons("datacenter_sku_id")
             sku_bonus_id = self.get_vw_cons("datacenter_bonus_sku_id")
-            sku_name = self.get_vw_cons("datacenter_name")
+#             sku_name = self.get_vw_cons("datacenter_name")
+            sku_name = self.get_vw_cons("datacenter_bonus_name")
             sku_quantity = self.get_vw_cons("datacenter_bonus_quantity")
 
             # start guest

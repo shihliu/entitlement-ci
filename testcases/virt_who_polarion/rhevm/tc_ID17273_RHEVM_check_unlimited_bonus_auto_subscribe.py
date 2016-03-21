@@ -14,7 +14,8 @@ class tc_ID17273_RHEVM_check_unlimited_bonus_auto_subscribe(VDSMBase):
             test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
-            sku_name = self.get_vw_cons("datacenter_name")
+#             sku_name = self.get_vw_cons("datacenter_name")
+            sku_name = self.get_vw_cons("datacenter_bonus_name")
 
             # (1) Start guest
             self.rhevm_start_vm(guest_name, rhevm_ip)

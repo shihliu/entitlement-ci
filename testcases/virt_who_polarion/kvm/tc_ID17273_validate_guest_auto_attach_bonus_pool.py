@@ -14,7 +14,7 @@ class tc_ID17273_validate_guest_auto_attach_bonus_pool(KVMBase):
             test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
-            sku_name = self.get_vw_cons("datacenter_name")
+            sku_name = self.get_vw_cons("datacenter_bonus_name")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
