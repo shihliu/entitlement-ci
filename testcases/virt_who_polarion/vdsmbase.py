@@ -83,13 +83,31 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to config rhevm_shell env on rhevm in %s." % self.get_hg_info(targetmachine_ip))
 
     def update_cluster_cpu(self, cluster_name, cpu_type, targetmachine_ip):
-    # Add cluster cpu 
+    # Update cluster cpu 
         cmd = "rhevm-shell -c -E \"update cluster %s --cpu-id '%s' \"" % (cluster_name, cpu_type)
         ret, output = self.runcmd(cmd, "update cluster cpu", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update cluster %s cpu to %s." % (cluster_name, cpu_type))
         else:
             raise FailException("Failed to update cluster %s cpu to %s." % (cluster_name, cpu_type))
+
+    def update_cluster_compa_version(self, cluster_name, min_version, major_version, targetmachine_ip):
+    # Update cluster Compatibility Version 
+        cmd = "rhevm-shell -c -E \"update cluster %s --version-minor %s --version-minor %s \"" % (cluster_name, min_version, major_version)
+        ret, output = self.runcmd(cmd, "update cluster's Compatibility Version", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update cluster %s Compatibility Version to %s.%s" % (cluster_name, major_version, min_version))
+        else:
+            raise FailException("Failed to update cluster %s Compatibility Version to %s.%s" % (cluster_name, major_version, min_version))
+
+    def update_dc_compa_version(self, dc_name, min_version, major_version, targetmachine_ip):
+    # Update cluster Compatibility Version 
+        cmd = "rhevm-shell -c -E \"update datacenter %s --version-minor %s --version-minor %s \"" % (dc_name, min_version, major_version)
+        ret, output = self.runcmd(cmd, "update Compatibility Version", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update datacenter's %s Compatibility Version to %s.%s" % (dc_name, major_version, min_version))
+        else:
+            raise FailException("Failed to update datacenter's %s Compatibility Version to %s.%s" % (dc_name, major_version, min_version))
 
     def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
     # Add host to rhevm
