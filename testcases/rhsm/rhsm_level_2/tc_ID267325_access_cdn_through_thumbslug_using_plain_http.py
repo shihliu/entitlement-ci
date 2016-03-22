@@ -46,7 +46,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             raise FailException("Test Failed - failed to register or auto-attach.")
 
     def set_conf_plain(self, server_ip):
-        if get_exported_param("SERVER_TYPE") == 'STAGE':
+        if self.test_server == 'STAGE':
             cmd = "sed -i 's/baseurl= https:\/\/subscription.rhn.stage.redhat.com/baseurl= http:\/\/subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" 
             (ret, output) = self.runcmd(cmd, "set_conf_plain")
             if ret == 0 and "baseurl= http://subscription.rhn.stage.redhat.com" in output:
@@ -62,7 +62,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
                 raise FailException("Test Failed - failed to set the rhsm.conf to plain http")
 
     def restore_conf(self, server_ip):
-        if get_exported_param("SERVER_TYPE") == 'STAGE':
+        if self.test_server == 'STAGE':
             cmd = "sed -i 's/baseurl= http:\/\/subscription.rhn.stage.redhat.com/baseurl= https:\/\/subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" 
             (ret, output) = self.runcmd(cmd, "set_conf_plain")
             if ret == 0 and "baseurl= https://subscription.rhn.stage.redhat.com" in output:
