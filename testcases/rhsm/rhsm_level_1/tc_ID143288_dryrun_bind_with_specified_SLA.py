@@ -19,7 +19,7 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             elif self.test_server == "SATELLITE":
                 baseurl = "https://" + sever_hostname + "/rhsm"
             elif self.test_server == "STAGE":
-                baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
+                baseurl = "https://" + self.get_rhsm_cons("hostname") + ":443/subscription"
 
             # get consumerid
             cmd = "subscription-manager identity | grep identity"

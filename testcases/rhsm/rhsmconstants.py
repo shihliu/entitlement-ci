@@ -31,7 +31,9 @@ class RHSMConstants(object):
     "username":                     "new_test",
     "password":                     "redhat",
 
-    "baseurl":                      "https://subscription.rhn.stage.redhat.com:443",
+    "hostname":                     "subscription.rhsm.stage.redhat.com",
+    "baseurl":                      "https://cdn.qa.redhat.com",
+
     "prefix":                       "/subscription",
     "autosubprod":                  "Red Hat Enterprise Linux Server",
     "installedproductname":         "Red Hat Enterprise Linux Server",

@@ -9,21 +9,21 @@ class tc_ID190639_register_selected_server(RHSMBase):
         try:
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
-            baseurl = get_exported_param("SERVER_HOSTNAME")
+            hostname = get_exported_param("SERVER_HOSTNAME")
             server_ip = get_exported_param("SERVER_IP")
-            server_type=self.test_server
+            server_type = self.test_server
             # register to sam candlepin server
             if server_type == 'SAM':
-                serverurl = baseurl + ':443/sam/api'
+                serverurl = hostname + ':443/sam/api'
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=ACME_Corporation --force" % (username, password, serverurl)
             elif server_type == 'SATELLITE':
-                if 'satellite' in baseurl:
-                    baseurl = baseurl + '.novalocal'
-                serverurl = baseurl + ':443/rhsm'
+                if 'satellite' in hostname:
+                    hostname = hostname + '.novalocal'
+                serverurl = hostname + ':443/rhsm'
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s --org=Default_Organization --force" % (username, password, serverurl)
             # register to stage/product candlepin server
             else:
-                serverurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
+                serverurl = self.get_rhsm_cons("hostname") + ":443/subscription"
                 cmd = "subscription-manager register --username=%s --password=%s --serverurl=%s" % (username, password, serverurl)
             (ret, output) = self.runcmd(cmd, "register to selected server")
             if ret == 0 and ("The system has been registered with ID:" in output) or ("The system has been registered with id:" in output):

@@ -16,7 +16,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
                 # register to and auto-attach
                 self.register_and_autosubscribe(username, password, autosubprod)
                 # set rhsm.conf file to plain http
-                self.set_conf_plain(get_exported_param("SERVER_IP"))
+                self.set_baseurl_to_http()
                 # install a pkg
                 cmd = "yum install -y %s" % (pkgtoinstall)
                 (ret, output) = self.runcmd(cmd, "install selected package %s" % pkgtoinstall)
@@ -33,7 +33,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             self.uninstall_givenpkg(pkgtoinstall)
             self.restore_repos()
             if not self.skip_satellite():
-                self.restore_conf(get_exported_param("SERVER_IP"))
+                self.restore_baseurl_to_https()
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
@@ -45,37 +45,21 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
         else:
             raise FailException("Test Failed - failed to register or auto-attach.")
 
-    def set_conf_plain(self, server_ip):
-        if self.test_server == 'STAGE':
-            cmd = "sed -i 's/baseurl= https:\/\/subscription.rhn.stage.redhat.com/baseurl= http:\/\/subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" 
-            (ret, output) = self.runcmd(cmd, "set_conf_plain")
-            if ret == 0 and "baseurl= http://subscription.rhn.stage.redhat.com" in output:
-                logger.info("It's successful to set the rhsm.conf to plain http")
-            else:
-                raise FailException("Test Failed - failed to set the rhsm.conf to plain http")
+    def set_baseurl_to_http(self):
+        cmd = "sed -i 's/^baseurl= https/baseurl= http/g' /etc/rhsm/rhsm.conf"
+        (ret, output) = self.runcmd(cmd, "set_conf_plain")
+        if ret == 0:
+            logger.info("It's successful to set baseurl to http")
         else:
-            cmd = "sed -i 's/baseurl= https:\/\/%s:8088/baseurl= http:\/\/%s:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" % (server_ip, server_ip)
-            (ret, output) = self.runcmd(cmd, "set_conf_plain")
-            if ret == 0 and "baseurl= http://%s:8088" % server_ip in output:
-                logger.info("It's successful to set the rhsm.conf to plain http")
-            else:
-                raise FailException("Test Failed - failed to set the rhsm.conf to plain http")
+            raise FailException("Test Failed - failed to set baseurl to http")
 
-    def restore_conf(self, server_ip):
-        if self.test_server == 'STAGE':
-            cmd = "sed -i 's/baseurl= http:\/\/subscription.rhn.stage.redhat.com/baseurl= https:\/\/subscription.rhn.stage.redhat.com/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" 
-            (ret, output) = self.runcmd(cmd, "set_conf_plain")
-            if ret == 0 and "baseurl= https://subscription.rhn.stage.redhat.com" in output:
-                logger.info("It's successful to restore the rhsm.conf")
-            else:
-                raise FailException("Test Failed - failed to restore the rhsm.conf")
+    def restore_baseurl_to_https(self):
+        cmd = "sed -i 's/^baseurl= http/baseurl= https/g' /etc/rhsm/rhsm.conf"
+        (ret, output) = self.runcmd(cmd, "set_conf_plain")
+        if ret == 0:
+            logger.info("It's successful to restore baseurl to https")
         else:
-            cmd = "sed -i 's/baseurl= http:\/\/%s:8088/baseurl= https:\/\/%s:8088/g' /etc/rhsm/rhsm.conf;cat /etc/rhsm/rhsm.conf | grep baseurl" % (server_ip, server_ip)
-            (ret, output) = self.runcmd(cmd, "set_conf_plain")
-            if ret == 0 and "baseurl= https://%s:8088" % server_ip in output:
-                logger.info("It's successful to restore the rhsm.conf")
-            else:
-                raise FailException("Test Failed - failed to restore the rhsm.conf")
+            raise FailException("Test Failed - failed to restore baseurl to https")
 
     def uninstall_givenpkg(self, testpkg):
         cmd = "rpm -qa | grep %s" % (testpkg)
