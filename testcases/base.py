@@ -242,6 +242,7 @@ class Base(unittest.TestCase):
             raise FailException("Failed to configure /etc/hosts")
         # remove /etc/pki/product-default/135.pem, or else auto subscribe failed
         cmd = "rm -f /etc/pki/product-default/135.pem"
+        ret, output = self.runcmd(cmd, "remove /etc/pki/product-default/135.pem", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to remove /etc/pki/product-default/135.pem")
         else:
