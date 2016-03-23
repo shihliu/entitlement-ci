@@ -15,7 +15,7 @@ class tc_ID17224_HYPERV_check_mapping_after_restart_virtwho_and_rhsm(HYPERVBase)
             self.hypervisor_check_uuid(hostuuid, guestuuid)
             # (2) Check host/guest mapping has not update after restart rhsmcert
             self.hyperv_start_guest(guest_name)
-            self.vw_check_message_in_rhsm_log(guestuuid, checkcmd="service rhsmcertd restart")
+            self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False, checkcmd="service rhsmcertd restart")
             # (3) Check host/guest mapping info is exist after restart virt-who 
             self.hypervisor_check_uuid(hostuuid, guestuuid)
 
