@@ -28,7 +28,7 @@ class RHSMConstants(object):
     }
 
     stage_cons = {
-    "username":                     "stage_test_12_new",
+    "username":                     "new_test",
     "password":                     "redhat",
 
     "baseurl":                      "https://subscription.rhn.stage.redhat.com:443",
