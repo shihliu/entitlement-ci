@@ -240,6 +240,12 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to configure /etc/hosts")
         else:
             raise FailException("Failed to configure /etc/hosts")
+        # remove /etc/pki/product-default/135.pem, or else auto subscribe failed
+        cmd = "rm -f /etc/pki/product-default/135.pem"
+        if ret == 0:
+            logger.info("Succeeded to remove /etc/pki/product-default/135.pem")
+        else:
+            raise FailException("Failed to remove /etc/pki/product-default/135.pem")
 
     def configure_stage_host(self, stage_name, targetmachine_ip=""):
         cmd = "sed -i -e 's/hostname = subscription.rhsm.redhat.com/hostname = %s/g' -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % (stage_name, stage_name)
