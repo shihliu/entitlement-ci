@@ -33,25 +33,20 @@ class Base(unittest.TestCase):
 
     def cm_install_desktop(self, targetmachine_ip=""):
         if self.os_serial == "7":
-            cmd = "yum install -y @gnome-desktop tigervnc-server"
-            ret, output = self.runcmd(cmd, "install desktop and tigervnc", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install @gnome-desktop tigervnc-server")
-            else:
-                raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server")
+            cmd = "yum install -y @gnome-desktop"
         else:
             cmd = "yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'"
-            ret, output = self.runcmd(cmd, "install desktop", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install 'X Window System' 'Desktop' 'Desktop Platform'")
-            else:
-                raise FailException("Test Failed - Failed to install 'X Window System' 'Desktop' 'Desktop Platform'")
-            cmd = "yum install -y tigervnc-server"
-            ret, output = self.runcmd(cmd, "install tigervnc", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install tigervnc-server")
-            else:
-                raise FailException("Test Failed - Failed to install tigervnc-server")
+        ret, output = self.runcmd(cmd, "install desktop", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to install desktop")
+        else:
+            raise FailException("Test Failed - Failed to install desktop")
+        cmd = "yum install -y tigervnc-server"
+        ret, output = self.runcmd(cmd, "install tigervnc", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to install tigervnc-server")
+        else:
+            raise FailException("Test Failed - Failed to install tigervnc-server")
         cmd = "ps -ef | grep Xvnc | grep -v grep"
         ret, output = self.runcmd(cmd, "check whether vpncserver has started", targetmachine_ip,)
         if ret == 0:
