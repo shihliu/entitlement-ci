@@ -419,7 +419,7 @@ class SAM_Install_Base(Base):
             logger.info("Succeeded to register system with ENG creds.")
         else:
             raise FailException("Test Failed - Failed to register system with ENG creds.")
-        cmd = "subscription-manager attach --pool=8a85f9823e3d5e43013e3e0af77e0f36"
+        cmd = "subscription-manager attach --auto"
         ret, output = self.runcmd(cmd, "attach rhscl product", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to attach rhscl product.")
