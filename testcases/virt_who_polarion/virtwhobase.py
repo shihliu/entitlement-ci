@@ -34,39 +34,6 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
-    def install_desktop(self, targetmachine_ip=""):
-        if self.os_serial == "7":
-            cmd = "yum install -y @gnome-desktop tigervnc-server"
-            ret, output = self.runcmd(cmd, "install desktop and tigervnc", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install @gnome-desktop tigervnc-server")
-            else:
-                raise FailException("Test Failed - Failed to install @gnome-desktop tigervnc-server")
-        else:
-            cmd = "yum groupinstall -y 'X Window System' 'Desktop' 'Desktop Platform'"
-            ret, output = self.runcmd(cmd, "install desktop", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install 'X Window System' 'Desktop' 'Desktop Platform'")
-            else:
-                raise FailException("Test Failed - Failed to install 'X Window System' 'Desktop' 'Desktop Platform'")
-            cmd = "yum install -y tigervnc-server"
-            ret, output = self.runcmd(cmd, "install tigervnc", targetmachine_ip, showlogger=False)
-            if ret == 0:
-                logger.info("Succeeded to install tigervnc-server")
-            else:
-                raise FailException("Test Failed - Failed to install tigervnc-server")
-        cmd = "ps -ef | grep Xvnc | grep -v grep"
-        ret, output = self.runcmd(cmd, "check whether vpncserver has started", targetmachine_ip,)
-        if ret == 0:
-            logger.info("vncserver already started ...")
-        else:
-            cmd = "vncserver -SecurityTypes None"
-            ret, output = self.runcmd(cmd, "start vncserver", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to start vncserver")
-            else:
-                raise FailException("Test Failed - Failed to start vncserver")
-
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
         # stop iptables service

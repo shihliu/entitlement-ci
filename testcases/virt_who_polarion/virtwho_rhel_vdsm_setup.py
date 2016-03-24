@@ -10,7 +10,7 @@ class virtwho_rhel_vdsm_setup(VDSMBase):
             self.rhel_rhevm_sys_setup()
             self.rhel_vdsm_setup()
             self.generate_ssh_key()
-#             self.install_desktop()
+#             self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

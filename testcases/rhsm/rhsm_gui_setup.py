@@ -54,16 +54,15 @@ class rhsm_gui_setup(RHSMGuiBase):
             logger.info("Succeeded to install ldtp.")
         else:
             raise FailException("Test Failed - Failed to install ldtp.")
-        cmd = '''mkdir -p /root/.config/autostart; cat > /root/.config/autostart/gnome-terminal.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Exec=gnome-terminal -e ldtp
-Hidden=false
-X-GNOME-Autostart-enabled=true
-Name=ldtpd
-Comment=
-EOF
-'''
+        cmd = "mkdir -p /root/.config/autostart; cat > /root/.config/autostart/gnome-terminal.desktop <<EOF\n"\
+            "[Desktop Entry]\n"\
+            "Type=Application\n"\
+            "Exec=gnome-terminal -e ldtp\n"\
+            "Hidden=false\n"\
+            "X-GNOME-Autostart-enabled=true\n"\
+            "Name=ldtpd\n"\
+            "Comment=\n"\
+            "EOF\n"
         ret, output = self.runcmd(cmd, "set gnome-terminal desktop", showlogger=False)
         if ret == 0:
             logger.info("Succeeded to start ldtp server")

@@ -11,7 +11,7 @@ class upstream_virtwho_kvm_setup(KVMBase):
             self.upstream_virtwho_install()
             self.kvm_setup()
             self.generate_ssh_key()
-            self.install_desktop()
+            self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
