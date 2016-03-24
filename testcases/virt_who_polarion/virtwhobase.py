@@ -1537,4 +1537,3 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to scp id_rsa.pub to remote host")
         else:
             raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
-

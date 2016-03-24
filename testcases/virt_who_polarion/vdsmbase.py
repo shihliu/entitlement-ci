@@ -93,7 +93,7 @@ class VDSMBase(VIRTWHOBase):
 
     def update_cluster_compa_version(self, cluster_name, min_version, major_version, targetmachine_ip):
     # Update cluster Compatibility Version 
-        cmd = "rhevm-shell -c -E \"update cluster %s --version-minor %s --version-minor %s \"" % (cluster_name, min_version, major_version)
+        cmd = "rhevm-shell -c -E \"update cluster %s --version-minor %s --version-major %s \"" % (cluster_name, min_version, major_version)
         ret, output = self.runcmd(cmd, "update cluster's Compatibility Version", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update cluster %s Compatibility Version to %s.%s" % (cluster_name, major_version, min_version))
@@ -101,8 +101,8 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Failed to update cluster %s Compatibility Version to %s.%s" % (cluster_name, major_version, min_version))
 
     def update_dc_compa_version(self, dc_name, min_version, major_version, targetmachine_ip):
-    # Update cluster Compatibility Version 
-        cmd = "rhevm-shell -c -E \"update datacenter %s --version-minor %s --version-minor %s \"" % (dc_name, min_version, major_version)
+    # Update datacenter Compatibility Version 
+        cmd = "rhevm-shell -c -E \"update datacenter %s --version-minor %s --version-major %s \"" % (dc_name, min_version, major_version)
         ret, output = self.runcmd(cmd, "update Compatibility Version", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update datacenter's %s Compatibility Version to %s.%s" % (dc_name, major_version, min_version))
@@ -804,12 +804,17 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
 
-        # system setup for RHEL+RHEVM(VDSM) testing env on two hosts
+        # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose)
         self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
-        # configure env on rhevm(add two host,storage,guest)
+        # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
+        # Configure cluster and dc to 3.5 
+        if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
+            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
