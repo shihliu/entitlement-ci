@@ -24,7 +24,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
 
-    def get_rhevm_repo_file(self, compose_name, targetmachine_ip=""):
+    def get_rhevm_repo_file(self, compose_name, rhevm_version, targetmachine_ip=""):
     # Get rhevm repo from 10.66.144.9
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
@@ -41,20 +41,34 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
         else:
-            cmd = "wget -P /etc/yum.repos.d/ http://10.66.144.9/projects/sam-virtwho/rhevm_repo/rhevm_6.x.repo"
-            ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            if self.os_serial == "6" and "rhevm-3.6" in rhevm_version:
+                cmd = "wget -P /etc/yum.repos.d/ http://10.66.144.9/projects/sam-virtwho/rhevm_repo/rhevm_6.x_36.repo"
+                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x_36.repo" % compose_name
+                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to update repo file to the latest rhel repo")
+                else:
+                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
             else:
-                raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-            cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x.repo" % compose_name
-            ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to update repo file to the latest rhel repo")
-            else:
-                raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                cmd = "wget -P /etc/yum.repos.d/ http://10.66.144.9/projects/sam-virtwho/rhevm_repo/rhevm_6.x.repo"
+                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x.repo" % compose_name
+                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to update repo file to the latest rhel repo")
+                else:
+                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
-    def config_vdsm_env_setup(self, rhel_compose, targetmachine_ip=""):
+    def config_vdsm_env_setup(self, rhel_compose, rhevm_version, targetmachine_ip=""):
     # System setup for RHEL+RHEVM testing env
         self.cm_install_basetool(targetmachine_ip)
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
@@ -63,7 +77,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
-        self.get_rhevm_repo_file(rhel_compose, targetmachine_ip)
+        self.get_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)
         cmd = "yum install -y vdsm"
         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
         if ret == 0:
@@ -803,14 +817,14 @@ class VDSMBase(VIRTWHOBase):
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
+        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose)
-        self.config_vdsm_env_setup(rhel_compose, get_exported_param("REMOTE_IP_2"))
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version)
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
         # Configure cluster and dc to 3.5 
         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
