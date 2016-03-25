@@ -109,7 +109,7 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - default-virt-who-publishers
+      - default-virt-who-double-publishers
 
 - job-group:
     name: virt-who-stage-kvm-provision-runtest
