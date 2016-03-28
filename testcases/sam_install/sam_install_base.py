@@ -42,6 +42,13 @@ class SAM_Install_Base(Base):
         self.__install_rhevm(server_ip, server_user, server_passwd)
         self.__deploy_rhevm(server_ip, server_user, server_passwd)
 
+    def install_rhevm36(self, compose, server_ip=None, server_user=None, server_passwd=None):
+        self.cm_install_wget(server_ip)
+        self.__rhevm_subscribe(server_ip, server_user, server_passwd)
+        self.__add_rhevm36_repo(compose, server_ip, server_user, server_passwd)
+        self.__install_rhevm(server_ip, server_user, server_passwd)
+        self.__deploy_rhevm36(server_ip, server_user, server_passwd)
+
     def __stop_iptables(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "service iptables stop"
         ret, output = self.runcmd(cmd, "service iptables stop", server_ip, server_user, server_passwd)
@@ -381,6 +388,40 @@ class SAM_Install_Base(Base):
         else:
             raise FailException("Test Failed - Failed to add rhevm repo.")
 
+    def __add_rhevm36_repo(self, rhevm_compose, server_ip=None, server_user=None, server_passwd=None):
+        cmd = ('cat <<EOF > /etc/yum.repos.d/rhevm355.repo\n'
+            '[rhevm36]\n'
+            'name=rhevm36\n'
+#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Satellite/x86_64/os/\n'
+            'baseurl=http://bob.eng.lab.tlv.redhat.com/builds/latest_3.6/el%s/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            
+            '[JBoss_latest]\n'
+            'name=JBoss_latest\n'
+            'baseurl=http://download.eng.tlv.redhat.com/pub/rhel/devel/candidates/JBEAP/composing/latest-JBEAP-6.4-RHEL-%s/compose/Server/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            
+            '[rhevm-mgent]\n'
+            'name=rhevm-mgent\n'
+            'baseurl=http://download.eng.bos.redhat.com/rel-eng/RHEV/3.5.1/latest/mgmt-agents/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            
+            '[RHEL_6.7_optional]\n'
+            'name=RHEL_6.7_optional\n'
+            'baseurl=http://download.eng.tlv.redhat.com/released/RHEL-6-Supplementary/6.7/Server/x86_64/os/\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            'EOF' % (rhevm_compose, rhevm_compose)
+            )
+        ret, output = self.runcmd(cmd, "add rhevm repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to add rhevm repo.")
+        else:
+            raise FailException("Test Failed - Failed to add rhevm repo.")
+
     def __install_rhevm(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "yum install -y rhevm"
         ret, output = self.runcmd(cmd, "yum install -y rhevm355", server_ip, server_user, server_passwd, timeout=3600)
@@ -406,6 +447,29 @@ class SAM_Install_Base(Base):
             raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
         cmd = "rhevm-setup --config-append=/root/rhevm355_config"
+        ret, output = self.runcmd(cmd, "rhevm-configure", server_ip, server_user, server_passwd, timeout=1800)
+        if ret == 0:
+            logger.info("Succeeded to run rhevm-configure --deployment=sam --user-pass=admin.")
+        else:
+            raise FailException("Test Failed - Failed to run rhevm-configure --deployment=sam --user-pass=admin.")
+
+    def __deploy_rhevm36(self, server_ip=None, server_user=None, server_passwd=None):
+        ''' wget rhevm config file to rhevm '''
+        cmd = "wget -P /root/ http://10.66.144.9/projects/sam-virtwho/rhevm_repo/rhevm36_config"
+        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to wget rhevm config file to rhevm")
+        else:
+            raise FailException("Failed to wget rhevm config file to rhevm")
+        rhevm_hostname = self.get_hostname(server_ip)
+        cmd = "sed -i -e 's/rhevmhostname/%s/g' /root/rhevm36_config" % rhevm_hostname
+        ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", server_ip, server_user, server_passwd)
+        if ret == 0:
+            logger.info("Succeeded to update repo file to the latest rhel repo")
+        else:
+            raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+
+        cmd = "engine-setup --config-append=/root/rhevm36_config"
         ret, output = self.runcmd(cmd, "rhevm-configure", server_ip, server_user, server_passwd, timeout=1800)
         if ret == 0:
             logger.info("Succeeded to run rhevm-configure --deployment=sam --user-pass=admin.")
