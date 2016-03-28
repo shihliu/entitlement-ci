@@ -706,6 +706,26 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to list VM %s." % vm_name) 
 
+    def vdsm_rm_vm_nw(self, vm_name, nw_name, targetmachine_ip=""):
+    # Remove vm original network
+        vm_id = self.vdsm_get_vm_uuid(vm_name,targetmachine_ip)
+        cmd = "rhevm-shell -c -E 'remove nic %s --vm-identifier %s'" % (nw_name,vm_id)
+        ret, output = self.runcmd(cmd, "Remove vm's network in rhevm.", targetmachine_ip)
+        if ret == 0 and "complete" in output:
+            logger.info("Success to remove vm %s network %s." % (vm_name, nw_name))
+        else:
+            raise FailException("Failed to remove vm %s network %s." % (vm_name, nw_name))
+
+    def vdsm_add_vm_nw(self, vm_name, targetmachine_ip=""):
+    # VM add new network
+        vm_id = self.vdsm_get_vm_uuid(vm_name,targetmachine_ip)
+        cmd = "rhevm-shell -c -E 'add nic --vm-identifier %s --name ovirtmgmt --network-name ovirtmgmt'" % vm_id
+        ret, output = self.runcmd(cmd, "Add vm's new network in rhevm.", targetmachine_ip)
+        if ret == 0 and "ovirtmgmt" in output:
+            logger.info("Success to add vm %s network." % vm_name)
+        else:
+            raise FailException("Failed to to add vm %s network." % vm_name)
+
     def get_host_uuid_on_rhevm(self, host_name, targetmachine_ip=""):
     # Get the host uuid
         cmd = "rhevm-shell -c -E 'show host %s'" % host_name
@@ -836,7 +856,11 @@ class VDSMBase(VIRTWHOBase):
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
-
+        # Add network bridge "ovirtmgmt"
+        if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+            self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "ovirtmgmt", RHEVM_IP )
+            self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+            
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
