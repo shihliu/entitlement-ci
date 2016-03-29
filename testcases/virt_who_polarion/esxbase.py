@@ -105,6 +105,8 @@ class ESXBase(VIRTWHOBase):
             return True
         elif ret == 0 and "Powered off" in output:
             return False
+        elif ret == 0 and "Suspended" in output:
+            return False
         else:
             raise FailException("Failed to check guest '%s' status" % guest_name)
 
