@@ -103,21 +103,6 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-hyperv-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
           - project: 'rhsm-level-1-provision'
             current-parameters: false
             condition: 'SUCCESS'
@@ -128,10 +113,6 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhevm-install-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
 
 - job-group:
     name: satellite62-install-provision-runtest
