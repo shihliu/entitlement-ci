@@ -8,29 +8,29 @@ class tc_ID115181_install_one_package(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         if not self.skip_satellite():
             try:
-                    username = self.get_rhsm_cons("username")
-                    password = self.get_rhsm_cons("password")
-                    self.sub_register(username, password)
-                    autosubprod = self.get_rhsm_cons("autosubprod")
-                    self.sub_autosubscribe(autosubprod)
-                    # get variables form ent_env
-                    repoid = self.get_rhsm_cons("productrepo")
-                    pid = self.get_rhsm_cons("pid")
-                    pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
-                    # check repo exist
-                    if self.is_enabled_repo(repoid):
-                        # check package to be installed exist
-                        self.check_givenpkg_avail(repoid, pkgtoinstall)
-                        # install test-pkg
-                        self.install_givenpkg(pkgtoinstall)
-                    else:
-                        raise FailException("Test Failed - The product repoid is not exist.")
-                    # check the cert file exist.
-                    certfile = pid + ".pem"
-                    self.check_cert_file(certfile)
-                    # check productid cert
-                    self.sub_checkproductcert(pid)
-                    self.assert_(True, case_name)
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
+                self.sub_register(username, password)
+                autosubprod = self.get_rhsm_cons("autosubprod")
+                self.sub_autosubscribe(autosubprod)
+                # get variables form ent_env
+                repoid = self.get_rhsm_cons("productrepo")
+                pid = self.get_rhsm_cons("pid")
+                pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
+                # check repo exist
+                if self.is_enabled_repo(repoid):
+                    # check package to be installed exist
+                    self.check_givenpkg_avail(repoid, pkgtoinstall)
+                    # install test-pkg
+                    self.install_givenpkg(pkgtoinstall)
+                else:
+                    raise FailException("Test Failed - The product repoid is not exist.")
+                # check the cert file exist.
+                certfile = pid + ".pem"
+                self.check_cert_file(certfile)
+                # check productid cert
+                self.sub_checkproductcert(pid)
+                self.assert_(True, case_name)
             except Exception, e:
                 logger.error("Test Failed - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
@@ -55,15 +55,15 @@ class tc_ID115181_install_one_package(RHSMBase):
         cmd = "repoquery -a --repoid=%s | grep %s" % (repoid, testpkg)
         (ret, output) = self.runcmd(cmd, "check package available")
         if ret == 0 and testpkg in output:
-            logger.info("The package %s exists."% (testpkg)) 
+            logger.info("The package %s exists." % (testpkg)) 
         else:
             raise FailException("Test Failed - The package %s does not exist." % (testpkg))
 
     def uninstall_givenpkg(self, testpkg):
-        cmd = "rpm -qa | grep %s"%(testpkg)
-        (ret, output) = self.runcmd(cmd, "check if package %s is installed"% testpkg) 
+        cmd = "rpm -qa | grep %s" % (testpkg)
+        (ret, output) = self.runcmd(cmd, "check if package %s is installed" % testpkg) 
         if ret != 0:
-            logger.info("Package %s is not installed at all no need to uninstall it."% testpkg)
+            logger.info("Package %s is not installed at all no need to uninstall it." % testpkg)
         else:
             cmd = "yum remove -y %s" % (testpkg)
             (ret, output) = self.runcmd(cmd, "remove select package %s" % testpkg)
@@ -82,7 +82,7 @@ class tc_ID115181_install_one_package(RHSMBase):
             raise FailException("Test Failed - The package %s is failed to install." % (testpkg))
 
     def check_cert_file(self, certfile):
-        cmd = "ls -l /etc/pki/product-default/%s" % certfile
+        cmd = "ls -l /etc/pki/product*/%s" % certfile
         (ret, output) = self.runcmd(cmd, "check the product cert file exists")
         if ret == 0 :
             logger.info("It's successful to check product cert file exists.")
