@@ -123,6 +123,21 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to update datacenter's %s Compatibility Version to %s.%s" % (dc_name, major_version, min_version))
 
+    def vdsm_get_dc_id(self, targetmachine_ip=""):
+    # Get datacenter's id
+        cmd = "rhevm-shell -c -E 'list datacenters'"
+        ret, output = self.runcmd(cmd, "list datacenter in rhevm.", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to list datacenter.")
+            dcid = self.get_key_rhevm(output, "id", "name", "Default", targetmachine_ip)
+            if dcid is not "":
+                logger.info("Succeeded to get datacenter default id is %s" % dcid)
+                return dcid
+            else:
+                logger.error("Failed to get datacenter default id is %s" % dcid)
+        else:
+            raise FailException("Failed to list datacenter.")
+
     def rhevm_add_host(self, rhevm_host_name, rhevm_host_ip, targetmachine_ip):
     # Add host to rhevm
         while True:
@@ -285,7 +300,7 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("sleep 10 in wait_for_status.")
                 time.sleep(10)
 
-    def add_storagedomain_to_rhevm(self, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, targetmachine_ip): 
+    def add_storagedomain_to_rhevm(self, rhevm_version, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, targetmachine_ip): 
     # Add storagedomain in rhevm and active it
         cmd = "mkdir %s" % storage_dir
         self.runcmd(cmd, "create storage nfs folder", NFS_server)
@@ -321,8 +336,13 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to add storagedomains %s in rhevm." % storage_name)
             time.sleep(120)
-    #     # Attach datacenter to storagedomain in rhevm
-            cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+            #Attach datacenter to storagedomain in rhevm
+            if "rhevm-3.6" in rhevm_version:
+                dc_attach = self.vdsm_get_dc_id(targetmachine_ip)
+            else:
+                dc_attach = "Default"
+    #         cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
+            cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"%s\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, dc_attach)
             ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
             if self.wait_for_status("rhevm-shell -c -E 'list storagedomains --show-all' ", "status-state", "NotExist", targetmachine_ip):
                 logger.info("Succeeded to active storagedomains %s in rhevm." % storage_name)
@@ -708,8 +728,8 @@ class VDSMBase(VIRTWHOBase):
 
     def vdsm_rm_vm_nw(self, vm_name, nw_name, targetmachine_ip=""):
     # Remove vm original network
-        vm_id = self.vdsm_get_vm_uuid(vm_name,targetmachine_ip)
-        cmd = "rhevm-shell -c -E 'remove nic %s --vm-identifier %s'" % (nw_name,vm_id)
+        vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
+        cmd = "rhevm-shell -c -E 'remove nic %s --vm-identifier %s'" % (nw_name, vm_id)
         ret, output = self.runcmd(cmd, "Remove vm's network in rhevm.", targetmachine_ip)
         if ret == 0 and "complete" in output:
             logger.info("Success to remove vm %s network %s." % (vm_name, nw_name))
@@ -718,7 +738,7 @@ class VDSMBase(VIRTWHOBase):
 
     def vdsm_add_vm_nw(self, vm_name, targetmachine_ip=""):
     # VM add new network
-        vm_id = self.vdsm_get_vm_uuid(vm_name,targetmachine_ip)
+        vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
         cmd = "rhevm-shell -c -E 'add nic --vm-identifier %s --name ovirtmgmt --network-name ovirtmgmt'" % vm_id
         ret, output = self.runcmd(cmd, "Add vm's new network in rhevm.", targetmachine_ip)
         if ret == 0 and "ovirtmgmt" in output:
@@ -852,15 +872,15 @@ class VDSMBase(VIRTWHOBase):
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.add_storagedomain_to_rhevm(rhevm_version, "data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm(rhevm_version, "export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
-        # Add network bridge "ovirtmgmt"
+        #Add network bridge "ovirtmgmt"
         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
-            self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "ovirtmgmt", RHEVM_IP )
+            self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
             self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-            
+
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
