@@ -90,7 +90,7 @@
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests rhevm36_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests rhevm_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
             export RHEVM_IP=$REMOTE_IP
             echo "********************************runtime env********************************"
