@@ -11,14 +11,6 @@
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
 
-            #convert switch for testing against satellite
-            if [ "$SWITCH"x = "true"x ]
-            then
-                export SWITCH=false
-            else
-                export SWITCH=true
-            fi
-
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
@@ -53,7 +45,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite-install-runtest'
-            current-parameters: false
+            current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
@@ -69,6 +61,15 @@
             target: $WORKSPACE
         - shell: |
             #!/bin/bash
+
+            #convert switch for testing against satellite
+            if [ "$SWITCH"x = "true"x ]
+            then
+                export SWITCH=false
+            else
+                export SWITCH=true
+            fi
+
             export TOPOLOGY={topology}
             {testparams}
             echo "TOPOLOGY: {topology}"
