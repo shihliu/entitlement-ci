@@ -14,11 +14,12 @@ class tc_ID17224_RHEVM_check_mapping_after_restart_virtwho_and_rhsm(VDSMBase):
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # (1) Check host/guest mapping info is exist 
+            self.set_rhevm_conf()
             self.hypervisor_check_uuid(hostuuid, guestuuid)
 #             self.vw_check_mapping_info_in_rhsm_log(hostuuid, guestuuid)
             # (2) Check host/guest mapping info is not exist after restart rhsmcert
             self.rhevm_stop_vm(guest_name, rhevm_ip)
-            self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=False, checkcmd="service rhsmcertd restart")
+            self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd="service rhsmcertd restart")
 
             self.assert_(True, case_name)
         except Exception, e:

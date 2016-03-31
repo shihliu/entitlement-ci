@@ -79,7 +79,8 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         self.get_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)
         cmd = "yum install -y vdsm"
-        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
+#         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to install vdsm and related packages in %s." % self.get_hg_info(targetmachine_ip))
         else:
