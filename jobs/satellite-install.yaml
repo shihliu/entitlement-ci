@@ -18,7 +18,6 @@
             else
                 export SWITCH=true
             fi
-            
 
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
@@ -54,7 +53,7 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite-install-runtest'
-            current-parameters: true
+            current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
