@@ -1,5 +1,8 @@
 class VIRTWHOConstants(object):
     virtwho_cons = {
+
+    "data_server":                      "10.66.78.160",
+
     # for kvm
     "KVM_GUEST_NAME":                   "6.7_Server_x86_64",
     "beaker_image_server":              "10.16.96.131:/home/samdata",
@@ -7,7 +10,7 @@ class VIRTWHOConstants(object):
     "local_mount_point":                "/tmp/images_mnt",
 
     # for esx
-    "esx_guest_url":                    "http://10.66.144.9/projects/sam-virtwho/esx_guest/",
+    "esx_guest_url":                    "http://10.66.78.160/projects/sam-virtwho/esx_guest/",
     "ESX_HOST":                         "10.66.128.10",
     "ESX_HOST_SECOND":                  "10.66.128.77",
     "ESX_GUEST_NAME":                   "ESX_7.1_Server_x86_64",
