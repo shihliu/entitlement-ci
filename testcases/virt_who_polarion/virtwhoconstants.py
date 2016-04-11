@@ -10,7 +10,6 @@ class VIRTWHOConstants(object):
     "local_mount_point":                "/tmp/images_mnt",
 
     # for esx
-    "esx_guest_url":                    "http://10.66.78.160/projects/sam-virtwho/esx_guest/",
     "ESX_HOST":                         "10.66.128.10",
     "ESX_HOST_SECOND":                  "10.66.128.77",
     "ESX_GUEST_NAME":                   "ESX_7.1_Server_x86_64",
