@@ -387,7 +387,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("guest has already exist")
         else:
             # Get vm
-#             cmd = "wget -P /home/rhevm_guest/ http://%s/projects/sam-virtwho/%s" % (vm_name, self.get_vw_cons("data_server"))
+#             cmd = "wget -P /home/rhevm_guest/ http://%s/projects/sam-virtwho/%s" % (self.get_vw_cons("data_server"), vm_name)
 #             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
 #             if ret == 0:
 #                 logger.info("Succeeded to wget kvm img file")
@@ -418,7 +418,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             logger.info("Failed to add excute to /home/rhevm_guest")
         # cmd = "wget -P /tmp/rhevm_guest/xml/ http://%s/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"% self.get_vw_cons("data_server")
-        cmd = "wget -P /home/rhevm_guest/xml/ http://%s/projects/sam-virtwho/%s.xml" % (vm_name, self.get_vw_cons("data_server"))
+        cmd = "wget -P /home/rhevm_guest/xml/ http://%s/projects/sam-virtwho/%s.xml" % (self.get_vw_cons("data_server"), vm_name)
         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to wget xml img file")
