@@ -180,7 +180,8 @@ class Base(unittest.TestCase):
         elif self.test_server == "STAGE" :
             return virtwho_cons.virtwho_stage_cons[name]
         else:
-            raise FailException("Failed to get virt-who constant %s" % name)
+            return virtwho_cons.virtwho_cons[name]
+            # raise FailException("Failed to get virt-who constant %s" % name)
 
     def get_vw_guest_name(self, guest_name):
         return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
