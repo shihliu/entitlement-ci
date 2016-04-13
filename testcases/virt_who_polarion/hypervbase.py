@@ -74,9 +74,9 @@ class HYPERVBase(VIRTWHOBase):
         if output is not "":
             logger.info("Success to run command to get vm %s ID" % guest_name)
             guest_id = self.get_key_rhevm(output, "Id", "VMName", guest_name)
-            logger.info("before decode guest uuid is %s" %guest_id)
+            logger.info("before decode guest uuid is %s" % guest_id)
             guest_uuid_after_decode = self.decodeWinUUID(guest_id)
-            logger.info("after decode guest uuid is %s" %guest_uuid_after_decode)
+            logger.info("after decode guest uuid is %s" % guest_uuid_after_decode)
             return guest_id 
         else:
             raise FailException("Failed to run command to get vm %s ID" % guest_name)
@@ -92,13 +92,13 @@ class HYPERVBase(VIRTWHOBase):
             for item in segs:
                 if guest_name in item:
                     item = item.strip()
-                    before_guest_uuid = item[item.index("{")+1:item.index("}")].strip()
-                    logger.info("Before decode, guest %s guid is %s" %(guest_name,before_guest_uuid))
-                    guest_uuid = self.decodeWinUUID("%s" %before_guest_uuid)
-                    logger.info("After decode, guest %s guid is %s" %(guest_name,guest_uuid))
+                    before_guest_uuid = item[item.index("{") + 1:item.index("}")].strip()
+                    logger.info("Before decode, guest %s guid is %s" % (guest_name, before_guest_uuid))
+                    guest_uuid = self.decodeWinUUID("%s" % before_guest_uuid)
+                    logger.info("After decode, guest %s guid is %s" % (guest_name, guest_uuid))
                     return guest_uuid
         else:
-            raise FailException("Failed to run command to get vm %s ID" %guest_name)
+            raise FailException("Failed to run command to get vm %s ID" % guest_name)
 
     def hyperv_get_host_uuid(self, targetmachine_ip=""):
     # Get host's uuid
@@ -106,12 +106,12 @@ class HYPERVBase(VIRTWHOBase):
         datalines = output.splitlines()
         for line in datalines:
             if "--" not in line and "UUID" not in line:
-                host_uuid = self.decodeWinUUID("%s" %line)
-                logger.info("Success to get hyperv's uuid after decode, uuid is %s" %host_uuid)
+                host_uuid = self.decodeWinUUID("%s" % line)
+                logger.info("Success to get hyperv's uuid after decode, uuid is %s" % host_uuid)
                 return host_uuid
 
     def hyperv_start_guest(self, guest_name, targetmachine_ip=""):
-     # Start hyperv guest
+    # Start hyperv guest
         output = self.hyperv_run_cmd("Start-VM -Name %s" % guest_name)
         if output is "":
             logger.info("Success to run command to start vm %s" % guest_name)

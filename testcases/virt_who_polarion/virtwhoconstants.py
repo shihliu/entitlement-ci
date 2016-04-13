@@ -58,12 +58,13 @@ class VIRTWHOConstants(object):
     # message constant, maybe create a new file in future
     "wrong_owner":                          "xxxxxxx",
     "wrong_env":                            "xxxxxxx",
-    "esx_error_msg_without_owner":          "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",
-    "esx_error_msg_with_wrong_owner":       "Couldn't find organization 'xxxxxxx'",
-    "esx_error_msg_without_owner_in_conf":  "Option `owner` needs to be set in config `esx`",
-    "esx_error_msg_without_env":            "Option --esx-env (or VIRTWHO_ESX_ENV environment variable) needs to be set",
-    "esx_error_msg_with_wrong_env":         "Couldn't find environment 'xxxxxxx'",
-    "esx_error_msg_without_env_in_conf":    "Option `env` needs to be set in config `esx`",
+
+    "esx_error_msg_without_owner":              "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",
+    "esx_error_msg_with_wrong_owner":           "Couldn't find organization 'xxxxxxx'",
+    "esx_error_msg_without_owner_in_conf":      "Option `owner` needs to be set in config `esx`",
+    "esx_error_msg_without_env":                "Option --esx-env (or VIRTWHO_ESX_ENV environment variable) needs to be set",
+    "esx_error_msg_with_wrong_env":             "Couldn't find environment 'xxxxxxx'",
+    "esx_error_msg_without_env_in_conf":        "Option `env` needs to be set in config `esx`",
 
     "hyperv_error_msg_without_owner":           "Option --hyperv-owner (or VIRTWHO_HYPERV_OWNER environment variable) needs to be set",
     "hyperv_error_msg_with_wrong_owner":        "Couldn't find organization 'xxxxxxx'",
@@ -71,6 +72,13 @@ class VIRTWHOConstants(object):
     "hyperv_error_msg_without_env":             "Option --hyperv-env (or VIRTWHO_HYPERV_ENV environment variable) needs to be set",
     "hyperv_error_msg_with_wrong_env":          "Couldn't find environment 'xxxxxxx'",
     "hyperv_error_msg_without_env_in_conf":     "Option `env` needs to be set in config `hyperv`",
+
+    "rhevm_error_msg_without_owner":            "Option --rhevm-owner (or VIRTWHO_RHEVM_OWNER environment variable) needs to be set",
+    "rhevm_error_msg_with_wrong_owner":         "Couldn't find organization 'xxxxxxx'",
+    "rhevm_error_msg_without_owner_in_conf":    "Option `owner` needs to be set in config `rhevm`",
+    "rhevm_error_msg_without_env":              "Option --rhevm-env (or VIRTWHO_RHEVM_ENV environment variable) needs to be set",
+    "rhevm_error_msg_with_wrong_env":           "Couldn't find environment 'xxxxxxx'",
+    "rhevm_error_msg_without_env_in_conf":      "Option `env` needs to be set in config `rhevm`",
 
     }
 

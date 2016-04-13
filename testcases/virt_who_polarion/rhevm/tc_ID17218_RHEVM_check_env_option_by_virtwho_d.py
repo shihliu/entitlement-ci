@@ -7,18 +7,19 @@ class tc_ID17218_RHEVM_check_env_option_by_virtwho_d(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            error_msg_without_env = self.get_vw_cons("rhevm_error_msg_without_env_in_conf")
+            error_msg_with_wrong_env = self.get_vw_cons("rhevm_error_msg_with_wrong_env")
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
-            error_msg = "Option `env` needs to be set in config `rhevm`"
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
 
             # (1) When "env" is not exist, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("rhevm", "env", "")
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg, cmd_retcode=1)
+            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_env, cmd_retcode=1)
             # (2) When "env" with wrong config, virt-who should show error info
-            self.set_virtwho_sec_config_with_keyvalue("rhevm", "env", "xxxxxxx")
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg, cmd_retcode=1)
+            self.set_virtwho_sec_config_with_keyvalue("rhevm", "env", self.get_vw_cons("wrong_env"))
+            self.vw_check_message_in_rhsm_log(error_msg_with_wrong_env)
             # (3) When "env" with correct config, virt-who should show error info
             self.set_virtwho_sec_config("rhevm")
             self.vw_check_mapping_info_number_in_rhsm_log()
