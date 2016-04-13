@@ -71,11 +71,11 @@ class tc_ID17262_VDSM_validate_compliance_check_att_after_pause_shutdown_guest(V
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
+#             if guestip != None and guestip != "":
+#                 self.sub_unregister(guestip)
             # unsubscribe host
-            self.sub_unsubscribe()
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.sub_unsubscribe()
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
