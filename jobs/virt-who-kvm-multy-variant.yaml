@@ -33,6 +33,7 @@
       - choice:
           name: OS_VARIANT
           choices:
+            - Server
             - Client
             - Workstation
             - ComputeNode
