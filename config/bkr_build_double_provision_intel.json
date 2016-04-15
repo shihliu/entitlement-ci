@@ -1,7 +1,7 @@
 {
     "resources": [
         {
-            "job_group": "Entitlement-QA",
+            "job_group": "china-entitlement-qe",
             "recipesets": [
                 {
                     "distro": "url_compose",

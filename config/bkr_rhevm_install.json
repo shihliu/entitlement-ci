@@ -1,7 +1,7 @@
 {
     "resources": [
         {
-            "job_group": "Entitlement-QA",
+            "job_group": "china-entitlement-qe",
             "recipesets": [
                 {
                     "distro": "RHEL-6.7-20150702.0",
