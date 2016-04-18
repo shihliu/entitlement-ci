@@ -1,0 +1,17 @@
+<pool type='dir'>
+  <name>autotest_pool</name>
+  <uuid>eeb5ae3f-814d-eb72-aae5-bc4f41dd8da6</uuid>
+  <capacity unit='bytes'>0</capacity>
+  <allocation unit='bytes'>0</allocation>
+  <available unit='bytes'>0</available>
+  <source>
+  </source>
+  <target>
+    <path>/home/rhevm_guest/</path>
+    <permissions>
+      <mode>0755</mode>
+      <owner>-1</owner>
+      <group>-1</group>
+    </permissions>
+  </target>
+</pool>

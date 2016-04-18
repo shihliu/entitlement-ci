@@ -347,7 +347,7 @@ class SAM_Install_Base(Base):
 
     def __upload_manifest(self, server_ip=None, server_user=None, server_passwd=None):
         # self.remote_put(sam_manifest, "/root/%s" % manifest_name)
-        cmd = "wget http://%s/projects/sam-virtwho/latest-manifest/sam_install_manifest.zip -P /root/" % self.get_vw_cons("data_server")
+        cmd = "wget %s/sam_install_manifest.zip -P /root/" % self.get_vw_cons("data_folder")
         ret, output = self.runcmd(cmd, "wget manifest to /root/", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to wget manifest to /root/.")
@@ -432,7 +432,7 @@ class SAM_Install_Base(Base):
 
     def __deploy_rhevm(self, server_ip=None, server_user=None, server_passwd=None):
         ''' wget rhevm config file to rhevm '''
-        cmd = "wget -P /root/ http://%s/projects/sam-virtwho/rhevm_repo/rhevm355_config" % self.get_vw_cons("data_server")
+        cmd = "wget -P /root/ %s/rhevm355_config" % self.get_vw_cons("data_folder")
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to wget rhevm config file to rhevm")
@@ -455,7 +455,7 @@ class SAM_Install_Base(Base):
 
     def __deploy_rhevm36(self, server_ip=None, server_user=None, server_passwd=None):
         ''' wget rhevm config file to rhevm '''
-        cmd = "wget -P /root/ http://%s/projects/sam-virtwho/rhevm_repo/rhevm36_config" % self.get_vw_cons("data_server")
+        cmd = "wget -P /root/ %s/rhevm36_config" % self.get_vw_cons("data_folder")
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", server_ip, server_user, server_passwd)
         if ret == 0:
             logger.info("Succeeded to wget rhevm config file to rhevm")

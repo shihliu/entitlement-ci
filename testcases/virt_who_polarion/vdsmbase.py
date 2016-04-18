@@ -28,7 +28,7 @@ class VDSMBase(VIRTWHOBase):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
-            cmd = "wget -P /etc/yum.repos.d/ http://%s/projects/sam-virtwho/rhevm_repo/rhevm_7.x.repo" % self.get_vw_cons("data_server")
+            cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x.repo" % self.get_vw_cons("data_folder")
             ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
@@ -42,7 +42,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
         else:
             if self.os_serial == "6" and "rhevm-3.6" in rhevm_version:
-                cmd = "wget -P /etc/yum.repos.d/ http://%s/projects/sam-virtwho/rhevm_repo/rhevm_6.x_36.repo" % self.get_vw_cons("data_server")
+                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_6.x_36.repo" % self.get_vw_cons("data_folder")
                 ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
                 if ret == 0:
                     logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
@@ -55,7 +55,7 @@ class VDSMBase(VIRTWHOBase):
                 else:
                     raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
             else:
-                cmd = "wget -P /etc/yum.repos.d/ http://%s/projects/sam-virtwho/rhevm_repo/rhevm_6.x.repo" % self.get_vw_cons("data_server")
+                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_6.x.repo" % self.get_vw_cons("data_folder")
                 ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
                 if ret == 0:
                     logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
@@ -418,7 +418,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             logger.info("Failed to add excute to /home/rhevm_guest")
         # cmd = "wget -P /tmp/rhevm_guest/xml/ http://%s/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"% self.get_vw_cons("data_server")
-        cmd = "wget -P /home/rhevm_guest/xml/ http://%s/projects/sam-virtwho/%s.xml" % (self.get_vw_cons("data_server"), vm_name)
+        cmd = "wget -P /home/rhevm_guest/xml/ %s/%s.xml" % (self.get_vw_cons("data_folder"), vm_name)
         ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to wget xml img file")
@@ -451,7 +451,7 @@ class VDSMBase(VIRTWHOBase):
     def create_storage_pool(self, targetmachine_ip=""):
     # Create_storage_pool
         ''' wget autotest_pool.xml '''
-        cmd = "wget -P /tmp/ http://%s/projects/sam-virtwho/autotest_pool.xml" % self.get_vw_cons("data_server")
+        cmd = "wget -P /tmp/ %s/autotest_pool.xml" % self.get_vw_cons("data_folder")
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to wget autotest_pool.xml")

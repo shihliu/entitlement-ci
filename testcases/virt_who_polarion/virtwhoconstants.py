@@ -2,6 +2,7 @@ class VIRTWHOConstants(object):
     virtwho_cons = {
 
     "data_server":                      "10.66.78.160",
+    "data_folder":                      "https://github.com/bluesky-sgao/entitlement-ci/tree/master/data",
 
     # for kvm
     "KVM_GUEST_NAME":                   "6.7_Server_x86_64",

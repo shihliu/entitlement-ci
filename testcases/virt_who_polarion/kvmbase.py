@@ -110,7 +110,7 @@ class KVMBase(VIRTWHOBase):
             time.sleep(10)
 
     def __generate_ipget_file(self, targetmachine_ip=""):
-        generate_ipget_cmd = "wget -nc http://%s/projects/sam-virtwho/latest-manifest/ipget.sh -P /root/ && chmod 777 /root/ipget.sh" % self.get_vw_cons("data_server")
+        generate_ipget_cmd = "wget -nc %s/ipget.sh -P /root/ && chmod 777 /root/ipget.sh" % self.get_vw_cons("data_folder")
         ret, output = self.runcmd(generate_ipget_cmd, "wget ipget file", targetmachine_ip)
         if ret == 0 or "already there" in output:
             logger.info("Succeeded to wget ipget.sh to /root/.")
