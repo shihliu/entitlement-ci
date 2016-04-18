@@ -137,7 +137,17 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                if [ "$OS_ARCH"x = "x86_64"x ]
+                then
+                    nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                else
+                    nosetests tc_ID17199_check_default_config.py \
+                        tc_ID17202_check_oneshot_function_by_cli.py \
+                        tc_ID17258_check_uuid_with_none_guest.py \
+                        tc_ID17261_check_uuid_after_delete_vm_restart_libvirtd.py \
+                        tc_ID17208_check_print_function_by_cli.py \
+                    --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                fi
             popd
 
             echo "********************************runtime env********************************"
