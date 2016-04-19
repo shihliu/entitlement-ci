@@ -397,3 +397,31 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
+
+    def kvm_setup_arch(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who configure file
+        self.update_vw_configure()
+        # restart virt-who service
+        self.vw_restart_virtwho()
+
+    def kvm_sys_setup_arch(self, targetmachine_ip=""):
+        self.cm_install_basetool(targetmachine_ip)
+        # system setup for virt-who testing
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "service libvirtd start"
+        ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
