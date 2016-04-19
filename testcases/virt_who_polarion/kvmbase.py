@@ -37,7 +37,10 @@ class KVMBase(VIRTWHOBase):
 
     def mount_images(self):
         ''' mount the images prepared '''
-        image_server = self.get_vw_cons("beaker_image_server")
+        if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
+            image_server = self.get_vw_cons("local_image_server")
+        else:
+            image_server = self.get_vw_cons("beaker_image_server")
         image_nfs_path = self.get_vw_cons("nfs_image_path")
         image_mount_path = self.get_vw_cons("local_mount_point")
         cmd = "mkdir %s" % image_mount_path

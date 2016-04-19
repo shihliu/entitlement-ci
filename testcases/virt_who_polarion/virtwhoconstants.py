@@ -1,12 +1,14 @@
 class VIRTWHOConstants(object):
     virtwho_cons = {
 
-    "data_server":                      "10.66.78.160",
+    "data_server":                      "10.66.144.9",
     "data_folder":                      "https://github.com/bluesky-sgao/entitlement-ci/raw/master/data",
+
+    "local_image_server":               "10.66.144.9:/data/projects/sam-virtwho/pub",
+    "beaker_image_server":              "10.16.96.131:/home/samdata",
 
     # for kvm
     "KVM_GUEST_NAME":                   "6.7_Server_x86_64",
-    "beaker_image_server":              "10.16.96.131:/home/samdata",
     "nfs_image_path":                   "/root/images_nfs",
     "local_mount_point":                "/tmp/images_mnt",
 
