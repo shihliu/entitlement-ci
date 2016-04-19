@@ -7,7 +7,7 @@
                     "distro": "url_compose",
                     "arch": "os_arch",
                     "variant": "os_variant",
-                    "hostrequire": ["arch=os_arch"]
+                    "hostrequire": ["arch=os_arch"],
                     "keyvalue": ["DISKSPACE>=20000","HVM=1"]
                 }
             ]
