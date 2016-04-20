@@ -16,6 +16,7 @@ class tc_ID17199_check_default_config(KVMBase):
             self.check_virtwho_thread(2)
             self.vw_check_virtwho_status()
             # (5) Stop virt-who service and check virt-who processes.
+            self.vw_stop_virtwho_new()
             self.check_virtwho_thread(0)
             # (6) Run virt-who commond line, check debug info is not exist on virt-who log.
             self.vw_check_message_in_debug_cmd("virt-who", "DEBUG|ERROR", message_exists=False)
