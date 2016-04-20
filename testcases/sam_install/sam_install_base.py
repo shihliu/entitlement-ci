@@ -424,7 +424,7 @@ class SAM_Install_Base(Base):
 
     def __install_rhevm(self, server_ip=None, server_user=None, server_passwd=None):
         cmd = "yum install -y rhevm"
-        ret, output = self.runcmd(cmd, "yum install -y rhevm355", server_ip, server_user, server_passwd, timeout=3600)
+        ret, output = self.runcmd(cmd, "yum install -y rhevm355", server_ip, server_user, server_passwd, timeout=36000)
         if ret == 0:
             logger.info("Succeeded to run yum install -y rhevm355.")
         else:
