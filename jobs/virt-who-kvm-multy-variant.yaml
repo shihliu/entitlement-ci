@@ -66,17 +66,17 @@
             then
                 if [ "$OS_ARCH" == "s390x" ] || [ "$OS_ARCH" == "ppc64" ]
                 then
-	                sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology_no_hvm}.json
-	                chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
-	                $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
-	                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-	                --topology={topology_path}/{topology_no_hvm} --ssh_keyfile={beaker_keyfile} --name={project}
+                    sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology_no_hvm}.json
+                    chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
+                    $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
+                    $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                    --topology={topology_path}/{topology_no_hvm} --ssh_keyfile={beaker_keyfile} --name={project}
                 else
-	                sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology}.json
-	                chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
-	                $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
-	                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-	                --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name={project}
+                    sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology}.json
+                    chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
+                    $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
+                    $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                    --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name={project}
                 fi
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
