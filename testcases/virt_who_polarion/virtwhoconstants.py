@@ -16,7 +16,7 @@ class VIRTWHOConstants(object):
     "ESX_HOST":                         "10.66.128.10",
     "ESX_HOST_SECOND":                  "10.66.128.77",
     "ESX_GUEST_NAME":                   "ESX_7.1_Server_x86_64",
-    "VMWARE_CMD_IP":                    "10.66.78.42",
+    "VMWARE_CMD_IP":                    "10.66.146.212",
     "VIRTWHO_ESX_SERVER":               "10.73.3.181",
     "VIRTWHO_ESX_USERNAME":             "administrator@vsphere.local",
     "VIRTWHO_ESX_PASSWORD":             "Welcome1!",
