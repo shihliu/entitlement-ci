@@ -107,6 +107,9 @@
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/esx/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
+
+            python utils/xmlparser/polarion_name_to_id.py $WORKSPACE/nosetests.xml
+
             echo "********************************runtime env********************************"
             env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
@@ -118,6 +121,7 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - default-virt-who-publishers
+      - default-polarion-publishers
 
 - job-group:
     name: virt-who-esx-provision-runtest
@@ -144,3 +148,4 @@
     jslaveusername: root
     jslavepassword: redhat
     jslaveteardown: True
+    polarion_template: virt-who for esx auto template
