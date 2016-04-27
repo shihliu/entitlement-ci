@@ -9,7 +9,7 @@
     ],
     "sites": [
         {
-            "site": "cios",
+            "site": "qeos",
             "project": "entitlement-jenkins",
             "username": "ent-jenkins",
             "password": "ent-jenkins",
