@@ -244,8 +244,8 @@
             properties-file: $WORKSPACE/POLARION.txt
             properties-list: |
                 polarion.project=RHEL6
-                polarion.run.prefix={PROJECT_NAME}-on-{RHEL_COMPOSE}-against-{SERVER_TYPE}
-                polarion.template=$polarion_template
+                polarion.run.prefix=$PROJECT_NAME-on-$RHEL_COMPOSE-against-$SERVER_TYPE
+                polarion.template={polarion_template}
 
 - publisher:
     name: default-virt-who-runtest-publishers

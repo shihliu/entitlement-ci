@@ -1,5 +1,5 @@
-import shutil, os
-from utils import logger
+import shutil
+from utils import *
 from xml.dom import minidom
 
 class XMLParser(object):
