@@ -11,10 +11,10 @@ class Polarion_Name_To_ID(XMLParser):
             for testcase in testcases:
                 classname = testcase.getAttribute("classname")
                 # name = testcase.getAttribute("name")
-                case_id = re.findall(r"(?<=_)ID.*?(?=_)", classname, re.I)[0]
+                case_id = re.findall(r"(?<=_ID).*?(?=_)", classname, re.I)[0]
                 polarion_case_id = "RHEL6-" + case_id
-                testcase.setAttribute("name", "RHEL6-" + case_id)
-                self.write_file(polarion_txt, polarion_case_id + "=" + polarion_case_id)
+                testcase.setAttribute("name", polarion_case_id)
+                # self.write_file(polarion_txt, polarion_case_id + "=" + polarion_case_id)
                 self.write_xml()
             logger.info("Succeeded to convert name to id in %s" % self.xml_file)
 
