@@ -14,7 +14,7 @@ class Polarion_Name_To_ID(XMLParser):
                 case_id = re.findall(r"(?<=_ID).*?(?=_)", classname, re.I)[0]
                 polarion_case_id = "RHEL6-" + case_id
                 testcase.setAttribute("name", polarion_case_id)
-                self.write_file(polarion_txt, polarion_case_id + "=" + polarion_case_id)
+                self.write_file(polarion_txt, polarion_case_id + "=" + polarion_case_id + "\n")
                 self.write_xml()
             logger.info("Succeeded to convert name to id in %s and add name:id match info to %s" % (self.xml_file, polarion_txt))
 
