@@ -112,6 +112,8 @@
             pushd $WORKSPACE/entitlement-ci/utils/xmlparser/
             export PYTHONPATH=$WORKSPACE/entitlement-ci
             python polarion_name_to_id.py $WORKSPACE/nosetests.xml
+            export RHEL_COMPOSE_FOR_POLARION=`echo $RHEL_COMPOSE | sed "s/\./_/g"`
+            export polarion_template={polarion_template}
             popd
 
             echo "********************************runtime env********************************"

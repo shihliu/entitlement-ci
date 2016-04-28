@@ -246,8 +246,8 @@
                 user: ci-ops-central-jenkins
                 password: testpass
                 polarion.project=RHEL6
-                polarion.run.prefix=$PROJECT_NAME\ on\ $RHEL_COMPOSE\ against\ $SERVER_TYPE
-                polarion.template={polarion_template}
+                polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ against\ $SERVER_TYPE
+                polarion.template=$polarion_template
 
 - publisher:
     name: default-virt-who-runtest-publishers
