@@ -8,7 +8,7 @@ class VIRTWHOConstants(object):
     "beaker_image_server":              "10.16.96.131:/home/samdata",
 
     # for kvm
-    "KVM_GUEST_NAME":                   "6.7_Server_x86_64",
+    "KVM_GUEST_NAME":                   "7.1_Server_x86_64",
     "nfs_image_path":                   "/root/images_nfs",
     "local_mount_point":                "/tmp/images_mnt",
 
@@ -82,6 +82,13 @@ class VIRTWHOConstants(object):
     "rhevm_error_msg_without_env":              "Option --rhevm-env (or VIRTWHO_RHEVM_ENV environment variable) needs to be set",
     "rhevm_error_msg_with_wrong_env":           "Couldn't find environment 'xxxxxxx'",
     "rhevm_error_msg_without_env_in_conf":      "Option `env` needs to be set in config `rhevm`",
+
+    "libvirt_error_msg_without_owner":              "Option `owner` needs to be set in config `env/cmdline`",
+    "libvirt_error_msg_with_wrong_owner":           "Couldn't find organization 'xxxxxxx'",
+    "libvirt_error_msg_without_owner_in_conf":      "Option `owner` needs to be set in config `libvirt`",
+    "libvirt_error_msg_without_env":                " Option `env` needs to be set in config `env/cmdline`",
+    "libvirt_error_msg_with_wrong_env":             "Couldn't find environment 'xxxxxxx'",
+    "libvirt_error_msg_without_env_in_conf":        "Option `env` needs to be set in config `libvirt`",
 
     }
 
