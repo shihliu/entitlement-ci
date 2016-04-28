@@ -134,7 +134,7 @@ class VIRTWHOBase(Base):
 
     def update_config_to_default(self, targetmachine_ip=""):
         ''' update virt-who configure file to default mode '''
-        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' -e 's/^.*VIRTWHO_RHEVM=.*/#VIRTWHO_RHEVM=0/g' -e 's/^.*VIRTWHO_HYPERV=.*/#VIRTWHO_HYPERV=0/g' -e 's/^.*VIRTWHO_ESX=.*/#VIRTWHO_ESX=0/g' /etc/sysconfig/virt-who"
+        cmd = "sed -i -e 's/^.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=0/g' -e 's/^.*VIRTWHO_INTERVAL=.*/#VIRTWHO_INTERVAL=0/g' -e 's/^.*VIRTWHO_VDSM=.*/#VIRTWHO_VDSM=0/g' -e 's/^.*VIRTWHO_RHEVM=.*/#VIRTWHO_RHEVM=0/g' -e 's/^.*VIRTWHO_HYPERV=.*/#VIRTWHO_HYPERV=0/g' -e 's/^.*VIRTWHO_ESX=.*/#VIRTWHO_ESX=0/g' -e 's/^.*VIRTWHO_LIBVIRT=.*/#VIRTWHO_LIBVIRT=0/g' /etc/sysconfig/virt-who"
         ret, output = self.runcmd(cmd, "updating virt-who configure file to defualt", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update virt-who configure file to defualt.")
@@ -1000,6 +1000,8 @@ class VIRTWHOBase(Base):
                 time.sleep(120)
             elif "rhsmcertd" in checkcmd:
                 time.sleep(100)
+            elif "virsh" in checkcmd:
+                time.sleep(5)
             else:
                 time.sleep(20)
         else:
@@ -1058,10 +1060,10 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to get content of %s.") % tmp_file
 
-    def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
+    def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", waiting_time=0, targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
+        self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         mapping_info = json.loads(''.join(self.vw_get_mapping_info(cmd, targetmachine_ip)))
         if virtWhoType == "libvirt" or virtWhoType == "vdsm":
@@ -1189,15 +1191,15 @@ class VIRTWHOBase(Base):
             if "Sending update in hosts-to-guests mapping: {" in output:
                 logger.info("Found: Sending update in hosts-to-guests mapping")
                 rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
+            elif "Domain info: [" in output:
+                logger.info("Found: Domain info")
+                rex = re.compile(r'(?<=Domain info: )\[.*?\]\n+(?=201|$)', re.S)
             elif "Host-to-guest mapping: {" in output:
                 logger.info("Found: Host-to-guest mapping")
                 rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
             elif "Sending domain info: [" in output:
                 logger.info("Found: Sending domain info")
                 rex = re.compile(r'(?<=Sending domain info: )\[.*?\]\n+(?=201|$)', re.S)
-            elif "Domain info: [" in output:
-                logger.info("Found: Domain info")
-                rex = re.compile(r'(?<=Domain info: )\[.*?\]\n+(?=201|$)', re.S)
             elif "Associations found: {" in output:
                 logger.info("Found: Associations found")
                 rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
