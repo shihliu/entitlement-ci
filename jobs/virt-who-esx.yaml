@@ -94,6 +94,7 @@
 
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export RHEL_COMPOSE=
             #export REMOTE_IP=
             #export SERVER_IP=
             #export SERVER_TYPE=
@@ -109,6 +110,7 @@
             popd
 
             pushd $WORKSPACE/entitlement-ci/utils/xmlparser/
+            export PYTHONPATH=$WORKSPACE/entitlement-ci
             python polarion_name_to_id.py $WORKSPACE/nosetests.xml
             popd
 

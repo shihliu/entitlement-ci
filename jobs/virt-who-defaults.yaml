@@ -243,8 +243,10 @@
             include-stderr: true
             properties-file: $WORKSPACE/POLARION.txt
             properties-list: |
+                user: ci-ops-central-jenkins
+                password: testpass
                 polarion.project=RHEL6
-                polarion.run.prefix=$PROJECT_NAME-on-$RHEL_COMPOSE-against-$SERVER_TYPE
+                polarion.run.prefix=$PROJECT_NAME\ on\ $RHEL_COMPOSE\ against\ $SERVER_TYPE
                 polarion.template={polarion_template}
 
 - publisher:
