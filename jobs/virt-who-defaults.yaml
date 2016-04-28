@@ -249,6 +249,22 @@
                 polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ against\ $SERVER_TYPE
 
 - publisher:
+    name: default-polarion-multy-publishers
+    publishers:
+        - ci-polarion:
+            xunit-name-regex: 'nosetests.xml'
+            include-failure: true
+            include-error: true
+            include-stdout: true
+            include-stderr: true
+            properties-file: $WORKSPACE/POLARION.txt
+            properties-list: |
+                user: ci-ops-central-jenkins
+                password: testpass
+                polarion.project=RHEL6
+                polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ $OS_VARIANT\ $OS_ARCH\ against\ $SERVER_TYPE
+
+- publisher:
     name: default-virt-who-runtest-publishers
     publishers:
            - xunit:
