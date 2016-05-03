@@ -13,6 +13,7 @@ class tc_ID17215_libvirt_check_owner_option_by_virtwho_d(KVMBase):
             error_msg_with_wrong_owner = self.get_vw_cons("libvirt_error_msg_with_wrong_owner")
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
             self.update_config_to_default(remote_ip_2)
+            self.update_vw_configure(targetmachine_ip=remote_ip_2)
             self.runcmd_service("stop_virtwho")
 
             # (1) When "owner" is not exist, virt-who should show error info
@@ -31,7 +32,6 @@ class tc_ID17215_libvirt_check_owner_option_by_virtwho_d(KVMBase):
             self.assert_(False, case_name)
         finally:
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2)
-            self.update_config_to_default(remote_ip_2)
             self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

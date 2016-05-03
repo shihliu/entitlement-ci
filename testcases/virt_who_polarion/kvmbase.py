@@ -153,7 +153,7 @@ class KVMBase(VIRTWHOBase):
     # ========================================================
     def update_vw_configure(self, background=1, debug=1, targetmachine_ip=""):
         ''' update virt-who configure file /etc/sysconfig/virt-who. '''
-        cmd = "sed -i -e 's/VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' /etc/sysconfig/virt-who" % (debug)
+        cmd = "sed -i -e 's/.*VIRTWHO_DEBUG=.*/VIRTWHO_DEBUG=%s/g' /etc/sysconfig/virt-who" % (debug)
         ret, output = self.runcmd(cmd, "updating virt-who configure file", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to update virt-who configure file.")
