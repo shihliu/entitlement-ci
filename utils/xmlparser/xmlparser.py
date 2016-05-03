@@ -29,7 +29,7 @@ class XMLParser(object):
     def write_xml(self):
         minidom.Element.writexml = fixed_writexml
         xmlfile = open(self.xml_file, 'w')
-        self.xmldom.writexml(xmlfile, addindent='' , newl='\n')
+        self.xmldom.writexml(xmlfile, addindent='' , newl='\n', encoding = 'utf-8')
         xmlfile.close()
 
 def fixed_writexml(self, writer, indent="", addindent="", newl=""):
