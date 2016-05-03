@@ -1,4 +1,4 @@
-import shutil
+import shutil, codecs
 from utils import *
 from xml.dom import minidom
 
@@ -28,8 +28,8 @@ class XMLParser(object):
 
     def write_xml(self):
         minidom.Element.writexml = fixed_writexml
-        xmlfile = open(self.xml_file, 'w')
-        self.xmldom.writexml(xmlfile, addindent='' , newl='\n', encoding = 'utf-8')
+        xmlfile = codecs.open(self.xml_file, 'w', 'utf-8')
+        self.xmldom.writexml(xmlfile, addindent='' , newl='\n')
         xmlfile.close()
 
 def fixed_writexml(self, writer, indent="", addindent="", newl=""):
