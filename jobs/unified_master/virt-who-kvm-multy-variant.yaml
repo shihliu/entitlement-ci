@@ -23,8 +23,17 @@
             - STAGE
           description: select server type
       - choice:
+          name: OS_ARCH
+          choices:
+            - i386
+            - x86_64
+            - s390x
+            - ppc64
+          description: select os arch
+      - choice:
           name: OS_VARIANT
           choices:
+            - Server
             - Client
             - Workstation
             - ComputeNode
@@ -55,11 +64,20 @@
             chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
             if [ "$RHEL_COMPOSE" != "" ]
             then
-                sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology}.json
-                chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
-                $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
-                $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name={project}
+                if [ "$OS_ARCH" == "s390x" ] || [ "$OS_ARCH" == "ppc64" ]
+                then
+                    sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology_no_hvm}.json
+                    chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
+                    $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
+                    $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                    --topology={topology_path}/{topology_no_hvm} --ssh_keyfile={beaker_keyfile} --name={project}
+                else
+                    sed -i -e "s/url_compose/$RHEL_COMPOSE/" -e "s/os_arch/$OS_ARCH/" -e "s/os_variant/$OS_VARIANT/" $WORKSPACE/entitlement-ci/config/{topology}.json
+                    chmod 777 $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh
+                    $WORKSPACE/entitlement-ci/utils/tools/check_beaker_distro_ready.sh $RHEL_COMPOSE
+                    $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+                    --topology={topology_path}/{topology} --ssh_keyfile={beaker_keyfile} --name={project}
+                fi
             else
                 echo "ERROR: RHEL_COMPOSE not provided\nSTATUS: $TR_STATUS"; exit 1;
             fi
@@ -71,8 +89,8 @@
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_VARIANT)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_VARIANT)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -123,16 +141,31 @@
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
+            if [ "$OS_ARCH"x = "x86_64"x ]
+            then
+                pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+                    nosetests virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                popd
+                pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
+                    nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                popd
+            else
+                pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+                    nosetests virtwho_kvm_arch_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                popd
+                pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm_arch/
+                    nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+                popd
+            fi
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/utils/xmlparser/
+            export PYTHONPATH=$WORKSPACE/entitlement-ci
+            python polarion_name_to_id.py $WORKSPACE/nosetests.xml $WORKSPACE/POLARION.txt
+            export RHEL_COMPOSE_FOR_POLARION=`echo $RHEL_COMPOSE | sed "s/\./_/g"`
             popd
 
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_VARIANT|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|OS_ARCH|OS_VARIANT|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RUNTIME_INFO.txt
@@ -142,6 +175,7 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - default-virt-who-multy-publishers
+      - default-polarion-multy-publishers
 
 - job-group:
     name: virt-who-kvm-multy-variant-provision-runtest
@@ -154,6 +188,7 @@
     project: virt-who-kvm-multy-variant
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
+    topology_no_hvm: bkr_build_single_provision_multy_arch
     topology: bkr_build_double_provision_multy_variant
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     beaker_keyfile: entitlement-ci/config/keys/beaker-key

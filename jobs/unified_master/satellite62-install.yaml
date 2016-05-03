@@ -1,5 +1,5 @@
 - job-template:
-    name: 'satellite-install-provision'
+    name: 'satellite62-install-provision'
     defaults: virt-who-provision
     node: '{jmastername}'
     builders:
@@ -10,6 +10,15 @@
             #export SWITCH=true/false
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
+
+            #convert switch for testing against satellite
+            if [ "$SWITCH"x = "true"x ]
+            then
+                export SWITCH=false
+            else
+                export SWITCH=true
+            fi
+            
 
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
@@ -44,32 +53,23 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite-install-runtest'
+          - project: 'satellite62-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'satellite-install-runtest'
+    name: 'satellite62-install-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'satellite-install-provision'
+            project: 'satellite62-install-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
             #!/bin/bash
-
-            #convert switch for testing against satellite
-            if [ "$SWITCH"x = "true"x ]
-            then
-                export SWITCH=false
-            else
-                export SWITCH=true
-            fi
-
             export TOPOLOGY={topology}
             {testparams}
             echo "TOPOLOGY: {topology}"
@@ -88,7 +88,7 @@
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests satellite62_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
@@ -103,21 +103,6 @@
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
-          - project: 'virt-who-esx-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-kvm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-          - project: 'virt-who-hyperv-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
           - project: 'rhsm-level-1-provision'
             current-parameters: false
             condition: 'SUCCESS'
@@ -128,30 +113,26 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
             fail-on-missing: true
-          - project: 'rhevm-install-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
 
 - job-group:
-    name: satellite-install-provision-runtest
+    name: satellite62-install-provision-runtest
     jobs:
-      - 'satellite-install-provision'
-      - 'satellite-install-runtest'
+      - 'satellite62-install-provision'
+      - 'satellite62-install-runtest'
 
 - project:
-    name: satellite-install-jobs
-    project: satellite-install
+    name: satellite62-install-jobs
+    project: satellite62-install
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
-    topology: qeos_satellite_install
+    topology: qeos_satellite62_install
     ssh_keyfile: entitlement-ci/config/keys/ent-key
     beaker_keyfile: entitlement-ci/config/keys/beaker-key
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - satellite-install-provision-runtest
-    jslavename: jslave-satellite-install-slave
+      - satellite62-install-provision-runtest
+    jslavename: jslave-satellite62-install-slave
     jslave_execs: 5
     jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
     jslaveflavor: m1.medium

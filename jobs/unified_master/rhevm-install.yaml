@@ -7,11 +7,18 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
             #export RHEL_COMPOSE=
             #export SERVER_IP=
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
+
+            if [ "$SWITCH"x = "true"x ]
+            then
+                echo "switch is true, rhevm will not install ..."; exit 1;
+            fi
+
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
@@ -83,7 +90,7 @@
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests rhevm_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests rhevm36_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
             export RHEVM_IP=$REMOTE_IP
             echo "********************************runtime env********************************"

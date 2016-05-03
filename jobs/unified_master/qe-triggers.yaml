@@ -1,5 +1,6 @@
 - job-template:
     name: 'qe-rhel-6-trigger'
+    defaults: virt-who-runtest
     node: '{jmastername}'
     triggers:
       - pollurl:
@@ -14,11 +15,19 @@
             export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            # if SWITCH is true, run kvm/hyper-v against sam, esx/rhevm agaist satellite, vice versa
+            #export SWITCH=true/false
             #export RHEL_COMPOSE= (optional)
             echo "*********************************setup env*********************************"
+            if [ "$SWITCH"x = ""x ]
+            then
+                pushd ..
+                . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
+                popd
+            fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
             #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -30,6 +39,10 @@
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite-install-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'satellite62-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -53,6 +66,7 @@
 
 - job-template:
     name: 'qe-rhel-7-trigger'
+    defaults: virt-who-runtest
     node: '{jmastername}'
     triggers:
       - pollurl:
@@ -67,11 +81,19 @@
             export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            # if SWITCH is true, run kvm/hyper-v against sam, esx/rhevm agaist satellite, vice versa
+            #export SWITCH=true/false
             #export RHEL_COMPOSE= (optional)
             echo "*********************************setup env*********************************"
+            if [ "$SWITCH"x = ""x ]
+            then
+                pushd ..
+                . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
+                popd
+            fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SWITCH)' > $WORKSPACE/BUILD.txt
             echo "********************************runtime env********************************"
             #reset all jobs after trigger
             #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
