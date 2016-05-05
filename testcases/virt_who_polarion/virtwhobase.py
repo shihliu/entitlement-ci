@@ -1384,6 +1384,22 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - log file has problem, please check it !")
 
+    def get_host_uuid(self, targetmachine_ip=""):
+        cmd = "virsh capabilities"
+        ret, output = self.runcmd(cmd, "Get hypervisor's capabilities", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to get hypervisor's capabilities on %s" % self.get_hg_info(targetmachine_ip))
+            datalines = output.splitlines()
+            for line in datalines:
+                if "uuid" in line:
+                    khrightloc = line.find("<uuid>")
+                    khleftloc = line.find("</uuid>")
+                    uuid = line[khrightloc+6:khleftloc].strip()
+                    logger.info("Success to get hypervisor's uuid %s" %uuid)
+                    return uuid
+        else:
+            raise FailException("Failed to get hypervisor's capabilities on %s" % self.get_hg_info(targetmachine_ip))
+
     def cal_virtwho_thread(self, targetmachine_ip=""):
             self.vw_restart_virtwho()
             time.sleep(1)
