@@ -40,6 +40,8 @@ class tc_ID17262_VDSM_validate_compliance_check_att_after_pause_shutdown_guest(V
             # (5).check if the uuid and attributes are correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=False)
 
+            # (6).Pause host1 and make guest move to host2
+            
             # (6). resume guest    
             self.rhevm_start_vm(guest_name, rhevm_ip)
 

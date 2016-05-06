@@ -12,11 +12,12 @@ class tc_ID17210_check_server_option_by_cli(KVMBase):
 
             if server_type == "SAM":
                 self.vw_check_mapping_info_number("virt-who -o -d --sam", 1)
+                self.check_virtwho_thread(0)
             elif server_type == "SATELLITE":
                 self.vw_check_mapping_info_number("virt-who -o -d --satellite6", 1)
+                self.check_virtwho_thread(0)
             else:
                 logger.info("it is %s mode, needn't to run this command" %server_type)
-            self.check_virtwho_thread(0)
 
             self.assert_(True, case_name)
         except Exception, e:
