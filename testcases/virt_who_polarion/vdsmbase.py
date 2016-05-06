@@ -727,6 +727,18 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to list VM %s." % vm_name) 
 
+    def vdsm_check_vm_nw(self, vm_name, nw_name, targetmachine_ip=""):
+    # Remove vm original network
+        vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
+        cmd = "rhevm-shell -c -E 'list nics --vm-identifier %s'" %vm_id
+        ret, output = self.runcmd(cmd, "List all nics of guest in rhevm.", targetmachine_ip)
+        if ret == 0 and nw_name in output:
+            logger.info("Success to list %s in %s" % (nw_name, vm_name))
+            return True
+        else:
+            logger.info("Failed to list %s in %s, maybe it has been deleted" % (nw_name, vm_name))
+            return False
+
     def vdsm_rm_vm_nw(self, vm_name, nw_name, targetmachine_ip=""):
     # Remove vm original network
         vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
@@ -879,8 +891,9 @@ class VDSMBase(VIRTWHOBase):
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
         # Add network bridge "ovirtmgmt"
         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
-            self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
-            self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+            if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
+                self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
+                self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
 
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
@@ -889,8 +902,9 @@ class VDSMBase(VIRTWHOBase):
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who configure file
+        self.update_config_to_default()
         self.update_rhel_vdsm_configure(5)
-        self.vw_restart_virtwho_new()
+        self.service_command("restart_virtwho")
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
@@ -899,8 +913,9 @@ class VDSMBase(VIRTWHOBase):
             self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
             self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
             # update virt-who configure file
+            self.update_config_to_default()
             self.update_rhel_vdsm_configure(5, slave_machine_ip)
-            self.vw_restart_virtwho_new(slave_machine_ip)
+            self.service_command("restart_virtwho", slave_machine_ip)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
@@ -910,5 +925,6 @@ class VDSMBase(VIRTWHOBase):
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         # update virt-who to rhevm mode in /etc/sysconfig/virt-who
+        self.update_config_to_default()
         self.set_rhevm_conf()
         self.service_command("restart_virtwho")
