@@ -19,6 +19,7 @@ class tc_ID17201_check_debug_function_by_config(KVMBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_DEBUG", 0)
             self.vw_check_message_in_rhsm_log("DEBUG|ERROR", message_exists=False)
+            self.vw_check_message_in_rhsm_log("guests found")
 
             self.assert_(True, case_name)
         except Exception, e:

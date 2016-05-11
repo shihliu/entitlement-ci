@@ -15,9 +15,14 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
             self.vw_check_message_number_in_rhsm_log(loop_msg, 2, 150)
             self.runcmd_service("stop_virtwho")
+            self.check_virtwho_thread(0)
             self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
             self.vw_check_message_number_in_rhsm_log(loop_msg, 1, 150)
-            self.check_virtwho_thread(2)
+            for i in range(5):
+                self.runcmd_service("restart_virtwho")
+                self.check_virtwho_thread(2)
+                time.sleep(5)
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
