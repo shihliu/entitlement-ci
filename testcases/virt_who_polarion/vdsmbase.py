@@ -28,18 +28,32 @@ class VDSMBase(VIRTWHOBase):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
-            cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x.repo" % self.get_vw_cons("data_folder")
-            ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            if "rhevm-4.0" in rhevm_version:
+                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x_40.repo" % self.get_vw_cons("data_folder")
+                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x_40.repo" % compose_name
+                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to update repo file to the latest rhel repo")
+                else:
+                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
             else:
-                raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-            cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x.repo" % compose_name
-            ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to update repo file to the latest rhel repo")
-            else:
-                raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x.repo" % self.get_vw_cons("data_folder")
+                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                else:
+                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x.repo" % compose_name
+                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to update repo file to the latest rhel repo")
+                else:
+                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
         else:
             if self.os_serial == "6" and "rhevm-3.6" in rhevm_version:
                 cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_6.x_36.repo" % self.get_vw_cons("data_folder")
