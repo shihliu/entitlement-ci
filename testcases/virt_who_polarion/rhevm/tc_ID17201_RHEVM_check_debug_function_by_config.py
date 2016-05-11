@@ -15,6 +15,7 @@ class tc_ID17201_RHEVM_check_debug_function_by_config(VDSMBase):
             # (2) Check "DEBUG" info is not exist when run disable "VIRTWHO_DEBUG" in /etc/sysconfig/virt-who
             self.config_option_setup_value("VIRTWHO_DEBUG", 0)
             self.vw_check_message_in_rhsm_log("DEBUG", message_exists=False)
+            self.vw_check_message_in_rhsm_log("hypervisors and|guests found")
 
             self.assert_(True, case_name)
         except Exception, e:

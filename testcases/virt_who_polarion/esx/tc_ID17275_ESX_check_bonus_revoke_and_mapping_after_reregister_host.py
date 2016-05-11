@@ -34,7 +34,7 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
 
-            self.sub_unregister()
+            self.vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="service virt-who restart")
             self.server_remove_system(host_uuid, server_ip)
             self.vw_check_virtwho_status()
             self.check_virtwho_thread(1)

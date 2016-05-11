@@ -12,7 +12,7 @@ class tc_ID17306_check_thread_after_config_libvirt(KVMBase):
                 self.setup_libvirtd_config()
                 self.vw_restart_libvirtd()
                 for i in range(3):
-                    self.vw_restart_virtwho()
+                    self.runcmd_service("restart_virtwho")
                     self.vw_check_message_in_rhsm_log("Too many active clients", message_exists=False)
                     self.list_vm()
                     self.check_virtwho_thread(2)

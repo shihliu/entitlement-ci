@@ -1,18 +1,14 @@
 from utils import *
-from testcases.virt_who_polarion.esxbase import ESXBase
-from utils.exception.failexception import FailException
+from testcases.sam_install.sam_install_base import SAM_Install_Base
 
-class tc_ID17219_ESX_check_vw_config_permission(ESXBase):
+class RHEVM40_Install(SAM_Install_Base):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            virt_who_conf_file = "/etc/sysconfig/virt-who"
-            virt_who_pid_file = "/var/run/virt-who.pid"
-            self.cm_check_file_mode(virt_who_conf_file, "600")
-            self.runcmd_service("restart_virtwho")
-            self.cm_check_file_mode(virt_who_pid_file, "600")
-
+            #compose = "latest-stable-Satellite-6.1-RHEL-7"
+            compose = "7"
+            self.install_rhevm40(compose)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
