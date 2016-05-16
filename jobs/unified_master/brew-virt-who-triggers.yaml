@@ -77,4 +77,3 @@
     project: brew-virt-who-triggers
     jobs:
       - brew-virt-who-triggers
-    jmastername: jslave-static-entitlement-master

@@ -49,4 +49,3 @@
     project: brew-virt-who-scratch-triggers
     jobs:
       - brew-virt-who-scratch-triggers
-    jmastername: jslave-static-entitlement-master
