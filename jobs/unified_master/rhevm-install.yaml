@@ -137,3 +137,4 @@
     jslavepassword: redhat
     jslaveteardown: True
 
+    jmastername: jslave-static-entitlement-master

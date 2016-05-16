@@ -155,3 +155,4 @@
     jslavepassword: redhat
     jslaveteardown: True
     polarion_template: virt-who for esx auto template
+    jmastername: jslave-static-entitlement-master

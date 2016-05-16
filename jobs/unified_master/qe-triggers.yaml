@@ -221,3 +221,4 @@
     project: qe-triggers
     jobs:
       - qe-triggers
+    jmastername: jslave-static-entitlement-master
