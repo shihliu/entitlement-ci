@@ -29,7 +29,7 @@ class SAM_Install_Base(Base):
     def install_satellite62(self, compose, server_ip=None, server_user=None, server_passwd=None):
 #         self.__stop_iptables(server_ip, server_user, server_passwd)
         self.__set_selinux(server_ip, server_user, server_passwd)
-        self.__satellite62_subscribe(server_ip, server_user, server_passwd)
+        self.__satellite_subscribe(server_ip, server_user, server_passwd)
         self.__add_satellite62_repo(compose, server_ip, server_user, server_passwd)
         self.__install_satellite(server_ip, server_user, server_passwd)
         self.__deploy_satellite62(server_ip, server_user, server_passwd)
