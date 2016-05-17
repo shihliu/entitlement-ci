@@ -4,7 +4,7 @@
             "name": "qeos-sam-install",
             "count": "1",
             "flavor": "m1.medium",
-            "image": "RHEL-6.7-Server-x86_64-released"
+            "image": "RHEL-7.2-Server-x86_64-released"
         }
    ]
 }

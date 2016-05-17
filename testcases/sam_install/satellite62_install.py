@@ -6,9 +6,7 @@ class SATELLITE62_Install(SAM_Install_Base):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            # compose = "latest-stable-Satellite-6.1-RHEL-7"
-            compose = "latest-Satellite-6.1-RHEL-7"
-            # compose = "latest-Satellite-6.2-RHEL-7"
+            compose = "latest-Satellite-6.2-RHEL-7"
             self.install_satellite62(compose)
             self.assert_(True, case_name)
         except Exception, e:
