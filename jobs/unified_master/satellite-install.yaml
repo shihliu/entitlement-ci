@@ -14,7 +14,7 @@
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
-            if [ "$JSLAVENAME" != "master" ]
+            if [ "$JSLAVENAME" != "{jmastername}" ]
             then
                 $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --jenkins_master_username=sgao --jenkins_master_password=0bdd1e1626c4701fc0023fa87474459d --site=$SITE --project_defaults={project_defaults} \
                 --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
