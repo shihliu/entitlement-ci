@@ -1,0 +1,29 @@
+{
+    "resources": [
+        {
+            "job_group": "china-entitlement-qe",
+            "recipesets": [
+                {
+                    "distro": "url_compose",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "hostrequire": ["<and><system><name op='like' value='%hp-z220%'/></system></and>"],
+                    "bkr_data": {
+                        "role": "Master",
+                        "name": "MasterMachine"
+                    }
+                },
+                {
+                    "distro": "url_compose",
+                    "arch": "X86_64",
+                    "variant": "Server",
+                    "hostrequire": ["<and><system><name op='like' value='%hp-z220%'/></system></and>",],
+                    "bkr_data": {
+                        "role": "Slave",
+                        "name": "SlaveMachine"
+                    }
+                }
+            ]
+        }
+   ]
+}
