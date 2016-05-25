@@ -245,7 +245,7 @@
             properties-list: |
                 user: ci-ops-central-jenkins
                 password: testpass
-                polarion.project=RHEL7
+                polarion.project=RedHatEnterpriseLinux7
                 polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ against\ $SERVER_TYPE
 
 - publisher:
@@ -261,7 +261,7 @@
             properties-list: |
                 user: ci-ops-central-jenkins
                 password: testpass
-                polarion.project=RHEL7
+                polarion.project=RedHatEnterpriseLinux7
                 polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ $OS_VARIANT\ $OS_ARCH\ against\ $SERVER_TYPE
 
 - publisher:
