@@ -7,7 +7,7 @@
                     "distro": "RHEL-6.7-20150702.0",
                     "arch": "X86_64",
                     "variant": "Server",
-                    "hostrequire": ["<and><system><name op='like' value='%hp-z220%'/></system></and>"]
+                    "hostrequire": ["<and><system><name op='like' value='%cloud-qe-16-vm%'/></system></and>"]
                 }
             ]
         }
