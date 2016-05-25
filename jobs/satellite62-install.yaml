@@ -15,10 +15,10 @@
             if [ "$SWITCH"x = "true"x ]
             then
                 export SWITCH=false
-            else
+            elif [ "$SWITCH"x = "false"x ]
+            then
                 export SWITCH=true
             fi
-            
 
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
