@@ -245,11 +245,10 @@ class RHSMBase(Base):
         else:
             raise FailException("Test Failed - Failed to check entitlement certificates.")
 
-    def sub_isconsumed(self, productname):
+    def sub_isconsumed(self, autosubprod):
         cmd = "subscription-manager list --consumed"
         (ret, output) = self.runcmd(cmd, "listing consumed subscriptions")
-        output_join = " ".join(x.strip() for x in output.split())
-        if (ret == 0) and (productname in output or productname in output_join):
+        if ret == 0 and autosubprod in output.strip():
             logger.info("The subscription of the product is consumed.")
             return True
         else:
@@ -347,6 +346,44 @@ class RHSMBase(Base):
             logger.info("Organization %s does not exist." % orgname)
             return False
 
+# All test focus on activationkey "qq", and it's attached pool '8ac20118533b351001533b3aa9c2020c'
+    def sam_remote_activationkey_exist(self, samhostip, orgname):
+        cmd = "headpin -u admin -p admin activation_key list --org=%s"%orgname
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
+        if 'qq' in output.split():
+            logger.info("activationkey qq exists. please check it's pool.")
+            return True
+        else:
+            logger.info("activationkey qq does not exist. please create it.")
+            return False
+
+    def sam_remote_activationkey_check_pool(self, samhostip, orgname):
+        cmd = "headpin -u admin -p admin activation_key info --org=%s --name=qq"%orgname
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
+        if '8ac20118533b351001533b3aa9c2020c' in output.split():
+            logger.info("activationkey qq is attached with pool '8ac20118533b351001533b3aa9c2020c'")
+            return True
+        else:
+            logger.info("activationkey qq is not attached with pool '8ac20118533b351001533b3aa9c2020c'. please attach it.")
+            return False
+
+    def sam_remote_activationkey_attach_pool(self, samhostip, orgname):
+        cmd = "headpin -u admin -p admin activation_key update --org=%s --name=qq --add_subscription=8ac20118533b351001533b3aa9c2020c"%orgname
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
+        if ret == 0:
+            logger.info("It's successful to attach pool 8ac20118533b351001533b3aa9c2020c to activationkey qq")
+        else:
+            raise FailException("Test Failed - Failed to attach pool to activationkey.")
+
+    def sam_remote_activationkey_creation(self, samhostip, orgname):
+        cmd = "headpin -u admin -p admin activation_key create --org=%s --name=qq"%orgname
+        (ret, output) = self.runcmd_sam(cmd, '', samhostip)
+        if ret == 0 and "Successfully created activation key" in output:
+            logger.info("It's successful to create activationkey qq. please attach a pool for it.")
+        else:
+            raise FailException("Test Failed - Failed to create activationkey.")
+
+    
     def parse_listconsumed_output(self, output):
         datalines = output.splitlines()
         data_list = []
