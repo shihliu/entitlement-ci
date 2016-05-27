@@ -430,31 +430,32 @@ class VDSMBase(VIRTWHOBase):
         if "presence" in output:
             logger.info("guest has already exist")
         else:
-            # Get vm
-#             cmd = "wget -P /home/rhevm_guest/ http://%s/projects/sam-virtwho/%s" % (self.get_vw_cons("data_server"), vm_name)
-#             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
-#             if ret == 0:
-#                 logger.info("Succeeded to wget kvm img file")
-#             else:
-#                 raise FailException("Failed to wget kvm img file")
-#             image_nfs_path = self.get_vw_cons("nfs_image_path")
+# #             Get vm
+# #            cmd = "wget -P /home/rhevm_guest/ http://%s/projects/sam-virtwho/%s" % (self.get_vw_cons("data_server"), vm_name)
+# #             ret, output = self.runcmd(cmd, "wget kvm img file", targetmachine_ip, showlogger=False)
+# #             if ret == 0:
+# #                 logger.info("Succeeded to wget kvm img file")
+# #             else:
+# #                 raise FailException("Failed to wget kvm img file")
+# #             image_nfs_path = self.get_vw_cons("nfs_image_path")
             # Get image from beaker NFS server
-            image_server = self.get_vw_cons("beaker_image_server")
-            image_nfs_path = '/home/rhevm_guest/'
-            image_mount_path = self.get_vw_cons("local_mount_point")
-            cmd = "mkdir %s" % image_mount_path
-            self.runcmd(cmd, "create local images mount point")
-            cmd = "mkdir %s" % image_nfs_path
-            self.runcmd(cmd, "create local nfs images directory")
-            cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
-            ret, output = self.runcmd(cmd, "mount images in host")
-            if ret == 0:
-                logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
-            else:
-                raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
-            logger.info("Begin to copy guest images...")
-            cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
-            ret, output = self.runcmd(cmd, "copy all kvm images")
+#             image_server = self.get_vw_cons("beaker_image_server")
+#             image_nfs_path = '/home/rhevm_guest/'
+#             image_mount_path = self.get_vw_cons("local_mount_point")
+#             cmd = "mkdir %s" % image_mount_path
+#             self.runcmd(cmd, "create local images mount point")
+#             cmd = "mkdir %s" % image_nfs_path
+#             self.runcmd(cmd, "create local nfs images directory")
+#             cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
+#             ret, output = self.runcmd(cmd, "mount images in host")
+#             if ret == 0:
+#                 logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
+#             else:
+#                 raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
+#             logger.info("Begin to copy guest images...")
+#             cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
+#             ret, output = self.runcmd(cmd, "copy all kvm images")
+            self.cm_set_cp_image("vdsm")
 
         cmd = "chmod -R 777 /home/rhevm_guest/"
         if ret == 0:
@@ -608,11 +609,11 @@ class VDSMBase(VIRTWHOBase):
                     logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
                     break
                 else:
-                    self.rhevm_define_guest(rhevm_vm_name)
-                    self.create_storage_pool()
-                    self.install_virtV2V()
-                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
-                    self.rhevm_undefine_guest(rhevm_vm_name)
+#                     self.rhevm_define_guest(rhevm_vm_name)
+#                     self.create_storage_pool()
+#                     self.install_virtV2V()
+#                     self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
+#                     self.rhevm_undefine_guest(rhevm_vm_name)
                     data_storage_id = self.get_domain_id("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id("export_storage", targetmachine_ip)
                     self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
