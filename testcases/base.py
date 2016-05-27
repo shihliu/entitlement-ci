@@ -94,6 +94,31 @@ class Base(unittest.TestCase):
         self.cm_set_rpm_version("RHSM_FIRSTBOOT", "subscription-manager-firstboot", targetmachine_ip)
         self.cm_set_rpm_version("PYTHON_RHSM", "python-rhsm", targetmachine_ip)
 
+    def cm_set_cp_image(self, mode="kvm", targetmachine_ip=""):
+        ''' mount the images prepared '''
+        if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
+            image_server = self.get_vw_cons("local_image_server")
+        else:
+            image_server = self.get_vw_cons("beaker_image_server")
+        if "kvm" in mode:
+            image_nfs_path = self.get_vw_cons("nfs_image_path")
+        else:
+            image_nfs_path = '/home/rhevm_guest/'
+        image_mount_path = self.get_vw_cons("local_mount_point")
+        cmd = "mkdir %s" % image_mount_path
+        self.runcmd(cmd, "create local images mount point", targetmachine_ip)
+        cmd = "mkdir %s" % image_nfs_path
+        self.runcmd(cmd, "create local nfs images directory", targetmachine_ip)
+        cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
+        ret, output = self.runcmd(cmd, "mount images in host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
+        else:
+            raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
+        logger.info("Begin to copy guest images...")
+        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
+        ret, output = self.runcmd(cmd, "copy all kvm images", targetmachine_ip)
+
     # ========================================================
     #       Basic Functions
     # ========================================================

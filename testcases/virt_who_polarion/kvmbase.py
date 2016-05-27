@@ -37,27 +37,28 @@ class KVMBase(VIRTWHOBase):
 
     def mount_images(self):
         ''' mount the images prepared '''
-        if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
-            image_server = self.get_vw_cons("local_image_server")
-        else:
-            image_server = self.get_vw_cons("beaker_image_server")
+#         if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
+#             image_server = self.get_vw_cons("local_image_server")
+#         else:
+#             image_server = self.get_vw_cons("beaker_image_server")
         image_nfs_path = self.get_vw_cons("nfs_image_path")
         image_mount_path = self.get_vw_cons("local_mount_point")
-        cmd = "mkdir %s" % image_mount_path
-        self.runcmd(cmd, "create local images mount point")
-        cmd = "mkdir %s" % image_nfs_path
-        self.runcmd(cmd, "create local nfs images directory")
-        cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
-        ret, output = self.runcmd(cmd, "mount images in host")
-        if ret == 0:
-            logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
-        else:
-            raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
-        logger.info("Begin to copy guest images...")
-        cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
-        ret, output = self.runcmd(cmd, "copy all kvm images")
+#         cmd = "mkdir %s" % image_mount_path
+#         self.runcmd(cmd, "create local images mount point")
+#         cmd = "mkdir %s" % image_nfs_path
+#         self.runcmd(cmd, "create local nfs images directory")
+#         cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
+#         ret, output = self.runcmd(cmd, "mount images in host")
+#         if ret == 0:
+#             logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
+#         else:
+#             raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
+#         logger.info("Begin to copy guest images...")
+#         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
+#         ret, output = self.runcmd(cmd, "copy all kvm images")
         # cmd = "umount %s" % (image_mount_path)
         # ret, output = self.runcmd(cmd, "umount images in host")
+        self.cm_set_cp_image()
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
         if ret == 0:
