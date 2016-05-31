@@ -177,7 +177,18 @@ class RHSMBase(Base):
             logger.info("It's failed to get system platform.")
         currentversion = version + platform
         return currentversion
-
+    
+    def sub_list_availablepool_list(self):
+        cmd = "subscription-manager list --available | grep 'Pool ID:'"
+        (ret, output) = self.runcmd(cmd)
+        if ret == 0:
+            if "no available subscription pools to list" not in output.lower():
+                poollist=output.strip().split("\n")
+                for i in range(len(poollist)):
+                    poollist[i]=poollist[i].strip("Pool ID:             ")
+                return poollist
+                
+    # Check if specified pool is available
     def sub_listavailpools(self, productid):
         cmd = "subscription-manager list --available"
         (ret, output) = self.runcmd(cmd)
@@ -269,6 +280,7 @@ class RHSMBase(Base):
                 raise FailException("Test Failed - Failed to get subscription-manager identity")
         return consumerid
 
+    # Check if specified pool is available
     def sub_listallavailpools(self, productid):
         cmd = "subscription-manager list --available --all"
         (ret, output) = self.runcmd(cmd, "listing available pools")
