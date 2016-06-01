@@ -259,7 +259,7 @@ class RHSMBase(Base):
     def sub_isconsumed(self, autosubprod):
         cmd = "subscription-manager list --consumed"
         (ret, output) = self.runcmd(cmd, "listing consumed subscriptions")
-        if ret == 0 and autosubprod in output.strip():
+        if ret == 0 and autosubprod in output.strip() or 'Pool ID' in output:
             logger.info("The subscription of the product is consumed.")
             return True
         else:
