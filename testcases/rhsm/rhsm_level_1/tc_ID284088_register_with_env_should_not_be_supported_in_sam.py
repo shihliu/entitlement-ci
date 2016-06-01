@@ -10,12 +10,15 @@ class tc_ID284088_register_with_env_should_not_be_supported_in_sam(RHSMBase):
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             org = self.get_rhsm_cons("default_org")
+            print 'server',self.test_server
             cmd = "subscription-manager register --username=%s --password=%s --org=%s --env=Library" % (username, password, org)
             (ret, output) = self.runcmd(cmd, "register with environments")
-            if ret != 0 and "Error: Server does not support environments." in output:
+            if self.test_server == "SAM" and ret != 0 and "Error: Server does not support environments." in output:
                 logger.info("It's successful to verify that register_with_env_should_not_be_supported_in_sam")
+            elif self.test_server == "SATELLITE" and ret == 0 and "The system has been registered with ID" in output:
+                logger.info("It's successful to verify that registration with envionments is supported in satellite")
             else:
-                raise FailException("Test Failed - failed to verify that register_with_env_should_not_be_supported_in_sam")
+                raise FailException("Test Failed - failed to verify registration with envionments")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error(str(e))

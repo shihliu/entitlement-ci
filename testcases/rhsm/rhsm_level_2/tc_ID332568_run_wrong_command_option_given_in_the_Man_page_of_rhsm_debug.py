@@ -35,7 +35,13 @@ class tc_ID332568_run_wrong_command_option_given_in_the_Man_page_of_rhsm_debug(R
             # check --sos is correctly displayed.
             cmd = 'man rhsm-debug | egrep "sos"'
             (ret, output) = self.runcmd(cmd, "check --sos")
-            if ret == 0 and "Excludes  data  files  that  are also collected by the sosreport" in output:
+            out1 = output.strip().split(' ')
+            out2=''
+            for i in range(len(out1)):
+                if out1[i] != ' ':
+                    out2=out2+out1[i]
+            print 'out2',out2
+            if ret == 0 and 'Excludesdatafilesthatarealsocollectedbythesosreport' in out2:
                 logger.info("It's successful to check --sos") 
             else:
                 raise FailException("Test Failed - Failed to check --sos")

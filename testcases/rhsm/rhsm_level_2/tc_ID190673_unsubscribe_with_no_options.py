@@ -14,7 +14,7 @@ class tc_ID190673_unsubscribe_with_no_options(RHSMBase):
             self.sub_autosubscribe(autosubprod)
             cmd = "subscription-manager unsubscribe"
             (ret, output) = self.runcmd(cmd, "running unsubscribe command with no options")
-            if ret != 0 and "Error: This command requires that you specify one of --serial or --all" in output :
+            if ret != 0 and ("Error: This command requires that you specify one of --serial or --all" in output or "Error: This command requires that you specify one of --serial, --pool or --all." in output):
                 logger.info("It's successful to check the error message when run unsubscribe with no options.")
             else:
                 raise FailException("Test Failed - Failed to check the error message when run unsubscribe with no options.")
