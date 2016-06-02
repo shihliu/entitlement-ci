@@ -455,6 +455,14 @@ class RHSMBase(Base):
         else:
             raise FailException("Test Failed - Failed to restart rhsmcertd service.")
 
+    def stop_rhsmcertd(self):
+        cmd = "service rhsmcertd stop"
+        (ret, output) = self.runcmd(cmd, "stop rhsmcertd service")
+        if ret == 0 and "Redirecting to /bin/systemctl stop  rhsmcertd.service" in output:
+            logger.info("It's successful to stop rhsmcertd service")
+        else:
+            raise FailException("Test Failed - Failed to restart rhsmcertd service.")
+
     def check_and_backup_yum_repos(self):
         # check if yum.repos.d is empty
         cmd = "ls /etc/yum.repos.d | wc -l"
