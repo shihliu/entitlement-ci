@@ -37,8 +37,8 @@
                 fi
                 echo "Waiting for provision finished ..."
             done
-            EXISTING_NODES_1=`bkr job-results --format junit-xml $BKR_JOBID | grep "Master Machine" | awk '{print $5}' | cut -d '"' -f 2`
-            EXISTING_NODES_2=`bkr job-results --format junit-xml $BKR_JOBID | grep "Slave Machine" | awk '{print $5}' | cut -d '"' -f 2`
+            EXISTING_NODES_1=`bkr job-results --format junit-xml $BKR_JOBID | grep "Master Machine" | sed  's/.*\(hostname=".*"\).*/\1/g' | cut -d '"' -f 2
+            EXISTING_NODES_2=`bkr job-results --format junit-xml $BKR_JOBID | grep "Slave Machine" | sed  's/.*\(hostname=".*"\).*/\1/g' | cut -d '"' -f 2
 
             if [ "$EXISTING_NODES_1" == "" ] || [ "$EXISTING_NODES_2" == "" ]
             then
