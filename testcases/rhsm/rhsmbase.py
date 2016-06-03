@@ -177,7 +177,18 @@ class RHSMBase(Base):
             logger.info("It's failed to get system platform.")
         currentversion = version + platform
         return currentversion
-
+    
+    def sub_list_availablepool_list(self):
+        cmd = "subscription-manager list --available | grep 'Pool ID:'"
+        (ret, output) = self.runcmd(cmd)
+        if ret == 0:
+            if "no available subscription pools to list" not in output.lower():
+                poollist=output.strip().split("\n")
+                for i in range(len(poollist)):
+                    poollist[i]=poollist[i].strip("Pool ID:             ")
+                return poollist
+                
+    # Check if specified pool is available
     def sub_listavailpools(self, productid):
         cmd = "subscription-manager list --available"
         (ret, output) = self.runcmd(cmd)
@@ -248,7 +259,7 @@ class RHSMBase(Base):
     def sub_isconsumed(self, autosubprod):
         cmd = "subscription-manager list --consumed"
         (ret, output) = self.runcmd(cmd, "listing consumed subscriptions")
-        if ret == 0 and autosubprod in output.strip():
+        if ret == 0 and autosubprod in output.strip() or 'Pool ID' in output:
             logger.info("The subscription of the product is consumed.")
             return True
         else:
@@ -269,6 +280,7 @@ class RHSMBase(Base):
                 raise FailException("Test Failed - Failed to get subscription-manager identity")
         return consumerid
 
+    # Check if specified pool is available
     def sub_listallavailpools(self, productid):
         cmd = "subscription-manager list --available --all"
         (ret, output) = self.runcmd(cmd, "listing available pools")
@@ -440,6 +452,14 @@ class RHSMBase(Base):
         (ret, output) = self.runcmd(cmd, "restart rhsmcertd service")
         if ret == 0 and "Redirecting to /bin/systemctl restart  rhsmcertd.service" in output:
             logger.info("It's successful to restart rhsmcertd service")
+        else:
+            raise FailException("Test Failed - Failed to restart rhsmcertd service.")
+
+    def stop_rhsmcertd(self):
+        cmd = "service rhsmcertd stop"
+        (ret, output) = self.runcmd(cmd, "stop rhsmcertd service")
+        if ret == 0 and "Redirecting to /bin/systemctl stop  rhsmcertd.service" in output:
+            logger.info("It's successful to stop rhsmcertd service")
         else:
             raise FailException("Test Failed - Failed to restart rhsmcertd service.")
 

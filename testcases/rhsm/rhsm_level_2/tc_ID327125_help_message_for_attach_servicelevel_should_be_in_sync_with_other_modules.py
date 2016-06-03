@@ -13,14 +13,14 @@ class tc_ID327125_help_message_for_attach_servicelevel_should_be_in_sync_with_ot
             # attach and service-level help msg
             cmd = "subscription-manager attach --help | grep 'servicelevel' -A3"
             (ret, output) = self.runcmd(cmd, "check help message for attach servicelevel")
-            if ret == 0 and 'service level to apply to this system, requires --auto' in output:
+            if ret == 0 and 'service level to apply to this system, requires --auto' in output or ("Automatically attach only subscriptions matching the" in output and "specified service level; only used with --auto" in output):
                 logger.info("It's successful to check help message for attach servicelevel")
             else:
                 raise FailException("Test Failed - Failed to check help message for attach servicelevel")
             # attach with pool and service level
             cmd = "subscription-manager attach --pool 8ac6a3a241bae96a0141baea35901305 --servicelevel premium"
             (ret, output) = self.runcmd(cmd, "check help message for attach servicelevel")
-            if ret != 0 and 'Error: Must use --auto with --servicelevel' in output:
+            if ret != 0 and 'Error: Must use --auto with --servicelevel' in output or "Error: The --servicelevel option cannot be used when specifying pools" in output:
                 logger.info("It's successful to check attach with pool and service level")
             else:
                 raise FailException("Test Failed - Failed to check attach with pool and service level")

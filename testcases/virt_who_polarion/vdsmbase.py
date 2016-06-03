@@ -28,59 +28,30 @@ class VDSMBase(VIRTWHOBase):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
-            if "rhevm-4.0" in rhevm_version:
-                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x_40.repo" % self.get_vw_cons("data_folder")
-                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+            if "rhevm-4.0" in rhevm_version :
+                if "7.2" in compose_name :
+                    repo = "rhevm_7.2_40.repo"
                 else:
-                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x_40.repo" % compose_name
-                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to update repo file to the latest rhel repo")
-                else:
-                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                    repo = "rhevm_7.3_40.repo"
             else:
-                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_7.x.repo" % self.get_vw_cons("data_folder")
-                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                else:
-                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_7.x.repo" % compose_name
-                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to update repo file to the latest rhel repo")
-                else:
-                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                repo = "rhevm_7.x.repo"
         else:
             if self.os_serial == "6" and "rhevm-3.6" in rhevm_version:
-                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_6.x_36.repo" % self.get_vw_cons("data_folder")
-                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                else:
-                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x_36.repo" % compose_name
-                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to update repo file to the latest rhel repo")
-                else:
-                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                repo = "rhevm_6.x_36.repo"
             else:
-                cmd = "wget -P /etc/yum.repos.d/ %s/rhevm_6.x.repo" % self.get_vw_cons("data_folder")
-                ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                else:
-                    raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
-                cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/rhevm_6.x.repo" % compose_name
-                ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to update repo file to the latest rhel repo")
-                else:
-                    raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+                repo = "rhevm_6.x.repo"
+        cmd = "wget -P /etc/yum.repos.d/ %s/%s" % (self.get_vw_cons("data_folder"), repo)
+        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to wget rhevm repo file and add to rhel host in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "sed -i -e 's/rhelbuild/%s/g' /etc/yum.repos.d/%s" % (compose_name, repo)
+        ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update repo file to the latest rhel repo")
+        else:
+            raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
 
     def get_rhevm_shell(self, targetmachine_ip=""):
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
@@ -161,7 +132,7 @@ class VDSMBase(VIRTWHOBase):
     def vdsm_get_dc_id(self, targetmachine_ip=""):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Get datacenter's id
-        cmd = "%s -c -E 'list datacenters'" %shell_cmd
+        cmd = "%s -c -E 'list datacenters'" % shell_cmd
         ret, output = self.runcmd(cmd, "list datacenter in rhevm.", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to list datacenter.")
@@ -178,7 +149,7 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Add host to rhevm
         while True:
-            cmd = "%s -c -E 'list hosts --show-all'" %shell_cmd
+            cmd = "%s -c -E 'list hosts --show-all'" % shell_cmd
             ret, output = self.runcmd(cmd, "list hosts in rhevm before add host", targetmachine_ip)
             if ret == 0 and rhevm_host_name in output:
                 logger.info("Succeeded to list host %s before add host" % rhevm_host_name)
@@ -192,7 +163,7 @@ class VDSMBase(VIRTWHOBase):
                 if ret == 0:
                     runtime = 0
                     while True:
-                        cmd = " %s -c -E 'list hosts --show-all'"% shell_cmd
+                        cmd = " %s -c -E 'list hosts --show-all'" % shell_cmd
                         ret, output = self.runcmd(cmd, "list hosts in rhevm.", targetmachine_ip)
                         runtime = runtime + 1
                         if ret == 0 and rhevm_host_name in output:
@@ -216,12 +187,12 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_mantenance_host(self, rhevm_host_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Maintenance Host on RHEVM
-        cmd = "%s -c -E 'action host \"%s\" deactivate'" %(shell_cmd, rhevm_host_name)
+        cmd = "%s -c -E 'action host \"%s\" deactivate'" % (shell_cmd, rhevm_host_name)
         ret, output = self.runcmd(cmd, "Maintenance host on rhevm.", targetmachine_ip)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'show host \"%s\"'" %(shell_cmd, rhevm_host_name)
+                cmd = "%s -c -E 'show host \"%s\"'" % (shell_cmd, rhevm_host_name)
                 ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -243,12 +214,12 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_delete_host(self, rhevm_host_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Delete Host on RHEVM
-        cmd = "%s -c -E 'action host \"%s\" delete'" %(shell_cmd, rhevm_host_name)
+        cmd = "%s -c -E 'action host \"%s\" delete'" % (shell_cmd, rhevm_host_name)
         ret, output = self.runcmd(cmd, "Maintenance host on rhevm.", targetmachine_ip)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'list hosts'" %shell_cmd
+                cmd = "%s -c -E 'list hosts'" % shell_cmd
                 ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -267,12 +238,12 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_active_host(self, rhevm_host_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Active Host on RHEVM
-        cmd = "%s -c -E 'action host \"%s\" activate'" %(shell_cmd, rhevm_host_name)
+        cmd = "%s -c -E 'action host \"%s\" activate'" % (shell_cmd, rhevm_host_name)
         ret, output = self.runcmd(cmd, "Active host on rhevm.", targetmachine_ip)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'show host \"%s\"'" %(shell_cmd, rhevm_host_name)
+                cmd = "%s -c -E 'show host \"%s\"'" % (shell_cmd, rhevm_host_name)
                 ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -366,7 +337,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Failed to restart service nfs.")
         # check datastorage domain before add new one
-        cmd = "%s -c -E 'list storagedomains' " %shell_cmd
+        cmd = "%s -c -E 'list storagedomains' " % shell_cmd
         ret, output = self.runcmd(cmd, "check storagedomain before add new one.", targetmachine_ip)
         if ret == 0 and storage_name in output:
             logger.info("storagedomains %s is exist in rhevm." % storage_name)
@@ -374,7 +345,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("storagedomains %s is not exist in rhevm." % storage_name)
             cmd = "%s -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter \"Default\"' " % (shell_cmd, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
             ret, output = self.runcmd(cmd, "Add storagedomain in rhevm.", targetmachine_ip)
-            wait_cmd = "%s -c -E 'list storagedomains --show-all'" %shell_cmd
+            wait_cmd = "%s -c -E 'list storagedomains --show-all'" % shell_cmd
             if self.wait_for_status(wait_cmd, "status-state", "unattached", targetmachine_ip):
                 logger.info("Succeeded to add storagedomains %s in rhevm." % storage_name)
             else:
@@ -388,7 +359,7 @@ class VDSMBase(VIRTWHOBase):
     #         cmd = "rhevm-shell -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"Default\"' " % (storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir)
             cmd = "%s -c -E 'add storagedomain --name \"%s\" --host-name \"%s\"  --type \"%s\" --storage-type \"nfs\" --storage_format \"%s\" --storage-address \"%s\" --storage-path \"%s\" --datacenter-identifier \"%s\"' " % (shell_cmd, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, dc_attach)
             ret, output = self.runcmd(cmd, "Attaches the storage domain to the Default data center.", targetmachine_ip)
-            wait_cmd = "%s -c -E 'list storagedomains --show-all'" %shell_cmd
+            wait_cmd = "%s -c -E 'list storagedomains --show-all'" % shell_cmd
             if self.wait_for_status(wait_cmd, "status-state", "NotExist", targetmachine_ip):
                 logger.info("Succeeded to active storagedomains %s in rhevm." % storage_name)
             else:
@@ -563,7 +534,7 @@ class VDSMBase(VIRTWHOBase):
     def get_domain_id(self, storagedomain_name, rhevm_host_ip):
         shell_cmd = self.get_rhevm_shell(rhevm_host_ip)
     # Get storagedomain id 
-        cmd = "%s -c -E 'list storagedomains '" %shell_cmd
+        cmd = "%s -c -E 'list storagedomains '" % shell_cmd
         ret, output = self.runcmd(cmd, "list storagedomains in rhevm.", rhevm_host_ip)
         if ret == 0 and storagedomain_name in output:
             logger.info("Succeeded to list storagedomains %s in rhevm." % storagedomain_name)
@@ -583,7 +554,7 @@ class VDSMBase(VIRTWHOBase):
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'list vms --show-all'" %shell_cmd
+                cmd = "%s -c -E 'list vms --show-all'" % shell_cmd
                 ret, output = self.runcmd(cmd, "list VMS in rhevm.", rhevm_host_ip)
                 runtime = runtime + 1
                 if ret == 0 and guest_name in output:
@@ -602,18 +573,18 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Add guest to rhevm
         while True:
-            cmd = "%s -c -E ' list vms --name %s'" %(shell_cmd, rhevm_vm_name)
+            cmd = "%s -c -E ' list vms --name %s'" % (shell_cmd, rhevm_vm_name)
             ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip)
             if ret == 0 :
                 if rhevm_vm_name in output and "virt-v2v" in output:
                     logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
                     break
                 else:
-#                     self.rhevm_define_guest(rhevm_vm_name)
-#                     self.create_storage_pool()
-#                     self.install_virtV2V()
-#                     self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
-#                     self.rhevm_undefine_guest(rhevm_vm_name)
+                    self.rhevm_define_guest(rhevm_vm_name)
+                    self.create_storage_pool()
+                    self.install_virtV2V()
+                    self.convert_guest_to_nfs(get_exported_param("REMOTE_IP"), NFSserver_ip, nfs_dir_for_export, rhevm_vm_name)
+                    self.rhevm_undefine_guest(rhevm_vm_name)
                     data_storage_id = self.get_domain_id("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id("export_storage", targetmachine_ip)
                     self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
@@ -625,7 +596,7 @@ class VDSMBase(VIRTWHOBase):
     # Start VM on RHEVM
         runtime_start = 0
         while True:
-            cmd = "%s -c -E 'action vm %s start'" %(shell_cmd, rhevm_vm_name)
+            cmd = "%s -c -E 'action vm %s start'" % (shell_cmd, rhevm_vm_name)
             ret, output = self.runcmd(cmd, "start vm on rhevm.", rhevm_host_ip)            
             if "Storage Domain cannot be accessed" in output:
                 runtime_start = runtime_start + 1
@@ -639,7 +610,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Failed to start vm %s on rhevm" % rhevm_vm_name)
         runtime = 0
         while True:
-            cmd = "%s -c -E 'show vm %s'" %(shell_cmd, rhevm_vm_name)
+            cmd = "%s -c -E 'show vm %s'" % (shell_cmd, rhevm_vm_name)
             ret, output = self.runcmd(cmd, "list vms in rhevm.", rhevm_host_ip)
             runtime = runtime + 1
             if ret == 0:
@@ -660,12 +631,12 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_stop_vm(self, rhevm_vm_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Stop VM on RHEVM
-        cmd = "%s -c -E 'action vm \"%s\" stop'" %(shell_cmd, rhevm_vm_name)
+        cmd = "%s -c -E 'action vm \"%s\" stop'" % (shell_cmd, rhevm_vm_name)
         ret, output = self.runcmd(cmd, "stop vm on rhevm.", targetmachine_ip)
         if ret == 0:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'show vm %s'" %(shell_cmd, rhevm_vm_name)
+                cmd = "%s -c -E 'show vm %s'" % (shell_cmd, rhevm_vm_name)
                 ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -689,7 +660,7 @@ class VDSMBase(VIRTWHOBase):
     # Pause VM on RHEVM
         runtime_suspend = 0
         while True:
-            cmd = "%s -c -E 'action vm \"%s\" suspend'" %(shell_cmd, rhevm_vm_name)
+            cmd = "%s -c -E 'action vm \"%s\" suspend'" % (shell_cmd, rhevm_vm_name)
             ret, output = self.runcmd(cmd, "suspend vm on rhevm.", targetmachine_ip)
             if "Storage Domain cannot be accessed" in output:
                 runtime_suspend = runtime_suspend + 1
@@ -703,7 +674,7 @@ class VDSMBase(VIRTWHOBase):
                 raise FailException("Failed to suspended vm %s in rhevm" % rhevm_vm_name)
         runtime = 0
         while True:
-            cmd = "%s -c -E 'show vm %s'" %(shell_cmd, rhevm_vm_name)
+            cmd = "%s -c -E 'show vm %s'" % (shell_cmd, rhevm_vm_name)
             ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
             runtime = runtime + 1
             if ret == 0:
@@ -729,7 +700,7 @@ class VDSMBase(VIRTWHOBase):
         if ret == 0 and "complete" in output:
             runtime = 0
             while True:
-                cmd = "%s -c -E 'show vm %s'" %(shell_cmd,rhevm_vm_name)
+                cmd = "%s -c -E 'show vm %s'" % (shell_cmd, rhevm_vm_name)
                 ret, output = self.runcmd(cmd, "list vms in rhevm.", targetmachine_ip)
                 runtime = runtime + 1
                 if ret == 0:
@@ -751,7 +722,7 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_get_guest_ip(self, vm_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Get guest ip
-        cmd = "%s -c -E 'show vm %s'" %(shell_cmd, vm_name)
+        cmd = "%s -c -E 'show vm %s'" % (shell_cmd, vm_name)
         ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to list vm %s." % vm_name)
@@ -768,7 +739,7 @@ class VDSMBase(VIRTWHOBase):
     def vdsm_get_vm_uuid(self, vm_name, targetmachine_ip=""):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Get the guest uuid
-        cmd = "%s -c -E 'show vm %s'" %(shell_cmd,vm_name)
+        cmd = "%s -c -E 'show vm %s'" % (shell_cmd, vm_name)
         ret, output = self.runcmd(cmd, "list VMS in rhevm.", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to list vm %s." % vm_name)
@@ -785,7 +756,7 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Remove vm original network
         vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
-        cmd = "%s -c -E 'list nics --vm-identifier %s'" %(shell_cmd, vm_id)
+        cmd = "%s -c -E 'list nics --vm-identifier %s'" % (shell_cmd, vm_id)
         ret, output = self.runcmd(cmd, "List all nics of guest in rhevm.", targetmachine_ip)
         if ret == 0 and nw_name in output:
             logger.info("Success to list %s in %s" % (nw_name, vm_name))
@@ -809,7 +780,7 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # VM add new network
         vm_id = self.vdsm_get_vm_uuid(vm_name, targetmachine_ip)
-        cmd = "%s -c -E 'add nic --vm-identifier %s --name ovirtmgmt --network-name ovirtmgmt'" %(shell_cmd, vm_id)
+        cmd = "%s -c -E 'add nic --vm-identifier %s --name ovirtmgmt --network-name ovirtmgmt'" % (shell_cmd, vm_id)
         ret, output = self.runcmd(cmd, "Add vm's new network in rhevm.", targetmachine_ip)
         if ret == 0 and "ovirtmgmt" in output:
             logger.info("Success to add vm %s network." % vm_name)
@@ -819,7 +790,7 @@ class VDSMBase(VIRTWHOBase):
     def get_host_uuid_on_rhevm(self, host_name, targetmachine_ip=""):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Get the host uuid
-        cmd = "%s -c -E 'show host %s'" %(shell_cmd, host_name)
+        cmd = "%s -c -E 'show host %s'" % (shell_cmd, host_name)
         ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
         if ret == 0:
             hostid = self.get_key_rhevm(output, "id", "name", host_name, targetmachine_ip)
@@ -834,7 +805,7 @@ class VDSMBase(VIRTWHOBase):
     def get_host_hwuuid_on_rhevm(self, host_name, targetmachine_ip=""):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
     # Get the host hwuuid
-        cmd = "%s -c -E 'show host %s'" %(shell_cmd, host_name)
+        cmd = "%s -c -E 'show host %s'" % (shell_cmd, host_name)
         ret, output = self.runcmd(cmd, "list host in rhevm.", targetmachine_ip)
         if ret == 0:
             hostid = self.get_key_rhevm(output, "hardware_information-uuid", "name", host_name, targetmachine_ip)
@@ -943,13 +914,14 @@ class VDSMBase(VIRTWHOBase):
             self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
         # Add network bridge "ovirtmgmt"
-        if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+#         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+        if "rhevm-3.5" not in rhevm_version:
             if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
                 self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
                 self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
