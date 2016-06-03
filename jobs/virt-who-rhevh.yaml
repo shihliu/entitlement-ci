@@ -1,0 +1,153 @@
+- job-template:
+    name: 'virt-who-rhevh-provision'
+    defaults: virt-who-provision
+    node: master
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
+            #export RHEL_COMPOSE=
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
+
+            kinit -k -t $KEYTAB $PRINCIPAL
+            export JSLAVENAME={jslavename}
+            # Provision Jenkins Slave
+            if [ "$JSLAVENAME" != "master" ]
+            then
+                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
+                TR_STATUS=$?
+                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+            fi
+            # Provision Test Resources Machine
+            BKR_JOBID=`bkr job-submit $WORKSPACE/entitlement-ci/beaker/jobxml/virtwho_rhevh_job_sample.xml | cut -d \' -f 2`
+            while 1
+            do
+                reservesys=`bkr job-logs $BKR_JOBID | grep 'test_log--distribution-reservesys.log' | wc -l`
+                if [ $? == 2 ]
+                then
+                    break
+                fi
+                echo "Waiting for provision finished ..."
+            done
+            EXISTING_NODES_1=`bkr job-results --format junit-xml $BKR_JOBID | grep "Master Machine" | awk '{print $5}' | cut -d '"' -f 2`
+            EXISTING_NODES_2=`bkr job-results --format junit-xml $BKR_JOBID | grep "Slave Machine" | awk '{print $5}' | cut -d '"' -f 2`
+
+            if [ "$EXISTING_NODES_1" == "" ] || [ "$EXISTING_NODES_2" == "" ]
+            then
+                echo "ERROR: Provision failed! Master Machine: $EXISTING_NODES_1, Slave Machine: $EXISTING_NODES_2; exit 1;
+            fi
+            
+            echo "EXISTING_NODES=$EXISTING_NODES_1,$EXISTING_NODES_2">> $WORKSPACE/RESOURCES.txt
+            
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'virt-who-rhevh-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+- job-template:
+    name: 'virt-who-rhevh-runtest'
+    defaults: virt-who-runtest
+    node: '{jslavename}'
+    builders:
+        - copyartifact:
+            project: 'virt-who-rhevh-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            export TOPOLOGY={topology}
+            {testparams}
+            echo "TOPOLOGY: {topology}"
+            echo "Ping Jenkins Slave"
+            ping -c 10 $JSLAVEIP
+            echo "Jenkins machine info we are running on"
+            ifconfig
+            echo "Pinging Test Resources"
+            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            cat $WORKSPACE/RESOURCES.txt
+
+            EXISTING_NODES_1=`echo $EXISTING_NODES | cut -d ',' -f 1`
+            EXISTING_NODES_2=`echo $EXISTING_NODES | cut -d ',' -f 2`
+            export REMOTE_IP=$EXISTING_NODES_1
+            export REMOTE_IP_2=$EXISTING_NODES_2
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export REMOTE_IP=
+            #export REMOTE_IP_2=
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
+            echo "*********************************setup env*********************************"
+
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_kvm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/kvm/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+
+            pushd $WORKSPACE/entitlement-ci/utils/xmlparser/
+            export PYTHONPATH=$WORKSPACE/entitlement-ci
+            python polarion_name_to_id.py $WORKSPACE/nosetests.xml $WORKSPACE/POLARION.txt
+            export RHEL_COMPOSE_FOR_POLARION=`echo $RHEL_COMPOSE | sed "s/\./_/g"`
+            popd
+
+            echo "********************************runtime env********************************"
+            env | grep -E '(REMOTE_IP|REMOTE_IP_2|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RUNTIME_INFO.txt
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - default-virt-who-runtest-publishers
+      - default-virt-who-double-publishers
+      - default-polarion-publishers
+
+- job-group:
+    name: virt-who-rhevh-provision-runtest
+    jobs:
+      - 'virt-who-rhevh-provision'
+      - 'virt-who-rhevh-runtest'
+
+- project:
+    name: virt-who-rhevh-jobs
+    project: virt-who-rhevh
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: bkr_build_double_provision_hpz220
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    beaker_keyfile: entitlement-ci/config/keys/beaker-key
+    tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
+    jobs:
+      - virt-who-rhevh-provision-runtest
+    jslavename: jslave-virt-who-rhevh-slave
+    jslave_execs: 5
+    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveflavor: m1.medium
+    jslaveusername: root
+    jslavepassword: redhat
+    jslaveteardown: True
