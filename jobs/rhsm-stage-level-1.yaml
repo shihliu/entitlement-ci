@@ -86,7 +86,7 @@
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export REMOTE_IP=
-            #export SERVER_TYPE=
+            #export SERVER_TYPE=STAGE
             echo "*********************************setup env*********************************"
 
             pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
