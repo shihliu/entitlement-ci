@@ -124,6 +124,7 @@
             fail-on-missing: true
       - default-virt-who-runtest-publishers
       - default-virt-who-rhevm-publishers
+      - default-polarion-publishers
 
 - job-template:
     name: 'virt-who-rhel-vdsm-runtest'
