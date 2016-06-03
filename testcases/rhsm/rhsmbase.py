@@ -241,6 +241,16 @@ class RHSMBase(Base):
         serialnumlist = [line.replace('.pem', '') for line in ent_certs]
         return serialnumlist
 
+    def get_entitlementcerts_list(self):
+        rctcommand = self.check_rct()
+        if rctcommand == True:
+            cmd = "ls /etc/pki/entitlement/ | grep -v key.pem"
+            (ret, output) = self.runcmd(cmd, "get entitlement certs list")
+            if ret == 0:
+                return output
+            else:
+                raise FailException("Test Failed - Failed to list entitlement certs list.")
+
     def sub_checkentitlementcerts(self, productid):
         rctcommand = self.check_rct()
         if rctcommand == True:
