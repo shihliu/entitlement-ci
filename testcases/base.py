@@ -47,19 +47,19 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "install tigervnc", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to install tigervnc-server")
-        else:
-            raise FailException("Test Failed - Failed to install tigervnc-server")
-        cmd = "ps -ef | grep Xvnc | grep -v grep"
-        ret, output = self.runcmd(cmd, "check whether vpncserver has started", targetmachine_ip,)
-        if ret == 0:
-            logger.info("vncserver already started ...")
-        else:
-            cmd = "vncserver -SecurityTypes None"
-            ret, output = self.runcmd(cmd, "start vncserver", targetmachine_ip)
+            cmd = "ps -ef | grep Xvnc | grep -v grep"
+            ret, output = self.runcmd(cmd, "check whether vpncserver has started", targetmachine_ip,)
             if ret == 0:
-                logger.info("Succeeded to start vncserver")
+                logger.info("vncserver already started ...")
             else:
-                raise FailException("Test Failed - Failed to start vncserver")
+                cmd = "vncserver -SecurityTypes None"
+                ret, output = self.runcmd(cmd, "start vncserver", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to start vncserver")
+                else:
+                    raise FailException("Test Failed - Failed to start vncserver")
+        else:
+            logger.info("Failed to install tigervnc-server")
 
     def cm_check_file_mode(self, file, mode, targetmachine_ip=""):
         # check file mode with given value
