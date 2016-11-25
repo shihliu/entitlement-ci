@@ -623,5 +623,13 @@ class Base(unittest.TestCase):
 #         id = self.st_name_to_id("aee4ff00-8c33-11e2-994a-6c3be51d959a")
 #         logger.info(id)
 
+    def list_img(self, targetmachine_ip=""):
+        cmd = "docker images"
+        self.runcmd(cmd, "list docker images", targetmachine_ip)
+        cmd = "docker pull shaoqq/rhel68"
+        self.runcmd(cmd, "pull vm docker images", targetmachine_ip)
+        cmd = "docker images"
+        self.runcmd(cmd, "list docker images", targetmachine_ip)
+
 if __name__ == "__main__":
     unittest.main()
