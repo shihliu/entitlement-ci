@@ -1,5 +1,5 @@
 from utils import *
-from testcases.install.install_base import Install_Base
+from testcases.sam_install.install_base import Install_Base
 
 class SATELLITE62_Install(Install_Base):
     def test_run(self):
