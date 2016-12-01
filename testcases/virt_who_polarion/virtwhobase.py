@@ -28,7 +28,7 @@ class VIRTWHOBase(Base):
         self.cm_install_basetool(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for esx testing", showlogger=False)
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
@@ -74,9 +74,17 @@ class VIRTWHOBase(Base):
         elif mode == "hyperv":
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             cmd = "virt-who --hyperv --hyperv-owner=%s --hyperv-env=%s --hyperv-server=%s --hyperv-username=%s --hyperv-password=%s" % (hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password)
+        elif mode == "xen":
+            xen_owner, xen_env, xen_server, xen_username, xen_password = self.get_xen_info()
+            cmd = "virt-who --xen --xen-owner=%s --xen-env=%s --xen-server=%s --xen-username=%s --xen-password=%s" % (xen_owner, xen_env, xen_server, xen_username, xen_password)
         elif mode == "rhevm":
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
-            rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
+            rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+            if "rhevm-4.0"in rhevm_version:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
+            else:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
         elif mode == "libvirt":
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
@@ -85,6 +93,63 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to get virt-who comand line with %s mode" % mode)
         return cmd
+
+    def vw_restart_virtwho(self, targetmachine_ip=""):
+        ''' restart virt-who service. '''
+        ret, output = self.runcmd_service("restart_virtwho", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to restart virt-who service.")
+        else:
+            raise FailException("Test Failed - Failed to restart virt-who service.")
+
+    def vw_stop_virtwho(self, targetmachine_ip=""):
+        ''' stop virt-who service. '''
+        ret, output = self.runcmd_service("stop_virtwho", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to stop virt-who service.")
+        else:
+            raise FailException("Failed to stop virt-who service.")
+
+    def vw_check_virtwho_status(self, targetmachine_ip=""):
+        ''' check the virt-who status. '''
+        ret, output = self.runcmd_service("status_virtwho", targetmachine_ip)
+        if ret == 0 and "running" in output:
+            logger.info("Succeeded to check virt-who is running.")
+        else:
+            raise FailException("Test Failed - Failed to check virt-who is running.")
+
+    def vw_check_libvirtd_status(self, targetmachine_ip=""):
+        ''' check the libvirtd status. '''
+        ret, output = self.runcmd_service("status_libvirtd", targetmachine_ip)
+        if ret == 0 and "running" in output:
+            logger.info("Succeeded to check libvirtd is running.")
+        else:
+            raise FailException("Test Failed - Failed to check libvirtd is running.")
+
+    def vw_restart_libvirtd(self, targetmachine_ip=""):
+        ''' restart libvirtd service. '''
+        ret, output = self.runcmd_service("restart_libvirtd", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to restart libvirtd service.")
+        else:
+            raise FailException("Test Failed - Failed to restart libvirtd")
+
+    def vw_restart_libvirtd_vdsm(self, targetmachine_ip=""):
+        ''' restart libvirtd service. '''
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "service libvirtd restart"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                raise FailException("Test Failed - Failed to restart libvirtd")
+        else:
+            cmd = "initctl restart libvirtd"
+            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to restart libvirtd service.")
+            else:
+                raise FailException("Failed to initctl restart libvirtd")
 
     # run virt-who oneshot by cli, return the output
     def virtwho_oneshot(self, mode, targetmachine_ip=""):
@@ -113,15 +178,6 @@ class VIRTWHOBase(Base):
         if ret == 0:
             return True
         return False
-
-    def vw_restart_virtwho(self, targetmachine_ip=""):
-        ''' restart virt-who service. '''
-        cmd = "service virt-who restart"
-        ret, output = self.runcmd(cmd, "restart virt-who", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to restart virt-who service.")
-        else:
-            raise FailException("Test Failed - Failed to restart virt-who service.")
 
     def check_virtwho_thread(self, number, targetmachine_ip=""):
         ''' check virt-who thread number '''
@@ -188,9 +244,16 @@ class VIRTWHOBase(Base):
             virtwho_server = get_exported_param("REMOTE_IP")
         elif mode == "hyperv":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
+        elif mode == "xen":
+            virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_xen_info()
         elif mode == "rhevm":
             virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_rhevm_info()
-            virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
+            rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+            if "rhevm-4.0"in rhevm_version:
+                virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443" + "/ovirt-engine/"
+            else:
+                virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
         # set conf data for all mode
         conf_data = "[%s]\n"\
                     "type=%s\n"\
@@ -360,7 +423,8 @@ class VIRTWHOBase(Base):
         remote_ip = get_exported_param("REMOTE_IP")
         username = "root"
         password = "red2015"
-        virt_who_password_cmd = "python /usr/share/virt-who/virtwhopassword.py" 
+        # virt_who_password_cmd = "python /usr/share/virt-who/virtwhopassword.py"
+        virt_who_password_cmd = "virt-who-password"
         logger.info("run command %s in %s" % (virt_who_password_cmd, remote_ip))
         
         ssh = paramiko.SSHClient()
@@ -390,134 +454,6 @@ class VIRTWHOBase(Base):
             return encode_password 
         else:
             raise FailException("Failed to encode virt-who-password.")
-
-    def vw_stop_virtwho(self, targetmachine_ip=""):
-        ''' stop virt-who service. '''
-        cmd = "service virt-who stop"
-        ret, output = self.runcmd(cmd, "stop virt-who", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to stop virt-who service.")
-        else:
-            raise FailException("Failed to stop virt-who service.")
-
-    def vw_restart_libvirtd(self, targetmachine_ip=""):
-        ''' restart libvirtd service. '''
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "service libvirtd restart"
-            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart libvirtd service.")
-            else:
-                raise FailException("Test Failed - Failed to restart libvirtd")
-        else:
-            cmd = "service libvirtd restart"
-            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart libvirtd service.")
-            else:
-                raise FailException("Test Failed - Failed to restart libvirtd")
-
-    def vw_restart_libvirtd_vdsm(self, targetmachine_ip=""):
-        ''' restart libvirtd service. '''
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "service libvirtd restart"
-            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart libvirtd service.")
-            else:
-                raise FailException("Test Failed - Failed to restart libvirtd")
-        else:
-            cmd = "initctl restart libvirtd"
-            ret, output = self.runcmd(cmd, "restart libvirtd", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restart libvirtd service.")
-            else:
-                raise FailException("Failed to initctl restart libvirtd")
-
-    def vw_restart_virtwho_new(self, targetmachine_ip=""):
-        if self.check_systemctl_service("virt-who", targetmachine_ip):
-            cmd = "systemctl restart virt-who.service; sleep 10"
-            ret, output = self.runcmd(cmd, "restart virt-who service by systemctl.", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restsart virt-who")
-            else:
-                raise FailException("Test Failed - Failed to restart virt-who")
-        else:
-            cmd = "service virt-who restart; sleep 10"
-            ret, output = self.runcmd(cmd, "restart virt-who by service", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to restsart virt-who")
-            else:
-                raise FailException("Test Failed - Failed to restart virt-who")
-
-    def vw_stop_virtwho_new(self, targetmachine_ip=""):
-        if self.check_systemctl_service("virt-who", targetmachine_ip):
-            cmd = "systemctl stop virt-who.service; sleep 10"
-            ret, output = self.runcmd(cmd, "stop virt-who service by systemctl.", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to stop virt-who")
-            else:
-                raise FailException("Test Failed - Failed to stop virt-who")
-        else:
-            cmd = "service virt-who stop; sleep 10"
-            ret, output = self.runcmd(cmd, "stop virt-who by service", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to stop virt-who")
-            else:
-                raise FailException("Test Failed - Failed to stop virt-who")
-
-#     # check virt-who servcie status, rhel7:"active" "failed" "unknown", rhel6:"running" "stopped"
-#     def check_virtwho_status(self, targetmachine_ip=""):
-#         if self.get_os_serials(targetmachine_ip) == "7":
-#             # will feedback "active" "failed" "unknow"
-#             cmd = "systemctl is-active virt-who"
-#             ret, output = self.runcmd(cmd, "check virt-who service by systemctl.", targetmachine_ip)
-#             return output.strip()
-#         else:
-#             # will feedback "running" "stopped" "failed"
-#             cmd = "service virt-who status"
-#             ret, output = self.runcmd(cmd, "check virt-who service status by sysvinit", targetmachine_ip)
-#             if "running" in output:
-#                 return "running"
-#             elif "stopped" in output:
-#                 return "stopped"
-#             else:
-#                 return "failed"
-
-    def vw_check_virtwho_status(self, targetmachine_ip=""):
-        ''' Check the virt-who status. '''
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "systemctl status virt-who; sleep 10"
-            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
-            if ret == 0 and "running" in output:
-            # if ret == 0:
-                logger.info("Succeeded to check virt-who is running.")
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is running.")
-        else:
-            cmd = "service virt-who status; sleep 10"
-            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
-            if ret == 0 and "running" in output:
-                logger.info("Succeeded to check virt-who is running.")
-            else:
-                raise FailException("Test Failed - Failed to check virt-who is running.")
-
-    def vw_check_libvirtd_status(self, targetmachine_ip=""):
-        ''' Check the libvirtd status. '''
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = "systemctl status libvirtd; sleep 10"
-            ret, output = self.runcmd(cmd, "virt-who status", targetmachine_ip)
-            if ret == 0 and "running" in output:
-                logger.info("Succeeded to check libvirtd is running.")
-            else:
-                raise FailException("Test Failed - Failed to check libvirtd is running.")
-        else:
-            cmd = "service libvirtd status; sleep 10"
-            ret, output = self.runcmd(cmd, "libvirtd status", targetmachine_ip)
-            if ret == 0 and "running" in output:
-                logger.info("Succeeded to check libvirtd is running.")
-            else:
-                raise FailException("Test Failed - Failed to check libvirtd is running.")
 
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
@@ -991,64 +927,80 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to update subscription facts %s." % self.get_hg_info(targetmachine_ip))
 
-    def generate_tmp_log(self, checkcmd, tmp_file, waiting_time=0, targetmachine_ip=""):
-        cmd = "tail -f -n 0 /var/log/rhsm/rhsm.log > %s 2>&1 &" % tmp_file
-        self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
-        self.runcmd(checkcmd, "run checkcmd", targetmachine_ip)
-        if waiting_time == 0:
-            if "vdsmd" in checkcmd or "libvirtd" in checkcmd:
-                time.sleep(120)
-            elif "rhsmcertd" in checkcmd:
-                time.sleep(100)
-            elif "virsh" in checkcmd:
-                time.sleep(5)
-            else:
-                time.sleep(20)
-        else:
-            time.sleep(waiting_time)
-        self.kill_pid("tail", targetmachine_ip)
-
-    def kill_pid(self, pid_name, destination_ip=""):
-        cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
-#         ret, output = self.runcmd(cmd, "start to check %s pid" %pid_name, destination_ip)
-        ret, output = self.runcmd(cmd, "start to check pid", destination_ip)
-        if ret == 0 and output is not None:
-            pids = output.strip().split('\n')
-            for pid in pids:
-                kill_cmd = "kill -9 %s" % pid
-                self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)
-
     def kill_virt_who_pid(self, destination_ip=""):
         pid_name = "virtwho.py"
         self.kill_pid(pid_name, destination_ip)
 
-    def vw_check_uuid(self, guestuuid, uuidexists=True, checkcmd="service virt-who restart", targetmachine_ip=""):
+    def parse_uuid_list(self, output):
+        ''' get guest uuid.list from given string output '''
+        self.check_429_message(output)
+        if "Sending update in hosts-to-guests mapping: {" in output:
+            logger.info("Found: Sending update in hosts-to-guests mapping")
+            rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
+        elif "Host-to-guest mapping: {" in output:
+            logger.info("Found: Host-to-guest mapping")
+            rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
+        elif "Domain info: [" in output:
+            logger.info("Found: Domain info")
+            rex = re.compile(r'(?<=Domain info: )\[.*?\]\n+(?=201|$)', re.S)
+        elif "Sending domain info: [" in output:
+            logger.info("Found: Sending domain info")
+            rex = re.compile(r'(?<=Sending domain info: )\[.*?\]\n+(?=201|$)', re.S)
+        elif "Associations found: {" in output:
+            logger.info("Found: Associations found")
+            rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
+        else:
+            raise FailException("Failed to find hosts-to-guests mapping info in output data")
+        mapping_info = rex.findall(output)
+        logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
+        return mapping_info
+#         if "Sending list of uuids: " in output:
+#             uuid_list = output.split('Sending list of uuids: ')[1]
+#         elif "Sending update to updateConsumer: " in output:
+#             uuid_list = output.split('Sending update to updateConsumer: ')[1]
+#         elif "Sending update in hosts-to-guests mapping: " in output:
+#             uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
+#         elif "Sending domain info" in output:
+#             uuid_list = output.split('Sending domain info: ')[1].strip()
+#         elif "Domain info" in output:
+#             uuid_list = output.split('Domain info: ')[1].strip()
+#         else:
+#             raise FailException("Failed to get guest uuid.list")
+#         logger.info("Succeeded to get guest uuid.list: %s") % uuid_list
+#         return uuid_list
+
+    def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
+        ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
+        if ret == 0 and output is not None and ("ERROR" not in output or "Unable to read cache" in output):
+            return self.parse_uuid_list(output)
+        else:
+            raise FailException("Failed to check, there is an error message found or no output data.")
+
+    def get_uuid_list_in_rhsm_log(self, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
         ''' check if the guest uuid is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
-#         checkcmd = "service virt-who restart"
-#         self.generate_tmp_log(tmp_file, targetmachine_ip)
+        checkcmd = "restart_virtwho"
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
         if ret == 0:
-            if "Sending list of uuids: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-            elif "Sending update to updateConsumer: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-            elif "Sending domain info" in output:
-                log_uuid_list = output.split('Sending domain info: ')[1]
-            elif "Domain info" in output:
-                log_uuid_list = output.split('Domain info: ')[1]
-            elif "Sending update in hosts-to-guests mapping" in output:
-                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
-            else:
-                raise FailException("Failed to get uuid list from %s." % tmp_file)
-            logger.info("Succeeded to get guest uuid.list from %s." % tmp_file)
+            return self.parse_uuid_list(output)
+        else:
+            raise FailException("Failed to get uuid list in rhsm.log")
+
+    def vw_check_uuid(self, guestuuid, uuidexists=True, checkcmd="restart_virtwho", targetmachine_ip=""):
+        ''' check if the guest uuid is correctly monitored by virt-who. '''
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
+        if ret == 0:
+            log_uuid_list = self.parse_uuid_list(output)
             if uuidexists:
                 if guestuuid == "" and len(log_uuid_list) == 0:
                     logger.info("Succeeded to get none uuid list")
                 else:
-                    if guestuuid in log_uuid_list:
+                    if guestuuid in str(log_uuid_list):
                         logger.info("Succeeded to check guestuuid %s in log_uuid_list" % guestuuid)
                     else:
                         raise FailException("Failed to check guestuuid %s in log_uuid_list" % guestuuid)
@@ -1060,7 +1012,37 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to get content of %s.") % tmp_file
 
-    def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", waiting_time=0, targetmachine_ip=""):
+    def hypervisor_check_uuid(self, hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="restart_virtwho", uuidexists=True, targetmachine_ip=""):
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
+        if ret == 0:
+            log_uuid_list = self.parse_uuid_list(output)
+            for hypervisor in log_uuid_list:
+                if hostuuid in hypervisor:
+                    if uuidexists:
+                        if guestuuid == "" and hypervisor[hostuuid] == []:
+                            logger.info("Succeeded to get none uuid list")
+                            return
+                        else:
+                            if guestuuid in hypervisor:
+                                logger.info("Succeeded to check hostuuid %s and guestuuid %s mapping info in log_uuid_list" % (hostuuid, guestuuid))
+                                return
+                            else:
+                                raise FailException("Failed to check hostuuid %s and guestuuid %s mapping info in log_uuid_list" % (hostuuid, guestuuid))
+                    else:
+                        if guestuuid not in log_uuid_list:
+                            logger.info("Succeeded to check guestuuid %s not in log_uuid_list" % guestuuid)
+                            return
+                        else:
+                            raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
+            raise FailException("Failed to get hostuuid %s in log_uuid_list" % hostuuid)
+        else:
+            raise FailException("Test Failed - log file has problem, please check it !")
+
+    # def vw_check_attr(self, guestname, active, virtWhoType, hypervisorType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="restart_virtwho", waiting_time=0, targetmachine_ip=""):
+    def vw_check_attr(self, guestname, active, virtWhoType, state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="restart_virtwho", waiting_time=0, targetmachine_ip=""):
         ''' check if the guest attributions is correctly monitored by virt-who. '''
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
@@ -1075,8 +1057,8 @@ class VIRTWHOBase(Base):
                     logger.info("Guest's active status is %s." % attr_status)
                     attr_type = guest['attributes']['virtWhoType']
                     logger.info("Guest virtwhotype is %s." % attr_type)
-                    attr_hypertype = guest['attributes']['hypervisorType']
-                    logger.info("Guest hypervisortype is %s." % attr_hypertype)
+#                     attr_hypertype = guest['attributes']['hypervisorType']
+#                     logger.info("Guest hypervisortype is %s." % attr_hypertype)
         else:
             for host in mapping_info.keys():
                 for guest in mapping_info[host]:
@@ -1087,77 +1069,36 @@ class VIRTWHOBase(Base):
                         logger.info("Guest's active status is %s." % attr_status)
                         attr_type = guest['attributes']['virtWhoType']
                         logger.info("Guest virtwhotype is %s." % attr_type)
-                        attr_hypertype = guest['attributes']['hypervisorType']
-                        logger.info("Guest hypervisortype is %s." % attr_hypertype)
-        if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
+#                         attr_hypertype = guest['attributes']['hypervisorType']
+#                         logger.info("Guest hypervisortype is %s." % attr_hypertype)
+#         if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (hypervisorType in attr_hypertype) and (state == attr_state):
+        if guestname != "" and (active == attr_status) and (virtWhoType in attr_type) and (state == attr_state):
             logger.info("successed to check guest %s attribute" % guestname)
         else:
             raise FailException("Failed to check guest %s attribute" % guestname)
 
-#     def hypervisor_check_attr(self, hostuuid, guestname, guest_status, guest_type, guest_hypertype, guest_state, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", targetmachine_ip=""):
-#         ''' check if the guest attributions is correctly monitored by virt-who. '''
-#         tmp_file = "/tmp/tail.rhsm.log"
-#         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
-#         cmd = "cat %s" % tmp_file
-#         ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-#         if ret == 0:
-#             ''' get guest uuid.list from rhsm.log '''
-#             if "Sending list of uuids: " in output:
-#                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-#             elif "Sending update to updateConsumer: " in output:
-#                 log_uuid_list = output.split('Sending list of uuids: ')[1]
-#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-#             elif "Sending domain info" in output:
-#                 log_uuid_list = output.split('Sending domain info: ')[1]
-#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-# #             elif "Sending update in hosts-to-guests mapping"in output:
-# #                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
-# #                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-#             elif "Host-to-guest mapping" in output:
-#                 log_uuid_list = output.split('Host-to-guest mapping: ')[1]
-#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-#             else:
-#                 raise FailException("Failed to get guest %s uuid.list from rhsm.log" % guestname)
-#             hostloc = log_uuid_list.find(hostuuid)
-#             khrightloc = log_uuid_list.find("[", hostloc, -1)
-#             khleftloc = log_uuid_list.find("]", hostloc, -1)
-#             ulst = log_uuid_list[khrightloc:khleftloc + 1]
-#             logger.info("ulst is %s" % ulst)
-# #             loglist = eval(ulst[:ulst.rfind("]\n") + 1].strip())
-#             loglist = eval(ulst[:ulst.rfind("]") + 1].strip())
-#             logger.info("loglist is %s" % loglist)
-# #             loglist = eval(log_uuid_list[:log_uuid_list.rfind("]\n") + 1].strip())
-#             for item in loglist:
-#                 if item['guestId'] == guestuuid:
-#                     attr_status = item['attributes']['active']
-#                     logger.info("guest's active status is %s." % attr_status)
-#                     attr_type = item['attributes']['virtWhoType']
-#                     logger.info("guest virtwhotype is %s." % attr_type)
-#                     attr_hypertype = item['attributes']['hypervisorType']
-#                     logger.info("guest hypervisortype is %s." % attr_hypertype)
-#                     attr_state = item['state']
-#                     logger.info("guest state is %s." % attr_state)
-#             if guestname != "" and (guest_status == attr_status) and (guest_type in attr_type) and (guest_hypertype in attr_hypertype) and (guest_state == attr_state):
-#                 logger.info("successed to check guest %s attribute" % guestname)
-#             else:
-#                 raise FailException("Failed to check guest %s attribute" % guestname)
-#         else:
-#             raise FailException("Failed to get uuids in rhsm.log")
+    def check_429_message(self, output):
+        # resolve 429 received issue
+        if "429 received" in output:
+            logger.info("429 received, sleep 360 seconds to continue ...")
+            time.sleep(360)
 
     def vw_check_message(self, cmd, message, message_exists=True, cmd_retcode=0, targetmachine_ip=""):
         ''' check whether given message exist or not, if multiple check needed, seperate them via '|' '''
         ret, output = self.runcmd(cmd, "check message in output", targetmachine_ip)
         if ret == cmd_retcode:
+            self.check_429_message(output)
             msg_list = message.split("|")
+            logger.info("msg_list is----------------------%s" % msg_list)
             if message_exists:
                 for msg in msg_list:
-                    # logger.info("----------------------%s" % msg)
-                    # logger.info("----------------------%s" % output)
+                    # logger.info("msg is ----------------------%s" % msg)
+                    # logger.info("output is ----------------------%s" % output)
                     if msg in output:
                         logger.info("Succeeded to get message in %s output: '%s'" % (cmd, msg))
-                    else:
-                        raise FailException("Failed to get message in %s output: '%s'" % (cmd, msg))
+                        return
+                else:
+                    raise FailException("Failed to get message in %s output: '%s'" % (cmd, msg))
             else:
                 for msg in msg_list:
                     if msg not in output:
@@ -1165,9 +1106,9 @@ class VIRTWHOBase(Base):
                     else:
                         raise FailException("Failed to check message not in %s output: '%s'" % (cmd, msg))
         else:
-            raise FailException("Failed to excute virt-who cmd %s" % cmd)
+            raise FailException("Failed to excute virt-who cmd %s, return code is not %s" % (cmd, cmd_retcode))
 
-    def vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="service virt-who restart", targetmachine_ip=""):
+    def vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="restart_virtwho", targetmachine_ip=""):
         ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
@@ -1178,44 +1119,18 @@ class VIRTWHOBase(Base):
         ''' check whether given message exist or not in virt-who -d mode.
         if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR")'''
         tmp_file = "/tmp/virt-who.cmd.log"
-        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        cmd = "%s &> %s & sleep 10" % (cmd, tmp_file)
         self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip=targetmachine_ip)
-        time.sleep(10)
         cmd = "cat %s" % tmp_file
         self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
         self.kill_pid("virt-who")
 
-    def vw_get_mapping_info(self, cmd, targetmachine_ip=""):
-        ret, output = self.runcmd(cmd, "run command to get mapping info", targetmachine_ip)
-        if ret == 0 and output is not None and ("ERROR" not in output or "Unable to read cache" in output):
-            if "Sending update in hosts-to-guests mapping: {" in output:
-                logger.info("Found: Sending update in hosts-to-guests mapping")
-                rex = re.compile(r'(?<=Sending update in hosts-to-guests mapping: ){.*?}\n+(?=201|$)', re.S)
-            elif "Domain info: [" in output:
-                logger.info("Found: Domain info")
-                rex = re.compile(r'(?<=Domain info: )\[.*?\]\n+(?=201|$)', re.S)
-            elif "Host-to-guest mapping: {" in output:
-                logger.info("Found: Host-to-guest mapping")
-                rex = re.compile(r'(?<=Host-to-guest mapping: ){.*?}\n+(?=201|$)', re.S)
-            elif "Sending domain info: [" in output:
-                logger.info("Found: Sending domain info")
-                rex = re.compile(r'(?<=Sending domain info: )\[.*?\]\n+(?=201|$)', re.S)
-            elif "Associations found: {" in output:
-                logger.info("Found: Associations found")
-                rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
-            else:
-                raise FailException("Failed to find hosts-to-guests mapping info in output data")
-            mapping_info = rex.findall(output)
-            logger.info("all hosts-to-guests mapping as follows: \n%s" % mapping_info)
-            return mapping_info
-        else:
-            raise FailException("Failed to check, there is an error message found or no output data.")
-
-    def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid="", checkcmd="service virt-who restart", uuid_exist=True, targetmachine_ip=""):
+    def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid="", checkcmd="restart_virtwho", uuid_exist=True, targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         mapping_info = ''.join(self.vw_get_mapping_info(cmd, targetmachine_ip))
+        logger.info("-----------------mapping_info is %s" %mapping_info)
         if uuid_exist == True:
             if (host_uuid in mapping_info if host_uuid != "" else True) and (guest_uuid in mapping_info if guest_uuid != "" else True):
                 logger.info("Succeeded to check, can find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
@@ -1236,14 +1151,13 @@ class VIRTWHOBase(Base):
 
     def vw_check_mapping_info_number_in_debug_cmd(self, cmd, mapping_num=1, waiting_time=0, targetmachine_ip=""):
         tmp_file = "/tmp/virt-who.cmd.log"
-        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        cmd = "%s &> %s & sleep %s" % (cmd, tmp_file, waiting_time)
         self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
-        time.sleep(waiting_time)
         cmd = "cat %s" % tmp_file
         self.vw_check_mapping_info_number(cmd, mapping_num, targetmachine_ip)
         self.kill_pid("virt-who")
 
-    def vw_check_mapping_info_number_in_rhsm_log(self, mapping_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
+    def vw_check_mapping_info_number_in_rhsm_log(self, mapping_num=1, waiting_time=0, checkcmd="restart_virtwho", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
@@ -1252,6 +1166,7 @@ class VIRTWHOBase(Base):
     def vw_check_message_number(self, cmd, message, number, targetmachine_ip=""):
         ret, output = self.runcmd(cmd, "run command to get message", targetmachine_ip)
         if ret == 0 and output is not None and  "ERROR" not in output:
+            self.check_429_message(output)
             rex = re.compile(r'%s' % message, re.S)
             message_list = rex.findall(output)
             logger.info("all message list as follows: \n%s" % message_list)
@@ -1265,18 +1180,35 @@ class VIRTWHOBase(Base):
 
     def vw_check_message_number_in_debug_cmd(self, cmd, message, msg_num=1, waiting_time=0, targetmachine_ip=""):
         tmp_file = "/tmp/virt-who.cmd.log"
-        cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        # cmd = "%s > %s 2>&1 &" % (cmd, tmp_file)
+        cmd = "%s &> %s & sleep 5" % (cmd, tmp_file)
         self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip)
+        self.vw_check_sending_finished(tmp_file, targetmachine_ip)
         time.sleep(waiting_time)
         cmd = "cat %s" % tmp_file
         self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
         self.kill_pid("virt-who")
 
-    def vw_check_message_number_in_rhsm_log(self, message, msg_num=1, waiting_time=0, checkcmd="service virt-who restart", targetmachine_ip=""):
+    def vw_check_message_number_in_rhsm_log(self, message, msg_num=1, waiting_time=0, checkcmd="restart_virtwho", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
         self.generate_tmp_log(checkcmd, tmp_file, waiting_time, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
+
+    def vw_check_sending_finished(self, tmp_file, targetmachine_ip=""):
+        cmd = "grep -E 'Sending update in hosts-to-guests mapping|Sending update in guests lists|ERROR' %s" % tmp_file
+        account = 0
+        while account <= 30:
+            ret, output = self.runcmd(cmd, "check virt-who sending host-guest mapping finished", showlogger=False, targetmachine_ip=targetmachine_ip)
+            if ret == 0 :
+                logger.info("Succeeded to check virt-who sending host-guest mapping finished")
+                return
+            else:
+                account += 1
+                time.sleep(2)
+        cmd = "cat %s" % tmp_file
+        ret, output = self.runcmd(cmd, "check %s file for debug message" % tmp_file, targetmachine_ip)
+        raise FailException("Failed to check virt-who sending host-guest mapping finished")
 
     def get_poolid_by_SKU(self, sku, targetmachine_ip=""):
         ''' get_poolid_by_SKU '''
@@ -1297,93 +1229,6 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to subscribe to the pool of the product: %s - due to failed to list available pools." % sku)
 
-    def get_uuid_list_in_rhsm_log(self, rhsmlogpath='/var/log/rhsm', targetmachine_ip=""):
-        ''' check if the guest uuid is correctly monitored by virt-who. '''
-        tmp_file = "/tmp/tail.rhsm.log"
-        checkcmd = "service virt-who restart"
-#         self.generate_tmp_log(tmp_file, targetmachine_ip)
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
-        cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get temporary log generated", targetmachine_ip)
-        if ret == 0:
-            ''' get guest uuid.list from rhsm.log '''
-            if "Sending list of uuids: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update to updateConsumer: " in output:
-                log_uuid_list = output.split('Sending update to updateConsumer: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update in hosts-to-guests mapping: " in output:
-                log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1].split(":")[1].strip("}").strip()
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending domain info" in output:
-                # log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
-                log_uuid_list = output.split('Sending domain info: ')[1].strip()
-                logger.info("log_uuid_list is %s" % log_uuid_list)
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Domain info" in output:
-                # log_uuid_list = output.split('Sending domain info: ')[1].split(":")[1].strip("}").strip()
-                log_uuid_list = output.split('Domain info: ')[1].strip()
-                logger.info("log_uuid_list is %s" % log_uuid_list)
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            else:
-                raise FailException("Failed to get guest uuid.list from rhsm.log")
-            return log_uuid_list
-        else:
-            raise FailException("Failed to get uuid list in rhsm.log")
-
-    def hypervisor_check_uuid(self, hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd="service virt-who restart", uuidexists=True, targetmachine_ip=""):
-        tmp_file = "/tmp/tail.rhsm.log"
-        self.generate_tmp_log(checkcmd, tmp_file, targetmachine_ip=targetmachine_ip)
-        cmd = "cat %s" % tmp_file
-        ret, output = self.runcmd(cmd, "get log number added to rhsm.log", targetmachine_ip)
-        if ret == 0:
-            if "Sending list of uuids: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending update to updateConsumer: " in output:
-                log_uuid_list = output.split('Sending list of uuids: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Sending domain info" in output:
-                log_uuid_list = output.split('Sending domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-#             elif "Sending update in hosts-to-guests mapping" in output:
-#                 log_uuid_list = output.split('Sending update in hosts-to-guests mapping: ')[1]
-#                 logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Domain info" in output:
-                log_uuid_list = output.split('Domain info: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            elif "Host-to-guest mapping" in output:
-                log_uuid_list = output.split('Host-to-guest mapping: ')[1]
-                logger.info("Succeeded to get guest uuid.list from rhsm.log.")
-            else:
-                raise FailException("Failed to get uuid list from rhsm.log")
-            hostloc = log_uuid_list.find(hostuuid)
-            if hostloc >= 0:
-                if uuidexists:
-                    khrightloc = log_uuid_list.find("[", hostloc, -1)
-                    khleftloc = log_uuid_list.find("]", hostloc, -1)
-                    ulst = log_uuid_list[khrightloc:khleftloc - 1]
-                    if guestuuid == "" and len(ulst) == 0:
-                        logger.info("Succeeded to get none uuid list")
-                    else:
-                        if guestuuid in ulst:
-                            logger.info("Succeeded to check guestuuid %s in host %s" % (guestuuid, hostuuid))
-                        else:
-                            raise FailException("Failed to check guestuuid %s in host %s" % (guestuuid, hostuuid))
-                else:
-                    khrightloc = log_uuid_list.find("[", hostloc, -1)
-                    khleftloc = log_uuid_list.find("]", hostloc, -1)
-                    ulst = log_uuid_list[khrightloc:khleftloc + 1]
-                    if guestuuid not in ulst:
-                        logger.info("Succeeded to check guestuuid %s not in host %s" % (guestuuid, hostuuid))
-                    else:
-                        raise FailException("Failed to check guestuuid %s not in log_uuid_list" % guestuuid)
-            else:
-                raise FailException("Failed to get rhsm.log")
-        else:
-            raise FailException("Test Failed - log file has problem, please check it !")
-
     def get_host_uuid(self, targetmachine_ip=""):
         cmd = "virsh capabilities"
         ret, output = self.runcmd(cmd, "Get hypervisor's capabilities", targetmachine_ip, showlogger=False)
@@ -1394,8 +1239,8 @@ class VIRTWHOBase(Base):
                 if "uuid" in line:
                     khrightloc = line.find("<uuid>")
                     khleftloc = line.find("</uuid>")
-                    uuid = line[khrightloc+6:khleftloc].strip()
-                    logger.info("Success to get hypervisor's uuid %s" %uuid)
+                    uuid = line[khrightloc + 6:khleftloc].strip()
+                    logger.info("Success to get hypervisor's uuid %s" % uuid)
                     return uuid
         else:
             raise FailException("Failed to get hypervisor's capabilities on %s" % self.get_hg_info(targetmachine_ip))
@@ -1427,11 +1272,11 @@ class VIRTWHOBase(Base):
                 line = line.strip()
                 if line.find(non_key_value) == 0:
                     result_values1 = line[(line.find(':') + 1):].strip()
-                    logger.info("Succeeded to find the non_key_value %s's result_values1 %s" % (non_key_value, result_values1))
+                    # logger.info("Succeeded to find the non_key_value %s's result_values1 %s" % (non_key_value, result_values1))
                     values1 = True
                 elif line.find(key_value) == 0:
                     result_values2 = line[(line.find(':') + 1):].strip()
-                    logger.info("Succeeded to find the key_value %s's result_values2 %s" % (key_value, result_values2))
+                    # logger.info("Succeeded to find the key_value %s's result_values2 %s" % (key_value, result_values2))
                     values2 = True
                 elif (line == "") and (values2 == True) and (values1 == False):
                     pool_dict[result_values2] = ERROR_VALUE
@@ -1443,10 +1288,10 @@ class VIRTWHOBase(Base):
             if find_value in pool_dict:
                 findout_value = pool_dict[find_value]
                 if findout_value == ERROR_VALUE:
-                    logger.info("Failed to get the %s's %s, no value" % (find_value, non_key_value))
+                    # logger.info("Failed to get the %s %s, no value" % (find_value, non_key_value))
                     return ERROR_VALUE
                 else:
-                    logger.info("Succeeded to get the %s's %s is %s" % (find_value, non_key_value, findout_value))
+                    # logger.info("Succeeded to get the %s %s is %s" % (find_value, non_key_value, findout_value))
                     return findout_value
             else:
                 raise FailException("Failed to get the %s's %s" % (find_value, non_key_value))

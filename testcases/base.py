@@ -9,6 +9,15 @@ class Base(unittest.TestCase):
     # ========================================================
     #       Common Functions
     # ========================================================
+    def cm_change_hostname(self, targetmachine_ip=""):
+        suffix = time.strftime("%m%H%M%S")
+        new_hostname = self.get_hostname(targetmachine_ip) + "-" + suffix
+        if self.get_os_serials(targetmachine_ip) == 7:
+            cmd = "hostnamectl --static set-hostname %s" % new_hostname
+        else:
+            cmd = "sed -i 's/^HOSTNAME=.*/HOSTNAME=%s/g' /etc/sysconfig/network" % new_hostname
+        (ret, output) = self.runcmd(cmd, "change hostname as %s" % new_hostname, targetmachine_ip)
+
     def cm_get_consumerid(self, targetmachine_ip=""):
         # get consumer id: system identity
         cmd = "subscription-manager identity | grep identity"
@@ -24,8 +33,8 @@ class Base(unittest.TestCase):
             raise FailException("Test Failed - Failed to install wget in %s." % self.get_hg_info(targetmachine_ip))
 
     def cm_install_basetool(self, targetmachine_ip=""):
-        cmd = "yum install -y wget git"
-        ret, output = self.runcmd(cmd, "install base tool to support automation", targetmachine_ip)
+        cmd = "yum install -y wget git lsb ntp"
+        ret, output = self.runcmd(cmd, "install base tool to support automation", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to install base tool to support automation in %s." % self.get_hg_info(targetmachine_ip))
         else:
@@ -104,20 +113,56 @@ class Base(unittest.TestCase):
             image_nfs_path = self.get_vw_cons("nfs_image_path")
         else:
             image_nfs_path = '/home/rhevm_guest/'
+
         image_mount_path = self.get_vw_cons("local_mount_point")
         cmd = "mkdir %s" % image_mount_path
         self.runcmd(cmd, "create local images mount point", targetmachine_ip)
         cmd = "mkdir %s" % image_nfs_path
         self.runcmd(cmd, "create local nfs images directory", targetmachine_ip)
+
         cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
         ret, output = self.runcmd(cmd, "mount images in host", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
         else:
             raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
+
         logger.info("Begin to copy guest images...")
         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
         ret, output = self.runcmd(cmd, "copy all kvm images", targetmachine_ip)
+
+        # cmd = "umount %s" % (image_mount_path)
+        # ret, output = self.runcmd(cmd, "umount images in host")
+
+    def generate_tmp_log(self, checkcmd, tmp_file, waiting_time=0, log_file='rhsm.log', targetmachine_ip=""):
+        cmd = "tail -f -n 0 /var/log/rhsm/%s &> %s &" % (log_file, tmp_file)
+        self.runcmd(cmd, "generate nohup.out file by tail -f", targetmachine_ip)
+        self.runcmd_service(checkcmd, targetmachine_ip)
+        if "virtwho" in checkcmd:
+            self.vw_check_sending_finished(tmp_file, targetmachine_ip)
+        if waiting_time == 0:
+            if "vdsmd" in checkcmd or "libvirtd" in checkcmd:
+                time.sleep(120)
+            elif "rhsmcertd" in checkcmd:
+                time.sleep(100)
+            elif "virsh" in checkcmd:
+                time.sleep(5)
+            else:
+                time.sleep(20)
+        else:
+            logger.info("Wait %s seconds ..." % waiting_time)
+            time.sleep(waiting_time)
+        self.kill_pid("tail", targetmachine_ip)
+
+    def kill_pid(self, pid_name, destination_ip=""):
+        cmd = "ps -ef | grep %s -i | grep -v grep | awk '{print $2}'" % pid_name
+#         ret, output = self.runcmd(cmd, "start to check %s pid" %pid_name, destination_ip)
+        ret, output = self.runcmd(cmd, "start to check pid", destination_ip)
+        if ret == 0 and output is not None:
+            pids = output.strip().split('\n')
+            for pid in pids:
+                kill_cmd = "kill -9 %s" % pid
+                self.runcmd(kill_cmd, "kill %s pid %s" % (pid_name, pid), destination_ip)
 
     # ========================================================
     #       Basic Functions
@@ -127,10 +172,13 @@ class Base(unittest.TestCase):
         return command.runcmd(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def runcmd_esx(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "qwer1234P!", timeout, showlogger)
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "Welcome1", timeout, showlogger)
+
+    def runcmd_xen(self, cmd, cmddesc=None, targetmachine_ip=None, timeout=None, showlogger=True):
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "Welcome1", timeout, showlogger)
 
     def runcmd_sam(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "redhat", timeout, showlogger)
+        return self.runcmd(cmd, cmddesc, targetmachine_ip, "root", "red2015", timeout, showlogger)
 
     def runcmd_interact(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
         return command.runcmd_interact(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
@@ -152,6 +200,16 @@ class Base(unittest.TestCase):
             return output.strip("\n").strip(" ")
         else: raise FailException("Failed to get os serials")
 
+    def get_os_platform(self, targetmachine_ip=""):
+        cmd = "lsb_release -i"
+        (ret, output) = self.runcmd(cmd, showlogger=False)
+        if ret == 0:
+            platform = output.split("Enterprise")[1].strip()
+            logger.info("It's successful to get system platform")
+        else:
+            raise FailException("Failed to get system platform.")
+        return platform
+
     def get_server_info(self):
         # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
         return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
@@ -162,6 +220,9 @@ class Base(unittest.TestCase):
 
     def get_hyperv_info(self):
         return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_HYPERV_SERVER"), self.get_vw_cons("VIRTWHO_HYPERV_USERNAME"), self.get_vw_cons("VIRTWHO_HYPERV_PASSWORD")
+
+    def get_xen_info(self):
+        return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_XEN_SERVER"), self.get_vw_cons("VIRTWHO_XEN_USERNAME"), self.get_vw_cons("VIRTWHO_XEN_PASSWORD")
 
     def get_rhevm_info(self):
         return self.get_vw_cons("server_owner"), self.get_vw_cons("server_env"), self.get_vw_cons("VIRTWHO_RHEVM_USERNAME"), self.get_vw_cons("VIRTWHO_RHEVM_PASSWORD")
@@ -232,11 +293,18 @@ class Base(unittest.TestCase):
 
     def get_service_cmd(self, cmd_name, targetmachine_ip=""):
         virtwho_cons = VIRTWHOConstants()
-        if self.get_os_serials(targetmachine_ip) == "7":
-            cmd = virtwho_cons.virt_who_commands[cmd_name + "_systemd"]
+        if targetmachine_ip != None and targetmachine_ip != "":
+            os_serial = self.os_serial
         else:
-            cmd = virtwho_cons.virt_who_commands[cmd_name]
-        return cmd
+            os_serial = self.get_os_serials(targetmachine_ip)
+        if cmd_name in virtwho_cons.virt_who_commands:
+            if os_serial == "7":
+                cmd = virtwho_cons.virt_who_commands[cmd_name + "_systemd"]
+            else:
+                cmd = virtwho_cons.virt_who_commands[cmd_name]
+            return cmd
+        else:
+            return cmd_name
 
     def service_command(self, command, targetmachine_ip="", is_return=False):
         ret, output = self.runcmd_service(command, targetmachine_ip)
@@ -305,7 +373,7 @@ class Base(unittest.TestCase):
             raise FailException("Failed to remove /etc/pki/product-default/135.pem")
 
     def configure_stage_host(self, hostname, targetmachine_ip=""):
-        cmd = "sed -i -e 's/hostname = subscription.rhsm.redhat.com/hostname = %s/g' -e 's/hostname = subscription.rhn.redhat.com/hostname = %s/g' /etc/rhsm/rhsm.conf" % (hostname, hostname)
+        cmd = "sed -i -e 's/^hostname.*/hostname = %s/g' /etc/rhsm/rhsm.conf" % hostname
         ret, output = self.runcmd(cmd, "configure hostname for stage testing in rhsm.conf", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure hostname for stage testing in rhsm.conf")
@@ -315,7 +383,7 @@ class Base(unittest.TestCase):
         ret, output = self.runcmd(cmd, "run subscription-manager clean", targetmachine_ip)
 
     def configure_baseurl(self, baseurl, targetmachine_ip=""):
-        cmd = "sed -i -e 's/cdn.redhat.com/%s/g' /etc/rhsm/rhsm.conf" % baseurl
+        cmd = "sed -i -e 's/^baseurl.*/baseurl=https:\/\/%s/g' /etc/rhsm/rhsm.conf" % baseurl
         ret, output = self.runcmd(cmd, "configure baseurl for stage", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure baseurl for stage")
@@ -342,155 +410,208 @@ class Base(unittest.TestCase):
     # ========================================================
     #       SAM Functions
     # ========================================================
-
-    def server_check_system(self, system_uuid, destination_ip=""):
-        ''' check system exist in test server '''
-        if self.test_server == "SATELLITE":
-            uuid = self.st_name_to_id(system_uuid)
-            system_id_list = self.st_system_id_list()
-            if uuid in system_id_list:
-                logger.info("Succeeded to check system %s exist in test server" % uuid)
-            else:
-                raise FailException("Failed to check system %s exist in test server" % uuid)
-        else:
-            cmd = "headpin -u admin -p admin system list --org=ACME_Corporation --environment=Library"
-            ret, output = self.runcmd_sam(cmd, "check system exist in sam server", destination_ip)
-            if ret == 0 and system_uuid in output:
-                logger.info("Succeeded to check system %s exist in test server" % system_uuid)
-            else:
-                raise FailException("Failed to check system %s exist in test server" % system_uuid)
-
-    def server_remove_system(self, system_uuid, destination_ip=""):
+    def server_remove_system(self, system_uuid, destination_ip="", username="", password=""):
         ''' remove system in test server '''
-        if self.test_server == "SATELLITE":
-            uuid = self.st_name_to_id(system_uuid)
-            output = self.st_system_remove(uuid)
-            logger.info("Succeeded to remove system %s in test server" % uuid)
-        elif self.test_server == "STAGE":
-            username = self.get_rhsm_cons("username")
-            password = self.get_rhsm_cons("password")
-            baseurl = "https://subscription.rhn.stage.redhat.com:443" + "/subscription"
-            cmd = "curl -X DELETE -k -u %s:%s %s/consumers/%s" % (username, password, baseurl, system_uuid)
-            (ret, output) = self.runcmd(cmd, "delete consumer from test server")
-            if ret == 0:
-                logger.info("It's successful to delete consumer from test server.")
-            else:
-                raise FailException("Test Failed - Failed to delete consumer from test server.")
-        else:
-            cmd = "headpin -u admin -p admin system unregister --name=%s --org=ACME_Corporation" % system_uuid
+        if self.test_server == "SAM":
+            cmd = "headpin -u admin -p admin system unregister --%s=%s --org=ACME_Corporation" % (self.server_check_name(system_uuid, destination_ip, username, password), system_uuid)
             ret, output = self.runcmd_sam(cmd, "remove system in sam server", destination_ip)
             if ret == 0 and system_uuid in output:
-                logger.info("Succeeded to remove system %s in test server" % system_uuid)
+                logger.info("Succeeded to remove system %s in sam server" % system_uuid)
             else:
-                raise FailException("Failed to remove system %s in test server" % system_uuid)
-
-    def server_subscribe_system(self, system_uuid, poolid, destination_ip=""):
-        ''' subscribe host in test server '''
-        if self.test_server == "SATELLITE":
-            uuid = self.st_name_to_id(system_uuid)
-            self.st_attach(uuid, poolid)
-            logger.info("Succeeded to subscribe host %s in test server" % uuid)
+                raise FailException("Failed to remove system %s in sam server" % system_uuid)
+        elif self.test_server == "SATELLITE":
+            self.satellite_system_remove(system_uuid)
+            logger.info("Succeeded to remove system %s in satellite server" % system_uuid)
+        elif self.test_server == "STAGE":
+            self.stage_system_remove(system_uuid, username, password)
         else:
-            cmd = "headpin -u admin -p admin system subscribe --name=%s --org=ACME_Corporation --pool=%s " % (system_uuid, poolid)
+            raise FailException("Failed to identify test server")
+
+    def server_subscribe_system(self, system_uuid, poolid, destination_ip="", username="", password=""):
+        ''' subscribe host in test server '''
+        if self.test_server == "SAM":
+            cmd = "headpin -u admin -p admin system subscribe --%s=%s --org=ACME_Corporation --pool=%s " % (self.server_check_name(system_uuid, destination_ip, username, password), system_uuid, poolid)
             ret, output = self.runcmd_sam(cmd, "subscribe host in sam server", destination_ip)
             if ret == 0 and system_uuid in output:
                 logger.info("Succeeded to subscribe host %s in sam server" % system_uuid)
             else:
                 raise FailException("Failed to subscribe host %s in sam server" % system_uuid)
-
-    def server_unsubscribe_all_system(self, system_uuid, destination_ip=""):
-        ''' unsubscribe host in test server '''
-        if self.test_server == "SATELLITE":
-            uuid = self.st_name_to_id(system_uuid)
-            self.st_unattach_all(uuid)
-            logger.info("Succeeded to unsubscribe host %s in test server" % uuid)
+        elif self.test_server == "SATELLITE":
+            self.__satellite_attach(system_uuid, poolid)
+            logger.info("Succeeded to subscribe host %s in satellite server" % system_uuid)
+        elif self.test_server == "STAGE":
+            self.__stage_attach(system_uuid, poolid, username, password)
         else:
-            cmd = "headpin -u admin -p admin system unsubscribe --name=%s --org=ACME_Corporation --all" % system_uuid
+            raise FailException("Failed to identify test server")
+
+    def server_unsubscribe_all_system(self, system_uuid, destination_ip="", username="", password=""):
+        ''' unsubscribe host in test server '''
+        if self.test_server == "SAM":
+            cmd = "headpin -u admin -p admin system unsubscribe --%s=%s --org=ACME_Corporation --all" % (self.server_check_name(system_uuid, destination_ip, username, password), system_uuid)
             ret, output = self.runcmd_sam(cmd, "unsubscribe host in sam server", destination_ip)
-            # if ret == 0 and system_uuid in output:
-            #    logger.info("Succeeded to unsubscribe host %s in sam server" % system_uuid)
-            # else:
-            #    raise FailException("Failed to unsubscribe host %s in sam server" % system_uuid)
+        elif self.test_server == "SATELLITE":
+            self.__satellite_unattach_all(system_uuid)
+            logger.info("Succeeded to unsubscribe host %s in satellite server" % system_uuid)
+        elif self.test_server == "STAGE":
+            self.__stage_unattach_all(system_uuid, username, password)
+        else:
+            raise FailException("Failed to identify test server")
+
+    def server_check_name(self, system_uuid, destination_ip="", username="", password=""):
+        cmd = "headpin -u admin -p admin system list --org=ACME_Corporation | grep %s | awk '{print $1, $2}'" % system_uuid
+        ret, output = self.runcmd_sam(cmd, "check whether provided system_uuid is name", destination_ip)
+        if system_uuid == output.split()[0]:
+            return "name"
+        elif system_uuid == output.split()[1]:
+            return "uuid"
+        else:
+            raise FailException("Failed to check %s exist in server") % system_uuid
 
     # ========================================================
-    #       SATELLITE Functions
+    #       SATELLITE Functions https://***/apidoc/v2
     # ========================================================
+    def __satellite_attach(self, host_uuid, pool_id):
+        logger.info ("Attch server %s with pool %s" % (host_uuid, pool_id))
+        host_id = self.satellite_name_to_id(host_uuid)
+        katello_id = self.satellite_pool_to_id(pool_id)
+        location = "api/v2/hosts/%s/subscriptions/add_subscriptions" % host_id
+        json_data = json.dumps({"subscriptions":[{"id":katello_id, "quantity":1}]})
+        logger.info ("Attach subscription: %s" % json_data)
+        self.put_json(location, json_data)
+        # consumer_pool_id = self.put_json(location, json_data)["results"][0]["id"]
+        # logger.info ("Attch return consumer_pool_id is %s" % consumer_pool_id)
 
-    def st_orgs_list(self):
-        return self.get_json("organizations/")
-
-    def st_org_create(self, org_name):
-        location = "organizations/"
-        json_data = json.dumps({"name": org_name})
-        return self.post_json(location, json_data)["id"]
-
-    def st_org_update(self, org_id):
-        location = "organizations/%s" % org_id
-        json_data = json.dumps({"name": "change name"})
+    def __satellite_unattach(self, host_uuid, katello_id):
+        logger.info ("Unattch server %s with pool %s" % (host_uuid, katello_id))
+        host_id = self.satellite_name_to_id(host_uuid)
+        location = "api/v2/hosts/%s/subscriptions/remove_subscriptions" % (host_id)
+        json_data = json.dumps({"subscriptions":[{"id":katello_id}]})
         self.put_json(location, json_data)
 
-    def st_org_delete(self, org_id):
-        self.delete_json("organizations/%s" % org_id)
+    def __satellite_unattach_all(self, uuid):
+        for katello_id in self.satellite_consumed_list(uuid):
+            self.__satellite_unattach(uuid, katello_id)
 
-    def st_users_list(self):
-        return self.get_json("users/")
+    def satellite_system_remove(self, uuid):
+        host_id = self.satellite_name_to_id(uuid)
+        return self.delete_json("api/v2/hosts/%s" % host_id)
 
-    # do not know how to setup auth_source_id, failed func
-    def st_user_create(self, user_name, user_pass):
-        location = "users/"
-        json_data = json.dumps({"login":user_name, "password":user_pass, "admin":"true", "mail":"test@redhat.com", "auth_source_id": 1})
-        return self.post_json(location, json_data)["id"]
-
-    def st_attach(self, uuid, pool_id):
-        location = "systems/%s/subscriptions/" % uuid
-        json_data = json.dumps({"uuid":uuid, "subscriptions":[{"id":pool_id, "quantity":0}]})
-        consumer_pool_id = self.post_json(location, json_data)["results"][0]["id"]
-        logger.info ("Attch return is %s" % consumer_pool_id)
-        return consumer_pool_id
-
-    def st_unattach(self, uuid, consumed_pool_id):
-        location = "systems/%s/subscriptions/%s" % (uuid, consumed_pool_id)
-        return self.delete_json(location)
-
-    def st_unattach_all(self, uuid):
-        for consumed_pool_id in self.st_consumed_list(uuid):
-            self.st_unattach(uuid, consumed_pool_id)
-
-    def st_system_list(self):
-        return self.get_json("systems/")
-
-    def st_system_id_list(self):
-        system_id_list = []
-        all_system = self.st_system_list()["results"]
-        for system in all_system:
-            system_id_list.append(system["id"])
-        return system_id_list
-
-    def st_system_remove(self, uuid):
-        return self.delete_json("systems/%s" % uuid)
-
-    def st_consumed_list(self, uuid):
-        consumed_id_list = []
-        all_consumed = self.get_json("systems/%s/subscriptions" % uuid)["results"]
-        for consumed in all_consumed:
-            consumed_id_list.append(consumed["id"])
-        return consumed_id_list
-
-    def st_name_to_id(self, name):
-        systems = self.st_system_list()["results"]
+    def satellite_name_to_id(self, name):
+        systems = self.satellite_system_list()["results"]
         for item in systems:
-            if item["name"] == name:  # for esx, rhevm hypervisor
-                return item["id"]
-            if item["id"] == name:  # for kvm
+#             logger.info("item >>>: %s" % item)
+            if name.lower() in str(item):
+            # if name in item["name"]:
                 return item["id"]
         raise FailException("Failed to get system id by: %s" % name)
 
-    def get_json(self, location):
+    def satellite_pool_to_id(self, pool_id):
+        systems = self.satellite_pool_list()["results"]
+        for item in systems:
+            # logger.info("item >>>: %s" % item)
+            if pool_id in item["cp_id"]:
+                return item["id"]
+        raise FailException("Failed to get katello id by: %s" % pool_id)
+
+    def satellite_system_list(self):
+        return self.get_json("api/v2/hosts/")
+
+    def satellite_pool_list(self):
+        satellite_pool_list = self.get_json("katello/api/organizations/1/subscriptions")
+        # logger.info("satellite_pool_list >>>: %s" % satellite_pool_list)
+        return satellite_pool_list
+
+    def satellite_consumed_list(self, uuid):
+        consumed_id_list = []
+        host_id = self.satellite_name_to_id(uuid)
+        all_consumed = self.get_json("api/v2/hosts/%s/subscriptions" % host_id)["results"]
+        # logger.info("all_consumed: %s" % (all_consumed))
+        for consumed in all_consumed:
+            logger.info("system %s has consumed: %s" % (uuid, consumed["id"]))
+            consumed_id_list.append(consumed["id"])
+        return consumed_id_list
+
+    # ========================================================
+    #       STAGE Functions https://hosted.englab.nay.redhat.com/issues/11373
+    # ========================================================
+    def __stage_attach(self, host_name, pool_id, username="", password=""):
+        logger.info ("Attch system %s with pool %s" % (host_name, pool_id))
+        host_uuid_list = self.stage_name_to_uuid(host_name, username, password)
+        for host_uuid in host_uuid_list:
+            location = "subscription/consumers/%s/entitlements?pool=%s" % (host_uuid, pool_id)
+            logger.info ("Attach %s with subscription: %s" % (host_name, pool_id))
+            self.post_json(location, username, password)
+
+    def __stage_unattach_all(self, host_name, username="", password=""):
+        logger.info ("Unattch all for system %s" % host_name)
+        host_uuid_list = self.stage_name_to_uuid(host_name, username, password)
+        for host_uuid in host_uuid_list:
+            location = "subscription/consumers/%s/entitlements" % host_uuid
+            self.delete_json(location, username, password)
+
+    def stage_system_remove(self, host_name, username="", password=""):
+        host_uuid_list = self.stage_name_to_uuid(host_name, username, password)
+        for host_uuid in host_uuid_list:
+            logger.info ("Remove system %s" % host_name)
+            location = "subscription/consumers/%s" % host_uuid
+            self.delete_json(location, username, password)
+
+    def stage_name_to_uuid(self, name, username="", password=""):
+        systems = self.stage_system_list(username, password)
+        uuid_list = []
+        for item in systems:
+            # logger.info("item >>>: %s" % item)
+            if name in item["name"]:
+                uuid_list.append(item["uuid"])
+        if len(uuid_list):
+            # logger.info("uuid_list >>>: %s" % uuid_list)
+            return uuid_list
+        else:
+            raise FailException("Failed to get system uuid by: %s" % name)
+
+    def stage_system_list(self, username="", password=""):
+        if username != None and username != "":
+            owner = self.get_rhsm_cons("default_org")
+            return self.get_json("subscription/owners/%s/consumers" % owner, username, password)
+        else:
+            owner = self.get_vw_cons("server_owner")
+            return self.get_json("subscription/owners/%s/hypervisors" % owner, username, password)
+
+    # clean stage env, remove all systems
+    def stage_system_remove_all(self, username, password):
+        rhsm_cons = RHSMConstants()
+        if username == rhsm_cons.stage_cons["username"]:
+            owner = self.get_rhsm_cons("default_org")
+        else:
+            owner = self.get_vw_cons("server_owner")
+        systems = self.stage_system_list_all(username, password, owner)
+        for item in systems:
+            location = "subscription/consumers/%s" % item["uuid"]
+            self.delete_json(location, username, password)
+
+    def stage_system_list_all(self, username, password, owner):
+        all_units = self.get_json("subscription/owners/%s/consumers" % owner, username, password) + self.get_json("subscription/owners/%s/hypervisors" % owner, username, password)
+        logger.info ("all units is : %s" % all_units)
+        return all_units
+
+    # ========================================================
+    #       REQUESTS CRUD
+    # ========================================================
+    def get_auth(self, username="", password=""):
+        if self.test_server == "STAGE":
+            if username != None and username != "":
+                return "subscription.rhsm.stage.redhat.com", username, password
+            else:
+                return "subscription.rhsm.stage.redhat.com", self.get_vw_cons("username"), self.get_vw_cons("password")
+        else:
+            return get_exported_param("SERVER_IP"), self.get_vw_cons("username"), self.get_vw_cons("password")
+
+    def get_json(self, location, username="", password=""):
         """
         Performs a GET using the passed URL location
         """
-        server_ip, server_hostname, username, password = self.get_server_info()
-        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        server_ip, username, password = self.get_auth(username, password)
+        sat_api = "https://%s/%s" % (server_ip, location)
         result = requests.get(
             sat_api,
             auth=(username, password),
@@ -504,12 +625,12 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to run requests get: %s" % sat_api)
             return output
 
-    def post_json(self, location, json_data):
+    def post_json(self, location, json_data=None, username="", password=""):
         """
         Performs a POST and passes the data to the URL location
         """
-        server_ip, server_hostname, username, password = self.get_server_info()
-        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        server_ip, username, password = self.get_auth(username, password)
+        sat_api = "https://%s/%s" % (server_ip, location)
         post_headers = {'content-type': 'application/json'}
         result = requests.post(
             sat_api,
@@ -526,12 +647,12 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to run requests post: %s" % sat_api)
             return output
 
-    def put_json(self, location, json_data):
+    def put_json(self, location, json_data=None, username="", password=""):
         """
         Performs a PUT and passes the data to the URL location
         """
-        server_ip, server_hostname, username, password = self.get_server_info()
-        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        server_ip, username, password = self.get_auth(username, password)
+        sat_api = "https://%s/%s" % (server_ip, location)
         post_headers = {'content-type': 'application/json'}
         result = requests.put(
             sat_api,
@@ -548,12 +669,12 @@ class Base(unittest.TestCase):
             logger.info("Succeeded to run requests put: %s" % sat_api)
             return output
 
-    def delete_json(self, location):
+    def delete_json(self, location, username="", password=""):
         """
         Performs a DELETE using the passed URL location
         """
-        server_ip, server_hostname, username, password = self.get_server_info()
-        sat_api = "https://%s/katello/api/v2/%s" % (server_ip, location)
+        server_ip, username, password = self.get_auth(username, password)
+        sat_api = "https://%s/%s" % (server_ip, location)
         result = requests.delete(
             sat_api,
             auth=(username, password),
@@ -571,15 +692,27 @@ class Base(unittest.TestCase):
     #       Skip Test Functions
     # ========================================================
 
-    def skip_on_rhel7(self):
+    def skip_rhel7_check(self):
         if self.os_serial == "7" :
             logger.info("rhel 7.x do not support, this test case is skipped ...")
             return True
         else: return False
 
-    def skip_satellite(self):
+    def skip_satellite_check(self):
         if self.test_server == "SATELLITE" :
             logger.info("satellite do not support, this test case is skipped ...")
+            return True
+        else: return False
+
+    def skip_stage_check(self):
+        if self.test_server == "STAGE" :
+            logger.info("stage do not support, this test case is skipped ...")
+            return True
+        else: return False
+
+    def skip_sam_check(self):
+        if self.test_server == "SAM" :
+            logger.info("sam do not support, this test case is skipped ...")
             return True
         else: return False
 
@@ -596,6 +729,14 @@ class Base(unittest.TestCase):
         # paramiko_logger.disabled = True
         logger.info(" ")
         logger.info("**************************************************************************************************************")
+        # for install case, ignore this
+        # case_name = sys.argv[1]
+        # logger.info("running %s" % case_name)
+        # if "_install.py" in case_name:
+        #    logger.info("begin running install ...")
+        #    self.os_serial = "*"
+        # else:
+        #    self.os_serial = self.get_os_serials()
         self.os_serial = self.get_os_serials()
         self.test_server = get_exported_param("SERVER_TYPE")
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
@@ -611,25 +752,12 @@ class Base(unittest.TestCase):
         logger.removeHandler(self.unittest_handler)
 
 #     def test_self(self):
-#         org = self.st_org_create("autoorg20")
-#         self.st_orgs_list()
-#         self.st_org_update(org)
-#         self.st_orgs_list()
-#         self.st_org_delete(org)
-#         self.st_orgs_list()
-#         consumed_pool_id = self.st_attach("4456e572-2edb-43b9-abc8-12d4f96b8e78", "8a9330aa5138cbb201513d2c0aa208b4")
-#         logger.info("cosumed_pool_id is %s" %consumed_pool_id)
-#         self.st_unattach("4456e572-2edb-43b9-abc8-12d4f96b8e78", "8a9330aa5138cbb2015142db3ccc047e")
-#         id = self.st_name_to_id("aee4ff00-8c33-11e2-994a-6c3be51d959a")
-#         logger.info(id)
-
-    def list_img(self, targetmachine_ip=""):
-        cmd = "docker images"
-        self.runcmd(cmd, "list docker images", targetmachine_ip)
-        cmd = "docker pull shaoqq/rhel68"
-        self.runcmd(cmd, "pull vm docker images", targetmachine_ip)
-        cmd = "docker images"
-        self.runcmd(cmd, "list docker images", targetmachine_ip)
+#         self.__satellite_attach("aee4ff00-8c33-11e2-994a-6c3be51d959a", "8ac213ab55f1c6470155f1d8c32d026f")
+#         self.__satellite_unattach_all("aee4ff00-8c33-11e2-994a-6c3be51d959a")
+#         self.__stage_attach("aee4ff00-8c33-11e2-994a-6c3be51d959a", "8a99f9865558436a01556be3f6b30815")
+#         self.__stage_unattach_all("aee4ff00-8c33-11e2-994a-6c3be51d959a")
+#         self.stage_system_remove("aee4ff00-8c33-11e2-994a-6c3be51d959a")
+#         self.stage_system_remove_all()
 
 if __name__ == "__main__":
     unittest.main()

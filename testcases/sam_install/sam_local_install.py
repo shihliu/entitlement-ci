@@ -2,9 +2,9 @@ from utils import *
 from utils.tools.shell.command import Command
 from utils.tools.virshcommand import VirshCommand
 from utils.exception.failexception import FailException
-from testcases.sam_install.sam_install_base import SAM_Install_Base
+from testcases.install.install_base import Install_Base
 
-class SAM_LOCAL_INSTALL(SAM_Install_Base):
+class SAM_LOCAL_INSTALL(Install_Base):
     '''
     classdocs
     '''
