@@ -64,12 +64,12 @@ class Install_Base(Base):
         cmd = "setenforce 0"
         ret, output = self.runcmd(cmd, "setenforce 0", targetmachine_ip)
         logger.info("Succeeded to run setenforce 0.")
-        cmd = "sed -i -e 's/SELINUX=.*/SELINUX=%s/g' /etc/sysconfig/selinux" % ("permissive")
-        ret, output = self.runcmd(cmd, "set /etc/sysconfig/selinux", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set /etc/sysconfig/selinux.")
-        else:
-            raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
+        #cmd = "sed -i -e 's/SELINUX=.*/SELINUX=%s/g' /etc/sysconfig/selinux" % ("permissive")
+        #ret, output = self.runcmd(cmd, "set /etc/sysconfig/selinux", targetmachine_ip)
+        #if ret == 0:
+        #    logger.info("Succeeded to set /etc/sysconfig/selinux.")
+        #else:
+        #    raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
 
     def __set_hosts_file(self, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
