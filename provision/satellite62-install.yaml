@@ -57,11 +57,11 @@
             # fi
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
-            For  i  in  `cat $WORKSPACE/RESOURCES.txt`
-            do
-            export $i
-            echo $i
-            done
+            # For i  in  `cat $WORKSPACE/RESOURCES.txt`
+            # do
+            #   # export $i
+            #   echo $i
+            # done
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
             env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
