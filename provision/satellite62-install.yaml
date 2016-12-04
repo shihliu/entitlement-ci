@@ -60,6 +60,7 @@
             For  i  in  `cat $WORKSPACE/RESOURCES.txt`
             do
             export $i
+            echo $i
             done
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
