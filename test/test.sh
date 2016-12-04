@@ -37,8 +37,10 @@ if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="satellite62.redhat.com";fi
 docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
-docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd restart
+# docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd restart
+# docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd status
 # docker exec -i $CONTAINER_NAME yum install -y satellite
+docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 #SATELLITE_IP=docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:" | awk '{print $2}' | cut -c 6-
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCE.txt
