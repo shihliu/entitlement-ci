@@ -6,6 +6,7 @@ class SATELLITE62_Install(Install_Base):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            logger.info("aaaaaaa")
             compose = "latest-Satellite-6.2-RHEL-6"
             sat_server = get_exported_param("REMOTE_IP")
             logger.info("satellite server is %s" %sat_server)

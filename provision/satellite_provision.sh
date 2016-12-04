@@ -47,8 +47,8 @@ echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-# export SATELLITE_IP=$SATELLITE_IP
-# export SATELLITE_HOSTNAME=$CONTAINER_NAME
+export REMOTE_IP=$SATELLITE_IP
+export REMOTE_HOSTNAME=$CONTAINER_NAME
 # fi
 #
 echo "Provisioning with the following environment"
@@ -56,3 +56,11 @@ echo "-------------------------------------------"
 echo "SITE:                     $SITE"
 echo "SATELLITE_NAME:           $CONTAINER_NAME"
 echo "SATELLITE_IP:             $SATELLITE_IP"
+
+if [ "$RESOURCES_DIR" != "" ]; then
+   export RESOURCES_OUTPUT=$RESOURCES_DIR/RESOURCES.txt
+else
+   export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
+fi
+cat $RESOURCES_OUTPUT
+popd
