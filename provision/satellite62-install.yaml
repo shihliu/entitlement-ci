@@ -65,7 +65,7 @@
             properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
       - archive:
-          artifacts: '*.txt, *.json'
+          artifacts: '*.txt, *.json,*.sh'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite62-install-runtest'
@@ -93,9 +93,9 @@
             echo "Jenkins machine info we are running on"
             ifconfig
             echo "Pinging Test Resources"
-            sh $WORKSPACE/RESOURCES.sh
+            # sh $WORKSPACE/RESOURCES.sh
             # echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
-            cat $WORKSPACE/RESOURCES.txt
+            cat $WORKSPACE/RESOURCES.sh
             # echo "*********************************setup env*********************************"
             # #setup environment here to run alone, change back when finished
             # #export SWITCH=true/false
@@ -103,7 +103,7 @@
             # #export RHEL_COMPOSE=
             # echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests satellite62_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests satellite62_install.py
             popd
             # echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             # echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
