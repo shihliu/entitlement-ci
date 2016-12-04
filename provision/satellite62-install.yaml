@@ -9,8 +9,8 @@
             branches:
                 - origin/master
             basedir: entitlement-ci
-    # wrappers:
-    #     - default-virt-who-wrappers
+    wrappers:
+        - default-virt-who-wrappers
 
 - defaults:
     name: virt-who-runtest
@@ -23,8 +23,15 @@
             branches:
                 - origin/master
             basedir: entitlement-ci
-    # wrappers:
-    #     - default-virt-who-wrappers
+    wrappers:
+        - default-virt-who-wrappers
+
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
 
 - job-template:
     name: 'satellite62-install-provision'
