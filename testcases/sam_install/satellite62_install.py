@@ -8,8 +8,9 @@ class SATELLITE62_Install(Install_Base):
         try:
             compose = "latest-Satellite-6.2-RHEL-6"
             sat_server = get_exported_param("REMOTE_IP")
+            logger.info("satellite server is %s" %sat_server)
             logger.info("satellite_service is %s" %sat_server)
-	    self.install_satellite62(compose, sat_server)
+            self.install_satellite62(compose, sat_server)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

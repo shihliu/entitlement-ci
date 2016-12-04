@@ -31,7 +31,7 @@ class RemoteSH(object):
     @classmethod
     def remote_get(self, remote_ip, username, password, from_path, to_path):
         logger.info(">>> remote_get")
-        scp = paramiko.Transport((remote_ip, 33027))
+        scp = paramiko.Transport((remote_ip, 22))
         scp.connect(username=username, password=password)
         sftp = paramiko.SFTPClient.from_transport(scp)
         # Copy a remote file from the SFTP server to the local host
@@ -42,7 +42,7 @@ class RemoteSH(object):
     @classmethod
     def remote_put(self, remote_ip, username, password, from_path, to_path):
         logger.info(">>> remote_put")
-        scp = paramiko.Transport((remote_ip, 33027))
+        scp = paramiko.Transport((remote_ip, 22))
         scp.connect(username=username, password=password)
         sftp = paramiko.SFTPClient.from_transport(scp)
         # Copy a local file to the SFTP server
@@ -56,7 +56,7 @@ class RemoteSH(object):
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(remote_ip, 33027, username, password)
+        ssh.connect(remote_ip, 22, username, password)
         #trying to resolve large output issue
         ssh._transport.window_size = 2147483647
         if timeout == None:
@@ -110,7 +110,7 @@ class RemoteSH(object):
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(remote_ip, 33027, username, password)
+        ssh.connect(remote_ip, 22, username, password)
         channel = ssh.get_transport().open_session()
 #         channel.settimeout(600)
         channel.settimeout(6000)

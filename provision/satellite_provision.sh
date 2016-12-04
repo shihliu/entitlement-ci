@@ -45,10 +45,10 @@ SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet ad
 #SATELLITE_IP=docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:" | awk '{print $2}' | cut -c 6-
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-echo export REMOTE_IP=$SATELLITE_IP>>RESOURCES.sh
-echo export SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.sh
-export SATELLITE_IP=$SATELLITE_IP
-export SATELLITE_HOSTNAME=$CONTAINER_NAME
+echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
+echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
+# export SATELLITE_IP=$SATELLITE_IP
+# export SATELLITE_HOSTNAME=$CONTAINER_NAME
 # fi
 #
 echo "Provisioning with the following environment"

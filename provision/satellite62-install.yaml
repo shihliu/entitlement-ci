@@ -72,7 +72,7 @@
             properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
       - archive:
-          artifacts: '*.txt, *.json,*.sh'
+          artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
           - project: 'satellite62-install-runtest'
