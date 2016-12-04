@@ -19,7 +19,7 @@
     concurrent: true
     scm:
         - git:
-            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            url: 'https://github.com/shihliu/entitlement-ci'
             branches:
                 - origin/master
             basedir: entitlement-ci
@@ -57,11 +57,6 @@
             # fi
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
-            # For i  in  `cat $WORKSPACE/RESOURCES.txt`
-            # do
-            #   # export $i
-            #   echo $i
-            # done
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
             env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
@@ -82,11 +77,11 @@
 - job-template:
     name: 'satellite62-install-runtest'
     defaults: virt-who-runtest
-    node: 'docker-satellite-slave'
+    node: 'master'
     builders:
         - copyartifact:
             project: 'satellite62-install-provision'
-            filter: '*.txt, *.json'
+            filter: '*.txt, *.json, *.sh'
             target: $WORKSPACE
         - shell: |
             #!/bin/bash
@@ -98,18 +93,18 @@
             echo "Jenkins machine info we are running on"
             ifconfig
             echo "Pinging Test Resources"
-            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+            sh $WORKSPACE/RESOURCES.sh
+            # echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
-            export REMOTE_IP=$EXISTING_NODES
             # echo "*********************************setup env*********************************"
             # #setup environment here to run alone, change back when finished
             # #export SWITCH=true/false
             # #export REMOTE_IP=
             # #export RHEL_COMPOSE=
             # echo "*********************************setup env*********************************"
-            # pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            # nosetests satellite62_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            # popd
+            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            nosetests satellite62_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
             # echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             # echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
             # echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
