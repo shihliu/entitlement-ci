@@ -64,7 +64,7 @@
             # fi
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
-            
+
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
             env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
@@ -101,9 +101,9 @@
             echo "Jenkins machine info we are running on"
             ifconfig
             echo "Pinging Test Resources"
-            # sh $WORKSPACE/RESOURCES.sh
+            # sh $WORKSPACE/RESOURCES.txt
             # echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
-            cat $WORKSPACE/RESOURCES.sh
+            cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
             # #setup environment here to run alone, change back when finished
             # #export SWITCH=true/false
