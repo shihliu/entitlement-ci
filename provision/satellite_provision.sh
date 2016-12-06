@@ -42,7 +42,7 @@ docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 # docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd restart
 # docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd status
 # docker exec -i $CONTAINER_NAME yum install -y satellite
-SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth0 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
+SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 #SATELLITE_IP=docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:" | awk '{print $2}' | cut -c 6-
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
