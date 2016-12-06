@@ -1,0 +1,20 @@
+[sat6]
+name=Satellite 6
+#baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/Satellite-6.0.4-RHEL-7-20150227.0/compose/Satellite/x86_64/os/
+baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-6/compose/Satellite/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[sat6-capsule]
+name=Satellite 6 Capsule Packages
+#baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/Satellite-6.0.4-RHEL-7-20150227.0/compose/Capsule/x86_64/os/
+baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-6/compose/Capsule/x86_64/os/
+enabled=1
+gpgcheck=0
+
+[sat6-rhcommon]
+name=Satellite 6 RH Common Packages
+#baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/Satellite-6.0.4-RHEL-7-20150227.0/compose/rhcommon/x86_64/os/
+baseurl=http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-6/compose/sattools/x86_64/os/
+enabled=1
+gpgcheck=0
