@@ -1,0 +1,4 @@
+[jenkins]
+user=admin
+password=admin
+url=http://10.66.144.90:8080

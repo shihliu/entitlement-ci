@@ -36,7 +36,7 @@
 - job-template:
     name: 'satellite62-install-provision'
     defaults: virt-who-provision
-    node: cloud-slave
+    node: docker-cloud
     builders:
         - shell: |
             #!/bin/bash
@@ -56,12 +56,6 @@
             fi
 
             kinit -k -t $KEYTAB $PRINCIPAL
-            # export JSLAVENAME={jslavename}
-            # # Provision Jenkins Slave
-            # if [ "$JSLAVENAME" != "master" ]
-            # then
-            #   $WORKSPACE/entitlement-ci/provision/satellite_slave_provision.sh --containername=satellite.slave.redhat.com
-            # fi
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
 
@@ -85,52 +79,47 @@
 - job-template:
     name: 'satellite62-install-runtest'
     defaults: virt-who-runtest
-    node: 'master'
+    node: 'satellite-slave'
     builders:
         - copyartifact:
             project: 'satellite62-install-provision'
-            filter: '*.txt, *.json, *.sh'
+            filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
             #!/bin/bash
-            # export TOPOLOGY={topology}
-            # {testparams}
-            # echo "TOPOLOGY: {topology}"
-            # echo "Ping Jenkins Slave"
-            # ping -c 10 $JSLAVEIP
             echo "Jenkins machine info we are running on"
             ifconfig
             echo "Pinging Test Resources"
-            # sh $WORKSPACE/RESOURCES.txt
-            # echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
             cat $WORKSPACE/RESOURCES.txt
+            echo REMOTE_IP=$REMOTE_IP
+            echo REMOTE_HOSTNAME=$REMOTE_HOSTNAME
             # echo "*********************************setup env*********************************"
             # #setup environment here to run alone, change back when finished
             # #export SWITCH=true/false
-            # #export REMOTE_IP=
+            export REMOTE_IP=$REMOTE_IP
+            export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
             # #export RHEL_COMPOSE=
             # echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite62_install.py
             popd
-            # echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
-            # echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
-            # echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
-            # echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
-            # echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
+            echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
+            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
+            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
         - inject:
-            properties-file: $WORKSPACE/RESOURCES.txt
+            properties-file: $WORKSPACE/SERVER.txt
     publishers:
-      - archive:
+       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
-      # - default-virt-who-runtest-publishers
-      # - trigger-parameterized-builds:
-      #     - project: 'virt-who-esx-provision'
-      #       current-parameters: false
-      #       condition: 'SUCCESS'
-      #       property-file: $WORKSPACE/SERVER.txt
-      #       fail-on-missing: true
+       #- default-virt-who-runtest-publishers
+       - trigger-parameterized-builds:
+           - project: 'virt-who-esx-provision'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/SERVER.txt
+             fail-on-missing: true
       #     - project: 'virt-who-kvm-provision'
       #       current-parameters: false
       #       condition: 'SUCCESS'
@@ -174,10 +163,3 @@
     testparams: echo "I am a test parameter"
     jobs:
       - satellite62-install-provision-runtest
-    jslavename: jslave-satellite62-install-slave
-    # jslave_execs: 5
-    # jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
-    # jslaveflavor: m1.medium
-    # jslaveusername: root
-    # jslavepassword: redhat
-    # jslaveteardown: True
