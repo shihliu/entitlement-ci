@@ -119,7 +119,7 @@
             # echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
             # echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
         - inject:
-            properties-file: $WORKSPACE/SERVER.txt
+            properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
       - archive:
           artifacts: '**/**'

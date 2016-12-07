@@ -27,10 +27,10 @@ class Install_Base(Base):
     def install_satellite62(self, compose, targetmachine_ip=""):
         self.__set_selinux(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)
-        self.__auto_subscribe(targetmachine_ip)
-        self.__satellite_repo_config_6(targetmachine_ip)
-        self.__add_satellite62_repo(compose, targetmachine_ip)
-        self.__install_satellite62(targetmachine_ip)
+        #self.__auto_subscribe(targetmachine_ip)
+        #self.__satellite_repo_config_6(targetmachine_ip)
+        #self.__add_satellite62_repo(compose, targetmachine_ip)
+        #self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 

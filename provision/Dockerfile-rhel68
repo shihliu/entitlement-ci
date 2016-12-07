@@ -4,8 +4,7 @@ MAINTAINER Eko "hsun@redhat.com"
 RUN subscription-manager register --username=qa@redhat.com --password=8pf87qhuF8Eg9MPq --auto-attach
 RUN yum install -y openssh-server net-tools hostname sudo
 RUN yum install -y java
-RUN yum install -y python-nose
-RUN yum install -y python-paramiko
+RUN yum install -y python-paramiko python-nose python-requests
 RUN yum install -y git
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN echo "root:red2015" | chpasswd
