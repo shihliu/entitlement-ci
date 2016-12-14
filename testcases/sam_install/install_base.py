@@ -74,13 +74,13 @@ class Install_Base(Base):
 
     def __set_hostname(self, targetmachine_ip=""):
         logger.info("=================================")
-        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-        cmd = "hostname %s" %SERVER_HOSTNAME
+        SATELLITE_HOSTNAME = get_exported_param("SATELLITE_HOSTNAME")
+        cmd = "hostname %s" %SATELLITE_HOSTNAME
         ret, output = self.runcmd(cmd, "set satellite hostname", targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to set satellite hostname to %s." %SERVER_HOSTNAME)
+            logger.info("Succeeded to set satellite hostname to %s." %SATELLITE_HOSTNAME)
         else:
-            raise FailException("Test Failed - Failed to set satellite hostname to %s." %SERVER_HOSTNAME)
+            raise FailException("Test Failed - Failed to set satellite hostname to %s." %SATELLITE_HOSTNAME)
 
     def __set_hosts_file(self, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
