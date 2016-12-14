@@ -27,14 +27,14 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="satelite62"; fi
-if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="satellite62.redhat.com";fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel69"; fi
+if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="rhel69.redhat.com";fi
 # Set some defaults if values not assigned
 # if [ "$DOCKERFILE" == "" ]; then DOCKERFILE="/root/.";
 # else
   #Build satellite62 IMAGE
 #Provision satellite
-#docker build -t $IMAGE_NAME /root/. 
+#docker build -t $IMAGE_NAME /root/.
 docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME

@@ -26,11 +26,12 @@ class Install_Base(Base):
 
     def install_satellite62(self, compose, targetmachine_ip=""):
         self.__set_selinux(targetmachine_ip)
+        self.__set_hostname(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)
-        self.__auto_subscribe(targetmachine_ip)
-        self.__satellite_repo_config_6(targetmachine_ip)
-        self.__add_satellite62_repo(compose, targetmachine_ip)
-        self.__install_satellite62(targetmachine_ip)
+#         self.__auto_subscribe(targetmachine_ip)
+#         self.__satellite_repo_config_6(targetmachine_ip)
+#         self.__add_satellite62_repo(compose, targetmachine_ip)
+#         self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 
@@ -70,6 +71,15 @@ class Install_Base(Base):
             logger.info("Succeeded to set /etc/sysconfig/selinux.")
         else:
             raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
+
+    def __set_hostname(self, targetmachine_ip=""):
+        SATELLITE_HOSTNAME = get_exported_param("SATELLITE_HOSTNAME")
+        cmd = "hostname %s" %SATELLITE_HOSTNAME
+        ret, output = self.runcmd(cmd, "set satellite hostname", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set satellite hostname to %s." %SATELLITE_HOSTNAME)
+        else:
+            raise FailException("Test Failed - Failed to set satellite hostname to %s." %SATELLITE_HOSTNAME)
 
     def __set_hosts_file(self, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
@@ -439,7 +449,6 @@ class Install_Base(Base):
             logger.info("Succeeded to wget rhevm config file to rhevm")
         else:
             raise FailException("Failed to wget rhevm config file to rhevm")
-        rhevm_hostname = self.get_hostname(targetmachine_ip)
         cmd = "sed -i -e 's/rhevmhostname/%s/g' /root/rhevm36_config" % rhevm_hostname
         ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
         if ret == 0:

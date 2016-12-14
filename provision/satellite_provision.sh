@@ -35,9 +35,9 @@ if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="satellite62.redhat.com";fi
   #Build satellite62 IMAGE
 #Provision satellite
 #docker build -t $IMAGE_NAME /root/. 
-docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
+docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
-docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
+#docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 # docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd restart
 # docker exec -i $CONTAINER_NAME export PATH=$PATH:/sbin/|service sshd status
