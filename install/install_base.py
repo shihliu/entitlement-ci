@@ -73,6 +73,7 @@ class Install_Base(Base):
             raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
 
     def __set_hostname(self, targetmachine_ip=""):
+        lgger.info("=================================")
         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
         cmd = "hostname %s" %SERVER_HOSTNAME
         ret, output = self.runcmd(cmd, "set satellite hostname", targetmachine_ip)
