@@ -1,15 +1,24 @@
-FROM rhel68-new
+FROM registry.access.redhat.com/rhel6.8:latest
 MAINTAINER Eko "hsun@redhat.com"
 
-RUN wget http://10.66.144.9/home/shihliu/satellite62.repo
+RUN subscription-manager register --username=qa@redhat.com --password=8pf87qhuF8Eg9MPq --auto-attach
+RUN yum install -y openssh-server net-tools hostname sudo
+RUN yum install -y java
+RUN yum install -y python-nose
+RUN yum install -y python-paramiko
+RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+RUN echo "root:red2015" | chpasswd
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
 
-RUN mv satellite62.repo /etc/yum.repos.d/
+RUN yum install -y wget
+RUN yum install -y git
 
-RUN subscription-manager repos --disable "*"
-RUN subscription-manager repos --enable rhel-6-server-rpms --enable=rhel-6-server-optional-rpms --enable rhel-server-rhscl-6-rpms
+VOLUME ["/sys/fs"]
+VOLUME ["/run"]
+VOLUME ["/export"]
 
-RUN yum install -y satellite
+RUN mkdir /var/run/sshd
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
-
 

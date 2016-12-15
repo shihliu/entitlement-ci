@@ -31,7 +31,7 @@ class Install_Base(Base):
         #self.__auto_subscribe(targetmachine_ip)
         #self.__satellite_repo_config_6(targetmachine_ip)
         #self.__add_satellite62_repo(compose, targetmachine_ip)
-        #self.__install_satellite62(targetmachine_ip)
+#         self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 
