@@ -24,9 +24,10 @@ class VIRTWHOBase(Base):
     def set_virtwho_version(self, targetmachine_ip=None):
         self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
-    def sys_setup(self, targetmachine_ip):
+    def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
-        self.set_hosts_file(targetmachine_ip)
+        remote_ip = get_exported_param("REMOTE_IP")
+        self.set_hosts_file(remote_ip)
         # system setup for virt-who testing
         cmd = "yum install -y subscription-manager"
         ret, output = self.runcmd(cmd, "install subscription-manager for virt-who testing", targetmachine_ip, showlogger=False)
