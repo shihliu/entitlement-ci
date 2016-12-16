@@ -1,5 +1,5 @@
 FROM registry.access.redhat.com/rhel6.8:latest
-MAINTAINER Eko "hsun@redhat.com"
+MAINTAINER "shihliu@redhat.com"
 
 RUN subscription-manager register --username=qa@redhat.com --password=8pf87qhuF8Eg9MPq --auto-attach
 RUN yum install -y openssh-server net-tools hostname sudo

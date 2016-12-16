@@ -1,5 +1,5 @@
 FROM rhel68
-MAINTAINER Eko "hsun@redhat.com"
+MAINTAINER "shihliu@redhat.com"
 
 RUN wget http://10.66.144.9/home/shihliu/satellite62.repo
 
