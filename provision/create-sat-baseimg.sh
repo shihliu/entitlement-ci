@@ -30,7 +30,7 @@ if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
 if [ "$SATIMG_NAME" == "" ]; then SATIMG_NAME="satellite62"; fi
 # Make rhel68 base img
-pushd $WORKSPACE/entitlement-ci/testcases/provision
+pushd $WORKSPACE/entitlement-ci/provision
 
 docker images|grep $IMAGE_NAME
 isRhelExist=$?
