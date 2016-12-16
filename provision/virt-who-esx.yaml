@@ -97,7 +97,6 @@
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
         pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
         nosetests virtwho_esx_setup.py 
         popd
         echo "********************************runtime env********************************"
