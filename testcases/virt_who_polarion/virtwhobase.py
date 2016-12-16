@@ -24,7 +24,7 @@ class VIRTWHOBase(Base):
     def set_virtwho_version(self, targetmachine_ip=None):
         self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
-    def sys_setup(self, targetmachine_ip=None):
+    def sys_setup(self, targetmachine_ip):
         self.cm_install_basetool(targetmachine_ip)
         self.set_hosts_file(targetmachine_ip)
         # system setup for virt-who testing
@@ -74,8 +74,7 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
 
     def set_hosts_file(self, targetmachine_ip=""):
-#         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
-        cmd = "echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip)
+        cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
         ret, output = self.runcmd(cmd, "set /etc/hosts", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/hosts file.")
