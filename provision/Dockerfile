@@ -6,6 +6,7 @@ RUN yum install -y openssh-server net-tools hostname sudo
 RUN yum install -y java
 RUN yum install -y python-nose
 RUN yum install -y python-paramiko
+RUN yum install -y python-requests
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN echo "root:red2015" | chpasswd
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
