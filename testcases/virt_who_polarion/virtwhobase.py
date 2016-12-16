@@ -74,7 +74,8 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
 
     def set_hosts_file(self, targetmachine_ip=""):
-        cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
+#         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
+        cmd = "echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip)
         ret, output = self.runcmd(cmd, "set /etc/hosts", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to set /etc/hosts file.")
