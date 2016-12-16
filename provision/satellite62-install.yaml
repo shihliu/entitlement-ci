@@ -54,7 +54,8 @@
                 export SWITCH=true
             fi
             kinit -k -t $KEYTAB $PRINCIPAL
-            
+            #Provision base img
+            $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
             echo "********************************runtime env********************************"

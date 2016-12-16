@@ -34,7 +34,7 @@ pushd $WORKSPACE/entitlement-ci/provision
 
 docker images|grep $IMAGE_NAME
 isRhelExist=$?
-if [ $isRhelExist==0 ]
+if [ $isRhelExist -eq 0 ]
 then
    echo $IMAGE_NAME"is exist"
 else
@@ -43,13 +43,13 @@ fi
 # Make satellite62 base img
 docker images|grep $SATIMG_NAME
 isSatExist=$? 
-if [ $isSatExist==0 ]
+if [ $isSatExist -eq 0 ]
 then
    echo $SATIMG_NAME"is exist"
 else
    mv Dockerfile Dockerfile-rhel
    mv Dockerfile-sat Dockerfile
-   docker build -t $IMAGE_NAME .
+   docker build -t $SATIMG_NAME .
    mv Dockerfile Dockerfile-sat
    mv Dockerfile-rhel Dockerfile 
 fi
