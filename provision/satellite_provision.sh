@@ -27,7 +27,7 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="satelite62"; fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="satellite62"; fi
 if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="satellite62.redhat.com";fi
 
 docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
