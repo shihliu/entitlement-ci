@@ -62,4 +62,4 @@ cp /etc/resolv.conf $redhat_root/etc
 #chroot $redhat_root /bin/bash yum install -y virt-who libvirt
 chroot $redhat_root /bin/bash yum install -y openssh-server net-tools
 chroot $redhat_root /bin/bash yum clean all
-tar -C $redhat_root -c . | docker import - $IMAGE_NAME
+tar -C $redhat_root -c . | docker import- $IMAGE_NAME
