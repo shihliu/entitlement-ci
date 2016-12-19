@@ -35,15 +35,19 @@ if [ $isRhelExist -eq 0 ]
 then
    echo $IMAGE_NAME"is exist"
 else
-   export compose_name=RHEL-6.9-20161201.0
+   export compose_name=RHEL-6.9-20161216.1
    echo compose_name=$compose_name
    export redhat_root='/redhat_image/rootfs'
    echo redhat_root=$redhat_root
+   if [-x "$redhat_root"]; 
+   then
+      rm -rf $redhat_root
+   fi
+   mkdir -p $redhat_root
    wget http://10.66.144.9/home/shihliu/define.repo
    mv define.repo /etc/yum.repos.d
    echo $compose_name
    sed -i -e 's/'rhelbuild'/'$compose_name'/g' /etc/yum.repos.d/define.repo
-   mkdir -p $redhat_root
    rpm --root $redhat_root --initdb
    yum -y reinstall --downloadonly --downloaddir . redhat-release
    rpm --root $redhat_root -ivh redhat-release*.rpm
@@ -73,5 +77,4 @@ else
       echo "failed to build rhel69 base img"
    fi
    popd
-   rm -rf $redhat_root
 fi
