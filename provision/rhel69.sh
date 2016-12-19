@@ -39,8 +39,11 @@ export compose_name=RHEL-6.9-20161216.1
 echo compose_name=$compose_name
 export redhat_root='/redhat_image/rootfs'
 echo redhat_root=$redhat_root
-if [-d "$redhat_root"]; 
+if [! -d $redhat_root]; 
 then
+   echo $redhat_root "is not exist"
+else
+   echo $redhat_root "is exist, it should be deleted"
    rm -rf $redhat_root
 fi
 mkdir -p $redhat_root
