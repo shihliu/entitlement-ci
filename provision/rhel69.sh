@@ -24,23 +24,23 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="redhat69base"; fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="redhat69"; fi
 
 # Make rhel69 base img
-pushd $WORKSPACE/entitlement-ci/provision
 
 docker images|grep $IMAGE_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo "old $IMAGE_NAME"is exist"
+   echo "old" $IMAGE_NAME "is exist"
    docker rmi -f $IMAGE_NAME
 else
+   pushd $WORKSPACE/entitlement-ci/provision
    export compose_name=RHEL-6.9-20161216.1
    echo compose_name=$compose_name
    export redhat_root='/redhat_image/rootfs'
    echo redhat_root=$redhat_root
-   if [-x $redhat_root]; 
+   if [-d "$redhat_root"]; 
    then
       rm -rf $redhat_root
    fi
@@ -62,20 +62,4 @@ else
 
    chroot $redhat_root /bin/bash yum clean all
    tar -C $redhat_root -c . | docker import - $IMAGE_NAME
-
-   # Make rhel69 base img
-   pushd $WORKSPACE/entitlement-ci/provision
-   docker images|grep $IMAGE_NAME
-   isRhelExist=$?
-   if [ $isRhelExist -eq 0 ]
-   then
-      mv Dockerfile Dockerfile-rhel
-      mv Dockerfile-rhel69 Dockerfile 
-      docker build -t $IMAGE_NAME .
-      mv Dockerfile Dockerfile-rhel69
-      mv Dockerfile-rhel Dockerfile
-   else
-      echo "failed to build rhel69 base img"
-   fi
-   popd
 fi
