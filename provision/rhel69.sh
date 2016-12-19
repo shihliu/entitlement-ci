@@ -33,13 +33,14 @@ docker images|grep $IMAGE_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo $IMAGE_NAME"is exist"
+   echo "old $IMAGE_NAME"is exist"
+   docker rmi -f $IMAGE_NAME
 else
    export compose_name=RHEL-6.9-20161216.1
    echo compose_name=$compose_name
    export redhat_root='/redhat_image/rootfs'
    echo redhat_root=$redhat_root
-   if [-x "$redhat_root"]; 
+   if [-x $redhat_root]; 
    then
       rm -rf $redhat_root
    fi
