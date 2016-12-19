@@ -24,7 +24,7 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="redhat69"; fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="redhat69base"; fi
 
 # Make rhel69 base img
 pushd $WORKSPACE/entitlement-ci/provision
@@ -57,5 +57,21 @@ else
 
    chroot $redhat_root /bin/bash yum clean all
    tar -C $redhat_root -c . | docker import - $IMAGE_NAME
+
+   # Make rhel69 base img
+   pushd $WORKSPACE/entitlement-ci/provision
+   docker images|grep $IMAGE_NAME
+   isRhelExist=$?
+   if [ $isRhelExist -eq 0 ]
+   then
+      mv Dockerfile Dockerfile-rhel
+      mv Dockerfile-rhel69 Dockerfile 
+      docker build -t $IMAGE_NAME .
+      mv Dockerfile Dockerfile-rhel69
+      mv Dockerfile-rhel Dockerfile
+   else
+      echo "failed to build rhel69 base img"
+   fi
+   popd
    rm -rf $redhat_root
 fi
