@@ -59,7 +59,5 @@ cp /etc/yum.repos.d/define.repo $redhat_root/etc/yum.repos.d
 yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
 cp /etc/resolv.conf $redhat_root/etc
-#chroot $redhat_root /bin/bash yum install -y virt-who libvirt
-chroot $redhat_root /bin/bash yum install -y openssh-server net-tools
 chroot $redhat_root /bin/bash yum clean all
-tar -C $redhat_root -c . | docker import- $IMAGE_NAME
+tar -C $redhat_root -c . | docker import - $IMAGE_NAME
