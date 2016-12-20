@@ -41,6 +41,12 @@
             fi
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision rhel69 img
+            docker images|grep redhat69
+            isRhelExist=$?
+            if [ $isRhelExist -eq 0 ]
+            then
+               docker rmi -f redhat69
+            fi
             $WORKSPACE/entitlement-ci/provision/rhel69.sh
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}

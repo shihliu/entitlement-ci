@@ -9,9 +9,9 @@ RUN echo "root:red2015" | chpasswd
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
 
-VOLUME ["/sys/fs"]
-VOLUME ["/run"]
-VOLUME ["/export"]
+#VOLUME ["/sys/fs"]
+#VOLUME ["/run"]
+#VOLUME ["/export"]
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
