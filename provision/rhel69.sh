@@ -50,7 +50,7 @@ mkdir -p $redhat_root
 wget http://10.66.144.9/home/shihliu/define.repo
 mv define.repo /etc/yum.repos.d
 echo $compose_name
-sed -i -e 's/'rhelbuild'/'$compose_name'/g' /etc/yum.repos.d/define.repo
+sed -i -e 's/'rhelbuild'/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define.repo
 rpm --root $redhat_root --initdb
 yum -y reinstall --downloadonly --downloaddir . redhat-release
 rpm --root $redhat_root -ivh redhat-release*.rpm
