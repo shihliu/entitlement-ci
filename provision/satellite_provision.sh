@@ -30,11 +30,18 @@ if [ "$SITE" == "" ]; then SITE="10.16.46.37"; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="satellite62"; fi
 if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="satellite62.redhat.com";fi
 
+docker images|grep $CONTAINER_NAME
+isRhelExist=$?
+if [ $isRhelExist -eq 0 ]
+then
+   docker stop $CONTAINER_NAME
+   docker rm $CONTAINER_NAME
+fi
 docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-#SATELLITE_IP=docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:" | awk '{print $2}' | cut -c 6-
+
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt

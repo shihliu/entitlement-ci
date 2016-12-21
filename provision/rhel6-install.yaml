@@ -59,12 +59,6 @@
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'satellite62-install-runtest'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
 
 - job-group:
     name: rhel6-install-provision-runtest
