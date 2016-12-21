@@ -34,12 +34,15 @@ docker images|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   docker stop $CONTAINER_NAME
-   docker rm $CONTAINER_NAME
+   echo $CONTAINER_NAME "is exist!"
+else
+   docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+   pipework br0  $CONTAINER_NAME  dhclient
+   docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 fi
-docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
-pipework br0  $CONTAINER_NAME  dhclient
-docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
+#docker run --privileged -itd  --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+#pipework br0  $CONTAINER_NAME  dhclient
+#docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
