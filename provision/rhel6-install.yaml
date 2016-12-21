@@ -41,6 +41,7 @@
             fi
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision rhel69 img
+            echo "RHEL_COMPOSE" is $RHEL_COMPOSE
             docker images|grep redhat69
             isRhelExist=$?
             if [ $isRhelExist -eq 0 ]

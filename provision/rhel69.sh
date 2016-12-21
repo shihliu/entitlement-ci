@@ -35,8 +35,8 @@ then
    echo "old" $IMAGE_NAME "is exist"
    docker rmi -f $IMAGE_NAME
 fi
-export compose_name=RHEL-6.9-20161216.1
-echo compose_name=$compose_name
+#export compose_name=RHEL-6.9-20161216.1
+echo compose_name=$RHEL_COMPOSE
 export redhat_root='/redhat_image/rootfs'
 echo redhat_root=$redhat_root
 if [! -d $redhat_root]; 
