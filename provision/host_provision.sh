@@ -32,11 +32,20 @@ if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="rhel69.redhat.com";fi
 
 export PASS='red2015'
 
+docker ps -a|grep $CONTAINER_NAME
+isRhelExist=$?
+if [ $isRhelExist -eq 0 ]
+then
+   echo $CONTAINER_NAME "is exist!need to delete to create new one"
+   docker stop $CONTAINER_NAME
+   docker rm $CONTAINER_NAME
+fi
+echo $CONTAINER_NAME "is not exist"
 docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 #docker exec -i $CONTAINER_NAME echo "root:red2015" | chpasswd
-echo -e "$PASS\n$PASS" | sudo docker exec -i $CONTAINER_NAME passwd
+echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME passwd
 docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
 docker exec -i $CONTAINER_NAME sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 docker exec -i $CONTAINER_NAME ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key

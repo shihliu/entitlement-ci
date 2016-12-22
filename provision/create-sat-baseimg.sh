@@ -45,12 +45,12 @@ docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $SATIMG_NAME"is exist"
-else
-   mv Dockerfile Dockerfile-rhel
-   mv Dockerfile-sat Dockerfile
-   docker build -t $SATIMG_NAME .
-   mv Dockerfile Dockerfile-sat
-   mv Dockerfile-rhel Dockerfile 
+   echo $SATIMG_NAME "is exist,need to delete old img"
+   docker rmi -f $SATIMG_NAME
 fi
+mv Dockerfile Dockerfile-rhel
+mv Dockerfile-sat Dockerfile
+docker build -t $SATIMG_NAME .
+mv Dockerfile Dockerfile-sat
+mv Dockerfile-rhel Dockerfile 
 popd
