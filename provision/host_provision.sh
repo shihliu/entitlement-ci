@@ -45,8 +45,8 @@ docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 #docker exec -i $CONTAINER_NAME echo "root:red2015" | chpasswd
-echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME passwd
-docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools /usr/bin/passwd
+echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME /usr/bin/passwd
+docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
 docker exec -i $CONTAINER_NAME sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 docker exec -i $CONTAINER_NAME ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 docker exec -i $CONTAINER_NAME ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
