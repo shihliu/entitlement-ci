@@ -52,5 +52,11 @@ mv Dockerfile Dockerfile-rhel
 mv Dockerfile-sat Dockerfile
 docker build -t $SATIMG_NAME .
 mv Dockerfile Dockerfile-sat
-mv Dockerfile-rhel Dockerfile 
+mv Dockerfile-rhel Dockerfile-first
+
+# Make rhel68 new img in order to run nosetests
+mv Dockerfile-sec Dockerfile
+docker build -t $IMAGE_NAME .
+mv Dockerfile Dockerfile-sec
+mv Dockerfile-first Dockerfile
 popd
