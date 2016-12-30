@@ -4,9 +4,11 @@ MAINTAINER "shihliu@redhat.com"
 RUN subscription-manager register --username=qa@redhat.com --password=8pf87qhuF8Eg9MPq --auto-attach
 RUN yum install -y openssh-server net-tools hostname sudo
 RUN yum install -y java
-RUN yum install -y python-nose
 RUN yum install -y python-paramiko
 RUN yum install -y python-requests
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+RUN yum install -y python-pip
+RUN pip install nose
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN echo "root:red2015" | chpasswd
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
