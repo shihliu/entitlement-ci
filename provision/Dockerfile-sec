@@ -1,12 +1,15 @@
 FROM rhel68:latest
 MAINTAINER "shihliu@redhat.com"
 
-
+# Update nosetest to make it run with -xunit
 RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 RUN yum install -y python-pip
 RUN yum update python-nose
 RUN pip install --upgrade nose
-
+# Update paramiko to make it with esx6.5
+RUN yum install -y gcc openssl-devel python-devel
+RUN pip install --upgrade pip
+RUN pip install --upgrade paramiko
 
 CMD ["/usr/sbin/sshd", "-D"]
 
