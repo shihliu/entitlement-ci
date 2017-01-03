@@ -44,6 +44,7 @@ echo $CONTAINER_NAME "is not exist"
 docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
+docker exec -i $CONTAINER_NAME hostname
 #docker exec -i $CONTAINER_NAME echo "root:red2015" | chpasswd
 docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
 docker exec -i $CONTAINER_NAME sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
