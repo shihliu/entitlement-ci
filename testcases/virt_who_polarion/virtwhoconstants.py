@@ -10,11 +10,11 @@ class VIRTWHOConstants(object):
     "nfs_image_path":                       "/home/images_nfs",
     "local_mount_point":                    "/tmp/images_mnt",
     # esx
-    "ESX_HOST":                             "10.73.131.130",
-    "ESX_HOST_SECOND":                      "10.73.131.127",
+    "ESX_HOST":                             "10.73.131.104",
+    "ESX_HOST_SECOND":                      "10.73.131.168",
     "ESX_GUEST_NAME":                       "ESX_7.1_Server_x86_64",
     "VMWARE_CMD_IP":                        "10.73.131.126",
-    "VIRTWHO_ESX_SERVER":                   "10.73.131.239",
+    "VIRTWHO_ESX_SERVER":                   "10.73.131.114",
     "VIRTWHO_ESX_USERNAME":                 "administrator@vsphere.local",
     "VIRTWHO_ESX_PASSWORD":                 "Welcome1!",
     # rhevm
@@ -28,10 +28,10 @@ class VIRTWHOConstants(object):
     "VIRTWHO_LIBVIRT_USERNAME":             "root",
     "VIRTWHO_LIBVIRT_PASSWORD":             "",
     # hyperv
-    "HYPERV_HOST":                          "10.73.131.228",
+    "HYPERV_HOST":                          "10.73.131.226",
     "HYPERV_PORT":                          6555,
     "HYPERV_GUEST_NAME":                    "HYPERV_7.2_Server_x86_64",
-    "VIRTWHO_HYPERV_SERVER":                "10.73.131.228",
+    "VIRTWHO_HYPERV_SERVER":                "10.73.131.226",
     "VIRTWHO_HYPERV_USERNAME":              "administrator",
     "VIRTWHO_HYPERV_PASSWORD":              "Welcome1",
     # xen
