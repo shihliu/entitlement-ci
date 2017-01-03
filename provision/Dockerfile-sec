@@ -1,4 +1,4 @@
-FROM rhel6.8:latest
+FROM rhel68:latest
 MAINTAINER "shihliu@redhat.com"
 
 
