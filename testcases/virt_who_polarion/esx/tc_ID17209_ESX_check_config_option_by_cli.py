@@ -19,6 +19,7 @@ class tc_ID17209_ESX_check_config_option_by_cli(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.unset_virtwho_d_conf(conf_file)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ class tc_ID17271_ESX_check_unlimited_bonus_creation(ESXBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
+            self.vw_restart_virtwho()
+
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)

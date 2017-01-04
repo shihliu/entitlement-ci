@@ -8,7 +8,7 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            loop_msg = "hasn't changed, not sending"
+            loop_msg = self.get_vw_cons("vw_interval_check_msg")
             self.config_option_disable("VIRTWHO_INTERVAL")
             self.vw_check_message_number_in_rhsm_log(loop_msg, 2, 150)
             self.runcmd_service("stop_virtwho")

@@ -20,6 +20,8 @@ class tc_ID17262_HYPERV_check_att_validate_compliance_after_pause_shutdown_vm(HY
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             sku_name = self.get_vw_cons("datacenter_name")
 
+            self.vw_restart_virtwho()
+
             # (1) Register guest to SAM and subscribe to the bonus pool
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
@@ -32,24 +34,25 @@ class tc_ID17262_HYPERV_check_att_validate_compliance_after_pause_shutdown_vm(HY
             self.sub_listconsumed(sku_name, guestip)
             # (2) Start guest , check guest's uuid and guest's attribute 
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
+#             self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 1, guest_uuid)
             # (3) Pause guest    
             self.hyperv_suspend_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 3, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 3, guest_uuid)
             # (4) Resume guest    
             self.hyperv_resume_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who on host1 and host2
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'hyperv', 'hyperv', 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, 'hyperv', 1, guest_uuid)
             # consumed subscriptions is still exist on guest
             self.sub_listconsumed(sku_name, guestip)
             # (5) Stop guest    
             self.hyperv_stop_guest(guest_name)
             # check if the uuid is correctly monitored by virt-who.
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 0, 'hyperv', 'hyperv', 5, guest_uuid)
+            self.vw_check_attr(guest_name, 0, 'hyperv', 5, guest_uuid)
 
             self.assert_(True, case_name)
         except Exception, e:
@@ -59,7 +62,7 @@ class tc_ID17262_HYPERV_check_att_validate_compliance_after_pause_shutdown_vm(HY
             self.hyperv_start_guest(guest_name)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.hyperv_stop_guest(guest_name)
+#             self.hyperv_stop_guest(guest_name)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

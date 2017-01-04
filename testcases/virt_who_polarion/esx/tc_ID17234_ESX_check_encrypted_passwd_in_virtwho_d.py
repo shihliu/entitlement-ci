@@ -14,7 +14,7 @@ class tc_ID17234_ESX_check_encrypted_passwd_in_virtwho_d(ESXBase):
             self.set_encrypted_password("esx", encrypted_password)
             self.vw_check_mapping_info_number_in_rhsm_log()
             self.set_encrypted_password("esx", "xxxxxxxxxxxxxxxxxxx")
-            self.vw_check_message_in_rhsm_log("Password can't be decrypted, possibly corrupted")
+            self.vw_check_message_in_rhsm_log("can't be decrypted, possibly corrupted")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

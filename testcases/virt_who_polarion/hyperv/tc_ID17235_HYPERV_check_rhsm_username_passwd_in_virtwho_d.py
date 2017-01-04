@@ -17,7 +17,7 @@ class tc_ID17235_HYPERV_check_rhsm_username_passwd_in_virtwho_d(HYPERVBase):
             self.vw_check_mapping_info_number_in_rhsm_log()
             # (3) Config hyperv mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
             self.set_rhsm_user_pass("hyperv", server_user, "xxxxxxxx")
-            self.vw_check_message_in_rhsm_log("BUG yet")
+            self.vw_check_message_in_rhsm_log("Invalid username or password")
 
             self.assert_(True, case_name)
         except Exception, e:

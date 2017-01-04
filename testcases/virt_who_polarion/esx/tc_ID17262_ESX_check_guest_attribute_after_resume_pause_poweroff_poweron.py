@@ -17,6 +17,8 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
+            self.vw_restart_virtwho()
+
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)
@@ -37,17 +39,18 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             self.sub_listconsumed(sku_name, guestip)
 
             self.esx_pause_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 3, guest_uuid)
+#             self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 3, guest_uuid)
+            self.vw_check_attr(guest_name, 1, "esx", 3, guest_uuid)
             self.esx_resume_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, "esx", 1, guest_uuid)
             # refresh on the guest 
             self.sub_refresh(guestip)
             # list consumed subscriptions on the guest, should be not revoked
             self.sub_listconsumed(sku_name, guestip)
             self.esx_stop_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 0, "esx", "VMware ESXi", 5, guest_uuid)
+            self.vw_check_attr(guest_name, 0, "esx", 5, guest_uuid)
             self.esx_start_guest(guest_name, esx_host_ip)
-            self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 1, guest_uuid)
+            self.vw_check_attr(guest_name, 1, "esx", 1, guest_uuid)
             # refresh on the guest 
             self.sub_refresh(guestip)
             # list consumed subscriptions on the guest, should be not revoked

@@ -18,6 +18,8 @@ class tc_ID17273_ESX_check_unlimited_bonus_auto_subscribe(ESXBase):
             sku_name = self.get_vw_cons("datacenter_bonus_name")
             sku_quantity = self.get_vw_cons("datacenter_bonus_quantity")
 
+            self.vw_restart_virtwho()
+
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)

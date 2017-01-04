@@ -13,7 +13,7 @@ class tc_ID17235_ESX_check_rhsm_username_passwd_in_virtwho_d(ESXBase):
             self.set_rhsm_user_pass("esx", server_user, server_pass)
             self.vw_check_mapping_info_number_in_rhsm_log()
             self.set_rhsm_user_pass("esx", server_user, "xxxxxxxx")
-            self.vw_check_message_in_rhsm_log("BUG yet")
+            self.vw_check_message_in_rhsm_log("BUG yet|Invalid username or password")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

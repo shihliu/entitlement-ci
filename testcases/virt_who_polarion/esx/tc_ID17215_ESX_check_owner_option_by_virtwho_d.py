@@ -12,9 +12,12 @@ class tc_ID17215_ESX_check_owner_option_by_virtwho_d(ESXBase):
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
             self.set_virtwho_sec_config_with_keyvalue("esx", "owner", "")
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_owner, cmd_retcode=1)
+            if self.os_serial == "6":
+                self.vw_check_message("service virt-who restart", error_msg_without_owner, cmd_retcode=1)
+            else:
+                self.runcmd_service("restart_virtwho")
+                self.vw_check_message("systemctl status virt-who.service", error_msg_without_owner, cmd_retcode=3)
             self.set_virtwho_sec_config_with_keyvalue("esx", "owner", self.get_vw_cons("wrong_owner"))
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"),)
             self.vw_check_message_in_rhsm_log(error_msg_with_wrong_owner)
             self.set_virtwho_sec_config("esx")
             self.vw_check_mapping_info_number_in_rhsm_log()

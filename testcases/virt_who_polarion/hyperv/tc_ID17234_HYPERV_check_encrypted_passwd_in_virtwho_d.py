@@ -18,7 +18,7 @@ class tc_ID17234_HYPERV_check_encrypted_passwd_in_virtwho_d(HYPERVBase):
             self.vw_check_mapping_info_number_in_rhsm_log()
             # (3) Config wrong encryped password of hyperv mode in /etc/virt-who.d/virtwho, check virt-who can't send h/g mapping 
             self.set_encrypted_password("hyperv", "xxxxxxxxxxxxxxxxxxx")
-            self.vw_check_message_in_rhsm_log("Password can't be decrypted, possibly corrupted")
+            self.vw_check_message_in_rhsm_log("can't be decrypted, possibly corrupted")
 
             self.assert_(True, case_name)
         except Exception, e:

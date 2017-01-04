@@ -17,6 +17,8 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
+            self.vw_restart_virtwho()
+
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)
@@ -34,10 +36,8 @@ class tc_ID17275_ESX_check_bonus_revoke_and_mapping_after_reregister_host(ESXBas
             # list consumed subscriptions on the guest, should be listed
             self.sub_listconsumed(sku_name, guestip)
 
-            self.vw_check_message_in_rhsm_log(self, message, message_exists=True, checkcmd="service virt-who restart")
             self.server_remove_system(host_uuid, server_ip)
             self.vw_check_virtwho_status()
-            self.check_virtwho_thread(1)
 
             # list consumed subscriptions on the guest, should be not revoked
             self.sub_listconsumed(sku_name, guestip, productexists=False)

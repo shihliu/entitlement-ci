@@ -14,7 +14,11 @@ class tc_ID17217_HYPERV_check_env_option_by_config(HYPERVBase):
 
             # (1) When "VIRTWHO_HYPERV_ENV" is not exist, virt-who should show error info
             self.config_option_disable("VIRTWHO_HYPERV_ENV")
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_env , cmd_retcode=1)
+            if self.os_serial == "6":
+                self.vw_check_message("service virt-who restart", error_msg_without_env, cmd_retcode=1)
+            else:
+                self.runcmd_service("restart_virtwho")
+                self.vw_check_message("systemctl status virt-who.service", error_msg_without_env, cmd_retcode=3)
             # (2) When "VIRTWHO_HYPERV_ENV" with wrong config, virt-who should show error info
             self.config_option_enable("VIRTWHO_HYPERV_ENV")
             self.config_option_setup_value("VIRTWHO_HYPERV_ENV", self.get_vw_cons("wrong_env"))

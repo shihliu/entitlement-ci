@@ -7,15 +7,15 @@ class tc_ID17220_ESX_vw_service_by_ssh(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("restart_virtwho")
-            ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
-            if "Starting virt-who: [  OK  ]" in output:
+            ssh_cmd = "ssh %s %s; echo $?" % (get_exported_param("REMOTE_IP"), self.get_service_cmd("restart_virtwho"))
+            ret, output = self.runcmd_local_pexpect(ssh_cmd)
+            if output.strip() == "0" or "0" in output.strip():
                 logger.info("Succeeded to run virt-who restart by ssh")
             else:
                 raise FailException("Failed to run virt-who restart by ssh")
-            ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("status_virtwho")
-            ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
-            if "is running" in output:
+            ssh_cmd = "ssh %s %s" % (get_exported_param("REMOTE_IP"), self.get_service_cmd("status_virtwho"))
+            ret, output = self.runcmd_local_pexpect(ssh_cmd)
+            if "running" in output:
                 logger.info("Succeeded to run virt-who status by ssh")
             else:
                 raise FailException("Failed to run virt-who status by ssh")

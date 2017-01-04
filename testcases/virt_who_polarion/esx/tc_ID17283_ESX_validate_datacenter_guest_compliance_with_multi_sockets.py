@@ -19,6 +19,8 @@ class tc_ID17283_ESX_validate_datacenter_guest_compliance_with_multi_sockets(ESX
 
             self.setup_custom_facts("cpu.cpu_socket(s)", "4")
 
+            self.vw_restart_virtwho()
+
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)
