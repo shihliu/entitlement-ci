@@ -113,8 +113,8 @@ class VIRTWHOConstants(object):
     satellite_cons = {
     "username":                         "admin",
     "password":                         "admin",
-    "server_owner":                     "ACME_Corporation",
-    "server_env":                       "Library",
+    "server_owner":                     "Default_Organization",
+    "server_env":                       "Default_Organization",
     }
 
     stage_cons = {
