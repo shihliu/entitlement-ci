@@ -198,7 +198,7 @@
       - virt-who-kvm-multy-variant-provision-runtest
     jslavename: jslave-virt-who-kvm-multy-variant-slave
     jslave_execs: 5
-    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat

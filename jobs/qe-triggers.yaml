@@ -1,265 +1,301 @@
 - job-template:
-    name: 'qe-rhel-6-trigger'
+    name: qe-rhel-6-trigger
     defaults: virt-who-runtest
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
-              check-content:
-                - simple: true
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
+          check-content:
+          - simple: true
     builders:
-        - shell: |
-            #!/bin/bash
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            # if SWITCH is true, run kvm/hyper-v against sam, esx/rhevm agaist satellite, vice versa
-            #export SWITCH=true/false
-            #export RHEL_COMPOSE= (optional)
-            echo "*********************************setup env*********************************"
-            if [ "$SWITCH"x = ""x ]
-            then
-                pushd ..
-                . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
-                popd
-            fi
-            echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' > $WORKSPACE/BUILD.txt
-            echo "********************************runtime env********************************"
-            #reset all jobs after trigger
-            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
-        - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+    - shell: |
+        #!/bin/bash
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        # SWITCH=Matrix1, run kvm/hyper-v against sam, esx/rhevm agaist satellite, xen against stage
+        # SWITCH=Matrix2, run kvm/hyper-v against satellite, esx/rhevm agaist stage, xen against sam
+        # SWITCH=Matrix3, run kvm/hyper-v against stage, esx/rhevm agaist sam, xen against satellite
+        #export SWITCH=(Matrix1/Matrix2/Matrix3)
+        #export RHEL_COMPOSE= (optional)
+        export SERVER_TYPE=DEFAULT
+        echo "*********************************setup env*********************************"
+        if [ "$SWITCH"x = ""x ]
+        then
+            pushd ..
+            . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
+            popd
+        fi
+        echo "********************************runtime env********************************"
+        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/SERVER.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'satellite-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'satellite62-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'sam-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'rhsm-stage-level-1-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'rhsm-stage-level-2-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'virt-who-stage-kvm-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: satellite62-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: sam-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhsm-stage-level-1-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhsm-stage-level-2-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhevm-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: virt-who-esx-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-kvm-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-hyperv-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-xen-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+    - default-trigger-publishers
 - job-template:
-    name: 'qe-rhel-7-trigger'
+    name: qe-rhel-7-trigger
     defaults: virt-who-runtest
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
-              check-content:
-                - simple: true
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
+          check-content:
+          - simple: true
     builders:
-        - shell: |
-            #!/bin/bash
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            # if SWITCH is true, run kvm/hyper-v against sam, esx/rhevm agaist satellite, vice versa
-            #export SWITCH=true/false
-            #export RHEL_COMPOSE= (optional)
-            echo "*********************************setup env*********************************"
-            if [ "$SWITCH"x = ""x ]
-            then
-                pushd ..
-                . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
-                popd
-            fi
-            echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' > $WORKSPACE/BUILD.txt
-            echo "********************************runtime env********************************"
-            #reset all jobs after trigger
-            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
-        - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+    - shell: |
+        #!/bin/bash
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        # SWITCH=Matrix1, run kvm/hyper-v against sam, esx/rhevm agaist satellite, xen against stage
+        # SWITCH=Matrix2, run kvm/hyper-v against satellite, esx/rhevm agaist stage, xen against sam
+        # SWITCH=Matrix3, run kvm/hyper-v against stage, esx/rhevm agaist sam, xen against satellite
+        #export SWITCH=(Matrix1/Matrix2/Matrix3)
+        #export RHEL_COMPOSE= (optional)
+        export SERVER_TYPE=DEFAULT
+        echo "*********************************setup env*********************************"
+        if [ "$SWITCH"x = ""x ]
+        then
+            pushd ..
+            . $WORKSPACE/entitlement-ci/utils/tools/get_switch.sh; export SWITCH=$switch
+            popd
+        fi
+        echo "********************************runtime env********************************"
+        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/SERVER.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'satellite-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'sam-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'rhsm-stage-level-1-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'rhsm-stage-level-2-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-          - project: 'virt-who-stage-kvm-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: satellite62-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: sam-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhsm-stage-level-1-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhsm-stage-level-2-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: rhevm-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+      - project: virt-who-esx-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-kvm-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-hyperv-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+      - project: virt-who-xen-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
+    - default-trigger-publishers
 - job-template:
-    name: 'qe-sam-1-4-trigger'
+    name: qe-sam-1-4-trigger
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
-              check-content:
-                - simple: true
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID
+          check-content:
+          - simple: true
     builders:
-        - shell: |
-            #!/bin/bash
-            # switch, run virt-who sam test on rhel 6 or rhel 7
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            #export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
-            export SAM_COMPOSE=`curl -s -k http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export SAM_COMPOSE= (optional)
-            #export RHEL_COMPOSE= (optional)
-            echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SAM_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
-            echo "********************************runtime env********************************"
-            #reset all jobs after trigger
-            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
-        - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+    - shell: |
+        #!/bin/bash
+        # switch, run virt-who sam test on rhel 6 or rhel 7
+        #export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        export SERVER_COMPOSE=`curl -s -k -L http://download.devel.redhat.com/devel/candidate-trees/SAM/latest-SAM-1.4-RHEL-6/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        #export SERVER_COMPOSE= (optional)
+        #export RHEL_COMPOSE= (optional)
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'sam-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: sam-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+    - default-trigger-publishers
 - job-template:
-    name: 'qe-satellite-6-1-trigger'
+    name: qe-satellite-6-1-trigger
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID
-              check-content:
-                - simple: true
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID--skip
+          check-content:
+          - simple: true
     builders:
-        - shell: |
-            #!/bin/bash
-            # switch, run virt-who satellite test on rhel 6 or rhel 7
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            #export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
-            export SATELLITE_COMPOSE=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export SATELLITE_COMPOSE= (optional)
-            #export RHEL_COMPOSE= (optional)
-            echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
-            echo "********************************runtime env********************************"
-            #reset all jobs after trigger
-            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
-        - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+    - shell: |
+        #!/bin/bash
+        # switch, run virt-who satellite test on rhel 6 or rhel 7
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        #export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/latest-Satellite-6.1-RHEL-7/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        #export SERVER_COMPOSE= (optional)
+        #export RHEL_COMPOSE= (optional)
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'satellite-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: satellite-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+    - default-trigger-satellite-publishers
 - job-template:
-    name: 'qe-satellite-6-2-trigger'
+    name: qe-satellite-6-2-trigger
     node: master
     triggers:
-      - pollurl:
-          cron: 'H/9 * * * *'
-          urls:
-            - url: http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID
-              check-content:
-                - simple: true
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID--skip
+          check-content:
+          - simple: true
     builders:
-        - shell: |
-            #!/bin/bash
-            # switch, run virt-who satellite test on rhel 6 or rhel 7
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            #export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
-            export SATELLITE_COMPOSE=`curl -s -k http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export SATELLITE_COMPOSE= (optional)
-            #export RHEL_COMPOSE= (optional)
-            echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SATELLITE_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
-            echo "********************************runtime env********************************"
-            #reset all jobs after trigger
-            #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
-        - inject:
-            properties-file: $WORKSPACE/BUILD.txt
+    - shell: |
+        #!/bin/bash
+        # switch, run virt-who satellite test on rhel 6 or rhel 7
+        #export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        #export SERVER_COMPOSE= (optional)
+        #export RHEL_COMPOSE= (optional)
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/BUILD.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'satellite62-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: satellite62-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+    - default-trigger-satellite-publishers
 - job-group:
     name: qe-triggers
     jobs:
-      - 'qe-rhel-6-trigger'
-      - 'qe-rhel-7-trigger'
-      - 'qe-sam-1-4-trigger'
-      - 'qe-satellite-6-1-trigger'
-      - 'qe-satellite-6-2-trigger'
-
+    - qe-rhel-6-trigger
+    - qe-rhel-7-trigger
+    - qe-sam-1-4-trigger
+    - qe-satellite-6-1-trigger
+    - qe-satellite-6-2-trigger
 - project:
     name: qe-triggers-jobs
     project: qe-triggers
     jobs:
-      - qe-triggers
+    - qe-triggers

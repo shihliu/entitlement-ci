@@ -1,79 +1,76 @@
 - job-template:
-    name: 'brew-virt-who-7-trigger'
+    name: brew-virt-who-7-trigger
     node: master
     triggers:
-        - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el7' AND tag LIKE '%candidate'"
+    - ci-trigger:
+        jms-selector: CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el7' AND tag LIKE '%candidate'
     builders:
-        - shell: |
-            #!/bin/bash
-            export BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #if you want to rerun brew trigger, add brew virt-who location here, change job back when finished
-            #export RHEL_COMPOSE= (optional)
-            #export BREW_VIRTWHO=
-            echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
-            echo "********************************runtime env********************************"
-        - inject:
-            properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt
+    - shell: |
+        #!/bin/bash
+        export BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
+        export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #if you want to rerun brew trigger, add brew virt-who location here, change job back when finished
+        #export RHEL_COMPOSE= (optional)
+        #export BREW_VIRTWHO=
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
+        echo "********************************runtime env********************************"
+    - inject:
+        properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'brew-sam-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/TRIGGER_MESSAGE.txt
-            fail-on-missing: true
-      - default-brew-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: brew-sam-install-provision
+        current-parameters: true
+        condition: SUCCESS
+        property-file: $WORKSPACE/TRIGGER_MESSAGE.txt
+        fail-on-missing: true
+    - default-brew-trigger-publishers
 - job-template:
-    name: 'brew-virt-who-6-trigger'
+    name: brew-virt-who-6-trigger
     node: master
     triggers:
-        - ci-trigger:
-            jms-selector: "CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el6' AND tag LIKE '%candidate'"
+    - ci-trigger:
+        jms-selector: CI_TYPE = 'brew-tag' AND name = 'virt-who' AND release LIKE '%.el6' AND tag LIKE '%candidate'
     builders:
-        - shell: |
-            #!/bin/bash
-            export BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
-            export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-            echo "*********************************setup env*********************************"
-            #if you want to rerun brew trigger, add brew virt-who location here, change job back when finished
-            #export RHEL_COMPOSE= (optional)
-            #export BREW_VIRTWHO=
-            echo "*********************************setup env*********************************"
-            echo "********************************runtime env********************************"
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
-            echo "********************************runtime env********************************"
-        - inject:
-            properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt
+    - shell: |
+        #!/bin/bash
+        export BREW_VIRTWHO=http://download.devel.redhat.com/brewroot/packages/virt-who/$version/$release/noarch/virt-who-$version-$release.noarch.rpm
+        export RHEL_COMPOSE=`curl -s -k http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        echo "*********************************setup env*********************************"
+        #if you want to rerun brew trigger, add brew virt-who location here, change job back when finished
+        #export RHEL_COMPOSE= (optional)
+        #export BREW_VIRTWHO=
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(CI_MESSAGE|RHEL_COMPOSE|BREW_VIRTWHO)' > $WORKSPACE/TRIGGER_MESSAGE.txt
+        echo "********************************runtime env********************************"
+    - inject:
+        properties-file: $WORKSPACE/TRIGGER_MESSAGE.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'brew-sam-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/TRIGGER_MESSAGE.txt
-            fail-on-missing: true
-      - default-brew-trigger-publishers
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: brew-sam-install-provision
+        current-parameters: true
+        condition: SUCCESS
+        property-file: $WORKSPACE/TRIGGER_MESSAGE.txt
+        fail-on-missing: true
+    - default-brew-trigger-publishers
 - job-group:
     name: brew-virt-who-triggers
     jobs:
-      - 'brew-virt-who-7-trigger'
-      - 'brew-virt-who-6-trigger'
-
+    - brew-virt-who-7-trigger
+    - brew-virt-who-6-trigger
 - project:
     name: brew-virt-who-triggers-jobs
     project: brew-virt-who-triggers
     jobs:
-      - brew-virt-who-triggers
+    - brew-virt-who-triggers

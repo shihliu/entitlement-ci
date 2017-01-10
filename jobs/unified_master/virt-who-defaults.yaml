@@ -15,7 +15,7 @@
                 - origin/master
             basedir: job-runner
         - git:
-            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            url: 'http://git.app.eng.bos.redhat.com/git/entitlement-ci.git'
             branches:
                 - origin/master
             basedir: entitlement-ci
@@ -29,7 +29,7 @@
     concurrent: true
     scm:
         - git:
-            url: 'https://github.com/bluesky-sgao/entitlement-ci'
+            url: 'http://git.app.eng.bos.redhat.com/git/entitlement-ci.git'
             branches:
                 - origin/master
             basedir: entitlement-ci
@@ -61,6 +61,21 @@
               content-type: default
               subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
               body: "[Trigger] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS\n\nTrigger Info\nRHEL_COMPOSE=$RHEL_COMPOSE\nSWITCH=$SWITCH\n\nPlease check console output at $BUILD_URL"
+              attach-build-log: false
+              always: true
+              send-to:
+                - requester
+                - recipients
+
+- publisher:
+    name: default-trigger-satellite-publishers
+    publishers:
+          - email-ext:
+              recipients: sgao@redhat.com, shihliu@redhat.com, gxing@redhat.com, qianzhan@redhat.com, hsun@redhat.com, liliu@redhat.com
+              reply-to: sgao@redhat.com
+              content-type: default
+              subject: '[Entitlement-CI] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!'
+              body: "[Trigger] $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS\n\nTrigger Info\nRHEL_COMPOSE=$RHEL_COMPOSE\nSATELLITE_COMPOSE=$SATELLITE_COMPOSE\nSWITCH=$SWITCH\n\nPlease check console output at $BUILD_URL"
               attach-build-log: false
               always: true
               send-to:
@@ -245,7 +260,7 @@
             properties-list: |
                 user: ci-ops-central-jenkins
                 password: testpass
-                polarion.project=RHEL7
+                polarion.project=RedHatEnterpriseLinux7
                 polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ against\ $SERVER_TYPE
 
 - publisher:
@@ -261,7 +276,7 @@
             properties-list: |
                 user: ci-ops-central-jenkins
                 password: testpass
-                polarion.project=RHEL7
+                polarion.project=RedHatEnterpriseLinux7
                 polarion.run.prefix=$JOB_NAME\ on\ $RHEL_COMPOSE_FOR_POLARION\ $OS_VARIANT\ $OS_ARCH\ against\ $SERVER_TYPE
 
 - publisher:

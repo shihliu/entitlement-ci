@@ -24,8 +24,11 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources
-            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
-            --topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=satellite
+            #$WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=qeos --project_defaults={project_defaults} \
+            #--topology={topology_path}/{topology} --ssh_keyfile={ssh_keyfile} --name=satellite
+            chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
+            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology={topology_path}/bkr_satellite_install --ssh_keyfile={beaker_keyfile} --name={project}
             TR_STATUS=$?
             files=$(ls $WORKSPACE/*.slave 2>/dev/null)
             if [ -e "$files" ]
@@ -87,12 +90,12 @@
             #export REMOTE_IP=
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            pushd $WORKSPACE/entitlement-ci/testcases/install
             nosetests satellite_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
-            echo SERVER_IP=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
-            echo SERVER_HOSTNAME=$LABEL >> $WORKSPACE/SERVER.txt
+            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
+            echo SERVER_HOSTNAME=$EXISTING_NODES >> $WORKSPACE/SERVER.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
             echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
         - inject:
@@ -153,7 +156,7 @@
       - satellite-install-provision-runtest
     jslavename: jslave-satellite-install-slave
     jslave_execs: 5
-    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat

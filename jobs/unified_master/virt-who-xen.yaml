@@ -1,5 +1,5 @@
 - job-template:
-    name: 'rhsm-stage-level-1-provision'
+    name: 'virt-who-xen-provision'
     defaults: virt-who-provision
     node: '{jmastername}'
     builders:
@@ -7,9 +7,18 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
             #export RHEL_COMPOSE=
-            export SERVER_TYPE=STAGE
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
+
+            if [ "$SWITCH"x = "false"x ]
+            then
+                echo "switch is false, hyperv will not run ..."; exit 1;
+            fi
+
             kinit -k -t $KEYTAB $PRINCIPAL
             export JSLAVENAME={jslavename}
             # Provision Jenkins Slave
@@ -23,7 +32,7 @@
                 if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
             fi
             # Provision Test Resources
-            sleep 30
+            sleep 90
             chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
             if [ "$RHEL_COMPOSE" != "" ]
             then
@@ -43,8 +52,8 @@
             fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; echo workaround; fi
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -53,19 +62,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhsm-stage-level-1-runtest'
+          - project: 'virt-who-xen-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhsm-stage-level-1-runtest'
+    name: 'virt-who-xen-runtest'
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
         - copyartifact:
-            project: 'rhsm-stage-level-1-provision'
+            project: 'virt-who-xen-provision'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |
@@ -86,19 +95,27 @@
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export REMOTE_IP=
-            #export SERVER_TYPE=STAGE
+            #export SERVER_IP=
+            #export SERVER_TYPE=
+            #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
 
-            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/
-            nosetests rhsm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/rhsm/rhsm_level_1/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
+            pushd $WORKSPACE/entitlement-ci/utils/xmlparser/
+            export PYTHONPATH=$WORKSPACE/entitlement-ci
+            python polarion_name_to_id.py $WORKSPACE/nosetests.xml $WORKSPACE/POLARION.txt
+            export RHEL_COMPOSE_FOR_POLARION=`echo $RHEL_COMPOSE | sed "s/\./_/g"`
+            popd
+
             echo "********************************runtime env********************************"
-            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+            env | grep -E '(REMOTE_IP|RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|VIRTWHO_VERSION|RHSM|RHSM_GUI|RHSM_FIRSTBOOT|PYTHON_RHSM)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RUNTIME_INFO.txt
@@ -107,17 +124,18 @@
           artifacts: '**/**'
           allow-empty: 'true'
       - default-virt-who-runtest-publishers
-      - default-rhsm-publishers
+      - default-virt-who-publishers
+      - default-polarion-publishers
 
 - job-group:
-    name: rhsm-stage-level-1-provision-runtest
+    name: virt-who-xen-provision-runtest
     jobs:
-      - 'rhsm-stage-level-1-provision'
-      - 'rhsm-stage-level-1-runtest'
+      - 'virt-who-xen-provision'
+      - 'virt-who-xen-runtest'
 
 - project:
-    name: rhsm-stage-level-1
-    project: rhsm-stage-level-1
+    name: virt-who-xen-jobs
+    project: virt-who-xen
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_build_single_provision_no_hvm
@@ -126,8 +144,8 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-     - rhsm-stage-level-1-provision-runtest
-    jslavename: jslave-rhsm-stage-level-1-slave
+      - virt-who-xen-provision-runtest
+    jslavename: jslave-virt-who-xen-slave
     jslave_execs: 5
     jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium

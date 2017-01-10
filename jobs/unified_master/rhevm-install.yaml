@@ -89,7 +89,7 @@
             #export SERVER_TYPE=
             #export SERVER_HOSTNAME=
             echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            pushd $WORKSPACE/entitlement-ci/testcases/install
             nosetests rhevm36_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
             export RHEVM_IP=$REMOTE_IP
@@ -106,6 +106,11 @@
       - default-virt-who-runtest-publishers
       - trigger-parameterized-builds:
           - project: 'virt-who-rhel-rhevm-vdsm-provision'
+            current-parameters: false
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/SERVER.txt
+            fail-on-missing: true
+          - project: 'virt-who-rhevh-provision'
             current-parameters: false
             condition: 'SUCCESS'
             property-file: $WORKSPACE/SERVER.txt
@@ -131,7 +136,7 @@
       - rhevm-install-provision-runtest
     jslavename: jslave-rhevm-install-slave
     jslave_execs: 5
-    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat

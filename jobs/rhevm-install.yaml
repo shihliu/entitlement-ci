@@ -1,122 +1,126 @@
 - job-template:
-    name: 'rhevm-install-provision'
+    name: rhevm-install-provision
     defaults: virt-who-provision
     node: master
     builders:
-        - shell: |
-            #!/bin/bash
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export SWITCH=true/false
-            #export RHEL_COMPOSE=
-            #export SERVER_IP=
-            #export SERVER_TYPE=
-            #export SERVER_HOSTNAME=
-            echo "*********************************setup env*********************************"
-
-            if [ "$SWITCH"x = "true"x ]
-            then
-                echo "switch is true, rhevm will not install ..."; exit 1;
-            fi
-
-            kinit -k -t $KEYTAB $PRINCIPAL
-            export JSLAVENAME={jslavename}
-            # Provision Jenkins Slave
-            if [ "$JSLAVENAME" != "master" ]
-            then
-                $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
-                --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
-                --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
-                --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
-                TR_STATUS=$?
-                if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            fi
-            # Provision Test Resources
-            chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
-            $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
-            --topology={topology_path}/bkr_rhevm_install --ssh_keyfile={beaker_keyfile} --name={project}
+    - shell: |
+        #!/bin/bash
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        #export SWITCH=(Matrix1/Matrix2/Matrix3)
+        #export RHEL_COMPOSE=
+        #export SERVER_IP=
+        #export SERVER_TYPE=
+        #export SERVER_HOSTNAME=
+        echo "*********************************setup env*********************************"
+        source $WORKSPACE/entitlement-ci/utils/tools/check_matrix.sh group_b
+        TR_STATUS=$?; if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Check Matrix failed ... \nSTATUS: $TR_STATUS"; exit 1; fi
+        export KRB5CCNAME="$(mktemp)"; kinit -k -t $KEYTAB $PRINCIPAL
+        export JSLAVENAME={jslavename}
+        # Provision Jenkins Slave
+        if [ "$JSLAVENAME" != "master" ]
+        then
+            $WORKSPACE/ci-ops-central/bootstrap/provision_jslave.sh --site=$SITE --project_defaults={project_defaults} \
+            --topology=ci-ops-central/project/config/aio_jslave --ssh_keyfile={ssh_keyfile} \
+            --jslavename={jslavename} --jslaveflavor={jslaveflavor} --jslaveimage={jslaveimage} \
+            --jslave_execs={jslave_execs} --jslavecreate --resources_file={jslavename}.json
             TR_STATUS=$?
-            files=$(ls $WORKSPACE/*.slave 2>/dev/null)
-            if [ -e "$files" ]
-            then
-                cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
-            fi
             if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
-            echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
-            echo "********************************runtime env********************************"
-        - inject:
-            properties-file: $WORKSPACE/RESOURCES.txt
+        fi
+        # Provision Test Resources
+        chmod 777 $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh; $WORKSPACE/entitlement-ci/utils/tools/extend_beaker_waiting.sh
+        if [[ $RHEL_COMPOSE =~ "RHEL-6"* ]]
+        then
+          $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+          --topology={topology_path}/bkr_rhevm_install_6 --ssh_keyfile={beaker_keyfile} --name={project}
+        else
+          $WORKSPACE/ci-ops-central/bootstrap/provision_resources.sh --site=$SITE --project_defaults={project_defaults} \
+          --topology={topology_path}/bkr_rhevm_install --ssh_keyfile={beaker_keyfile} --name={project}
+        fi
+        TR_STATUS=$?
+        files=$(ls $WORKSPACE/*.slave 2>/dev/null)
+        if [ -e "$files" ]
+        then
+            cat $WORKSPACE/*.slave >> $WORKSPACE/RESOURCES.txt
+        fi
+        if [ "$TR_STATUS" != 0 ]; then echo "ERROR: Provisioning\nSTATUS: $TR_STATUS"; exit 1; fi
+        echo "********************************runtime env********************************"
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+        echo "********************************runtime env********************************"
+    - inject:
+        properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'rhevm-install-runtest'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
-
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: rhevm-install-runtest
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/RESOURCES.txt
+        fail-on-missing: true
 - job-template:
-    name: 'rhevm-install-runtest'
+    name: rhevm-install-runtest
     defaults: virt-who-runtest
     node: '{jslavename}'
     builders:
-        - copyartifact:
-            project: 'rhevm-install-provision'
-            filter: '*.txt, *.json'
-            target: $WORKSPACE
-        - shell: |
-            #!/bin/bash
-            export TOPOLOGY={topology}
-            {testparams}
-            echo "TOPOLOGY: {topology}"
-            echo "Ping Jenkins Slave"
-            ping -c 10 $JSLAVEIP
-            echo "Jenkins machine info we are running on"
-            ifconfig
-            echo "Pinging Test Resources"
-            echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
-            cat $WORKSPACE/RESOURCES.txt
-            export REMOTE_IP=$EXISTING_NODES
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export REMOTE_IP=
-            #export RHEL_COMPOSE=
-            #export SERVER_IP=
-            #export SERVER_TYPE=
-            #export SERVER_HOSTNAME=
-            echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+    - copyartifact:
+        project: rhevm-install-provision
+        filter: '*.txt, *.json'
+        target: $WORKSPACE
+    - shell: |
+        #!/bin/bash
+        export TOPOLOGY={topology}
+        {testparams}
+        echo "TOPOLOGY: {topology}"
+        echo "Ping Jenkins Slave"
+        ping -c 10 $JSLAVEIP
+        echo "Jenkins machine info we are running on"
+        ifconfig
+        echo "Pinging Test Resources"
+        echo $EXISTING_NODES | xargs -i -d , ping -c 15 {{}}
+        cat $WORKSPACE/RESOURCES.txt
+        export REMOTE_IP=$EXISTING_NODES
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        #export REMOTE_IP=
+        #export RHEL_COMPOSE=
+        #export SERVER_IP=
+        #export SERVER_TYPE=
+        #export SERVER_HOSTNAME=
+        echo "*********************************setup env*********************************"
+        pushd $WORKSPACE/entitlement-ci/testcases/install
+          if [[ $RHEL_COMPOSE =~ "RHEL-6"* ]]
+          then
             nosetests rhevm36_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
-            export RHEVM_IP=$REMOTE_IP
-            echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' >> $WORKSPACE/SERVER.txt
-            echo "********************************runtime env********************************"
-        - inject:
-            properties-file: $WORKSPACE/SERVER.txt
+          else
+            nosetests rhevm40_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+          fi
+        popd
+        export RHEVM_IP=$REMOTE_IP
+        echo "********************************runtime env********************************"
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP)' >> $WORKSPACE/SERVER.txt
+        echo "********************************runtime env********************************"
+    - inject:
+        properties-file: $WORKSPACE/SERVER.txt
     publishers:
-      - archive:
-          artifacts: '**/**'
-          allow-empty: 'true'
-      - default-virt-who-runtest-publishers
-      - trigger-parameterized-builds:
-          - project: 'virt-who-rhel-rhevm-vdsm-provision'
-            current-parameters: false
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/SERVER.txt
-            fail-on-missing: true
-
+    - archive:
+        artifacts: '**/**'
+        allow-empty: 'true'
+    - default-virt-who-runtest-publishers
+    - trigger-parameterized-builds:
+      - project: virt-who-rhel-rhevm-vdsm-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
 - job-group:
     name: rhevm-install-provision-runtest
     jobs:
-      - 'rhevm-install-provision'
-      - 'rhevm-install-runtest'
-
+    - rhevm-install-provision
+    - rhevm-install-runtest
 - project:
     name: rhevm-install-jobs
     project: rhevm-install
@@ -128,12 +132,11 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - rhevm-install-provision-runtest
+    - rhevm-install-provision-runtest
     jslavename: jslave-rhevm-install-slave
-    jslave_execs: 5
-    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslave_execs: 1
+    jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
-    jslaveteardown: True
-
+    jslaveteardown: true

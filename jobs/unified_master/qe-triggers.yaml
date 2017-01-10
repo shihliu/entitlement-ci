@@ -38,10 +38,6 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/BUILD.txt
           - project: 'satellite62-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
@@ -59,6 +55,18 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
           - project: 'virt-who-stage-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-esx-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-hyperv-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-xen-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -104,7 +112,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite-install-provision'
+          - project: 'satellite62-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -121,6 +129,18 @@
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
           - project: 'virt-who-stage-kvm-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-esx-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-hyperv-provision'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/BUILD.txt
+          - project: 'virt-who-stage-xen-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
@@ -206,7 +226,7 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
+      - default-trigger-satellite-publishers
 
 - job-template:
     name: 'qe-satellite-6-2-trigger'
@@ -247,7 +267,7 @@
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/BUILD.txt
-      - default-trigger-publishers
+      - default-trigger-satellite-publishers
 
 - job-group:
     name: qe-triggers

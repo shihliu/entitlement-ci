@@ -55,7 +55,7 @@
             local_sam_server=10.66.144.13
             export REMOTE_IP=$local_sam_server
 
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
+            pushd $WORKSPACE/entitlement-ci/testcases/install
             nosetests sam_local_install.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
     publishers:
@@ -85,7 +85,7 @@
      - qe-sam-1-4-local-install-provision-runtest
     jslavename: jslave-qe-sam-1-4-local-install-slave
     jslave_execs: 5
-    jslaveimage: pit-slave-rhel-6.5-x86-64_rev3
+    jslaveimage: rhel-6.8-server-x86_64-released
     jslaveflavor: m1.medium
     jslaveusername: root
     jslavepassword: redhat
