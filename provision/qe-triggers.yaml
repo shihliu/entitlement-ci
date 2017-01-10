@@ -44,6 +44,10 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/SERVER.txt
+      - project: sam-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/SERVER.txt
       - project: rhel6-install-provision
         current-parameters: false
         condition: SUCCESS
