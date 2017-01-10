@@ -34,13 +34,13 @@ class tc_ID262134_GUI_launch_subscription_manager_gui_with_invalid_proxy_url(RHS
                 self.open_subscription_manager()
                 self.click_register_button()
                 self.click_configure_proxy_button()
-                self.check_HTTP_Proxy_checkbox()
+                #self.check_HTTP_Proxy_checkbox()
                 self.input_HTTP_proxy("invalid proxy address asdfasdf")
                 self.click_save_button()
                 self.click_system_registration_cancel_button()
                 self.click_subscription_manager_close_button()
                 #open subscription manager through cli and check for error
-                self.open_subcription_manager_and_check_for_error()              
+                self.open_subcription_manager_and_check_for_error()
                 self.assert_(True, case_name)
             except Exception, e:
                 logger.error("FAILED - ERROR Message:" + str(e))

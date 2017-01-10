@@ -17,8 +17,8 @@ class tc_ID17232_check_uuid_two_config_same_mode(KVMBase):
             guestuuid = self.vw_get_uuid(guest_name)
 
             # (1) stop virt-who service on host1 and host2
-            self.vw_stop_virtwho_new()
-            self.vw_stop_virtwho_new(remote_ip_2)
+            self.vw_stop_virtwho()
+            self.vw_stop_virtwho(remote_ip_2)
             # (2) on host2, configure remote libvirt mode in config file /etc/virt-who.d/virtwho
             self.set_virtwho_sec_config(mode, remote_ip_2)
             # (3) on host2, configure remote libvirt mode in config file /etc/sysconfig/virt-who

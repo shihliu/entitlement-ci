@@ -19,7 +19,7 @@ class tc_ID17253_VDSM_check_uuid_fake_local_vdsm_mode(VDSMBase):
             # define a guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # stop virt-who service
-            self.vw_stop_virtwho_new()
+            self.vw_stop_virtwho()
 
             # (1) generate fake file
             self.generate_fake_file("vdsm", fake_file)
@@ -44,7 +44,7 @@ class tc_ID17253_VDSM_check_uuid_fake_local_vdsm_mode(VDSMBase):
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.vw_restart_virtwho_new()
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

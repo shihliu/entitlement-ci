@@ -18,7 +18,7 @@ class tc_ID17235_check_rhsm_username_passwd_in_virtwho_d(KVMBase):
             self.vw_check_mapping_info_number_in_rhsm_log(targetmachine_ip=remote_ip_2)
             # (2) Config libvirt mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
             self.set_rhsm_user_pass("libvirt", server_user, "xxxxxxxx", remote_ip_2)
-            self.vw_check_message_in_rhsm_log("BUG yet", targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("Invalid username or password", targetmachine_ip=remote_ip_2)
 
             self.assert_(True, case_name)
         except Exception, e:

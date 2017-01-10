@@ -19,7 +19,7 @@ class tc_ID331758_improve_unfriendly_message_of_instance_multiplier(RHSMBase):
             cmd = 'subscription-manager list --available | egrep "Subscription Name:|Pool ID:|Suggested:"| grep "Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)" -A2 | grep "Pool"'
             (ret, output) = self.runcmd(cmd, "list an instance-based subscription and get it's pool")
             if ret == 0 and output != '':
-                poolid = output.split(":")[1].strip()
+                poolid = output.strip().split('\n')[0].split(":")[1].strip()
                 logger.info("It's successful to list an instance-based subscription and get it's pool.") 
             else:
                 raise FailException("Test Failed - Failed to list an instance-based subscription and get it's pool.")

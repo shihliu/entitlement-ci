@@ -17,7 +17,7 @@ class tc_ID115147_GUI_register_and_autosubscribe(RHSMGuiBase):
                 self.input_username(username)
                 self.input_password(password)
                 self.click_dialog_register_button()
-                self.click_dialog_next_button()
+                self.click_attdialog_next_button()
                 self.click_dialog_subscribe_button()
                 self.click_my_subscriptions_tab()
                 if self.get_my_subscriptions_table_row_count() >= 1:

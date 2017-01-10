@@ -25,8 +25,8 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             guestuuid = self.vw_get_uuid(guest_name)
 
             # (1) stop virt-who service on host1 and host2
-            self.vw_stop_virtwho_new()
-            self.vw_stop_virtwho_new(remote_ip_2)
+            self.vw_stop_virtwho()
+            self.vw_stop_virtwho(remote_ip_2)
             # (2) configure remote libvirt mode on host2, generate fake remote libvirt data
             self.set_virtwho_sec_config(mode, remote_ip_2)
             self.generate_fake_file("kvm", fake_file, remote_ip_2)
@@ -58,8 +58,8 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.unset_virtwho_d_conf(fake_file, remote_ip_2)
             self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-            self.vw_restart_virtwho_new()
-            self.vw_restart_virtwho_new(remote_ip_2)
+            self.vw_restart_virtwho()
+            self.vw_restart_virtwho(remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

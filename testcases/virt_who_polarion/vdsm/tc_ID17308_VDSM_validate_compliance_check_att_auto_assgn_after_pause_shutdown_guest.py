@@ -25,7 +25,7 @@ class tc_ID17308_VDSM_validate_compliance_check_att_auto_assgn_after_pause_shutd
 
             # (1).check if the uuid and attributes are correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'vdsm', 1, guestuuid)
 
             # (2). register guest to Server
             if not self.sub_isregistered(guestip):
@@ -50,7 +50,8 @@ class tc_ID17308_VDSM_validate_compliance_check_att_auto_assgn_after_pause_shutd
             # (7).check if the uuid is correctly monitored by virt-who on orignal and destination host.
             self.vw_check_uuid(guestuuid, uuidexists=False)
             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=dest_host_name)
-            self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid, targetmachine_ip=dest_host_name)
+#             self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid, targetmachine_ip=dest_host_name)
+            self.vw_check_attr(guest_name, 1, 'vdsm', 1, guestuuid, targetmachine_ip=dest_host_name)
 
             # (8).Check consumed subscriptions is revoke on guest 
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -71,7 +72,7 @@ class tc_ID17308_VDSM_validate_compliance_check_att_auto_assgn_after_pause_shutd
 
             # (12)check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'vdsm', 1, guestuuid)
 
             # (13).Check consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)

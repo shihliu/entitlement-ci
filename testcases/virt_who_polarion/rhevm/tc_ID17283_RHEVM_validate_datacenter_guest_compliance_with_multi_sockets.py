@@ -17,6 +17,8 @@ class tc_ID17283_RHEVM_validate_datacenter_guest_compliance_with_multi_sockets(V
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_name = self.get_vw_cons("datacenter_name")
 
+            self.vw_restart_virtwho()
+
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)

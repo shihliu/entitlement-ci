@@ -11,11 +11,14 @@ class RHSMGuiLocator(object):
     'register-dialog-5':                     'register_dialog',
     'register-dialog-6':                     'dlgSystemRegistration',
     'register-dialog':                       'dlgregister_dialog',
+    'attach-dialog-6':                       'dlgSubscriptionAttachment',
+    'attach-dialog':                         'dlgregister_dialog',
     'subscribe-dialog-5':                    'Subscribe System',
     'subscribe-dialog':                      'frmSubscribeSystem',
     'import-cert-dialog':                    'dlgImportCertificates',
     'select-file-dialog':                    'dlgSelectAFile',
     'system-facts-dialog-7':                 'frmSubscriptionManager-Facts',
+    'system-facts-dialog-6':                 'frmSubscriptionManager-Facts',
     'system-facts-dialog':                   'dlgfacts_dialog',
     'search-dialog':                         'frmSearching',
     'proxy-configuration-dialog':            'dlgProxyConfiguration',
@@ -25,6 +28,7 @@ class RHSMGuiLocator(object):
     'system-preferences-dialog':             'dlgSystemPreferences',
     'subscription-manager-manual-window':    'frmSubscriptionManagerManual',
     'onlinedocumentation-window':            'frmRedHatSubscriptionManagement-RedHatCustomerPortal-MozillaFireFox',
+    'onlinedocumentation-window-6':          'frmProductDocumentationforRedHatSubscriptionManagement-RedHatCustomerPortal-MozillaFirefox',
     'security-warning-dialog':               'dlgSecurityWarning',
     'about-subscription-manager-dialog':     'dlgAboutSubscriptionManager',
     'about-subscription-manager-dialog-7':   'dlgAboutsubscription-manager-gui',  # works only for 7.2, 7.1 uses above smDialog
@@ -38,6 +42,7 @@ class RHSMGuiLocator(object):
     'classic-main-window':                   'frmSystemRegistration',
     'classic-confirm-osrelease-window':      'dlgConfirmoperationsystemreleaseselection',
     'classic-updates-configured-window':     'frmUpdatesConfigured',
+    'contract-selection-window':             'frmContractSelection',
 
     ######## Tab Elements ########
     'all-tabs':                              'ptl0',
@@ -54,6 +59,7 @@ class RHSMGuiLocator(object):
     'toggle-desktop':                        'tbtnDesktop',
     'proxy-save-button':                     'btnSaveButton',
     'proxy-close-button-7':                  'btnCancelButton',
+    'proxy-close-button-6':                  'btnCancelButton',
     'attach-subscription':                   'btnAttach',
     'register-button-5':                     'Register System',
     'register-button':                       'btnRegisterSystem',
@@ -66,6 +72,7 @@ class RHSMGuiLocator(object):
     'dialog-register-button-5':              'register_button',
     'dialog-register-button':                'btnregisterbutton',
     'dialog-cancel-button-7':                'btnclosebutton',
+    'dialog-cancel-button-6':                'btnclosebutton',
     'dialog-cancel-button-5':                'cancel_button',
     'dialog-cancel-button':                  'btncancelbutton',
     # button in subscribe dialog
@@ -125,6 +132,7 @@ class RHSMGuiLocator(object):
     'installed-product-table':               'tblInstalledView',
     'facts-view-table':                      'ttblfactsview',
     'orgs-view-table':                       'tblownertreeview',
+    'table-places':                          'tblPlaces',
 
      ######## Text Elements ########
     'text-product':                          'txtProductText',
@@ -137,11 +145,14 @@ class RHSMGuiLocator(object):
     'location-text':                         'txtLocation',
     'proxy-location-text':                   'txtProxyLocation',
     'server-url-text':                       'txtserverentry',
+    'server-url-text-6':                     'txtserverlabel',
     # firstboot
     'firstboot-login-text':                  'txtaccountlogin',
     'firstboot-password-text':               'txtaccountpassword',
     'firstboot-organization-entry-text':     'txtorganizationentry',
+    'firstboot-organization-entry-text-6':   'txtOrganization',
     'firstboot-activation-key-text':         'txtactivationkeyentry',
+    'firstboot-activation-key-text-6':       'txtActivationKey',
     # rhn_classic
     'classic-login-text':                    'txtLogin',
     'classic-password-text':                 'txtPassword',
@@ -193,7 +204,7 @@ class RHSMGuiLocator(object):
     'do-not-overlap-checkbox':               'chkDoNotOverlap',
     # ##firstboot checkbox for RHEL6
     'firstboot-manual-checkbox':             'chkautobind',
-    'firstboot_activationkey-checkbox':      'chkIwilluseanActivationKey',
+    'firstboot-activationkey-checkbox':      'chkIwilluseanActivationKey',
 
     ######## Label Element ########
     'label-org':                             'lblOrganizationValue',
@@ -224,6 +235,8 @@ class RHSMGuiLocator(object):
 
     ######## Other Element ########
     'register-progressbar':                      'pbarregisterprogressbar',
+    'facts-scroll-6':                            'scbr0',
+    'facts-scroll':                              'scbr0',
     }
 
     __instance = None
@@ -232,7 +245,7 @@ class RHSMGuiLocator(object):
             cls.__instance = super(RHSMGuiLocator, cls).__new__(cls)
             cls.__instance.__initialized = False
         return cls.__instance
- 
+
     def __init__(self):
         if(self.__initialized): return
         else: self.__initialized = True

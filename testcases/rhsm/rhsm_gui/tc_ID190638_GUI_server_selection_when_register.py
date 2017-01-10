@@ -13,6 +13,7 @@ class tc_ID190638_GUI_server_selection_when_register(RHSMGuiBase):
                 password = self.get_rhsm_cons("password")
                 self.open_subscription_manager()
                 sever_hostname = get_exported_param("SERVER_HOSTNAME")
+                server_url = "subscription.rhsm.stage.redhat.com:443/subscription"
 
                 if self.test_server == "SAM":
                     server_url = sever_hostname + ":443/sam/api"

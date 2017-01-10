@@ -7,6 +7,7 @@ import re
 class HYPERVBase(VIRTWHOBase):
     def hyperv_run_cmd(self, cmd, targetmachine_ip=""):
     # Run cmd on hyperv
+        time.sleep(3)
         hyperv_ip = self.get_vw_cons("HYPERV_HOST")
         hyperv_port = self.get_vw_cons("HYPERV_PORT")
         # listen to socket
@@ -21,7 +22,7 @@ class HYPERVBase(VIRTWHOBase):
             if not len(buf):
                 break
             data = data + buf
-        logger.info ("After run %s, the output is \n%s" % (cmd, data))
+        # logger.info ("After run %s, the output is \n%s" % (cmd, data))
         return data
         # close the socket
         s.close()
@@ -83,26 +84,45 @@ class HYPERVBase(VIRTWHOBase):
 
     def hyperv_get_guest_guid(self, guest_name, targetmachine_ip=""):
     # Get guest's guid
-        output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | select ElementName, BIOSGUID')
+        output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | findstr "ElementName BIOSGUID"')
         if output is not "":
             datalines = output.splitlines()
-            segs = []
+            before_guest_uuid_line = ""
             for line in datalines:
-                segs.append(line)
-            for item in segs:
-                if guest_name in item:
-                    item = item.strip()
-                    before_guest_uuid = item[item.index("{") + 1:item.index("}")].strip()
-                    logger.info("Before decode, guest %s guid is %s" % (guest_name, before_guest_uuid))
-                    guest_uuid = self.decodeWinUUID("%s" % before_guest_uuid)
-                    logger.info("After decode, guest %s guid is %s" % (guest_name, guest_uuid))
-                    return guest_uuid
+                if guest_name in line:
+                    break
+                before_guest_uuid_line = line
+            if before_guest_uuid_line == "":
+                raise FailException("Failed to finde guest %s" % guest_name)
+            else:
+                before_guest_uuid = before_guest_uuid_line.split(":")[1].strip().strip("{").strip("}")
+                logger.info("Before decode, guest %s guid is %s" % (guest_name, before_guest_uuid))
+                guest_uuid = self.decodeWinUUID("%s" % before_guest_uuid)
+                logger.info("After decode, guest %s guid is %s" % (guest_name, guest_uuid))
+                return guest_uuid
         else:
             raise FailException("Failed to run command to get vm %s ID" % guest_name)
 
+#         output = self.hyperv_run_cmd('gwmi -namespace "root\\virtualization\\v2" Msvm_VirtualSystemSettingData | select ElementName, BIOSGUID')
+#         if output is not "":
+#             datalines = output.splitlines()
+#             segs = []
+#             for line in datalines:
+#                 segs.append(line)
+#             for item in segs:
+#                 if guest_name in item:
+#                     item = item.strip()
+#                     before_guest_uuid = item[item.index("{") + 1:item.index("}")].strip()
+#                     logger.info("Before decode, guest %s guid is %s" % (guest_name, before_guest_uuid))
+#                     guest_uuid = self.decodeWinUUID("%s" % before_guest_uuid)
+#                     logger.info("After decode, guest %s guid is %s" % (guest_name, guest_uuid))
+#                     return guest_uuid
+#         else:
+#             raise FailException("Failed to run command to get vm %s ID" % guest_name)
+
     def hyperv_get_host_uuid(self, targetmachine_ip=""):
     # Get host's uuid
-        output = self.hyperv_run_cmd('gwmi -namespace "root/cimv2" Win32_ComputerSystemProduct | select UUID ')
+        output = self.hyperv_run_cmd('gwmi -namespace "root/cimv2" Win32_ComputerSystemProduct | select UUID')
         datalines = output.splitlines()
         for line in datalines:
             if "--" not in line and "UUID" not in line:

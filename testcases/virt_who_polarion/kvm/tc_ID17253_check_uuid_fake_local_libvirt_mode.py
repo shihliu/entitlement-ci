@@ -18,7 +18,7 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
             # define a guest
             self.vw_define_guest(guest_name)
             guestuuid = self.vw_get_uuid(guest_name)
-            self.vw_stop_virtwho_new()
+            self.vw_stop_virtwho()
 
             # (1) generate fake file
             self.generate_fake_file("kvm", fake_file)
@@ -43,7 +43,7 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
             self.vw_define_all_guests()
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.vw_restart_virtwho_new()
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

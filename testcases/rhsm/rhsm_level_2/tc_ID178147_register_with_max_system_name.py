@@ -14,22 +14,24 @@ class tc_ID178147_register_with_max_system_name(RHSMBase):
         try:
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
-            #name249 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert1234'
-            #name250 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345'
+            # for SAM
+            name249 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert1234'
+            name250 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345'
             # for satellite6.2
             name255 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert'
             name256 = 'qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert12345qwert1'
-            # register use system name with max characters(249)
-            #cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name249)
-            cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name255)
-
+            # register use system name with max characters(249sam,255satellite)
+            if get_exported_param("SERVER_TYPE") == 'SAM':
+                cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name249)
+            elif get_exported_param("SERVER_TYPE") == 'SATELLITE' or get_exported_param("SERVER_TYPE") == 'STAGE':
+                cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name255)
             (ret, output) = self.runcmd(cmd_register, "register with max system name")
             if ret == 0 and 'The system has been registered with ID' in output:
                 logger.info("It's successful to register with max system name")
             else:
                 raise FailException("Test Failed - error happened when register with max system name")
 
-            # unregister when system has registered using system name with max characters(249)
+            # unregister when system has registered using system name with max characters(249sam,255satellite)
             cmd_unregister = "subscription-manager unregister"
             (ret, output) = self.runcmd(cmd_unregister, "unregister when system has registered using system name with max characters(249)")
             if ret == 0 and 'System has been unregistered' in output:
@@ -45,9 +47,11 @@ class tc_ID178147_register_with_max_system_name(RHSMBase):
             else:
                 raise FailException("Test Failed - error happened when run subscription-manager clean")
 
-            # re-register with max characters(>=250)
-            #cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name250)
-            cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name256)
+            # re-register with max characters(>=250, or >= 255)
+            if get_exported_param("SERVER_TYPE") == 'SAM':
+                cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name250)
+            elif get_exported_param("SERVER_TYPE") == 'SATELLITE' or get_exported_param("SERVER_TYPE") == 'STAGE':
+                cmd_register = "subscription-manager register --username=%s --password='%s' --name=%s" % (username, password, name256)
             (ret, output) = self.runcmd(cmd_register, "register with max characters(>=250)")
             if ret != 0 and ("Name of the unit must be shorter than 250 characters" in output or "Name is too long (maximum is 255 characters)" in output):
                 logger.info("It's successful to verify that registeration with max characters(>=250) should not succeed")

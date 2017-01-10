@@ -8,17 +8,17 @@ class tc_ID17220_check_service_by_ssh(KVMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # (1) When remote restart virt-who service, it should success
-            ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("restart_virtwho")
-            ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
-            if "Starting virt-who: [  OK  ]" in output or "" in output:
+            ssh_cmd = "ssh %s %s; echo $?" % (get_exported_param("REMOTE_IP"), self.get_service_cmd("restart_virtwho"))
+            ret, output = self.runcmd_local_pexpect(ssh_cmd)
+            if output.strip() == "0" or "0" in output.strip():
                 logger.info("Succeeded to run virt-who restart by ssh")
             else:
                 raise FailException("Failed to run virt-who restart by ssh")
             self.check_virtwho_thread(2)
 
             # (2) When remote check virt-who status, it should success
-            ssh_cmd = "ssh %s " % get_exported_param("REMOTE_IP") + self.get_service_cmd("status_virtwho")
-            ret, output = self.runcmd_local_pexpect(ssh_cmd, "red2015")
+            ssh_cmd = "ssh %s %s" % (get_exported_param("REMOTE_IP"), self.get_service_cmd("status_virtwho"))
+            ret, output = self.runcmd_local_pexpect(ssh_cmd)
             if "running" in output:
                 logger.info("Succeeded to run virt-who status by ssh")
             else:

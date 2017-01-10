@@ -14,83 +14,63 @@ class tc_ID181268_import_valid_invaild_cert(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            # make invalid entitlement cert
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            # get env variables
+
+            productid = self.get_rhsm_cons("productid")
             autosubprod = self.get_rhsm_cons("autosubprod")
-            installedproductname = self.get_rhsm_cons("installedproductname")
-            # create invaild pem file
-            cmd = "touch /root/invalid.pem"
-            (ret, output) = self.runcmd(cmd, "create invalid pem file")    
-            if ret == 0:
-                logging.info(" It's successful to create invalid pem file.")                
-            else:
-                raise FailException("Test Failed - Failed to create invalied pem file.")
-            # create vaild pem file
             self.sub_autosubscribe(autosubprod)
-            cmd = "cat /etc/pki/entitlement/*-key.pem /etc/pki/entitlement/*.pem > /root/valid.pem"    
-            (ret, output) = self.runcmd(cmd, "Create valid pem file")            
-            if ret == 0 :
-                logging.info("It's successful to create valid cert file.")
-            else:
-                raise FailException("Test Failed - Failed to create valid cert file.")
-            # Unsubscribe all product
-            cmd = "subscription-manager unsubscribe --all"
-            (ret, output) = self.runcmd(cmd, "Unsubscribe all products")
-            if ret == 0 :
-                self.list_noconsumed_subscriptions()
+
+            cmd = 'cat /etc/pki/entitlement/*key.pem > /root/invalid.pem;cat /etc/pki/entitlement/* > /root/valid.pem'
+            (ret, output) = self.runcmd(cmd, "prepare a valid pem file and an invalid one.")
+            if ret == 0:
+                logger.info("It's successful to prepare a valid pem file.")
             else :
-                raise FailException("Test Failed - Failed to unsubscribe all product.")
-            # Import more two certificates
+                raise FailException("Test Failed - error happened when prepare a invalid pem file")
+
+            # get consumed subscription's sku to compare later.
+            sku1 = self.get_consumed_sku()
+            print 'sku1:%s'%sku1
+
+            # make sure the system is unregistered before import cert.
+            self.sub_unregister()
+
+            # import the valid cert
             cmd = "subscription-manager import --certificate=/root/valid.pem --certificate=/root/invalid.pem"
-            (ret, output) = self.runcmd(cmd, "import valid and invalid pem files")
-            if ("Successfully" in output) and ("not a valid certificate file" in output):
-                logging.info("It's successful to check import two certificates.")
+            (ret, output) = self.runcmd(cmd, "import exist entitlement certificate") 
+            if ret == 0 and "invalid.pem is not a valid certificate file. Please use a valid certificate" in output and 'Successfully imported certificate valid.pem' in output:
+                logger.info("Import existing entitlement certificate successfully and invalid cert is not imported.")
             else:
-                raise FailException("Test Failed - Failed to check import two certificates.")
-            # Check the import result
-            self.list_consumed_subscriptions(installedproductname)
+                raise FailException("Test Failed - Failed to import entitlement certificate.")
+
+            # check consumed status
+            sku2 = self.get_consumed_sku()
+            print 'sku2:%s'%sku2
+            if sku1 == sku2:
+                logger.info("It's successful to check corresponding subscription.")
+            else:
+                raise FailException("Test Failed - error happened when check corresponding subscription.")
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.remove_certfile()
+            self.runcmd('rm -f /root/*valid.pem', "remove test cert")
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-    def list_noconsumed_subscriptions(self):
-        cmd = "subscription-manager list --consumed"
-        (ret, output) = self.runcmd(cmd, "no consumed subscriptions in list")
-        output_join = " ".join(x.strip() for x in output.split())
-        if ret == 0 and (("No consumed" in output) or ("No consumed" in output_join)):
-            logging.info("It's successful to check no consumed subscriptions.")
-            return True
+    def get_consumed_sku(self):
+        cmd = "subscription-manager list --consumed | grep 'SKU'"
+        (ret, output) = self.runcmd(cmd, "check sku in the list consumed subscriptions")
+        if ret == 0:
+            return output.strip().split("\n")[0].split(":")[1].strip()
+            logger.info("It's successful to get consumed sku.")
         else:
-            raise FailException("Test Failed - Failed to check no consumed subscriptions.")
-            return False
-
-    def list_consumed_subscriptions(self, installedproductname):
-        cmd = "subscription-manager list --consumed"
-        (ret, output) = self.runcmd(cmd, "list consumed subscriptions")
-        output_join = " ".join(x.strip() for x in output.split())
-        if ret == 0 and ((installedproductname in output) or (installedproductname in output_join)):
-            logging.info("It's successful to list all consumed subscriptions.")
-            return True
-        else:
-            raise FailException("Test Failed - Failed to list all consumed subscriptions.")
-            return False
-
-    def remove_certfile(self):
-        cmd = "rm -rf /root/*.pem"
-        (ret, output) = self.runcmd(cmd, "Remove all pem file under /root")
-        if ret == 0 :
-            logging.info("It's successful to remove all pem file under /root.")
-            return True
-        else:
-            raise FailException("Test Failed - Failed to Remove all pem file under /root.")
-            return False    
+            return None
+            raise FailException("Test Failed - error happened get consumed sku.")
 
 if __name__ == "__main__":
     unittest.main()

@@ -342,9 +342,9 @@ class Base(unittest.TestCase):
         self.runcmd(cmd, "update rhsm facts due to bug 1310827", targetmachine_ip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname, targetmachine_ip=""):
-#         if "satellite" in satellitehostname:
-#             # for satellite installed in qeos
-#             satellitehostname = satellitehostname + ".novalocal"
+        if "satellite" in satellitehostname:
+            # for satellite installed in qeos
+            satellitehostname = satellitehostname + ".novalocal"
         self.configure_host_file(satellitehostip, satellitehostname, targetmachine_ip)
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
@@ -467,6 +467,22 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to check %s exist in server") % system_uuid
 
+    def server_system_info(self, info_key, system_uuid, username="", password=""):
+        if self.test_server == "SAM":
+            return self.sam_system_info(info_key, system_uuid, username, password)
+        elif self.test_server == "SATELLITE":
+            return self.satellite_system_info(info_key, system_uuid, username, password)
+        elif self.test_server == "STAGE":
+            return self.stage_system_info(info_key, system_uuid, username, password)
+        else:
+            raise FailException("Failed to identify test server")
+
+    # ========================================================
+    #       SAM Functions
+    # ========================================================
+    def sam_system_info(self, info_key, uuid, username="", password=""):
+        return self.get_json("sam/api/systems/%s/subscription_status/" % uuid)[info_key]
+
     # ========================================================
     #       SATELLITE Functions https://***/apidoc/v2
     # ========================================================
@@ -531,6 +547,10 @@ class Base(unittest.TestCase):
             consumed_id_list.append(consumed["id"])
         return consumed_id_list
 
+    def satellite_system_info(self, info_key, uuid, username="", password=""):
+        host_id = self.satellite_name_to_id(uuid)
+        return self.get_json("api/v2/hosts/%s" % host_id)[info_key]
+
     # ========================================================
     #       STAGE Functions https://hosted.englab.nay.redhat.com/issues/11373
     # ========================================================
@@ -593,6 +613,13 @@ class Base(unittest.TestCase):
         all_units = self.get_json("subscription/owners/%s/consumers" % owner, username, password) + self.get_json("subscription/owners/%s/hypervisors" % owner, username, password)
         logger.info ("all units is : %s" % all_units)
         return all_units
+
+    def stage_system_info(self, info_key, host_name, username="", password=""):
+        host_uuid_list = self.stage_name_to_uuid(host_name, username, password)
+        for host_uuid in host_uuid_list:
+            logger.info ("get system %s product status" % host_name)
+            location = "subscription/consumers/%s" % host_uuid
+            return self.get_json(location, username, password)[info_key]
 
     # ========================================================
     #       REQUESTS CRUD
@@ -758,6 +785,9 @@ class Base(unittest.TestCase):
 #         self.__stage_unattach_all("aee4ff00-8c33-11e2-994a-6c3be51d959a")
 #         self.stage_system_remove("aee4ff00-8c33-11e2-994a-6c3be51d959a")
 #         self.stage_system_remove_all()
+#         logger.info (self.server_system_info("entitlementStatus", "hp-z220-13.qe.lab.eng.nay.redhat.com", username="new_test", password="redhat"))
+#         logger.info (self.server_system_info("subscription_status_label", "149902d6-72aa-4ef5-b69e-32ef2fbc6755", username="admin", password="admin"))
+#         logger.info (self.server_system_info("status", "f25af795-87c0-49a6-9c47-1c371583ee88", username="admin", password="admin"))
 
 if __name__ == "__main__":
     unittest.main()

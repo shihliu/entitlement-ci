@@ -8,6 +8,7 @@ class rhsm_setup(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.cm_install_desktop()
+            self.cm_install_basetool()
             self.configure_server()
             self.assert_(True, case_name)
         except Exception, e:

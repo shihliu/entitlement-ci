@@ -17,11 +17,11 @@ class tc_ID17261_VDSM_check_uuid_after_delete_vm_restart_vdsmd(VDSMBase):
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
+            self.runcmd_service("restart_vdsmd")
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # (1) start guest then check if the uuid is correctly monitored by virt-who.
-            self.rhevm_start_vm(guest_name, rhevm_ip)
             self.vw_check_uuid(guestuuid, uuidexists=True)
 
             # (2). register guest to Server
@@ -34,26 +34,27 @@ class tc_ID17261_VDSM_check_uuid_after_delete_vm_restart_vdsmd(VDSMBase):
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
 
-            # (4) stop guest then
+            # (4) stop guest 
+            self.runcmd_service("restart_vdsmd")
             self.rhevm_stop_vm(guest_name, rhevm_ip)
 
             # (5) Restart vdsmd service then check if the uuid is correctly monitored by virt-who
-            self.vw_check_uuid(guestuuid, uuidexists=False, checkcmd="service vdsmd restart")
+            self.vw_check_message_in_rhsm_log(guestuuid, message_exists=False, checkcmd="restart_vdsmd")
 
             # (6) restart guest then check bonus pool is not revoke. 
-#             self.rhevm_start_vm(guest_name, rhevm_ip)
-#             self.sub_listconsumed(sku_name, guestip)
+            self.rhevm_start_vm(guest_name, rhevm_ip)
+            self.sub_listconsumed(sku_name, guestip)
 
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            # unsubscribe host
-#             self.sub_unsubscribe()
-#             if guestip != None and guestip != "":
-#                 self.sub_unregister(guestip)
-#             self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             unsubscribe host
+            self.sub_unsubscribe()
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -8,14 +8,26 @@ class tc_ID189936_facts_cmd_default_to_list(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # run cmd with facts only
-            cmd = "subscription-manager facts"
+            cmd = "subscription-manager facts > /root/f1"
             (ret, output) = self.runcmd(cmd, "running facts without option")
-            factsout = output
+            if ret == 0:
+                logger.info("It's successfull to list facts without --list!")
+            else:
+                raise FailException("Test Faild - Failed to list facts without --list!")
+
             # run cmd with facts --list
-            cmd = "subscription-manager facts --list"
+            cmd = "subscription-manager facts --list > /root/f2"
             (ret, output) = self.runcmd(cmd, "running facts with option: --list")
-            factslistout = output
-            if factsout == factslistout:
+            if ret == 0:
+                logger.info("It's successfull to list facts with --list!")
+            else:
+                raise FailException("Test Faild - Failed to list facts with --list!")
+
+            cmd = "cd /root/; diff f1 f2 -I ^'lscpu.cpu_mhz:'"
+            (ret, output) = self.runcmd(cmd, "compare the facts")
+            if ret == 0 and output.strip() == '':
+                logger.info("It's successfull to check the default output of repos: the output of facts is the same as facts --list!")
+            elif ret != 0 and output.strip() == '3' and 'lscpu.cpu_mhz: ' in output:
                 logger.info("It's successfull to check the default output of repos: the output of facts is the same as facts --list!")
             else:
                 raise FailException("Test Faild - It's failed to check the default output of repos: the output of facts is not the same as facts --list!")

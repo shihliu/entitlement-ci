@@ -26,15 +26,7 @@ class VIRTWHOBase(Base):
 
     def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
-        remote_ip = get_exported_param("REMOTE_IP")
-        self.set_hosts_file(remote_ip)
         # system setup for virt-who testing
-        cmd = "yum install -y subscription-manager"
-        ret, output = self.runcmd(cmd, "install subscription-manager for virt-who testing", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            logger.info("Succeeded to install subscription-manager for virt-who testing.")
-        else:
-            raise FailException("Test Failed - Failed to install subscription-manager for virt-who testing.")
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
         if ret == 0:
@@ -73,14 +65,6 @@ class VIRTWHOBase(Base):
             return hostname
         else:
             raise FailException("Test Failed - Failed to get hostname in %s." % self.get_hg_info(targetmachine_ip))
-
-    def set_hosts_file(self, targetmachine_ip=""):
-        cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
-        ret, output = self.runcmd(cmd, "set /etc/hosts", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set /etc/hosts file.")
-        else:
-            raise FailException("Test Failed - Failed to set /etc/hosts file.")
 
     def virtwho_cli(self, mode):
         # only return CLI for virt-who esx, remote libvirt, hyperv mode, don't run cli 

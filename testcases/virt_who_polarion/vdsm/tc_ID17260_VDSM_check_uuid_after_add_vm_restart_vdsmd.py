@@ -17,11 +17,12 @@ class tc_ID17260_VDSM_check_uuid_after_add_vm_restart_vdsmd(VDSMBase):
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
+            self.runcmd_service("restart_vdsmd")
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_id) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # (1) Restart vdsmd service and start guest then check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, checkcmd="service vdsmd restart")
+            self.vw_check_uuid(guestuuid, uuidexists=True)
 
             # (2). register guest to Server
             if not self.sub_isregistered(guestip):
@@ -34,7 +35,8 @@ class tc_ID17260_VDSM_check_uuid_after_add_vm_restart_vdsmd(VDSMBase):
             self.sub_listconsumed(sku_name, guestip)
 
             # (5) Restart vdsmd service then check if the uuid is correctly monitored by virt-who
-            self.vw_check_message_in_rhsm_log(guestuuid, checkcmd="service vdsmd restart")
+            self.runcmd_service("restart_vdsmd")
+            self.vw_check_message_in_rhsm_log(guestuuid)
 
             # (6) check bonus pool is not revoke. 
             self.sub_listconsumed(sku_name, guestip)

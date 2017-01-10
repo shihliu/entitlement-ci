@@ -6,8 +6,9 @@ class tc_ID115181_install_one_package(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        if not self.skip_satellite():
+        if not self.skip_satellite_check():
             try:
+                self.check_and_backup_yum_repos()
                 username = self.get_rhsm_cons("username")
                 password = self.get_rhsm_cons("password")
                 self.sub_register(username, password)
@@ -35,6 +36,7 @@ class tc_ID115181_install_one_package(RHSMBase):
                 logger.error("Test Failed - ERROR Message:" + str(e))
                 self.assert_(False, case_name)
             finally:
+                self.restore_repos()
                 self.uninstall_givenpkg(pkgtoinstall)
                 self.restore_environment()
                 logger.info("========== End of Running Test Case: %s ==========" % case_name)

@@ -25,7 +25,7 @@ class tc_ID180401_unsubscribe_with_wrong_serial_number(RHSMBase):
             #Unsubscribe the consumed subscription via the serial number
             cmd="subscription-manager unsubscribe --serial=1234567890"
             (ret, output) = self.runcmd(cmd, "Unsubscribe the consumed subscription via the wrong cert serial number")
-            if (ret != 0) and ("could not be found" in output) and ("unsuccessfully removed" in output):
+            if (ret != 0) and "The entitlement server failed to remove these serial numbers:" in output:
                 logging.info("It's successful to check Unsubscribe the consumed subscription via the wrong cert serial number")
             else:
                 raise FailException("Test Failed - Failed to check Unsubscribe the consumed subscription via the wrong cert serial number")

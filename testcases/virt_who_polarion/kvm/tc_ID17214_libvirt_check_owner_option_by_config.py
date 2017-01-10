@@ -17,14 +17,18 @@ class tc_ID17214_libvirt_check_owner_option_by_config(KVMBase):
 
             # (1) When "VIRTWHO_LIBVIRT_OWNER" is not exist, virt-who should show error info
             self.config_option_disable("VIRTWHO_LIBVIRT_OWNER", remote_ip_2)
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_owner , cmd_retcode=1, targetmachine_ip=remote_ip_2)
+            if self.get_os_serials(remote_ip_2) == 6:
+                self.vw_check_message("service virt-who restart", error_msg_without_owner, cmd_retcode=1, targetmachine_ip=remote_ip_2)
+            else:
+                self.runcmd_service("restart_virtwho", targetmachine_ip=remote_ip_2)
+                self.vw_check_message("systemctl status virt-who.service", error_msg_without_owner, cmd_retcode=3, targetmachine_ip=remote_ip_2)
             # (2) When "VIRTWHO_LIBVIRT_OWNER" with wrong config, virt-who should show error info
             self.config_option_enable("VIRTWHO_LIBVIRT_OWNER", remote_ip_2)
-            self.config_option_setup_value("VIRTWHO_LIBVIRT_OWNER", self.get_vw_cons("wrong_owner"),remote_ip_2)
-            self.vw_check_message_in_rhsm_log(error_msg_with_wrong_owner, remote_ip_2)
+            self.config_option_setup_value("VIRTWHO_LIBVIRT_OWNER", self.get_vw_cons("wrong_owner"), remote_ip_2)
+            self.vw_check_message_in_rhsm_log(error_msg_with_wrong_owner, targetmachine_ip=remote_ip_2)
             # (3) When "VIRTWHO_LIBVIRT_OWNER" with correct config, virt-who should show error info
             self.config_option_setup_value("VIRTWHO_LIBVIRT_OWNER", libvirt_owner, remote_ip_2)
-            self.vw_check_mapping_info_number_in_rhsm_log(remote_ip_2)
+            self.vw_check_mapping_info_number_in_rhsm_log(targetmachine_ip=remote_ip_2)
 
             self.assert_(True, case_name)
         except Exception, e:

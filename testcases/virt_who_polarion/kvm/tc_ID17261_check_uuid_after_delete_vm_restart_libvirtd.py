@@ -24,7 +24,7 @@ class tc_ID17261_check_uuid_after_delete_vm_restart_libvirtd(KVMBase):
             self.vw_start_guests(guest_name)
             # (6) restart guest then check bonus pool is not revoke. 
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 1, guestuuid)
 
             self.assert_(True, case_name)
         except Exception, e:

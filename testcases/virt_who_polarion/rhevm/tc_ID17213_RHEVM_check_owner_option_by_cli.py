@@ -10,7 +10,12 @@ class tc_ID17213_RHEVM_check_owner_option_by_cli(VDSMBase):
             error_msg_without_owner = self.get_vw_cons("rhevm_error_msg_without_owner")
             error_msg_with_wrong_owner = self.get_vw_cons("rhevm_error_msg_with_wrong_owner")
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
-            rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
+            rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+            if "rhevm-4.0"in rhevm_version:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
+            else:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             self.runcmd_service("stop_virtwho")
 
             # (1) When "--rhevm-owner" is not exist, virt-who should show error info

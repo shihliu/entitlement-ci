@@ -16,7 +16,7 @@ class tc_ID17224_VDSM_check_mapping_after_restart_virtwho_and_rhsm(VDSMBase):
             self.vw_check_uuid(guestuuid, uuidexists=True)
 
             # (2) Check host/guest mapping has not update after restart rhsmcert
-            self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd="service rhsmcertd restart")
+            self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd="restart_rhsmcertd")
             # (3) Check host/guest mapping info is exist after restart virt-who 
             self.vw_check_uuid(guestuuid, uuidexists=True)
 

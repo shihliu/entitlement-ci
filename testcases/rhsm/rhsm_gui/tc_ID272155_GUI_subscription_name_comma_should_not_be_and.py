@@ -49,6 +49,7 @@ class tc_ID272155_GUI_subscription_name_comma_should_not_be_and(RHSMGuiBase):
                         self.select_row('main-window','all-subscription-table', i)
                         old_comma_name = self.get_table_cell('main-window','all-subscription-table', i, 0)
                         self.click_button('main-window','attach-subscription')
+                        self.click_button('contract-selection-window','attach-subscription')
                         break
                 if old_comma_name:
                     self.click_my_subscriptions_tab()

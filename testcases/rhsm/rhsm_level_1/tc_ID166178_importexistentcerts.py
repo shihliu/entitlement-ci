@@ -7,20 +7,45 @@ class tc_ID166178_importexistentcerts(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            # make valid entitlement cert
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
+
+            productid = self.get_rhsm_cons("productid")
             autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
-            # check whether entitlement certificates generated and productid in them or not
-            productid = self.check_sku_in_consumed_subscriptions()
-            self.sub_checkentitlementcerts(productid)
-            # generate entitlement certificate to import and remove entitlement certificate
-            self.generate_and_remove_entcert()
-            # import existing entitlement cert
-            self.import_exist_entcert()
-            # check whether entitlement certificates generated and productid in them or not
-            self.sub_checkentitlementcerts(productid)
+
+            cmd = 'cat /etc/pki/entitlement/* > /tmp/test.pem'
+            (ret, output) = self.runcmd(cmd, "prepare a valid pem file")
+            if ret == 0:
+                logger.info("It's successful to prepare a valid pem file.")
+            else :
+                raise FailException("Test Failed - error happened when prepare a invalid pem file")
+
+            # get consumed subscription's sku to compare later.
+            sku1 = self.get_consumed_sku()
+            print 'sku1:%s'%sku1
+
+            # make sure the system is unregistered before import cert.
+            self.sub_unregister()
+
+            # import the valid cert
+            cmd = "subscription-manager import --certificate=/tmp/test.pem"
+            (ret, output) = self.runcmd(cmd, "import exist entitlement certificate") 
+            if ret == 0 and "Successfully imported certificate" in output:
+                logger.info("Import existing entitlement certificate successfully.")
+            else:
+                raise FailException("Test Failed - Failed to import entitlement certificate.")
+
+            # check consumed status
+            sku2 = self.get_consumed_sku()
+            print 'sku2:%s'%sku2
+            if sku1 == sku2:
+                logger.info("It's successful to check corresponding subscription.")
+            else:
+                raise FailException("Test Failed - error happened when check corresponding subscription.")
+
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
@@ -30,33 +55,15 @@ class tc_ID166178_importexistentcerts(RHSMBase):
             self.restore_environment()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
-    def check_sku_in_consumed_subscriptions(self):
-        sku = None
+    def get_consumed_sku(self):
         cmd = "subscription-manager list --consumed | grep 'SKU'"
         (ret, output) = self.runcmd(cmd, "check sku in the list consumed subscriptions")
-        print "output: \n", output[0]
         if ret == 0:
-            sku = output.split(":")[1].strip()
-            return sku
-        else :
-            return sku
-            raise FailException("Test Failed - error happened when check sku in the list consumed subscriptions")
-
-    def generate_and_remove_entcert(self):
-        cmd = "cat /etc/pki/entitlement/* > /tmp/test.pem"
-        (ret, output) = self.runcmd(cmd, "generate entitlement cert")
-        if ret == 0:
-            self.runcmd('rm -f /etc/pki/entitlement/*', "remove entitlement cert")
-        else :
-            raise FailException("Test Failed - error happened when generate entitlement certs")
-
-    def import_exist_entcert(self):
-        cmd = " subscription-manager import --certificate=/tmp/test.pem"
-        (ret, output) = self.runcmd(cmd, "import exist entitlement certificate") 
-        if ret == 0 and "Successfully imported certificate" in output:
-            logger.info("Import existing entitlement certificate successfully.")
+            return output.strip().split("\n")[0].split(":")[1].strip()
+            logger.info("It's successful to get consumed sku.")
         else:
-            raise FailException("Test Failed - Failed to import entitlement certificate.")
+            return None
+            raise FailException("Test Failed - error happened get consumed sku.")
 
 if __name__ == "__main__":
     unittest.main()

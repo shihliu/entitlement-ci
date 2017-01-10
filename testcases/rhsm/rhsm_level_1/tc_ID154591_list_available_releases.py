@@ -16,10 +16,10 @@ class tc_ID154591_list_available_releases(RHSMBase):
             autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # list available releases
-            currentversion = self.sub_getcurrentversion()
+            latest_release = self.os_serial + self.get_os_platform()
             cmd = "subscription-manager release --list"
             (ret, output) = self.runcmd(cmd, "list available releases")
-            if ret == 0 and currentversion in output:
+            if ret == 0 and latest_release in output:
                 logger.info("It's successful to list available releases.")
             else:
                 raise FailException("Test Failed - Failed to list available releases.")

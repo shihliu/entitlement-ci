@@ -7,23 +7,26 @@ class tc_ID190016_list_versioninfo(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            username = self.get_rhsm_cons("username")
-            password = self.get_rhsm_cons("password")
-            self.sub_register(username, password)
-            # list version of subscription-manager pythonrhsm and candlepin
-            cmd = "subscription-manager version"
-            (ret, output) = self.runcmd(cmd, "list version info")
-            if (ret == 0) and ('subscription management server' in output) and ('subscription-manager' in output) and ('python-rhsm' in output):
-                resultoutput = output.splitlines()
-                for lineoutput in resultoutput:
-                    tempoutput = lineoutput.strip().split(':')
-                    if (tempoutput[0].strip() == "server type" and tempoutput[1].strip() == "Red Hat Subscription Management") or re.match('^[0-9]', tempoutput[1].strip()) is not None:
-                        pass
-                    else:
-                        raise FailException("Test Failed - Failed to list the version of remote entitlment server.")
-                logging.info("It's successful to list version info by running version command.")
+            if get_exported_param("SERVER_TYPE") == 'SAM':
+                raise FailException("Bug 1120576 wonfix in SAM")
             else:
-                raise FailException("Test Failed - Failed to list the version info by running version command.")
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
+                self.sub_register(username, password)
+                # list version of subscription-manager pythonrhsm and candlepin
+                cmd = "subscription-manager version"
+                (ret, output) = self.runcmd(cmd, "list version info")
+                if (ret == 0) and ('subscription management server' in output) and ('subscription-manager' in output) and ('python-rhsm' in output):
+                    resultoutput = output.splitlines()
+                    for lineoutput in resultoutput:
+                        tempoutput = lineoutput.strip().split(':')
+                        if (tempoutput[0].strip() == "server type" and tempoutput[1].strip() == "Red Hat Subscription Management") or re.match('^[0-9]', tempoutput[1].strip()) is not None:
+                            pass
+                        else:
+                            raise FailException("Test Failed - Failed to list the version of remote entitlment server.")
+                    logging.info("It's successful to list version info by running version command.")
+                else:
+                    raise FailException("Test Failed - Failed to list the version info by running version command.")
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

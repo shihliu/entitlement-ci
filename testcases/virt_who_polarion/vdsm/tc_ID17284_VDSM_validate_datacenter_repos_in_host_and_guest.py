@@ -1,8 +1,8 @@
 from utils import *
-from testcases.virt_who_polarion.kvmbase import KVMBase
+from testcases.virt_who_polarion.vdsmbase import VDSMBase
 from utils.exception.failexception import FailException
 
-class tc_ID17284_VDSM_validate_datacenter_repos_in_host_and_guest(KVMBase):
+class tc_ID17284_VDSM_validate_datacenter_repos_in_host_and_guest(VDSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

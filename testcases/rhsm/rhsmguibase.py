@@ -28,13 +28,23 @@ class RHSMGuiBase(Base):
 
     def select_row(self, window, table, row):  # row is 0 indexed
         logger.info("Selecting row %d on table %s!" % (row, window))
-        ldtp.wait()
+        ldtp.wait(5)
         ldtp.selectrowindex(self.get_locator(window), self.get_locator(table), row)
         # dtp.wait()
 
     def double_click_row(self, window, table, row_name):
         logger.info("Double-clicking table %s at row_name %s" % (table, row_name))
         ldtp.doubleclickrow(self.get_locator(window), self.get_locator(table), row_name)
+        ldtp.wait()
+
+    def single_click_row(self, window, table, row_name):
+        logger.info("single-clicking table %s at row_name %s" % (table, row_name))
+        ldtp.doubleclickrow(self.get_locator(window), self.get_locator(table), row_name)
+        ldtp.wait()
+
+    def download_scroll(self,window,scroll_name):
+        logger.info("Download the scroll to show all the virt info")
+        ldtp.scrolldown(self.get_locator(window), self.get_locator(scroll_name))
         ldtp.wait()
 
     def restore_gui_environment(self):
@@ -126,6 +136,7 @@ class RHSMGuiBase(Base):
 
     def click_menu(self, window, menu_name):
         ldtp.click(self.get_locator(window), self.get_locator(menu_name))
+        ldtp.wait(5)
 
     def check_checkbox(self, window, checkbox_name):
         logger.info("Checking checkbox %s in window %s" % (checkbox_name, window))
@@ -161,6 +172,7 @@ class RHSMGuiBase(Base):
 
     def check_hostype_and_isguest_gui_vs_cli(self):
         self.double_click_row('system-facts-dialog', 'facts-view-table', 'virt')
+        self.download_scroll('system-facts-dialog','facts-scroll')
         virt_hostype_index = self.get_table_row_index('system-facts-dialog', 'facts-view-table', 'virt.host_type')
         virt_is_guest_index = self.get_table_row_index('system-facts-dialog', 'facts-view-table', 'virt.is_guest')
         virt_hostype_gui = self.get_table_cell('system-facts-dialog', 'facts-view-table', virt_hostype_index, 1)
@@ -199,7 +211,8 @@ class RHSMGuiBase(Base):
             raise FailException("FAILED: Can't get org by CML.")
 
         cmd2 = "subscription-manager identity | grep system"
-        (ret2, output2) = self.runcmd.run(cmd2, "get identity via command line")
+        #(ret2, output2) = self.runcmd.run(cmd2, "get identity via command line")
+        (ret2, output2) = self.runcmd(cmd2, "get identity via command line")
         id_in_cml = output2.split(":")[1].strip()
         if ret == 0:
             logger.info("SUCCESS: ID in CML is %s" % org_in_cml)
@@ -211,9 +224,9 @@ class RHSMGuiBase(Base):
         if self.check_element_exist("system-facts-dialog", "lbl", "OrganizationValue"):
             org_in_facts = self.get_label_txt("system-facts-dialog", "label-org")
             logger.info("SUCCESS: Got label of %s in system facts" % org_in_facts)
-        else: 
+        else:
             raise FailException("FAILED: Can't get id from facts")
-        
+
         # check id
         id_in_facts = "lblSystemIdentityValue"
         if self.check_element_exist("system-facts-dialog", "lbl", "SystemIdentityValue"):
@@ -222,11 +235,11 @@ class RHSMGuiBase(Base):
         else: raise FailException("FAILED: Can't get id from facts")
         if org_in_cml in org_in_facts:
             logger.info("SUCCESS: Org info matches!")
-        else: 
+        else:
             raise FailException("FAILED: Org info does not match!")
         if id_in_cml == id_in_facts: 
             logger.info("SUCCESS: ID info matches!")
-        else: 
+        else:
             raise FailException("FAILED: ID info does not match!")
 
     # opens subscription manager and checks for error
@@ -321,7 +334,7 @@ class RHSMGuiBase(Base):
         self.input_username(username)
         self.input_password(password)
         self.click_dialog_register_button()
-        self.click_dialog_next_button()
+        self.click_attdialog_next_button()
         self.click_dialog_cancel_button()
 
     def register_and_autosubscribe_in_gui(self, username, password):
@@ -330,7 +343,7 @@ class RHSMGuiBase(Base):
         self.input_username(username)
         self.input_password(password)
         self.click_dialog_register_button()
-        self.click_dialog_next_button()
+        self.click_attdialog_next_button()
         self.click_dialog_subscribe_button()
         time.sleep(10)
 
@@ -342,8 +355,8 @@ class RHSMGuiBase(Base):
     def click_autoattach_button(self):
         logger.info("click_autoattach_button")
         self.click_button("main-window", "auto-subscribe-button")
-        self.check_window_exist("register-dialog")
-        self.wait_until_button_enabled("register-dialog", "dialog-register-button")
+        self.check_window_exist("attach-dialog")
+        self.wait_until_button_enabled("attach-dialog", "dialog-register-button")
 
     def click_attach_button(self):
         logger.info("click_attach_button")
@@ -403,11 +416,19 @@ class RHSMGuiBase(Base):
         self.check_window_exist("information-dialog")
 
     def click_dialog_next_button(self):
+        logger.info("click_dialog_next_button")
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
         ldtp.wait(10)
         logger.info("click_dialog_next_button")
         self.click_button("register-dialog", "dialog-register-button")
-        self.check_window_exist("register-dialog")
+        #self.check_window_exist("register-dialog")
+        
+    def click_attdialog_next_button(self):
+        self.wait_until_button_enabled("attach-dialog", "dialog-register-button")
+        ldtp.wait(10)
+        logger.info("click_dialog_next_button")
+        self.click_button("attach-dialog", "dialog-register-button")
+        self.check_window_exist("attach-dialog")
 
     def click_dialog_register_button(self):
         self.wait_until_button_enabled("register-dialog", "dialog-register-button")
@@ -416,18 +437,20 @@ class RHSMGuiBase(Base):
     def click_dialog_register_button_without_autoattach(self):
         logger.info("click_dialog_register_button_without_autoattach")
         self.click_button("register-dialog", "dialog-register-button")
+        ldtp.wait(5)
         self.check_window_closed("register-dialog")
 
     def click_dialog_subscribe_button(self):
         logger.info("click_dialog_subscribe_button")
-        self.click_button("register-dialog", "dialog-register-button")
-        self.check_window_closed("register-dialog")
+        self.click_button("attach-dialog", "dialog-register-button")
+        self.check_window_closed("attach-dialog")
 
     def click_dialog_cancel_button(self):
-        self.wait_until_button_enabled("register-dialog", "dialog-cancel-button")
+        ldtp.wait(5)
+        #self.wait_until_button_enabled("attach-dialog", "dialog-cancel-button")
         logger.info("click_dialog_cancel_button")
-        self.click_button("register-dialog", "dialog-cancel-button")
-        self.check_window_closed("register-dialog")
+        self.click_button("attach-dialog", "dialog-cancel-button")
+        self.check_window_closed("attach-dialog")
 
     def click_proxy_close_button(self):
         logger.info("click_proxy_close_button")
@@ -544,6 +567,7 @@ class RHSMGuiBase(Base):
     def check_manual_attach_checkbox(self):
         logger.info("check_manual_attach_checkbox")
         self.check_checkbox("register-dialog", "manual-attach-checkbox")
+        ldtp.wait(5)
 
     def uncheck_manual_attach_checkbox(self):
         logger.info("uncheck_manual_attach_checkbox")
@@ -637,7 +661,7 @@ class RHSMGuiBase(Base):
 
     def check_object_exist(self, window, object_name):
         logger.info("check_object_exist")
-        ldtp.wait()
+        ldtp.wait(5)
         return ldtp.guiexist(self.get_locator(window), self.get_locator(object_name))
 
     def check_menu_enabled(self, window, menu_name):
@@ -647,7 +671,7 @@ class RHSMGuiBase(Base):
     def check_combo_item(self, window, combobox, item_name):
         logger.info("check_combo_item")
         # do NOT remove.  This line is to update the item list, as item list in ldtp is quite buggy
-        ldtp.showlist(self.get_locator(window), self.get_locator(combobox)) 
+        ldtp.showlist(self.get_locator(window), self.get_locator(combobox))
         ldtp.wait(10)
         return item_name in ldtp.getallitem(self.get_locator(window), self.get_locator(combobox))
 
@@ -1046,7 +1070,7 @@ class RHSMGuiBase(Base):
             raise FailException("Test Failed - Failed to list consumed pools.")
 
     def sub_listavailpools(self, productid):
-        cmd = "subscription-manager list --available"
+        cmd = "subscription-manager list --available --all"
         (ret, output) = self.runcmd(cmd, "list available pool")
         if ret == 0:
             if "no available subscription pools to list" not in output.lower():
@@ -1149,11 +1173,11 @@ class RHSMGuiBase(Base):
             raise FailException("Test Failed - Failed to get system hostname")
 
     def generate_cert(self):
-        cmd = "cat /etc/pki/entitlement/* > /tmp/test.pem"
+        cmd = "cat /etc/pki/entitlement/* > /root/tmp/test.pem"
         (ret, output) = self.runcmd(cmd, "generate cert file")
         if ret == 0:
             logger.info("It's successful to generate entitlement cert")
-            return "/tmp/test.pem"
+            return "/root/tmp/test.pem"
         else :
             raise FailException("Test Failed - error happened when generate entitlement certs")
 

@@ -37,28 +37,9 @@ class KVMBase(VIRTWHOBase):
 
     def mount_images(self):
         ''' mount the images prepared '''
-#         if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
-#             image_server = self.get_vw_cons("local_image_server")
-#         else:
-#             image_server = self.get_vw_cons("beaker_image_server")
         image_nfs_path = self.get_vw_cons("nfs_image_path")
-        image_mount_path = self.get_vw_cons("local_mount_point")
-#         cmd = "mkdir %s" % image_mount_path
-#         self.runcmd(cmd, "create local images mount point")
-#         cmd = "mkdir %s" % image_nfs_path
-#         self.runcmd(cmd, "create local nfs images directory")
-#         cmd = "mount -r %s %s; sleep 10" % (image_server, image_mount_path)
-#         ret, output = self.runcmd(cmd, "mount images in host")
-#         if ret == 0:
-#             logger.info("Succeeded to mount images from %s to %s." % (image_server, image_mount_path))
-#         else:
-#             raise FailException("Failed to mount images from %s to %s." % (image_server, image_mount_path))
-#         logger.info("Begin to copy guest images...")
-#         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
-#         ret, output = self.runcmd(cmd, "copy all kvm images")
-        # cmd = "umount %s" % (image_mount_path)
-        # ret, output = self.runcmd(cmd, "umount images in host")
         self.cm_set_cp_image()
+
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (image_nfs_path.replace('/', '\/'), image_nfs_path)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs")
         if ret == 0:
@@ -121,6 +102,13 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to wget ipget.sh to /root/.")
 
+    def getip_vm(self, guest_name, targetmachine_ip=""):
+        guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name, targetmachine_ip), targetmachine_ip)
+        if guestip != "" and (not "can not get ip by mac" in guestip):
+            return guestip
+        else:
+            raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
+
     def __get_dom_mac_addr(self, domname, targetmachine_ip=""):
         """
         Get mac address of a domain
@@ -142,7 +130,7 @@ class KVMBase(VIRTWHOBase):
         if not mac:
             raise FailException("Failed to get guest mac ...")
         cmd = "sh /root/ipget.sh %s | grep -v nmap" % mac
-        ret, output = self.runcmd(cmd, "check whether guest ip available", targetmachine_ip, showlogger=False)
+        ret, output = self.runcmd(cmd, "run command %s" % cmd, targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to get ip address.")
             return output.strip("\n").strip(" ")
@@ -179,13 +167,6 @@ class KVMBase(VIRTWHOBase):
             raise FailException("Faild to get guest %s ip." % guest_name)
         else:
             return ipAddress
-
-    def getip_vm(self, guest_name, targetmachine_ip=""):
-        guestip = self.__mac_to_ip(self.__get_dom_mac_addr(guest_name, targetmachine_ip), targetmachine_ip)
-        if guestip != "" and (not "can not get ip by mac" in guestip):
-            return guestip
-        else:
-            raise FailException("Test Failed - Failed to get ip of guest %s." % guest_name)
 
     def vw_define_all_guests(self, targetmachine_ip=""):
         guest_path = self.get_vw_cons("nfs_image_path")
@@ -268,6 +249,11 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to start guest %s." % guest_name)
         elif "Domain not found" in output:
             self.define_vm(guest_name, targetmachine_ip)
+        elif "Failed to connect socket to '/var/run/libvirt/virtlogd-sock'" in output:
+            cmd = "systemctl start virtlogd.socket"
+            ret, output = self.runcmd(cmd, "start virtlogd.socket" , targetmachine_ip)
+            cmd = "virsh start %s" % (guest_name)
+            ret, output = self.runcmd(cmd, "start guest" , targetmachine_ip)
         else:
             raise FailException("Test Failed - Failed to start guest %s." % guest_name)
         return self.__check_vm_available(guest_name, targetmachine_ip=targetmachine_ip)
@@ -333,7 +319,7 @@ class KVMBase(VIRTWHOBase):
         # set remote libvirt value
         ret, output = self.runcmd(cmd, "Clean config of remote libvirt conf. reset to default", targetmachine_ip)
         if ret == 0:
-            self.vw_restart_virtwho_new(targetmachine_ip)
+            self.vw_restart_virtwho(targetmachine_ip)
             logger.info("Succeeded to reset to defualt config.")
         else:
             raise FailException("Test Failed - Failed to reset to defualt config.")
@@ -354,6 +340,13 @@ class KVMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to restore_libvirtd_config.")
 
+    def vw_change_guest_name(self):
+        guest_name = self.get_vw_cons("KVM_GUEST_NAME")
+        self.vw_start_guests(guest_name)
+        guestip = self.kvm_get_guest_ip(guest_name)
+        self.cm_change_hostname(guestip)
+        self.vw_stop_guests(guest_name)
+
     # ========================================================
     #       KVM - test env set up function
     # ========================================================
@@ -371,6 +364,8 @@ class KVMBase(VIRTWHOBase):
         self.mount_images()
         # add guests in host machine.
         self.vw_define_all_guests()
+        # change target guest host name, or else satellite testing will fail due to same name
+        self.vw_change_guest_name()
         # configure slave machine
         slave_machine_ip = get_exported_param("REMOTE_IP_2")
         if slave_machine_ip != None and slave_machine_ip != "":
@@ -384,7 +379,7 @@ class KVMBase(VIRTWHOBase):
             self.vw_restart_virtwho(slave_machine_ip)
 
     def kvm_sys_setup(self, targetmachine_ip=""):
-        self.cm_install_basetool(targetmachine_ip)
+        self.sys_setup(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
@@ -400,6 +395,14 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        # need to start virtlogd service, or else migration will fail
+        # commented result check, sometimes virtlogd service do not exist
+        cmd = "service virtlogd start"
+        ret, output = self.runcmd(cmd, "restart virtlogd service", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to start service virtlogd in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to start service virtlogd in %s." % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
 
     def kvm_setup_arch(self):
@@ -414,7 +417,7 @@ class KVMBase(VIRTWHOBase):
         self.vw_restart_virtwho()
 
     def kvm_sys_setup_arch(self, targetmachine_ip=""):
-        self.cm_install_basetool(targetmachine_ip)
+        self.sys_setup(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
@@ -422,6 +425,12 @@ class KVMBase(VIRTWHOBase):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "yum install -y libvirt"
+        ret, output = self.runcmd(cmd, "install libvirt package for kvm arch testing", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to install libvirt package for kvm arch testing in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install libvirt package for kvm arch testing in %s." % self.get_hg_info(targetmachine_ip))
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:

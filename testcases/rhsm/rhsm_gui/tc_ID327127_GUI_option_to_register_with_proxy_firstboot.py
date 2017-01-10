@@ -31,7 +31,7 @@ class tc_ID327127_GUI_option_to_register_with_proxy_firstboot(RHSMGuiBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
-        if not self.skip_on_rhel7():
+        if not self.skip_rhel7_check():
             try:
                 try:
                     self.restore_firstboot_environment()

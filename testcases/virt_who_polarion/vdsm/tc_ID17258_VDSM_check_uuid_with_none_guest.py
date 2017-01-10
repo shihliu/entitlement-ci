@@ -9,8 +9,10 @@ class tc_ID17258_VDSM_check_uuid_with_none_guest(VDSMBase):
         try:
             rhevm_ip = get_exported_param("RHEVM_IP")
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            shell_cmd = self.get_rhevm_shell(rhevm_ip)
+            get_vm_cmd = self.get_vm_cmd(guest_name, rhevm_ip)
 
-            cmd = "rhevm-shell -c -E 'show vm %s'" % guest_name
+            cmd = "%s -c -E '%s'" % (shell_cmd, get_vm_cmd)
             ret, output = self.runcmd(cmd, "list vm in rhevm.", rhevm_ip)
             vm_status = self.get_key_rhevm(output, "status-state", "name", guest_name, rhevm_ip)
             if ret == 0 :

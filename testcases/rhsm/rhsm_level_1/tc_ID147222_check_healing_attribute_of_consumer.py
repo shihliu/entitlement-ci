@@ -12,12 +12,11 @@ class tc_ID147222_check_healing_attribute_of_consumer(RHSMBase):
             self.sub_register(username, password)
 
             # get baseurl
-            server_hostname = get_exported_param("SERVER_HOSTNAME")
-            if "satellite" in server_hostname:
-                server_hostname = server_hostname + '.novalocal'
             if self.test_server == "SAM":
+                server_hostname = get_exported_param("SERVER_HOSTNAME")
                 baseurl = "https://" + server_hostname + "/sam/api"
             elif self.test_server == "SATELLITE":
+                server_hostname = get_exported_param("SERVER_HOSTNAME")
                 baseurl = "https://" + server_hostname + "/rhsm"
             elif self.test_server == "STAGE":
                 baseurl = "https://" + self.get_rhsm_cons("hostname") + ":443/subscription"

@@ -8,15 +8,16 @@ class tc_ID166522_logging_rhsmcertd_status(RHSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             # config rhsmcertd in /etc/rhsm/rhsm.conf
-            self.sub_set_certfrequency(1)
-            self.sub_set_healfrequency(1)
-            cmd3 = 'service rhsmcertd restart'
-            (ret3, output3) = self.runcmd(cmd3, "restart rhsmcertd service")
+            self.sub_set_certcheckinterval(1)
+            self.sub_set_autoattachinterval(1)
 
-            cmd4 = 'tail -4 /var/log/rhsm/rhsmcertd.log'
+            # restart certd
+            self.restart_rhsmcertd()
+
+            cmd4 = 'tail -8 /var/log/rhsm/rhsmcertd.log'
             (ret4, output4) = self.runcmd(cmd4, "restart rhsmcertd service")
 
-            if ret4 == 0 and "healing check started: interval = 1" and "cert check started: interval = 1" and "certificates updated" in output4:
+            if ret4 == 0 and "Auto-attach interval: 1.0 minute(s) [60 second(s)]" and "Cert check interval: 1.0 minute(s) [60 second(s)]" and "Starting rhsmcertd..." in output4:
                 logger.info("It's successful to logging rhsmcertd statements.")
             else:
                 FailException("Test Failed - Failed to logging rhsmcertd statements.")
@@ -25,38 +26,28 @@ class tc_ID166522_logging_rhsmcertd_status(RHSMBase):
             logger.error(str(e))
             self.assert_(False, case_name)
         finally:
-            self.sub_set_certfrequency(240)
-            self.sub_set_healfrequency(1440)
-            cmd = 'service rhsmcertd restart'
-            self.runcmd(cmd, "restart rhsmcertd")
+            self.sub_set_certcheckinterval(240)
+            self.sub_set_autoattachinterval(1440)
+            self.restart_rhsmcertd()
             self.restore_environment()
             logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
-    def sub_set_healfrequency(self, frtime):
-        cmd = "subscription-manager config --rhsmcertd.healfrequency=%s" % frtime
-        cmd510 = "subscription-manager config --rhsmcertd.autoattachinterval=%s" % frtime
-        (ret, output) = self.runcmd(cmd, "set healfrequency")
-        if ret == 0:
-            logger.info("It successful to set healfrequency")
-        else:
-            (ret, output) = self.runcmd(cmd510, "set autoattachinterval")
+    def sub_set_autoattachinterval(self, frtime):
+        cmd = "subscription-manager config --rhsmcertd.autoattachinterval=%s" % frtime
+        (ret, output) = self.runcmd(cmd, "set autoattachinterval")
         if ret == 0:
             logger.info("It successful to set autoattachinterval")
         else:
-            FailException("Test Failed - Failed to set healfrequency or autoattachinterval.")
+            raise FailException("Test Failed - Failed to set autoattachinterval")
 
-    def sub_set_certfrequency(self, frtime):
-        cmd = "subscription-manager config --rhsmcertd.certfrequency=%s" % frtime
-        cmd510 = "subscription-manager config --rhsmcertd.certcheckinterval=%s" % frtime
-        (ret, output) = self.runcmd(cmd, "set certfrequency")
+    def sub_set_certcheckinterval(self, frtime):
+        cmd = "subscription-manager config --rhsmcertd.certcheckinterval=%s" % frtime
+        (ret, output) = self.runcmd(cmd, "set certcheckinterval")
         if ret == 0:
-            logger.info("It successful to set healfrequency")
+            logger.info("It successful to set certcheckinterval")
         else:
-            (ret, output) = self.runcmd(cmd510, "set certcheckinterval")
-        if ret == 0:
-            logger.info("It successful to set certfrequency")
-        else:
-            FailException("Test Failed - Failed to set certfrequency or certcheckinterval.")
+            raise FailException("Test Failed - Failed to set certcheckinterval")
+
 
 if __name__ == "__main__":
     unittest.main()

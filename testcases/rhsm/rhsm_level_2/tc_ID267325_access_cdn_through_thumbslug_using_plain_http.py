@@ -6,12 +6,12 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        try:
-            username = self.get_rhsm_cons("username")
-            password = self.get_rhsm_cons("password")
-            autosubprod = self.get_rhsm_cons("autosubprod")
-            pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
-            if not self.skip_satellite():
+        if not self.skip_satellite_check():
+            try:
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
+                autosubprod = self.get_rhsm_cons("autosubprod")
+                pkgtoinstall = self.get_rhsm_cons("pkgtoinstall")
                 self.check_and_backup_yum_repos()
                 # register to and auto-attach
                 self.register_and_autosubscribe(username, password, autosubprod)
@@ -26,16 +26,15 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
                     raise FailException("Test Failed - failed to verify that system cannot access CDN  contents through thumbslug by using plain http")
                 # restore rhsm.conf file
                 self.assert_(True, case_name)
-        except Exception, e:
-            logger.error(str(e))
-            self.assert_(False, case_name)
-        finally:
-            self.uninstall_givenpkg(pkgtoinstall)
-            self.restore_repos()
-            if not self.skip_satellite():
+            except Exception, e:
+                logger.error(str(e))
+                self.assert_(False, case_name)
+            finally:
+                self.uninstall_givenpkg(pkgtoinstall)
+                self.restore_repos()
                 self.restore_baseurl_to_https()
-            self.restore_environment()
-            logger.info("=========== End of Running Test Case: %s ===========" % case_name)
+                self.restore_environment()
+                logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
     def register_and_autosubscribe(self, username, password, autosubprod):
         cmd = "subscription-manager register --username=%s --password=%s --auto-attach --force" % (username, password)
@@ -46,7 +45,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             raise FailException("Test Failed - failed to register or auto-attach.")
 
     def set_baseurl_to_http(self):
-        cmd = "sed -i 's/^baseurl= https/baseurl= http/g' /etc/rhsm/rhsm.conf"
+        cmd = "sed -i 's/^baseurl= https/baseurl= http/g' /etc/rhsm/rhsm.conf;sed -i 's/^baseurl=https/baseurl= http/g' /etc/rhsm/rhsm.conf"
         (ret, output) = self.runcmd(cmd, "set_conf_plain")
         if ret == 0:
             logger.info("It's successful to set baseurl to http")
@@ -54,7 +53,7 @@ class tc_ID267325_access_cdn_through_thumbslug_using_plain_http(RHSMBase):
             raise FailException("Test Failed - failed to set baseurl to http")
 
     def restore_baseurl_to_https(self):
-        cmd = "sed -i 's/^baseurl= http/baseurl= https/g' /etc/rhsm/rhsm.conf"
+        cmd = "sed -i 's/^baseurl= http/baseurl= https/g' /etc/rhsm/rhsm.conf;sed -i 's/^baseurl=http/baseurl= https/g' /etc/rhsm/rhsm.conf"
         (ret, output) = self.runcmd(cmd, "set_conf_plain")
         if ret == 0:
             logger.info("It's successful to restore baseurl to https")

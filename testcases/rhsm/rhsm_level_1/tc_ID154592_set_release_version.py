@@ -14,16 +14,16 @@ class tc_ID154592_set_release_version(RHSMBase):
             autosubprod = self.get_rhsm_cons("autosubprod")
             self.sub_autosubscribe(autosubprod)
             # set releases
-            currentversion = self.sub_getcurrentversion()
-            cmd = "subscription-manager release --set=%s" % (currentversion)
+            latest_release = self.os_serial + self.get_os_platform()
+            cmd = "subscription-manager release --set=%s" % (latest_release)
             (ret, output) = self.runcmd(cmd, "set release version")
-            if ret == 0 and "Release set to: %s" % (currentversion) in output:
+            if ret == 0 and "Release set to: %s" % (latest_release) in output:
                 logger.info("It's successful to set release version.")	
             else:
                 raise FailException("Test Failed - Failed to set release version.")
             # check the version in repo list
-            cmd = "subscription-manager repos --list|grep 'Repo Url'|grep %s" % currentversion
-            cmd510 = "subscription-manager repos --list|grep 'Repo URL'|grep %s" % currentversion
+            cmd = "subscription-manager repos --list|grep 'Repo Url'|grep %s" % latest_release
+            cmd510 = "subscription-manager repos --list|grep 'Repo URL'|grep %s" % latest_release
             (ret, output) = self.runcmd(cmd, "list available repos")
             if ret == 0:
                 logger.info("It's successful to display the set release version.")

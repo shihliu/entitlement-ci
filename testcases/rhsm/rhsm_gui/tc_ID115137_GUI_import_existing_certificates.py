@@ -46,29 +46,21 @@ class tc_ID115137_GUI_import_existing_certificates(RHSMGuiBase):
                 self.sub_unregister()
                 self.close_rhsm_gui()
                 self.open_subscription_manager()
-                self.click_register_button()
-                self.click_dialog_next_button()
-                self.input_username(username)
-                self.input_password(password)
-                self.click_dialog_register_button()
-                self.click_dialog_cancel_button()
                 #import certificate using new interface.  RHEL 7 changed it's search dlg and
                 #the search txt box is buggy with ldtp.  We will use a system of clicks in finder
                 #to search for new certificate
                 self.click_import_cert_menu()
                 #for RHEL 7.1, uncomment this next line and comment out the line after that line!
                 #self.select_row_by_name('import-cert-dialog', 'table-places','File System')
-                self.double_click_row('import-cert-dialog', 'table-0','Computer')
-                self.select_row_by_name('import-cert-dialog', 'table-files','tmp')
-                self.click_button('import-cert-dialog', 'import-file-button')
-                self.select_row_by_name('import-cert-dialog', 'table-files','test.pem')
+                self.single_click_row('import-cert-dialog', 'table-places','root')
+                self.double_click_row('import-cert-dialog', 'table-files','tmp')
                 self.click_button('import-cert-dialog', 'import-file-button')
                 if self.check_window_open("information-dialog") and self.check_object_exist("information-dialog", "import-cert-success-label"):
                     logger.info("SUCCES: Import success prompt displayed!")
                 else:
                     raise FailException("FAILED: Success prompt not found!")
                 #check whether imported certificate has proper productid
-                productid = self.get_rhsm_cons("productid")
+                productid = self.get_rhsm_cons("productid-6")
                 self.check_entitlement_cert(productid)
                 self.click_button('information-dialog', 'ok-button')
                 self.click_my_subscriptions_tab()

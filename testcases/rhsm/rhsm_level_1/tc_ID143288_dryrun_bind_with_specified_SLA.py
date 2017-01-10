@@ -29,7 +29,7 @@ class tc_ID143288_dryrun_bind_with_specified_SLA(RHSMBase):
             # call dry run bind to products by api
             cmd = "curl -k --cert /etc/pki/consumer/cert.pem --key /etc/pki/consumer/key.pem %s/consumers/%s/entitlements/dry-run?service_level=%s && echo \"\r\"" % (baseurl, consumerid, service_level)
             (ret, output) = self.runcmd(cmd, "dry run bind by products api")
-            if ret == 0 and ('"value":"%s"' % service_level in output or '"value":"%s"' % (((service_level).lower()).upper()) in output):
+            if ret == 0 and '"value":"%s"' % service_level in output:
                 logger.info("It's successful to dry run bind by products api with a specified SLA.")
             else:
                 raise FailException("Test Failed - Failed to dry run bind by products api with a specified SLA.")

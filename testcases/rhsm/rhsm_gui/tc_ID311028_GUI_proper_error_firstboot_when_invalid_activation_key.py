@@ -35,11 +35,14 @@ class tc_ID311028_GUI_proper_error_firstboot_when_invalid_activation_key(RHSMGui
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
-        if not self.skip_on_rhel7():
+        if not self.skip_rhel7_check():
             try:
                 try:
                     self.restore_firstboot_environment()
                     self.open_firstboot()
+                    self.click_firstboot_fwd_button()
+                    self.click_firstboot_fwd_button()
+                    self.click_firstboot_fwd_button()
                     self.click_firstboot_fwd_button()
                     self.check_checkbox("firstboot-main-window", "firstboot-activationkey-checkbox")
                     self.click_firstboot_fwd_button()

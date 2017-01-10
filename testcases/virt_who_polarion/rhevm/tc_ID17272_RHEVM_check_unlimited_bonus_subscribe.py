@@ -15,6 +15,8 @@ class tc_ID17272_RHEVM_check_unlimited_bonus_subscribe(VDSMBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
+            self.vw_restart_virtwho()
+
             # (1) Start guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

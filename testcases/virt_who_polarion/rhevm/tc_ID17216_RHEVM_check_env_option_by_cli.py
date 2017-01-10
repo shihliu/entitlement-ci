@@ -10,15 +10,20 @@ class tc_ID17216_RHEVM_check_env_option_by_cli(VDSMBase):
             error_msg_without_env = self.get_vw_cons("rhevm_error_msg_without_env")
             error_msg_with_wrong_env = self.get_vw_cons("rhevm_error_msg_with_wrong_env")
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
-            rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
+            rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+            if "rhevm-4.0"in rhevm_version:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
+            else:
+                rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             self.runcmd_service("stop_virtwho")
 
             # (1) When "--rhevm-env" is not exist, virt-who should show error info
-            cmd_without_owner = "virt-who --rhevm --rhevm-owner=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
-            self.vw_check_message(cmd_without_owner, error_msg_without_env, cmd_retcode=1)
+            cmd_without_env = "virt-who --rhevm --rhevm-owner=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
+            self.vw_check_message(cmd_without_env, error_msg_without_env, cmd_retcode=1)
             # (2) When "--rhevm-env" with wrong config, virt-who should show error info
-            cmd_with_wrong_owner = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, self.get_vw_cons("wrong_env"), rhevm_server, rhevm_username, rhevm_password) + " -o -d"
-            self.vw_check_message(cmd_with_wrong_owner, error_msg_with_wrong_env)
+            cmd_with_wrong_env = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, self.get_vw_cons("wrong_env"), rhevm_server, rhevm_username, rhevm_password) + " -o -d"
+            self.vw_check_message(cmd_with_wrong_env, error_msg_with_wrong_env)
             # (3) When "--rhevm-env" with correct config, virt-who should show error info
             cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password) + " -o -d"
             self.vw_check_mapping_info_number(cmd, 1)

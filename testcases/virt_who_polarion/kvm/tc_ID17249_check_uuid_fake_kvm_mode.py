@@ -24,7 +24,7 @@ class tc_ID17249_check_uuid_fake_kvm_mode(KVMBase):
             guestip = self.kvm_get_guest_ip(guest_name)
     
             # stop virt-who service
-            self.vw_stop_virtwho_new()
+            self.vw_stop_virtwho()
 
             # (1) generate fake file
             self.generate_fake_file("kvm", fake_file)
@@ -43,7 +43,7 @@ class tc_ID17249_check_uuid_fake_kvm_mode(KVMBase):
             self.vw_stop_guests(guest_name)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.vw_restart_virtwho_new()
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

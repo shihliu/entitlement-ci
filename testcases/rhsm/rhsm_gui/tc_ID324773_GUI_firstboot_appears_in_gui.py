@@ -29,7 +29,7 @@ class tc_ID324773_GUI_firstboot_appears_in_gui(RHSMGuiBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % self.__class__.__name__)
-        if not self.skip_on_rhel7():
+        if not self.skip_rhel7_check():
             try:
                 try:
                     self.restore_firstboot_environment()  # as a precaution for this test

@@ -21,7 +21,7 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
 
             # (1).check if the uuid and attributes are correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 1, guestuuid)
 
             # (2).register guest to Server
             if not self.sub_isregistered(guestip):
@@ -37,14 +37,14 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
             self.pause_vm(guest_name)
             # (5).check if the uuid and attributes are correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 3, guestuuid)
-
+#             self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 3, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 3, guestuuid)
             # (6).resume guest    
             self.resume_vm(guest_name)
 
             # (7) check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 1, guestuuid)
 
             # (8).Check consumed subscriptions on guest
             self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)
@@ -54,7 +54,7 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
 
             # (10)check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 0, 'libvirt', 'QEMU', 5, guestuuid)
+            self.vw_check_attr(guest_name, 0, 'libvirt', 5, guestuuid)
 
             # (11).restart guest 
             self.vw_start_guests(guest_name)
@@ -62,7 +62,7 @@ class tc_ID17262_validate_compliance_check_att_after_pause_shutdown_guest(KVMBas
 
             # (12)check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True)
-            self.vw_check_attr(guest_name, 1, 'libvirt', 'QEMU', 1, guestuuid)
+            self.vw_check_attr(guest_name, 1, 'libvirt', 1, guestuuid)
 
             # (13).Check consumed subscriptions on guest
             self.check_consumed_status(test_sku, "SubscriptionName", sku_name, guestip)

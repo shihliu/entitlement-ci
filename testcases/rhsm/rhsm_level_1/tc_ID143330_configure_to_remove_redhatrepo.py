@@ -7,7 +7,7 @@ class tc_ID143330_configure_to_remove_redhatrepo(RHSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            if not self.skip_satellite():
+            if not self.skip_satellite_check():
                 # [A] - prepare test env
                 # register to server
                 username = self.get_rhsm_cons("username")

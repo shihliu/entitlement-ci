@@ -9,7 +9,7 @@ class tc_ID17218_libvirt_check_env_option_by_virtwho_d(KVMBase):
         try:
             remote_ip = get_exported_param("REMOTE_IP")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
-            error_msg_without_env = self.get_vw_cons("libvirt_error_msg_without_env")
+            error_msg_without_env = self.get_vw_cons("libvirt_error_msg_without_env_in_conf")
             error_msg_with_wrong_env = self.get_vw_cons("libvirt_error_msg_with_wrong_env")
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
             self.update_config_to_default(remote_ip_2)
@@ -17,7 +17,11 @@ class tc_ID17218_libvirt_check_env_option_by_virtwho_d(KVMBase):
 
             # (1) When "env" is not exist, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("libvirt", "env", "", remote_ip_2)
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_env, cmd_retcode=1, targetmachine_ip=remote_ip_2)
+            if self.get_os_serials(remote_ip_2) == 6:
+                self.vw_check_message("service virt-who restart", error_msg_without_env, cmd_retcode=1, targetmachine_ip=remote_ip_2)
+            else:
+                self.runcmd_service("restart_virtwho", targetmachine_ip=remote_ip_2)
+                self.vw_check_message("systemctl status virt-who.service", error_msg_without_env, cmd_retcode=3, targetmachine_ip=remote_ip_2)
             # (2) When "env" with wrong config, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("libvirt", "env", self.get_vw_cons("wrong_env"), remote_ip_2)
             self.vw_check_message_in_rhsm_log(error_msg_with_wrong_env, remote_ip_2)

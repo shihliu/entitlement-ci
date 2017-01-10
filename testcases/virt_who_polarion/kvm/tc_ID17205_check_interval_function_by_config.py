@@ -9,19 +9,19 @@ class tc_ID17205_check_interval_function_by_config(KVMBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
-            check_msg = "No change in report"
-            #(1) Check virt-who refresh default interval is 60s
+            check_msg = self.get_vw_cons("vw_interval_check_msg")
+            # (1) Check virt-who refresh default interval is 60s
             self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
-            #(2) Check virt-who refresh interval is 60 when config interval less than 60s
+            # (2) Check virt-who refresh interval is 60 when config interval less than 60s
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
             self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
-            #(3) Check virt-who refresh interval is equal to config interval when config interval over 60s
+            # (3) Check virt-who refresh interval is equal to config interval when config interval over 60s
             self.runcmd_service("stop_virtwho")
             self.check_virtwho_thread(0)
             self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
             self.vw_check_message_number_in_rhsm_log(check_msg, 1, 150)
-            #(4).Check virt-who thread will not increase after restart it.
+            # (4).Check virt-who thread will not increase after restart it.
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
                 self.check_virtwho_thread(2)

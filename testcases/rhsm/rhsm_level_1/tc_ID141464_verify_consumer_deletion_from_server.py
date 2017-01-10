@@ -11,16 +11,16 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             username = self.get_rhsm_cons("username")
             password = self.get_rhsm_cons("password")
             self.sub_register(username, password)
-            consumerid = self.cm_get_consumerid()
+            system_uuid = self.cm_get_consumerid()
+            if self.test_server == "STAGE":
+                system_uuid = self.get_hostname()
             # Delete the consumer from server
             server_ip = get_exported_param("SERVER_IP")
-            self.server_remove_system(consumerid, server_ip)
+            self.server_remove_system(system_uuid, server_ip, self.get_rhsm_cons("username"), self.get_rhsm_cons("password"))
 
             # Check deleted consumer status
             cmd = "subscription-manager identity"
             (ret, output) = self.runcmd(cmd, "check deleted consumer status")
-            print "check output:\n", output
-
             if ret != 0:
                 logger.info("It's successful to check deleted consumer status.")
             else:
@@ -28,10 +28,8 @@ class tc_ID141464_verify_consumer_deletion_from_server(RHSMBase):
             self.assert_(True, case_name)
 
         except Exception, e:
-            logger.error(str(e))
-            raise FailException("Test Failed - error happened when verify consumer status after being deleted from server:" + str(e))
+            logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
-
         finally:
             # clean local consumer and subscription data
             cmd = "subscription-manager clean"

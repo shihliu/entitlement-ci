@@ -7,16 +7,19 @@ class tc_ID17215_RHEVM_check_owner_option_by_virtwho_d(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            error_msg_without_owner = self.get_vw_cons("rhevm_error_msg_without_env_in_conf")
+            error_msg_without_owner = self.get_vw_cons("rhevm_error_msg_without_owner_in_conf")
             error_msg_with_wrong_owner = self.get_vw_cons("rhevm_error_msg_with_wrong_owner")
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
-            rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
 
             # (1) When "owner" is not exist, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("rhevm", "owner", "")
-            self.vw_check_message(self.get_service_cmd("restart_virtwho"), error_msg_without_owner, cmd_retcode=1)
+            if self.os_serial == "6":
+                self.vw_check_message("service virt-who restart", error_msg_without_owner, cmd_retcode=1)
+            else:
+                self.runcmd_service("restart_virtwho")
+                self.vw_check_message("systemctl status virt-who.service", error_msg_without_owner, cmd_retcode=3)
             # (2) When "owner" with wrong config, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("rhevm", "owner", self.get_vw_cons("wrong_owner"))
             self.vw_check_message_in_rhsm_log(error_msg_with_wrong_owner)
@@ -29,7 +32,7 @@ class tc_ID17215_RHEVM_check_owner_option_by_virtwho_d(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-#             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who")
+            self.unset_all_virtwho_d_conf()
             self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

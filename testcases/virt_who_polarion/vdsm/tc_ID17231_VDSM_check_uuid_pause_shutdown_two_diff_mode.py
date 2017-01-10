@@ -30,7 +30,8 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
             self.rhevm_start_vm(guest_name, rhevm_ip)
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
-            self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid, targetmachine_ip=remote_ip_2)
+#             self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid, targetmachine_ip=remote_ip_2)
+            self.vw_check_attr(guest_name, 1, 'vdsm', 1, guestuuid, targetmachine_ip=remote_ip_2)
             # (4). pause guest   
             self.rhevm_pause_vm(guest_name, rhevm_ip)
             # (5).check if the uuid and attributes are correctly monitored by virt-who.
@@ -39,7 +40,7 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
             self.rhevm_start_vm(guest_name, rhevm_ip)
             # (7)check if the uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guestuuid, uuidexists=True, targetmachine_ip=remote_ip_2)
-            self.vw_check_attr(guest_name, 1, 'vdsm', 'qemu', 1, guestuuid, targetmachine_ip=remote_ip_2)
+            self.vw_check_attr(guest_name, 1, 'vdsm', 1, guestuuid, targetmachine_ip=remote_ip_2)
             # (9) stop guest    
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # (10)check if the uuid is correctly monitored by virt-who.

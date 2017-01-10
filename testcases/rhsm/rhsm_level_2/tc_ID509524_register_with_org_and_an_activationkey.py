@@ -15,15 +15,16 @@ class tc_ID509524_register_with_org_and_an_activationkey(RHSMBase):
             orgname=self.get_rhsm_cons("default_org")
             serverip = get_exported_param("SERVER_IP")
             pro_name = self.get_rhsm_cons("productid")
+            if self.test_server != "STAGE":
+                # Make sure activationkey exists.
+                if not self.sam_remote_activationkey_exist(serverip, orgname):
+                    # Create activationkey
+                    self.sam_remote_activationkey_creation(serverip, orgname)
 
-            # Make sure activationkey exists.
-            if not self.sam_remote_activationkey_exist(serverip, orgname):
-                # Create activationkey
-                self.sam_remote_activationkey_creation(serverip, orgname)
-
-            # Make sure activationkey attached pool
-            if not self.sam_remote_activationkey_check_pool(serverip, orgname):
-                self.sam_remote_activationkey_attach_pool(serverip, orgname)
+                # Make sure activationkey attached pool
+                poolid = self.sam_remote_fetch_pool(serverip,orgname)
+                if not self.sam_remote_activationkey_check_pool(serverip, orgname, poolid):
+                    self.sam_remote_activationkey_attach_pool(serverip, orgname, poolid)
 
             # Register with activationkey
             cmd = "subscription-manager register --org=%s --activationkey=qq"%orgname

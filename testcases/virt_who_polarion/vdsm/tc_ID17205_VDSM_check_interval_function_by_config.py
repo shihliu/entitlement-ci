@@ -11,7 +11,7 @@ class tc_ID17205_VDSM_check_interval_function_by_config(VDSMBase):
             rhevm_ip = get_exported_param("RHEVM_IP")
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
-            check_msg = "No change in report"
+            check_msg = self.get_vw_cons("vw_interval_check_msg")
 
             #(1) Check virt-who refresh default interval is 60s
             self.rhevm_start_vm(guest_name, rhevm_ip)

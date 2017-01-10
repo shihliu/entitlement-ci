@@ -7,6 +7,8 @@ class tc_ID17246_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
 
@@ -37,6 +39,10 @@ class tc_ID17246_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
             self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")
             self.rhevm_stop_vm(guest_name, rhevm_ip)
+            self.sub_unregister()
+            if not self.sub_isregistered():
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+                self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

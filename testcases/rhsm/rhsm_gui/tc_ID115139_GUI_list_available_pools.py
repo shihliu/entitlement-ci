@@ -9,8 +9,8 @@ class tc_ID115139_GUI_list_available_pools(RHSMGuiBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             try:
-                username = self.get_rhsm_cons("username")
-                password = self.get_rhsm_cons("password")
+                username = self.get_rhsm_cons("username_gui")
+                password = self.get_rhsm_cons("password_gui")
                 self.open_subscription_manager()
                 self.register_in_gui(username, password)
                 self.click_all_available_subscriptions_tab()

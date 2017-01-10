@@ -6,8 +6,8 @@ class tc_ID189589_disable_repo(RHSMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        try:
-            if not self.skip_satellite():
+        if not self.skip_satellite_check():
+            try:
                 # register to server
                 username = self.get_rhsm_cons("username")
                 password = self.get_rhsm_cons("password")
@@ -29,12 +29,12 @@ class tc_ID189589_disable_repo(RHSMBase):
                 else:
                     raise FailException("Test Failed - Fail to check the repo %s which should be available." % productrepo)
                 self.assert_(True, case_name)
-        except Exception, e:
-            logger.error(str(e))
-            self.assert_(False, case_name)
-        finally:
-            self.restore_environment()
-            logger.info("=========== End of Running Test Case: %s ===========" % case_name)
+            except Exception, e:
+                logger.error(str(e))
+                self.assert_(False, case_name)
+            finally:
+                self.restore_environment()
+                logger.info("=========== End of Running Test Case: %s ===========" % case_name)
 
 if __name__ == "__main__":
     unittest.main()

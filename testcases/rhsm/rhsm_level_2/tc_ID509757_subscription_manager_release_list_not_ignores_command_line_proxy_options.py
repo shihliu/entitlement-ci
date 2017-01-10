@@ -6,25 +6,28 @@ class tc_ID509757_subscription_manager_release_list_not_ignores_command_line_pro
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
-        try:
-            username = self.get_rhsm_cons("username")
-            password = self.get_rhsm_cons("password")
-            self.sub_register(username, password)
-            autosubprod = self.get_rhsm_cons("autosubprod")
-            self.sub_autosubscribe(autosubprod)
-            cmd = "subscription-manager release --list --proxy=http://squid.corp.redhat.com:3128"
-            (ret, output) = self.runcmd(cmd, "list release by proxy option in cli")
-            if ret != 0 and 'Network error, unable to connect to server. Please see /var/log/rhsm/rhsm.log for more information.' in output:
-                logger.info("It's successful to verify that listing release by proxy")
-            else:
-                raise FailException("Test Failed - Failed to verify that listing release by proxy")
-            self.assert_(True, case_name)
-        except Exception, e:
-            logger.error("Test Failed - ERROR Message:" + str(e))
-            self.assert_(False, case_name)
-        finally:
-            self.restore_environment()
-            logger.info("========== End of Running Test Case: %s ==========" % case_name)
+        if self.test_server == 'STAGE':
+            try:
+                username = self.get_rhsm_cons("username")
+                password = self.get_rhsm_cons("password")
+                self.sub_register(username, password)
+                autosubprod = self.get_rhsm_cons("autosubprod")
+                self.sub_autosubscribe(autosubprod)
+                cmd = "subscription-manager release --list --proxy=redhat:3128"
+                (ret, output) = self.runcmd(cmd, "list release by proxy option in cli")
+                if ret != 0 and ('Network error, unable to connect to server. Please see /var/log/rhsm/rhsm.log for more information.' in output or 'Proxy connection failed, please check your settings.' in output):
+                    logger.info("It's successful to verify that listing release by proxy")
+                else:
+                    raise FailException("Test Failed - Failed to verify that listing release by proxy")
+                self.assert_(True, case_name)
+            except Exception, e:
+                logger.error("Test Failed - ERROR Message:" + str(e))
+                self.assert_(False, case_name)
+            finally:
+                self.restore_environment()
+                logger.info("========== End of Running Test Case: %s ==========" % case_name)
+        else:
+            logger.info("need deploy proxy server for SAM/Satellite, waive this case, just test it against stage")
 
 if __name__ == "__main__":
     unittest.main()

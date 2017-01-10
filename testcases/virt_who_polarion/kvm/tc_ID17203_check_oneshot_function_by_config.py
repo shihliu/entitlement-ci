@@ -11,8 +11,7 @@ class tc_ID17203_check_oneshot_function_by_config(KVMBase):
             self.config_option_disable("VIRTWHO_INTERVAL")
             self.config_option_setup_value("VIRTWHO_ONE_SHOT", 1)
             tmp_file = "/tmp/tail.rhsm.log"
-            checkcmd = self.get_service_cmd("restart_virtwho")
-            self.generate_tmp_log(checkcmd, tmp_file)
+            self.generate_tmp_log("restart_virtwho", tmp_file)
             cmd = "cat %s" % tmp_file
             self.vw_check_mapping_info_number(cmd, 1)
             self.check_virtwho_thread(0)

@@ -54,6 +54,13 @@ class rhsm_gui_setup(RHSMGuiBase):
             logger.info("Succeeded to install ldtp.")
         else:
             raise FailException("Test Failed - Failed to install ldtp.")
+        ##in rhel 6.9 need install a patch,for ldtp.guiexist() not work well
+        cmd = "sed -i '367a\            except GeneratorExit:\n                # do nothing when catches GeneratorExit\n                pass'  /usr/lib/python2.6/site-packages/ldtpd/utils.py"
+        ret, output = self.runcmd(cmd, "install ldtp patch")
+        if ret == 0:
+            logger.info("Succeeded to install ldtp patch")
+        else:
+            raise FailException("Test Failed - Failed to install ldtp patch")
         cmd = "mkdir -p /root/.config/autostart; cat > /root/.config/autostart/gnome-terminal.desktop <<EOF\n"\
             "[Desktop Entry]\n"\
             "Type=Application\n"\
