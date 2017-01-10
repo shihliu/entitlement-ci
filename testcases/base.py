@@ -342,9 +342,9 @@ class Base(unittest.TestCase):
         self.runcmd(cmd, "update rhsm facts due to bug 1310827", targetmachine_ip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname, targetmachine_ip=""):
-        if "satellite" in satellitehostname:
+        #if "satellite" in satellitehostname:
             # for satellite installed in qeos
-            satellitehostname = satellitehostname + ".novalocal"
+            #satellitehostname = satellitehostname + ".novalocal"
         self.configure_host_file(satellitehostip, satellitehostname, targetmachine_ip)
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)

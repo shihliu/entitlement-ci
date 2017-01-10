@@ -92,7 +92,7 @@
         - recipients
 
 - job-template:
-    name: 'virt-who-esx-provision'
+    name: 'virt-who-xen-provision'
     defaults: virt-who-provision
     node: docker-host
     builders:
@@ -111,7 +111,7 @@
                 export SWITCH=true
             fi
             # Provision Test Resources
-            $WORKSPACE/entitlement-ci/provision/host_provision.sh --imagename=redhat69 --containername=esxhost.redhat.com --site=10.16.46.36
+            $WORKSPACE/entitlement-ci/provision/host_provision.sh --imagename=redhat69 --containername=xenhost.redhat.com --site=10.16.46.36
             #cat $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
             env | grep -E '(SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
@@ -124,19 +124,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-        - project: virt-who-esx-runtest
+        - project: virt-who-xen-runtest
           current-parameters: false
           condition: SUCCESS
           property-file: $WORKSPACE/RESOURCES.txt
           fail-on-missing: true
 
 - job-template:
-    name: virt-who-esx-runtest
+    name: virt-who-xen-runtest
     defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
     - copyartifact:
-        project: virt-who-esx-provision
+        project: virt-who-xen-provision
         filter: '*.txt, *.json'
         target: $WORKSPACE
     - shell: |
@@ -155,10 +155,10 @@
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
         pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-        nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/esx/
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
         nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
         echo "********************************runtime env********************************"
@@ -175,13 +175,13 @@
     #- default-polarion-publishers
  
 - job-group:
-    name: virt-who-esx-provision-runtest
+    name: virt-who-xen-provision-runtest
     jobs:
-    - virt-who-esx-provision
-    - virt-who-esx-runtest
+    - virt-who-xen-provision
+    - virt-who-xen-runtest
 - project:
-    name: virt-who-esx-jobs
-    project: virt-who-esx
+    name: virt-who-xen-jobs
+    project: virt-who-xen
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_build_single_provision_no_hvm
@@ -190,5 +190,5 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-    - virt-who-esx-provision-runtest
-    polarion_template: virt-who for esx auto template
+    - virt-who-xen-provision-runtest
+    polarion_template: virt-who for xen auto template

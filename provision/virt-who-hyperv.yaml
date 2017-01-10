@@ -33,6 +33,64 @@
         - workspace-cleanup
         - timestamps
 
+- publisher:
+    name: default-virt-who-runtest-publishers
+    publishers:
+    - xunit:
+        thresholdmode: number
+        thresholds:
+        - failed:
+            unstable: 0
+            unstablenew: 0
+            failure: 0
+            failurenew: 0
+        - skipped:
+            unstable: 0
+            unstablenew: 0
+            failure: 0
+            failurenew: 0
+        types:
+        - junit:
+            pattern: '*.xml'
+            deleteoutput: false
+
+- publisher:
+    name: default-virt-who-publishers
+    publishers:
+    - email-ext:
+        recipients: shihliu@redhat.com
+        reply-to: shihliu@redhat.com
+        content-type: default
+        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE -
+          $BUILD_STATUS!'
+        body: |-
+          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+          Runtime Info As Follows:
+
+          Test Packages
+          $VIRTWHO_VERSION
+          $RHSM
+          $PYTHON_RHSM
+
+          export RHEL_COMPOSE=$RHEL_COMPOSE
+          export REMOTE_IP=$REMOTE_IP
+          export SERVER_TYPE=$SERVER_TYPE
+          export SERVER_IP=$SERVER_IP
+          export SERVER_HOSTNAME=$SERVER_HOSTNAME
+          export SERVER_COMPOSE=$SERVER_COMPOSE
+
+          Details:
+
+          Check console output at $BUILD_URL
+          Check text log at ${BUILD_URL}consoleText/
+          Check report at ${BUILD_URL}testReport/
+        attach-build-log: false
+        always: true
+        send-to:
+        - requester
+        - recipients
+
 - job-template:
     name: 'virt-who-hyperv-provision'
     defaults: virt-who-provision
@@ -99,7 +157,11 @@
         echo "*********************************setup env*********************************"
 
         pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-        nosetests virtwho_hyperv_setup.py 
+        nosetests virtwho_hyperv_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        popd
+
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/hyperv/
+        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
         echo "********************************runtime env********************************"
@@ -111,8 +173,8 @@
     - archive:
         artifacts: '**/**'
         allow-empty: 'true'
-    #- default-virt-who-runtest-publishers
-    #- default-virt-who-publishers
+    - default-virt-who-runtest-publishers
+    - default-virt-who-publishers
     #- default-polarion-publishers
  
 - job-group:
