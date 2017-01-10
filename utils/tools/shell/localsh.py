@@ -48,7 +48,7 @@ class LocalSH(object):
     @classmethod
     def run_pexpect(self, cmd, password=""):
         """ run interactive command locally via pexpect """
-        import pexpect
+        import utils.tools.pexpect as pexpect
         logger.info(">>>Local Interactive Run: %s" % cmd)
         child = pexpect.spawn(cmd, timeout=600, maxread=2000, logfile=None)
         while True:
@@ -56,7 +56,7 @@ class LocalSH(object):
             if index == 0:
                 child.sendline("yes")
             elif index == 1:
-                child.sendline(password)
+                child.sendline("red2015")
             elif index == 2:
                 retcode, stdout = child.exitstatus, child.before
                 logger.info("<<<Return Code: %s" % retcode)

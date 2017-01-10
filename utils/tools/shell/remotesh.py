@@ -68,7 +68,7 @@ class RemoteSH(object):
             stderr_output = stderr.read()
             stdout_output = stdout.read()
             ssh.close()
-            return retcode, stderr_output if stderr_output != "" else stdout_output
+            return retcode, stdout_output + stderr_output if stderr_output != "" else stdout_output
         else:
             import time, socket
             from select import select
@@ -133,6 +133,12 @@ class RemoteSH(object):
                     logger.debug("interactive input: admin")
                     channel.send("admin" + '\n')
                 if data.strip().endswith('[Foreman] Password for admin:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('Username:'):
+                    logger.debug("interactive input: admin")
+                    channel.send("admin" + '\n')
+                if data.strip().endswith('Password:'):
                     logger.debug("interactive input: admin")
                     channel.send("admin" + '\n')
                 if channel.exit_status_ready():

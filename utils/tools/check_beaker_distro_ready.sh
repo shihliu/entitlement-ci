@@ -1,4 +1,7 @@
 #!/bin/bash
+#provision rhel 7.3 workaround
+#sed -i 's/fail_count > 0/fail_count > 2/g' $WORKSPACE/ci-ops-central/tasks/get_bkrnodes_task.py
+
 MAX_COUNT=60
 for i in `seq $MAX_COUNT`
 do

@@ -26,10 +26,10 @@ class Polarion_Name_To_ID(XMLParser):
         fileHandle.close()
 
 if __name__ == "__main__":
-#     builds_xml = sys.argv[1]
-#     polarion_txt = sys.argv[2]
-#     polarion_name_to_id = Polarion_Name_To_ID(builds_xml)
-#     polarion_name_to_id.name_to_id(polarion_txt)
-    id_to_case_mapping = ID_TO_CASE_MAPPING()
-    polarion_case_id = id_to_case_mapping.rhel7_mapping["17266"]
-    print polarion_case_id
+    builds_xml = sys.argv[1]
+    polarion_txt = sys.argv[2]
+    polarion_name_to_id = Polarion_Name_To_ID(builds_xml)
+    polarion_name_to_id.name_to_id(polarion_txt)
+#     id_to_case_mapping = ID_TO_CASE_MAPPING()
+#     polarion_case_id = id_to_case_mapping.rhel7_mapping["17266"]
+#     print polarion_case_id
