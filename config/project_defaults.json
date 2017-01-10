@@ -1,5 +1,5 @@
 {
-	"resources": [
+    "resources": [
         {
             "name": "ci-ops",
             "flavor": "m1.large",
@@ -9,14 +9,32 @@
     ],
     "sites": [
         {
-            "site": "qeos",
+            "site": "ci-osp",
+            "endpoint": "http://dashboard.centralci.eng.rdu2.redhat.com:5000/v2.0",
             "project": "entitlement-jenkins",
             "username": "ent-jenkins",
             "password": "ent-jenkins",
             "keypair": "ent-key",
             "networks": ["entitlement-jenkins-1"],
-            "region": ""
+            "region": "",
+            "foreman_url": "https://foreman.rhev-ci-vms.eng.rdu2.redhat.com",
+            "foreman_username": "ci-automation",
+            "foreman_password": "qum5net",
+            "foreman_version": "1.5",
+            "os_mapping_foreman": {
+                        "RedHat-6": {
+                            "ptable": "Kickstart default",
+                            "media": "RHEL Server TLV mirror"
+                        },
+                        "fedora": {
+                            "ptable": "Fedora17",
+                            "media": "Fedora"
+                        },
+                        "RedHat-7": {
+                            "ptable": "Fedora 16+ / GRUB2",
+                            "media": "RHEL-7-rel-eng-latest"
+                        }
+            }
         }
     ]
 }
-
