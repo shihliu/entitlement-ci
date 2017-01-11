@@ -1215,7 +1215,7 @@ class VIRTWHOBase(Base):
         availpoollist = self.sub_listavailpools(sku, targetmachine_ip)
         if availpoollist != None:
             for index in range(0, len(availpoollist)):
-                if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku):
+                if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku and "Temporary" not in availpoollist[index]["SubscriptionType"]):
                     rindex = index
                     break
                 elif("ProductId" in availpoollist[index] and availpoollist[index]["ProductId"] == sku):
