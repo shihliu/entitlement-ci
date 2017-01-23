@@ -465,6 +465,7 @@ class VIRTWHOBase(Base):
         elif "command not found" in output: 
             logger.info("subscription-manager isn't exist, need to install it")
             cmd = "yum install -y subscription-manager"
+            ret, output = self.runcmd(cmd, "install subscription-manager", targetmachine_ip)
             if ret == 0:
                 logger.info("subscription-manager has been installed on System %s " % self.get_hg_info(targetmachine_ip))
             else:
