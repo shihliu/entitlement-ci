@@ -462,7 +462,15 @@ class VIRTWHOBase(Base):
         if ret == 0:
             logger.info("System %s is registered." % self.get_hg_info(targetmachine_ip))
             return True
-        else: 
+        elif "command not found" in output: 
+            logger.info("subscription-manager isn't exist, need to install it")
+            cmd = "yum install -y subscription-manager"
+            if ret == 0:
+                logger.info("subscription-manager has been installed on System %s " % self.get_hg_info(targetmachine_ip))
+            else:
+                logger.info("Failed to installed subscription-manager on System %s " % self.get_hg_info(targetmachine_ip))
+            return False
+        else:
             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
             return False
 
