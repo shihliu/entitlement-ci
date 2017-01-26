@@ -17,7 +17,7 @@ class tc_ID17214_libvirt_check_owner_option_by_config(KVMBase):
 
             # (1) When "VIRTWHO_LIBVIRT_OWNER" is not exist, virt-who should show error info
             self.config_option_disable("VIRTWHO_LIBVIRT_OWNER", remote_ip_2)
-            if self.get_os_serials(remote_ip_2) == 6:
+            if self.os_serial(remote_ip_2) == 6:
                 self.vw_check_message("service virt-who restart", error_msg_without_owner, cmd_retcode=1, targetmachine_ip=remote_ip_2)
             else:
                 self.runcmd_service("restart_virtwho", targetmachine_ip=remote_ip_2)
