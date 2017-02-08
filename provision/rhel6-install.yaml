@@ -22,7 +22,7 @@
 - job-template:
     name: 'rhel6-install-provision'
     defaults: virt-who-provision
-    node: docker-host
+    node: cloud-rhel
     builders:
         - shell: |
             #!/bin/bash
