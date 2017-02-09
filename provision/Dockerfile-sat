@@ -1,17 +1,28 @@
-FROM rhel68
+FROM registry.access.redhat.com/rhel6.8:latest
 MAINTAINER "shihliu@redhat.com"
 
+#Instll satellite package
+RUN subscription-manager register --username=qa@redhat.com --password=EC3YWpKxSe524GCK --auto-attach
+
 RUN subscription-manager repos --disable "*"
+
+RUN subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms
+
+RUN yum install -y wget
 
 RUN wget http://10.66.144.9/home/shihliu/satellite62.repo
 
 RUN mv satellite62.repo /etc/yum.repos.d/
 
 #RUN subscription-manager repos --enable rhel-6-server-rpms --enable=rhel-6-server-optional-rpms --enable rhel-server-rhscl-6-rpms
-RUN subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms
 
 RUN yum install -y satellite
+
+#Config other env
+RUN yum install -y openssh-server net-tools hostname sudo
+RUN echo "root:red2015" | chpasswd
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
-
-
