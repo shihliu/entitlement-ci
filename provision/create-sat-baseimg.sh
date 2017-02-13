@@ -45,15 +45,17 @@ docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $SATIMG_NAME "is exist,need to delete old img"
-   docker rmi -f $SATIMG_NAME
+   #echo $SATIMG_NAME "is exist,need to delete old img"
+   echo $SATIMG_NAME "is exist"
+   #docker rmi -f $SATIMG_NAME
+else
+   mv Dockerfile Dockerfile-rhel
+   mv Dockerfile-sat Dockerfile
+   docker build -t $SATIMG_NAME .
+   mv Dockerfile Dockerfile-sat
+   #mv Dockerfile-rhel Dockerfile-first
+   mv Dockerfile-rhel Dockerfile
 fi
-mv Dockerfile Dockerfile-rhel
-mv Dockerfile-sat Dockerfile
-docker build -t $SATIMG_NAME .
-mv Dockerfile Dockerfile-sat
-#mv Dockerfile-rhel Dockerfile-first
-mv Dockerfile-rhel Dockerfile
 
 # Make rhel68 new img in order to run nosetests
 #mv Dockerfile-sec Dockerfile
