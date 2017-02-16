@@ -82,7 +82,7 @@ class Install_Base(Base):
     def __auto_subscribe(self, targetmachine_ip=""):
         cmd = "subscription-manager register --username=qa@redhat.com --password=EC3YWpKxSe524GCK --auto-attach"
         ret, output = self.runcmd(cmd, "auto attach", targetmachine_ip)
-        if ret == 0:
+        if ret == 0 or "registered" in output:
             logger.info("Succeeded to auto attach.")
         else:
             raise FailException("Test Failed - Failed to auto attach.")
