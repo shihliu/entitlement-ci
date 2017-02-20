@@ -99,7 +99,8 @@
             export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
             # #export RHEL_COMPOSE=
             # echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/install
+            #pushd $WORKSPACE/entitlement-ci/testcases/install
+            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite62_install.py
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
