@@ -113,6 +113,8 @@
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
+            echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
+            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/SERVER.txt
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
     publishers:
