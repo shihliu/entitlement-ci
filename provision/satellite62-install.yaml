@@ -40,6 +40,10 @@
     builders:
         - shell: |
             #!/bin/bash
+            if [ "$SERVER_COMPOSE"x = ""x ]
+            then
+              export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
+            fi
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export SWITCH=true/false
@@ -59,8 +63,10 @@
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh --containername=satellite62.redhat.com
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
+            #env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}
+            #env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
