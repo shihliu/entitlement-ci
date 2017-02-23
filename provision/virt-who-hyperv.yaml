@@ -165,7 +165,7 @@
         popd
 
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
