@@ -94,10 +94,10 @@
             ifconfig
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
-            echo REMOTE_IP=$REMOTE_IP
-            echo REMOTE_HOSTNAME=$REMOTE_HOSTNAME
-            export REMOTE_IP=$REMOTE_IP
-            export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
+            ##echo REMOTE_IP=$REMOTE_IP
+            ##echo REMOTE_HOSTNAME=$REMOTE_HOSTNAME
+            ##export REMOTE_IP=$REMOTE_IP
+            ##export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
             # echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite62_install.py
@@ -108,6 +108,7 @@
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
             echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/SERVER.txt
+            echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
     publishers:

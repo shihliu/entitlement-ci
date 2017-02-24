@@ -55,8 +55,8 @@ echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME /usr/bin/passwd
 REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 echo REMOTE_IP=$REMOTE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-echo export REMOTE_IP=$REMOTE_IP
-echo export REMOTE_HOSTNAME=$CONTAINER_NAME
+##echo export REMOTE_IP=$REMOTE_IP
+##echo export REMOTE_HOSTNAME=$CONTAINER_NAME
 
 echo "Provisioning with the following environment"
 echo "-------------------------------------------"
