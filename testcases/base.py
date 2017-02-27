@@ -79,8 +79,8 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Test Failed - Failed to check file: %s mode as: %s" % (file, mode))
 
-    def cm_get_rpm_version(self, rpm, targetmachine_ip=""):
-        ret, output = self.runcmd("rpm -q %s" % rpm, "get %s version" % rpm, targetmachine_ip)
+    def cm_get_rpm_version(self, rpm, targetmachine_ip="", showlogger=True):
+        ret, output = self.runcmd("rpm -q %s" % rpm, "get %s version" % rpm, targetmachine_ip, showlogger=showlogger)
         version = output.strip()
         if ret == 0:
             logger.info("Succeeded to get %s version %s." % (rpm, version))
@@ -131,8 +131,13 @@ class Base(unittest.TestCase):
         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
         ret, output = self.runcmd(cmd, "copy all kvm images", targetmachine_ip)
 
-        # cmd = "umount %s" % (image_mount_path)
-        # ret, output = self.runcmd(cmd, "umount images in host")
+    def cm_get_rhevm_shell(self):
+        if "rhevm-4" in self.rhevm_version:
+            # logger.info("It is rhevm4.X build, need to user ovirt-shell")
+            return "ovirt-shell"
+        else:
+            # logger.info("It is rhevm3.X build, need to user rhevm-shell")
+            return "rhevm-shell"
 
     def generate_tmp_log(self, checkcmd, tmp_file, waiting_time=0, log_file='rhsm.log', targetmachine_ip=""):
         cmd = "tail -f -n 0 /var/log/rhsm/%s &> %s &" % (log_file, tmp_file)
@@ -342,9 +347,9 @@ class Base(unittest.TestCase):
         self.runcmd(cmd, "update rhsm facts due to bug 1310827", targetmachine_ip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname, targetmachine_ip=""):
-        #if "satellite" in satellitehostname:
+        # if "satellite" in satellitehostname:
             # for satellite installed in qeos
-            #satellitehostname = satellitehostname + ".novalocal"
+            # satellitehostname = satellitehostname + ".novalocal"
         self.configure_host_file(satellitehostip, satellitehostname, targetmachine_ip)
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
@@ -756,23 +761,26 @@ class Base(unittest.TestCase):
         # paramiko_logger.disabled = True
         logger.info(" ")
         logger.info("**************************************************************************************************************")
-        # for install case, ignore this
-        # case_name = sys.argv[1]
-        # logger.info("running %s" % case_name)
-        # if "_install.py" in case_name:
-        #    logger.info("begin running install ...")
-        #    self.os_serial = "*"
-        # else:
-        #    self.os_serial = self.get_os_serials()
-        self.os_serial = self.get_os_serials()
         self.test_server = get_exported_param("SERVER_TYPE")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        if "RHEL-6" in rhel_compose:
+            self.os_serial = "6"
+        elif "RHEL-7" in rhel_compose:
+            self.os_serial = "7"
+        else:
+            raise FailException("Test Failed - Failed to get RHEL_COMPOSE.")
+        # for rhevm testing
+        rhevm_ip = get_exported_param("RHEVM_IP")
+        if get_exported_param("RHEVM_IP") != "":
+            self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip, showlogger=False)
+            self.rhevm_shell = self.cm_get_rhevm_shell()
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
-        SERVER_IP = get_exported_param("SERVER_IP")
-        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-        REMOTE_IP = get_exported_param("REMOTE_IP")
-        REMOTE_IP_2 = get_exported_param("REMOTE_IP_2")
-        RHEL_COMPOSE = get_exported_param("RHEL_COMPOSE")
-        BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
+#         SERVER_IP = get_exported_param("SERVER_IP")
+#         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
+#         REMOTE_IP = get_exported_param("REMOTE_IP")
+#         REMOTE_IP_2 = get_exported_param("REMOTE_IP_2")
+#         RHEL_COMPOSE = get_exported_param("RHEL_COMPOSE")
+#         BREW_VIRTWHO = get_exported_param("BREW_VIRTWHO")
         logger.info("**************************************************************************************************************")
 
     def tearDown(self):

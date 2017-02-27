@@ -54,7 +54,7 @@
         property-file: $WORKSPACE/SERVER.txt
 
 - job-template:
-    name: qe-satellite-6-2-trigger
+    name: qe-satellite-62-ohsnap-trigger
     node: master
     triggers:
     - pollurl:
@@ -67,17 +67,16 @@
     - shell: |
         #!/bin/bash
         # switch, run virt-who satellite test on rhel 6 or rhel 7
-        #export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
-        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        export RHEL_COMPOSE=RHEL-6.8-docker
         export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
-        #export SERVER_COMPOSE= (optional)
-        #export RHEL_COMPOSE= (optional)
+        #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
+        #export RHEL_COMPOSE=(optional)
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
         env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/SERVER.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -88,16 +87,16 @@
         artifacts: '*.txt, *.json'
         allow-empty: 'true'
     - trigger-parameterized-builds:
-      - project: satellite62-install-provision
+      - project: satellite62-ohsnap-install-provision
         current-parameters: false
         condition: SUCCESS
-        property-file: $WORKSPACE/BUILD.txt
+        property-file: $WORKSPACE/SERVER.txt
 
 - job-group:
     name: qe-triggers
     jobs:
     - qe-rhel-6-trigger
-    - qe-satellite-6-2-trigger
+    - qe-satellite-62-ohsnap-trigger
 - project:
     name: qe-triggers-jobs
     project: qe-triggers

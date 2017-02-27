@@ -26,6 +26,32 @@ class VIRTWHOBase(Base):
 
     def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
+        server_compose = get_exported_param("SERVER_COMPOSE")
+        # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
+        if server_compose == "ohsnap-satellite":
+            if self.os_serial == "6":
+                cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                    '[sat6-tools]\n'
+                    'name=Satellite 6 Tools\n'
+                    'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
+                    'enabled=1\n'
+                    'gpgcheck=0\n'
+                    'EOF'
+                    )
+            else:
+                cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                    '[sat6-tools]\n'
+                    'name=Satellite 6 Tools\n'
+                    'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL7/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL7_Satellite_Tools_x86_64_os/\n'
+                    'enabled=1\n'
+                    'gpgcheck=0\n'
+                    'EOF'
+                    )
+            ret, output = self.runcmd(cmd, "add satellite ohsnap tools repo", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to add satellite ohsnap tools repo.")
+            else:
+                raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
@@ -1139,7 +1165,7 @@ class VIRTWHOBase(Base):
         self.generate_tmp_log(checkcmd, tmp_file, 0, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         mapping_info = ''.join(self.vw_get_mapping_info(cmd, targetmachine_ip))
-        logger.info("-----------------mapping_info is %s" %mapping_info)
+        logger.info("-----------------mapping_info is %s" % mapping_info)
         if uuid_exist == True:
             if (host_uuid in mapping_info if host_uuid != "" else True) and (guest_uuid in mapping_info if guest_uuid != "" else True):
                 logger.info("Succeeded to check, can find host_uuid '%s' and guest_uuid '%s'" % (host_uuid, guest_uuid))
