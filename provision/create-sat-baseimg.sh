@@ -51,10 +51,16 @@ then
    #docker rmi -f $SATIMG_NAME
 else
    mv Dockerfile Dockerfile-rhel
-   mv Dockerfile-sat Dockerfile
-   docker build -t $SATIMG_NAME .
-   mv Dockerfile Dockerfile-sat
-   #mv Dockerfile-rhel Dockerfile-first
+   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
+   then
+      mv Dockerfile-sat-ohsnap Dockerfile
+      docker build -t $SATIMG_NAME .
+      mv Dockerfile Dockerfile-sat-ohsnap
+   else
+      mv Dockerfile-sat Dockerfile
+      docker build -t $SATIMG_NAME .
+      mv Dockerfile Dockerfile-sat
+   fi
    mv Dockerfile-rhel Dockerfile
 fi
 
