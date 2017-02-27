@@ -40,15 +40,16 @@
                 export SWITCH=true
             fi
             kinit -k -t $KEYTAB $PRINCIPAL
-            #Provision rhel69 img
+            #Provision RHEL_COMPOSE img
             echo "RHEL_COMPOSE" is $RHEL_COMPOSE
-            docker images|grep redhat69
+            
+            docker images|grep $RHEL_COMPOSE
             isRhelExist=$?
             if [ $isRhelExist -eq 0 ]
             then
-               docker rmi -f redhat69
+               docker rmi -f $RHEL_COMPOSE
             fi
-            $WORKSPACE/entitlement-ci/provision/rhel69.sh
+            $WORKSPACE/entitlement-ci/provision/rhel_base.sh
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|SWITCH)' >> $WORKSPACE/RESOURCES.txt

@@ -67,8 +67,8 @@
     - shell: |
         #!/bin/bash
         # switch, run virt-who satellite test on rhel 6 or rhel 7
-        export RHEL_COMPOSE=RHEL-6.8-docker
-        export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
+        export RHEL_COMPOSE=RHEL-6.8-20160414.0
+        #export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
@@ -89,6 +89,10 @@
         allow-empty: 'true'
     - trigger-parameterized-builds:
       - project: satellite62-ohsnap-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+      - project: rhel6-install-provision
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
