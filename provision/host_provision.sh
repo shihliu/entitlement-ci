@@ -27,8 +27,8 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.66.129.232"; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="redhat69"; fi
-if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="rhel69.redhat.com";fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
+if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME=$RHEL_COMPOSE".redhat.com";fi
 
 export PASS='red2015'
 
