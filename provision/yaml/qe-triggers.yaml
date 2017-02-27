@@ -60,7 +60,7 @@
     - pollurl:
         cron: H/9 * * * *
         urls:
-        - url: http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID--skip
+        - url: http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID
           check-content:
           - simple: true
     builders:
@@ -72,11 +72,12 @@
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
+        export SERVER_COMPOSE=ohsnap-satellite
         #export RHEL_COMPOSE=(optional)
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
         env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/SERVER.txt
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -90,7 +91,7 @@
       - project: satellite62-ohsnap-install-provision
         current-parameters: false
         condition: SUCCESS
-        property-file: $WORKSPACE/SERVER.txt
+        property-file: $WORKSPACE/BUILD.txt
 
 - job-group:
     name: qe-triggers

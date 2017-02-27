@@ -63,4 +63,4 @@ else
    export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
 fi
 cat $RESOURCES_OUTPUT
-popd
+
