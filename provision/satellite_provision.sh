@@ -27,11 +27,11 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE="10.66.144.12"; fi
-#if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="satellite62"; fi
 if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then IMAGE_NAME="satellite62-ohsnap"; \
-else IMAGE_NAME="satellite62";fi
+else IMAGE_NAME="sat62";fi
 if [ "$CONTAINER_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then CONTAINER_NAME="satellite62-ohsnap.redhat.com";\
-else SATIMG_NAME="satellite62.redhat.com";fi
+else CONTAINER_NAME="satellite62.redhat.com";fi
+
 docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
@@ -49,15 +49,10 @@ echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-#echo export REMOTE_IP=$SATELLITE_IP
-#echo export REMOTE_HOSTNAME=$CONTAINER_NAME
-# fi
-#
+
 echo "Provisioning with the following environment"
 echo "-------------------------------------------"
 echo "SITE:                     $SITE"
-echo "SATELLITE_NAME:           $CONTAINER_NAME"
-echo "SATELLITE_IP:             $SATELLITE_IP"
 
 if [ "$RESOURCES_DIR" != "" ]; then
    export RESOURCES_OUTPUT=$RESOURCES_DIR/RESOURCES.txt

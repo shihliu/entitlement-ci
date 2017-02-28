@@ -146,6 +146,7 @@
         echo "Pinging Test Resources"
         cat $WORKSPACE/RESOURCES.txt
         echo REMOTE_IP=$REMOTE_IP
+        echo REMOTE_HOSTNAME=$REMOTE_HOSTNAME
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=

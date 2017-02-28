@@ -3,14 +3,11 @@ MAINTAINER "shihliu@redhat.com"
 
 #Instll satellite package
 RUN subscription-manager register --username=qa@redhat.com --password=EC3YWpKxSe524GCK --auto-attach
-
 RUN subscription-manager repos --disable "*"
-
 RUN subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms
 RUN yum install -y wget
 RUN wget http://10.66.144.9/home/shihliu/repo/satellite62-ohsnap.repo
 RUN mv satellite62-ohsnap.repo /etc/yum.repos.d/
-
 RUN yum install -y satellite
 
 #Config other env

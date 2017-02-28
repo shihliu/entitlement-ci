@@ -29,7 +29,8 @@ done
 if [ "$SITE" == "" ]; then SITE="10.66.144.12"; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
 if [ "$SATIMG_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then SATIMG_NAME="satellite62-ohsnap"; \
-else SATIMG_NAME="satellite62";fi
+else SATIMG_NAME="sat62";fi
+
 # Make rhel68 base img
 pushd $WORKSPACE/entitlement-ci/provision
 
@@ -46,7 +47,6 @@ docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   #echo $SATIMG_NAME "is exist,need to delete old img"
    echo $SATIMG_NAME "is exist"
    #docker rmi -f $SATIMG_NAME
 else
@@ -64,9 +64,4 @@ else
    mv Dockerfile-rhel Dockerfile
 fi
 
-# Make rhel68 new img in order to run nosetests
-#mv Dockerfile-sec Dockerfile
-#docker build -t $IMAGE_NAME .
-#mv Dockerfile Dockerfile-sec
-#mv Dockerfile-first Dockerfile
 popd

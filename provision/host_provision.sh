@@ -48,7 +48,6 @@ docker run --privileged -itd --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME 
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
-#docker exec -i $CONTAINER_NAME echo "root:red2015" | chpasswd
 docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
 docker exec -i $CONTAINER_NAME sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 docker exec -i $CONTAINER_NAME ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
@@ -71,4 +70,3 @@ else
    export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
 fi
 cat $RESOURCES_OUTPUT
-popd

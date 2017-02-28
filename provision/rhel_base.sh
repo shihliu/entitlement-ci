@@ -30,14 +30,19 @@ if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
 RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
 echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
 
+# Check RHEL_IMAGE_NAME and remove the old one.
 docker images|grep $RHEL_IMAGE_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
    echo "old" $RHEL_IMAGE_NAME "is exist"
+   # Stop and rm all RHEL_IMAGE_NAME related containers
+   docker ps -a | grep $RHEL_IMAGE_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
+   # Rm RHEL_IMAGE_NAME
    docker rmi -f $RHEL_IMAGE_NAME
 fi
-#export compose_name=RHEL-6.9-20161216.1
+
+# Create the new RHEL_IMAGE_NAME
 echo compose_name=$RHEL_COMPOSE
 export redhat_root='/redhat_image/rootfs'
 echo redhat_root=$redhat_root
