@@ -30,6 +30,9 @@ if [ "$SITE" == "" ]; then SITE="10.66.129.232"; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
 if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME=$RHEL_COMPOSE".redhat.com";fi
 
+RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
+
 export PASS='red2015'
 
 docker ps -a|grep $CONTAINER_NAME
@@ -41,7 +44,7 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo $CONTAINER_NAME "is not exist"
-docker run --privileged -itd  --name $CONTAINER_NAME --net=none $IMAGE_NAME bash
+docker run --privileged -itd --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
@@ -55,8 +58,6 @@ echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME /usr/bin/passwd
 REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 echo REMOTE_IP=$REMOTE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-##echo export REMOTE_IP=$REMOTE_IP
-##echo export REMOTE_HOSTNAME=$CONTAINER_NAME
 
 echo "Provisioning with the following environment"
 echo "-------------------------------------------"

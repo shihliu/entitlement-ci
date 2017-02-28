@@ -27,13 +27,15 @@ if [ "$SITE" == "" ]; then SITE="10.66.129.232"; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
 
 # Make rhel base img
+RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
 
-docker images|grep $IMAGE_NAME
+docker images|grep $RHEL_IMAGE_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo "old" $IMAGE_NAME "is exist"
-   docker rmi -f $IMAGE_NAME
+   echo "old" $RHEL_IMAGE_NAME "is exist"
+   docker rmi -f $RHEL_IMAGE_NAME
 fi
 #export compose_name=RHEL-6.9-20161216.1
 echo compose_name=$RHEL_COMPOSE
@@ -59,6 +61,4 @@ yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_in
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
 cp /etc/resolv.conf $redhat_root/etc
 chroot $redhat_root /bin/bash yum clean all
-RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
 tar -C $redhat_root -c . | docker import - $RHEL_IMAGE_NAME

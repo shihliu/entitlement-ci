@@ -111,7 +111,7 @@
                 export SWITCH=true
             fi
             # Provision Test Resources
-            $WORKSPACE/entitlement-ci/provision/host_provision.sh --imagename=redhat69 --containername=xenhost.redhat.com --site=10.66.129.232
+            $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=xenhost.redhat.com --site=10.66.129.232
             #cat $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
             env | grep -E '(SERVER_TYPE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
