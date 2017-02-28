@@ -59,4 +59,6 @@ yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_in
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
 cp /etc/resolv.conf $redhat_root/etc
 chroot $redhat_root /bin/bash yum clean all
-tar -C $redhat_root -c . | docker import - $IMAGE_NAME
+RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
+tar -C $redhat_root -c . | docker import - $RHEL_IMAGE_NAME
