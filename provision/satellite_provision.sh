@@ -30,7 +30,7 @@ if [ "$SITE" == "" ]; then SITE="10.66.144.12"; fi
 if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then IMAGE_NAME="satellite62-ohsnap"; \
 else IMAGE_NAME="sat62";fi
 if [ "$CONTAINER_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then CONTAINER_NAME="satellite62-ohsnap.redhat.com";\
-else CONTAINER_NAME="satellite62.redhat.com";fi
+else CONTAINER_NAME=$SERVER_COMPOSE".redhat.com";fi
 
 docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
