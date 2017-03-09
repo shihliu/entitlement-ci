@@ -137,7 +137,7 @@
 - job-template:
     name: virt-who-esx-runtest
     defaults: virt-who-runtest
-    node: 'satellite-slave'
+    node: 'rhel-slave'
     builders:
     - copyartifact:
         project: virt-who-esx-provision

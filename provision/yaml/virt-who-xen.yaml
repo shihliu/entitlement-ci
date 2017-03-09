@@ -133,7 +133,7 @@
 - job-template:
     name: virt-who-xen-runtest
     defaults: virt-who-runtest
-    node: 'satellite-slave'
+    node: 'rhel-slave'
     builders:
     - copyartifact:
         project: virt-who-xen-provision
