@@ -41,6 +41,7 @@ then
    echo $IMAGE_NAME"is exist"
 else
    docker build -t $IMAGE_NAME .
+   docker tag $IMAGE_NAME $IMAGE_NAME'-slave'
 fi
 # Make satellite62 base img
 docker images|grep $SATIMG_NAME
