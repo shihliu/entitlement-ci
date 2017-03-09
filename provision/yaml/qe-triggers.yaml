@@ -5,13 +5,13 @@
     - pollurl:
         cron: H/9 * * * *
         urls:
-        - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID
+        - url: http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-6/COMPOSE_ID
           check-content:
           - simple: true
     builders:
     - shell: |
         #!/bin/bash
-        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-6/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         # SWITCH=Matrix1, run kvm/hyper-v against sam, esx/rhevm agaist satellite, xen against stage
