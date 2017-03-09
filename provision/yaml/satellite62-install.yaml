@@ -36,7 +36,7 @@
 - job-template:
     name: 'satellite62-install-provision'
     defaults: virt-who-provision
-    node: cloud-server
+    node: docker-server
     builders:
         - shell: |
             #!/bin/bash
