@@ -26,7 +26,7 @@ case $i in
 esac
 done
 
-if [ "$SITE" == "" ]; then SITE="10.66.144.12"; fi
+if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
 if [ "$SATIMG_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then SATIMG_NAME="satellite62-ohsnap"; \
 else SATIMG_NAME="sat62";fi
@@ -43,13 +43,19 @@ else
    docker build -t $IMAGE_NAME .
    docker tag $IMAGE_NAME $IMAGE_NAME'-slave'
 fi
+
 # Make satellite62 base img
 docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
    echo $SATIMG_NAME "is exist"
-   #docker rmi -f $SATIMG_NAME
+   #Delete all containers related to satellite image
+   #docker ps -a | grep $SATIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
+   #Delete all <none> images
+   #docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
+   #Delete satellite images
+   #docker rmi $SATIMG_NAME
 else
    mv Dockerfile Dockerfile-rhel
    if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]

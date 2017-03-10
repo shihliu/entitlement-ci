@@ -23,7 +23,7 @@ case $i in
 esac
 done
 
-if [ "$SITE" == "" ]; then SITE="10.66.129.232"; fi
+if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
 
 # Make rhel base img

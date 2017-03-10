@@ -26,7 +26,7 @@ case $i in
 esac
 done
 
-if [ "$SITE" == "" ]; then SITE="10.66.144.12"; fi
+if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then IMAGE_NAME="satellite62-ohsnap"; \
 else IMAGE_NAME="sat62";fi
 if [ "$CONTAINER_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then CONTAINER_NAME="satellite62-ohsnap.redhat.com";\

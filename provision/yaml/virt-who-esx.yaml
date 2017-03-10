@@ -112,7 +112,7 @@
             fi
             # Provision Test Resources
             
-            $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.redhat.com --site=10.66.129.232
+            $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.redhat.com
             echo "show RESOURCES.txt"
             cat $WORKSPACE/RESOURCES.txt
             echo "show SERVER.txt"
