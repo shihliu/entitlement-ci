@@ -1402,3 +1402,133 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to scp id_rsa.pub to remote host")
         else:
             raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
+
+
+    # ========================================================
+    #       Basic Functions For Satellite Test
+    # ========================================================
+    def check_cert_privilege(self, targetmachine_ip=""):
+        cmd = "ls -alt /etc/rhsm/ca/katello-default-ca.pem | awk '{print $1}'| cut -c1-10"
+        ret, output = self.runcmd(cmd, "check katello-default-ca.pem's privilege", targetmachine_ip, showlogger=False)
+        if ret == 0 and "-rw-r--r--" in output:
+            logger.info("Succeeded to check katellot-default-ca.pem's privilege in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to check katellot-default-ca.pem's privilege in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "ls -alt /etc/rhsm/ca/katello-server-ca.pem | awk '{print $1}'| cut -c1-10"
+        ret, output = self.runcmd(cmd, "check katello-server-ca.pem's privilege", targetmachine_ip, showlogger=False)
+        if ret == 0 and "-rw-r--r--" in output:
+            logger.info("Succeeded to check katello-server-ca.pem's privilege in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to check katello-server-ca.pem.pem's privilege in %s." % self.get_hg_info(targetmachine_ip))
+
+    def check_rhsm_config(self, server_hostname, targetmachine_ip=""):
+        cmd = "grep ^hostname /etc/rhsm/rhsm.conf"
+        ret, output = self.runcmd(cmd, "check hostname auto updated", targetmachine_ip, showlogger=False)
+        if ret == 0 and server_hostname in output:
+            logger.info("Succeeded to check hostname has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to check hostname has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "grep ^baseurl /etc/rhsm/rhsm.conf"
+        ret, output = self.runcmd(cmd, "check baseurl auto updated", targetmachine_ip, showlogger=False)
+        baseurl = "https://" + server_hostname + "/pulp/repos"
+        if ret == 0 and baseurl in output:
+            logger.info("Succeeded to check baseurl has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to check baseurl has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+        cmd = "grep ^ca_cert_dir /etc/rhsm/rhsm.conf"
+        ret, output = self.runcmd(cmd, "check ca_cert_dir auto updated", targetmachine_ip, showlogger=False)
+        if ret == 0 and "/etc/rhsm/ca/" in output:
+            logger.info("Succeeded to check ca_cert_dir has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to check ca_cert_dir has been auto updated in %s." % self.get_hg_info(targetmachine_ip))
+
+    def config_hostname_port_prefix_disable(self, hostname, port, prefix, targetmachine_ip=""):
+        # Disable hostname, port, prefix in /etc/rhsm/rhsm.conf
+        cmd = "sed -i -e 's/^hostname =.*/#hostname = %s/g'  -e 's/^port =.*/#port = %s/g' -e 's/^prefix =.*/#prefix = \%s/g' /etc/rhsm/rhsm.conf" % (hostname, port, prefix)
+        (ret, output) = self.runcmd(cmd, "Disable %s %s %s in /etc/rhsm/rhsm.conf in %s" % (hostname, port, prefix, targetmachine_ip))
+        if ret == 0:
+            logger.info("Succeeded to disable %s %s %s in /etc/rhsm/rhsm.conf." % (hostname, port, prefix))
+        else:
+            raise FailException("Failed to disable %s %s %s in /etc/rhsm/rhsm.conf." % (hostname, port, prefix))
+
+    def config_hostname_port_prefix_enable(self, hostname, port, prefix, targetmachine_ip=""):
+        # uncomment option in /etc/sysconfig/virt-who if given option disabled
+        cmd = "sed -i -e 's/^#hostname =.*/hostname = %s/g'  -e 's/^#port =.*/port = %s/g' -e 's/^#prefix =.*/prefix = \%s/g' /etc/rhsm/rhsm.conf" % (hostname, port, prefix)
+        (ret, output) = self.runcmd(cmd, "Enable %s %s %s in /etc/rhsm/rhsm.conf in %s" % (hostname, port, prefix, targetmachine_ip))
+        if ret == 0:
+            logger.info("Succeeded to enable %s %s %s in /etc/rhsm/rhsm.conf." % (hostname, port, prefix))
+        else:
+            raise FailException("Failed to enable %s %s %s in /etc/rhsm/rhsm.conf." % (hostname, port, prefix))
+
+    def conf_hammel_credential(self, username, passwd, targetmachine_ip=""):
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "echo -e ':foreman:\n  :host: 'https://%s/'\n  :username: '%s'\n  :password: '%s'\n' > /root/.hammer/cli_config.yml" % (tagetmachine_hostname, username, passwd)
+        ret, output = self.runcmd(cmd, "config hammer credentials in satellite %s", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to config hammer credentials in satellite %s" % targetmachine_ip)
+        else:
+            raise FailException("Failed to config hammer credentials in satellite %s" % targetmachine_ip)
+
+    def create_active_key(self, keyname, org, targetmachine_ip=""):
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "hammer activation-key list --organization-label=%s|grep %s" % (org, keyname)
+        ret, output = self.runcmd(cmd, "list all active keys in satellite", targetmachine_ip)
+        if ret == 0 and keyname in output:
+            logger.info("active key %s is exist in satellite %s" % (keyname, targetmachine_ip))
+            self.delete_active_key(keyname, org, targetmachine_ip)
+        else:
+            logger.info("active key %s is not exist in satellite %s" % (keyname, targetmachine_ip))
+        cmd = "hammer activation-key create --name %s --organization-label=%s --lifecycle-environment-id=1 --content-view-id=1" % (keyname, org)
+        ret, output = self.runcmd(cmd, "create an active key in satellite", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to create an active key in satellite %s" % targetmachine_ip)
+        else:
+            raise FailException("Failed to create an active key in satellite %s" % targetmachine_ip)
+
+    def delete_active_key(self, keyname, org, targetmachine_ip=""):
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "hammer activation-key delete --name %s --organization-label=%s" % (keyname, org)
+        ret, output = self.runcmd(cmd, "delete an active key in satellite", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to delete an active key in satellite %s" % targetmachine_ip)
+        else:
+            raise FailException("Failed to delete an active key in satellite %s" % targetmachine_ip)
+
+    def register_with_active_key(self, keyname, org, targetmachine_ip=""):
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "subscription-manager register --org=%s --activationkey=%s" % (org, keyname)
+        ret, output = self.runcmd(cmd, "Register system with defined active key", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to register system with defined active key in satellite %s" % targetmachine_ip)
+        else:
+            raise FailException("Failed to register system with defined active key in satellite %s" % targetmachine_ip)
+
+    def create_org(self, orgname, orglabel, orgdesc, targetmachine_ip=""):
+        tagetmachine_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "hammer organization create --name %s --label %s --description %s" % (orgname, orglabel, orgdesc)
+        ret, output = self.runcmd(cmd, "create a new org in satellite", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to create a new org in satellite %s" % targetmachine_ip)
+        else:
+            raise FailException("Failed to create a new org in satellite %s" % targetmachine_ip)
+
+    def configure_http_proxy(self, mode, http_proxy, server_hostname, targetmachine_ip=""):
+        if mode == "esx" or mode == "rhevm" or mode == "xen":
+            proxy_prefix = "https://"
+        elif mode == "hyperv":
+            proxy_prefix = "http://"
+        else:
+            logger.info("Needn't to config http_proxy on %s mode" % mode)
+        cmd = "sed -i '/http_proxy/d' /etc/sysconfig/virt-who; echo 'http_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
+        ret, output = self.runcmd(cmd, "configure http_proxy", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
+        else:
+            raise FailException("Failed to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
+        # remove /etc/pki/product-default/135.pem, or else auto subscribe failed
+        cmd = "sed -i '/no_proxy/d' /etc/sysconfig/virt-who; echo 'no_proxy=%s' >> /etc/sysconfig/virt-who" % server_hostname
+        ret, output = self.runcmd(cmd, "configure no_proxy", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to configure no_proxy to %s" % server_hostname)
+        else:
+            raise FailException("Failed to configure no_proxy to %s" % server_hostname)
