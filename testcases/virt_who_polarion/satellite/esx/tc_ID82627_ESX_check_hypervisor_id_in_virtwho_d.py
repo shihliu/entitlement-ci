@@ -12,8 +12,8 @@ class tc_ID82627_ESX_check_hypervisor_id_in_virtwho_d(ESXBase):
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
-            guest_uuid = self.esx_get_guest_guid(guest_name)
-            host_uuid = self.esx_get_host_uuid()
+            guest_uuid = self.esx_get_guest_uuid(guest_name)
+            host_uuid = self.esx_get_host_uuid(esx_host_ip)
             esx_host_name = self.esx_get_hostname(esx_host_ip)
 
             # (1) Set hypervisor_id=uuid, it will show uuid 

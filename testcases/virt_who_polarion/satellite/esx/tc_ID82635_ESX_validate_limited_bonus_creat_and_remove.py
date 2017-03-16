@@ -19,7 +19,7 @@ class tc_ID82635_ESX_validate_limited_bonus_creat_and_remove(ESXBase):
 
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
-            hostuuid = self.esx_get_host_uuid()
+            hostuuid = self.esx_get_host_uuid(esx_host_ip)
 
             # (1) Check limited bonus pool will create after subscribe pool on hypervisor
             # (1.1) Start guest

@@ -9,6 +9,7 @@ class tc_ID82505_ESX_check_cert_and_rhsm_config(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
 
             # (1) Register host to Server 
             if not self.sub_isregistered():

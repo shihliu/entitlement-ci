@@ -9,8 +9,9 @@ class tc_ID82506_ESX_check_mapping_info_after_register(ESXBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
-            guestuuid = self.esx_get_guest_guid(guest_name)
-            hostuuid = self.esx_get_host_uuid()
+            guestuuid = self.esx_get_guest_uuid(guest_name)
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
+            hostuuid = self.esx_get_host_uuid(esx_host_ip)
 
             # (1) Unregister host and configure esx
             self.sub_unregister()

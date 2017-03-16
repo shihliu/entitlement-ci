@@ -11,8 +11,9 @@ class tc_ID82507_ESX_check_mapping_info_when_register_activekey(ESXBase):
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             key_name="define_key"
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
-            guestuuid = self.esx_get_guest_guid(guest_name)
-            hostuuid = self.esx_get_host_uuid()
+            guestuuid = self.esx_get_guest_uuid(guest_name)
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
+            hostuuid = self.esx_get_host_uuid(esx_host_ip)
 
             # (1) Unregister host
             self.sub_unregister()

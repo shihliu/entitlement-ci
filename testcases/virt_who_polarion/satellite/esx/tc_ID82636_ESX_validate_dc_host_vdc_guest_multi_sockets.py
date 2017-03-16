@@ -20,7 +20,7 @@ class tc_ID82636_ESX_validate_dc_host_vdc_guest_multi_sockets(ESXBase):
 
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
-            hostuuid = self.esx_get_host_uuid()
+            hostuuid = self.esx_get_host_uuid(esx_host_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
