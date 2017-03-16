@@ -11,7 +11,7 @@ class tc_ID82622_ESX_check_mapping_with_proxy(ESXBase):
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
-            guest_uuid = self.esx_get_guest_uuid(guest_name)
+            guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             mode = "esx"
 

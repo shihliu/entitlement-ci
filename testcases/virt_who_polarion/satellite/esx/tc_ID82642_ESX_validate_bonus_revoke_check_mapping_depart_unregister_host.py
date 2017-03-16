@@ -19,7 +19,7 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
 
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
-            guestuuid = self.esx_get_guest_uuid(guest_name)
+            guestuuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             hostuuid = self.esx_get_host_uuid(esx_host_ip)
 
             # register guest to SAM

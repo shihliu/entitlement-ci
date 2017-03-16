@@ -20,7 +20,6 @@ class tc_ID82523_ESX_check_config_options(ESXBase):
             self.vw_check_message_in_rhsm_log("hypervisors and|guests found")
             # (1.3) Set config to VIRTWHO_DEBUG=1
             self.config_option_setup_value("VIRTWHO_DEBUG", 1)
-            self.runcmd_service("restart_virtwho")
 
             # (2) Check "VIRTWHO_ONE_SHOT"
             # (2.1) Enable VIRTWHO_ONE_SHOT, check h/g mapping info show only once

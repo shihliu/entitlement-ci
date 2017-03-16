@@ -14,7 +14,7 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
-            guest_uuid = self.esx_get_guest_uuid(guest_name)
+            guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")

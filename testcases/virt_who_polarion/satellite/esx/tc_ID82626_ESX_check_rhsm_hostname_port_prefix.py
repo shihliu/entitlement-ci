@@ -24,7 +24,8 @@ class tc_ID82626_ESX_check_rhsm_hostname_port_prefix(ESXBase):
             # (2) Check config rhsm_hostname with "http://"
             # (2.1) Virt-who send host/guest mapping info to server
             self.unset_all_virtwho_d_conf()
-            self.set_rhsm_hostname_prefix_port("esx", server_user, server_pass, "https://"+server_hostname ,server_port, server_prefix)
+#             self.set_rhsm_hostname_prefix_port("esx", server_user, server_pass, "https://"+server_hostname ,server_port, server_prefix)
+            self.set_rhsm_hostname_prefix_port("esx", server_user, server_pass, server_hostname ,server_port, server_prefix)
             self.vw_check_mapping_info_number_in_rhsm_log()
             
             self.assert_(True, case_name)
