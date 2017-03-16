@@ -2,13 +2,14 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(ESXBase):
+class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid()
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
@@ -19,8 +20,8 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(ESXBase):
 
             # (1) Check unlimited bonus pool will create after subscribe pool on hypervisor
             # (1.1) Start guest
-            self.esx_start_guest(guest_name)
-            guestip = self.esx_get_guest_ip(guest_name)
+            self.esx_start_guest(guest_name, esx_host_ip)
+            guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             # (1.2) Register guest to server
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)
@@ -45,7 +46,7 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(ESXBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.esx_stop_guest(guest_name)
+            self.esx_stop_guest(guest_name, esx_host_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

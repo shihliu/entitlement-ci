@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82623_HYPERV_check_encrypted_passwd_and_passwd(ESXBase):
+class tc_ID82623_ESX_check_encrypted_passwd_and_passwd(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -13,7 +13,7 @@ class tc_ID82623_HYPERV_check_encrypted_passwd_and_passwd(ESXBase):
 
             # (1) Check encrypted_password option in /etc/virt-who.d/xxx
             # (1.1) Disable esx mode in /etc/sysconfig/virt-who
-            self.config_option_disable("VIRTWHO_HYPERV")
+            self.config_option_disable("VIRTWHO_ESX")
             # (1.2) Check encrypted_password before run virt-who-password cmd
             self.set_encrypted_password("esx", "xxxxxxxxxxxxxxxxxxx")
             self.vw_check_message_in_rhsm_log("can't be decrypted, possibly corrupted")

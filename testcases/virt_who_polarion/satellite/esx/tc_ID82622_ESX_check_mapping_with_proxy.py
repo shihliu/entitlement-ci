@@ -2,15 +2,15 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82622_HYPERV_check_mapping_with_proxy(ESXBase):
+class tc_ID82622_ESX_check_mapping_with_proxy(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
-            esx_host_ip = self.get_vw_cons("HYPERV_HOST")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
             guest_uuid = self.esx_get_guest_guid(guest_name)
             host_uuid = self.esx_get_host_uuid()
             mode = "esx"

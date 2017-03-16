@@ -2,13 +2,13 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82506_HYPERV_check_mapping_info_after_register(ESXBase):
+class tc_ID82506_ESX_check_mapping_info_after_register(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             guestuuid = self.esx_get_guest_guid(guest_name)
             hostuuid = self.esx_get_host_uuid()
 

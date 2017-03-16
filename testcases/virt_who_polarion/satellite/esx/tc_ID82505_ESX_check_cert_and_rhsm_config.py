@@ -2,13 +2,13 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82505_HYPERV_check_cert_and_rhsm_config(ESXBase):
+class tc_ID82505_ESX_check_cert_and_rhsm_config(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
 
             # (1) Register host to Server 
             if not self.sub_isregistered():
@@ -18,8 +18,8 @@ class tc_ID82505_HYPERV_check_cert_and_rhsm_config(ESXBase):
             self.check_cert_privilege()
             self.check_rhsm_config(SERVER_HOSTNAME)
             # (3) Start guest and register guest to Server
-            self.esx_start_guest(guest_name)
-            guestip = self.esx_get_guest_ip(guest_name)
+            self.esx_start_guest(guest_name, esx_host_ip)
+            guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)

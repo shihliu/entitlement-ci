@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82628_HYPERV_check_mapping_and_subscribe_fake_mode(ESXBase):
+class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -10,10 +10,10 @@ class tc_ID82628_HYPERV_check_mapping_and_subscribe_fake_mode(ESXBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.runcmd_service("stop_virtwho")
-            self.config_option_disable("VIRTWHO_HYPERV")
+            self.config_option_disable("VIRTWHO_ESX")
 
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
-            esx_host_ip = self.get_vw_cons("HYPERV_HOST")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
             guest_uuid = self.esx_get_guest_guid(guest_name)
             host_uuid = self.esx_get_host_uuid()
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -33,8 +33,8 @@ class tc_ID82628_HYPERV_check_mapping_and_subscribe_fake_mode(ESXBase):
 
             # (2) Check bonus pool will created in fake mode
             # (2.1) Start guest and register guest to SAM
-            self.esx_start_guest(guest_name)
-            guestip = self.esx_get_guest_ip(guest_name)
+            self.esx_start_guest(guest_name, esx_host_ip)
+            guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)

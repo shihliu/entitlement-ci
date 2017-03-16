@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82624_HYPERV_check_rhsm_username_passwd_encrypted_passwd(ESXBase):
+class tc_ID82624_ESX_check_rhsm_username_passwd_encrypted_passwd(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -11,7 +11,7 @@ class tc_ID82624_HYPERV_check_rhsm_username_passwd_encrypted_passwd(ESXBase):
             self.runcmd_service("stop_virtwho")
 
             # (1) Check "rhsm_username+rhsm_passwd"
-            self.config_option_disable("VIRTWHO_HYPERV")
+            self.config_option_disable("VIRTWHO_ESX")
             self.sub_unregister()
             # (1.1) Config esx mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
             self.set_rhsm_user_pass("esx", server_user, server_pass)

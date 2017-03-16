@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82626_HYPERV_check_rhsm_hostname_port_prefix(ESXBase):
+class tc_ID82626_ESX_check_rhsm_hostname_port_prefix(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -14,7 +14,7 @@ class tc_ID82626_HYPERV_check_rhsm_hostname_port_prefix(ESXBase):
 
             # (1) Check config rhsm_hostname without "http://"
             # (1.1) Unregister host and disable esx mode in /etc/sysconfig/virt-who
-            self.config_option_disable("VIRTWHO_HYPERV")
+            self.config_option_disable("VIRTWHO_ESX")
             self.sub_unregister()
             # (1.2) Virt-who send host/guest mapping info to server
             self.config_hostname_port_prefix_disable(server_hostname, server_port, server_prefix)

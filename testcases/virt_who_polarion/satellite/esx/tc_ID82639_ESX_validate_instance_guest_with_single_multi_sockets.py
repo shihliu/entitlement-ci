@@ -2,19 +2,20 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82639_HYPERV_validate_instance_guest_with_single_multi_sockets(ESXBase):
+class tc_ID82639_ESX_validate_instance_guest_with_single_multi_sockets(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
+            esx_host_ip = self.get_vw_cons("ESX_HOST")
             test_sku = self.get_vw_cons("instancebase_sku_id")
             sku_name = self.get_vw_cons("instancebase_name")
 
-            self.esx_start_guest(guest_name)
-            guestip = self.esx_get_guest_ip(guest_name)
+            self.esx_start_guest(guest_name, esx_host_ip)
+            guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
@@ -126,7 +127,7 @@ class tc_ID82639_HYPERV_validate_instance_guest_with_single_multi_sockets(ESXBas
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.esx_stop_guest(guest_name)
+            self.esx_stop_guest(guest_name, esx_host_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

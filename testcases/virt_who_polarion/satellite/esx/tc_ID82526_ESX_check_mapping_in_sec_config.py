@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82526_HYPERV_check_mapping_in_sec_config(ESXBase):
+class tc_ID82526_ESX_check_mapping_in_sec_config(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
@@ -10,7 +10,7 @@ class tc_ID82526_HYPERV_check_mapping_in_sec_config(ESXBase):
             self.runcmd_service("stop_virtwho")
 
             # (1) Disable esx mode in /etc/sysconfig/virt-who
-            self.config_option_disable("VIRTWHO_HYPERV")
+            self.config_option_disable("VIRTWHO_ESX")
             # (2) Config esx mode in /etc/virt-who.d
             self.set_virtwho_sec_config("esx")
             self.vw_check_mapping_info_number_in_rhsm_log()
