@@ -1160,6 +1160,13 @@ class VIRTWHOBase(Base):
         cmd = "cat %s" % tmp_file
         self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
 
+    def vw_check_timeout_in_rhsm_log(self, message, message_exists=True, checkcmd="restart_virtwho", targetmachine_ip=""):
+        ''' check whether given message exist or not in rhsm.log. if multiple check needed, seperate them via '|' '''
+        tmp_file = "/tmp/tail.rhsm.log"
+        self.generate_tmp_log(checkcmd, tmp_file, 100, targetmachine_ip=targetmachine_ip)
+        cmd = "cat %s" % tmp_file
+        self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
+
     def vw_check_message_in_debug_cmd(self, cmd, message, message_exists=True, targetmachine_ip=""):
         ''' check whether given message exist or not in virt-who -d mode.
         if multiple check needed, seperate them via '|' such as: self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR")'''
