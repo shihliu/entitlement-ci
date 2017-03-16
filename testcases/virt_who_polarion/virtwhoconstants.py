@@ -5,6 +5,8 @@ class VIRTWHOConstants(object):
     "data_folder":                          "http://git.app.eng.bos.redhat.com/git/entitlement-ci.git/plain/data/",
     "local_image_server":                   "10.66.144.9:/data/projects/sam-virtwho/pub",
     "beaker_image_server":                  "10.16.96.131:/home/samdata",
+    "manifest_name":                        "sam_install_manifest.zip",
+    "http_proxy":                           "10.73.3.248:3128",
     # kvm
     "KVM_GUEST_NAME":                       "6.8_Server_x86_64",
     "nfs_image_path":                       "/home/images_nfs",
@@ -63,8 +65,10 @@ class VIRTWHOConstants(object):
     # message constant, maybe create a new file in future
     "wrong_owner":                              "xxxxxxx",
     "wrong_env":                                "xxxxxxx",
+    "wrong_passwd":                             "xxxxxxx",
     "vw_interval_check_msg":                    "hasn't changed, not sending",
-
+    "error_msg_with_wrong_passwd":               "Incorrect domain/username/password",
+    
     "esx_error_msg_without_owner":              "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",
     "esx_error_msg_with_wrong_owner":           "Couldn't find organization 'xxxxxxx'|Organization with id xxxxxxx could not be found",
     "esx_error_msg_without_owner_in_conf":      "Option `owner` needs to be set in config `esx`",

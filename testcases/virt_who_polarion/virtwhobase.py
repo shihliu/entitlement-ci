@@ -395,6 +395,16 @@ class VIRTWHOBase(Base):
         conf_data = conf_data + "rhsm_username=%s\nrhsm_password=%s" % (rhsm_username, rhsm_password)
         self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
 
+    def set_rhsm_hostname_prefix_port(self, mode, rhsm_username, rhsm_password, rhsm_hostname, rhsm_port, rhsm_prefix, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "rhsm_username=%s\nrhsm_password=%s\nrhsm_hostname=%s\nrhsm_port=%s\nrhsm_prefix=%s" % (rhsm_username, rhsm_password, rhsm_hostname, rhsm_port, rhsm_prefix)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
+    def set_rhsm_user_encrypted_passwd(self, mode, rhsm_username, rhsm_encrypted_password, targetmachine_ip=""):
+        conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
+        conf_data = conf_data + "rhsm_username=%s\nrhsm_encrypted_password=%s" % (rhsm_username, rhsm_encrypted_password)
+        self.set_virtwho_d_conf(conf_file, conf_data, targetmachine_ip)
+
     def set_encrypted_password(self, mode, encrypted_password, targetmachine_ip=""):
         conf_file, conf_data = self.set_virtwho_d_data(mode, targetmachine_ip)
         pattern = re.compile(r'password=.*?(?=\n|$)')

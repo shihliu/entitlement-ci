@@ -20,7 +20,7 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             guestuuid = self.hyperv_get_guest_guid(guest_name)
-            hostuuid = self.hyperv_get_host_uuid()
+            hostuuid = self.xen_get_host_uuid(xen_host_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

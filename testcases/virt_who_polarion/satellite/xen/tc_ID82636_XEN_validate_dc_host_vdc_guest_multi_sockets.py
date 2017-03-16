@@ -20,7 +20,7 @@ class tc_ID82636_XEN_validate_dc_host_vdc_guest_multi_sockets(XENBase):
 
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
-            hostuuid = self.hyperv_get_host_uuid()
+            hostuuid = self.xen_get_host_uuid(xen_host_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
