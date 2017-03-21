@@ -17,6 +17,9 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
 
             self.vw_restart_virtwho()
 
+            # start guest
+            if self.esx_guest_ispoweron(guest_name, esx_host_ip):
+                self.esx_stop_guest(guest_name, esx_host_ip)
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             guestuuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)

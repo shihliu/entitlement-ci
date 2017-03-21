@@ -19,6 +19,8 @@ class tc_ID82505_ESX_check_cert_and_rhsm_config(ESXBase):
             self.check_cert_privilege()
             self.check_rhsm_config(SERVER_HOSTNAME)
             # (3) Start guest and register guest to Server
+            if self.esx_guest_ispoweron(guest_name, esx_host_ip):
+                self.esx_stop_guest(guest_name, esx_host_ip)
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             if not self.sub_isregistered(guestip):

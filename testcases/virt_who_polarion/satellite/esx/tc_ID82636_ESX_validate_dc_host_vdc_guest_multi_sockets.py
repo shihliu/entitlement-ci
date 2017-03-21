@@ -18,6 +18,9 @@ class tc_ID82636_ESX_validate_dc_host_vdc_guest_multi_sockets(ESXBase):
 
             self.vw_restart_virtwho()
 
+            # start guest
+            if self.esx_guest_ispoweron(guest_name, esx_host_ip):
+                self.esx_stop_guest(guest_name, esx_host_ip)
             self.esx_start_guest(guest_name, esx_host_ip)
             guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
             hostuuid = self.esx_get_host_uuid(esx_host_ip)
