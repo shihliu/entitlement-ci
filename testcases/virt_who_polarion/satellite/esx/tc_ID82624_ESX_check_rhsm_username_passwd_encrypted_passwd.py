@@ -36,8 +36,8 @@ class tc_ID82624_ESX_check_rhsm_username_passwd_encrypted_passwd(ESXBase):
             self.assert_(False, case_name)
         finally:
             # register host
-            self.sub_register(server_user, server_pass)
             self.unset_all_virtwho_d_conf()
+            self.sub_register(server_user, server_pass)
             self.set_esx_conf()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

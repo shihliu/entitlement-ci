@@ -24,7 +24,8 @@ class tc_ID82627_ESX_check_hypervisor_id_in_virtwho_d(ESXBase):
             self.vw_check_mapping_info_in_rhsm_log(esx_host_name, guest_uuid)
             # (3) Set hypervisor_id=hwuuid, esx is not support hwuuid, it will report error
             self.set_hypervisor_id("esx", "hwuuid")
-            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in esx backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
+            # do not know how to get hwuuid of esx, just check "host-" here
+            self.vw_check_mapping_info_in_rhsm_log("host-", guest_uuid)
 
             self.assert_(True, case_name)
         except Exception, e:

@@ -67,7 +67,7 @@ class VIRTWHOConstants(object):
     "wrong_env":                                "xxxxxxx",
     "wrong_passwd":                             "xxxxxxx",
     "vw_interval_check_msg":                    "hasn't changed, not sending",
-    "error_msg_with_wrong_passwd":               "Incorrect domain/username/password",
+    "error_msg_with_wrong_passwd":               "Incorrect domain/username/password|incorrect user name or password",
     
     "esx_error_msg_without_owner":              "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",
     "esx_error_msg_with_wrong_owner":           "Couldn't find organization 'xxxxxxx'|Organization with id xxxxxxx could not be found",

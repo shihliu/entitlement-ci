@@ -59,6 +59,7 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
+            self.esx_stop_guest(guest_name, esx_host_ip)
             self.server_remove_system(host_uuid, SERVER_IP)
             self.unset_all_virtwho_d_conf()
             self.set_esx_conf()
