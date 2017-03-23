@@ -1,44 +1,55 @@
 from utils import *
-from testcases.virt_who_polarion.esxbase import ESXBase
+from testcases.virt_who_polarion.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 
-class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
+class tc_ID82628_check_mapping_and_subscribe_fake_mode(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-
-            self.runcmd_service("stop_virtwho")
-            self.config_option_disable("VIRTWHO_ESX")
-
-            guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
-            esx_host_ip = self.get_vw_cons("ESX_HOST")
-            guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
-            host_uuid = self.esx_get_host_uuid(esx_host_ip)
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            remote_ip = get_exported_param("REMOTE_IP")
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
+            guest_uuid = self.vw_get_uuid(guest_name)
+            host_uuid = self.get_host_uuid()
+            mode="libvirt"
+            VIRTWHO_SERVER = "qemu+ssh://" + remote_ip + "/system"
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
+            remote_user = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
+            fake_file = "/tmp/fake_file"
+            fake_config_file = "/etc/virt-who.d/fake"
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Check mapping info in fake mode
-            # (1.1) Unregister esx hypervisor in server 
+            # (1.1) Unregister kvm hypervisor in server 
+            self.vw_stop_virtwho()
+            self.vw_stop_virtwho(remote_ip_2)
+            
             self.server_remove_system(host_uuid, SERVER_IP)
-            # (1.2) Set esx fake mode, it will show host/guest mapping info
-            fake_file = self.generate_fake_file("esx")
-            self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-
+            # (1.2) Set kvm fake mode, it will show host/guest mapping info
+            self.set_virtwho_sec_config(mode, remote_ip_2)
+            self.generate_fake_file("kvm", fake_file, remote_ip_2)
+            self.unset_all_virtwho_d_conf(remote_ip_2)
+            self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env, remote_ip_2)
+            # (1.3) check if guest uuid is correctly monitored by virt-who.
+#             self.vw_check_message_in_rhsm_log("%s" % guest_uuid, message_exists=True, targetmachine_ip=remote_ip_2)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, targetmachine_ip=remote_ip_2)
+            # (1.4) check if virt-who run at fake mode 
+            self.vw_check_message_in_rhsm_log('Using configuration "fake"', targetmachine_ip=remote_ip_2)
+            
             # (2) Check bonus pool will created in fake mode
             # (2.1) Start guest and register guest to SAM
-            self.esx_start_guest(guest_name, esx_host_ip)
-            guestip = self.esx_get_guest_ip(guest_name, esx_host_ip)
+            self.vw_start_guests(guest_name)
+            guestip = self.kvm_get_guest_ip(guest_name)
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            # (2.2) Subscribe fake esx host
+            # (2.2) Subscribe fake kvm host
             self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
             # (2.3) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
@@ -57,12 +68,10 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
-            self.unset_all_virtwho_d_conf()
-            self.set_esx_conf()
-            self.runcmd_service("restart_virtwho")
             self.server_remove_system(host_uuid, SERVER_IP)
+            self.unset_all_virtwho_d_conf(remote_ip_2)
+            self.runcmd_service("restart_virtwho", remote_ip_2)
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

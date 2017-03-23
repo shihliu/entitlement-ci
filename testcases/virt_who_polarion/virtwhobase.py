@@ -1532,7 +1532,7 @@ class VIRTWHOBase(Base):
     def configure_http_proxy(self, mode, http_proxy, server_hostname, targetmachine_ip=""):
         if mode == "esx" or mode == "rhevm" or mode == "xen":
             proxy_prefix = "https://"
-        elif mode == "hyperv":
+        elif mode == "hyperv" or mode == "libvirt":
             proxy_prefix = "http://"
         else:
             logger.info("Needn't to config http_proxy on %s mode" % mode)
