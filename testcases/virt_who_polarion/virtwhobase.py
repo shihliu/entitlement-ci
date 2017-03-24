@@ -1532,16 +1532,22 @@ class VIRTWHOBase(Base):
     def configure_http_proxy(self, mode, http_proxy, server_hostname, targetmachine_ip=""):
         if mode == "esx" or mode == "rhevm" or mode == "xen":
             proxy_prefix = "https://"
+            cmd = "sed -i '/https_proxy/d' /etc/sysconfig/virt-who; echo 'https_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
+            ret, output = self.runcmd(cmd, "configure http_proxy", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
+            else:
+                raise FailException("Failed to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
         elif mode == "hyperv" or mode == "libvirt":
             proxy_prefix = "http://"
+            cmd = "sed -i '/http_proxy/d' /etc/sysconfig/virt-who; echo 'https_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
+            ret, output = self.runcmd(cmd, "configure http_proxy", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
+            else:
+                raise FailException("Failed to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
         else:
             logger.info("Needn't to config http_proxy on %s mode" % mode)
-        cmd = "sed -i '/http_proxy/d' /etc/sysconfig/virt-who; echo 'http_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
-        ret, output = self.runcmd(cmd, "configure http_proxy", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
-        else:
-            raise FailException("Failed to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
         # remove /etc/pki/product-default/135.pem, or else auto subscribe failed
         cmd = "sed -i '/no_proxy/d' /etc/sysconfig/virt-who; echo 'no_proxy=%s' >> /etc/sysconfig/virt-who" % server_hostname
         ret, output = self.runcmd(cmd, "configure no_proxy", targetmachine_ip)

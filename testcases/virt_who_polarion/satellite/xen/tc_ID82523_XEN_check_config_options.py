@@ -39,7 +39,8 @@ class tc_ID82523_XEN_check_config_options(XENBase):
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_INTERVAL")
             check_msg = self.get_vw_cons("vw_interval_check_msg")
-            self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
+            check_default_interval = self.get_vw_cons("vm_default_interval_msg")
+            self.vw_check_message_number_in_rhsm_log(check_default_interval, 1, 150)
             # (3.2) Check virt-who refresh interval is 60 when config interval less than 60s
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)

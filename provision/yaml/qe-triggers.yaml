@@ -28,8 +28,8 @@
             popd
         fi
         echo "********************************runtime env********************************"
-        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
+        env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -48,7 +48,7 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/SERVER.txt
-      - project: rhel6-install-provision
+      - project: rhel68-install-provision
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/SERVER.txt
@@ -68,6 +68,7 @@
         #!/bin/bash
         # switch, run virt-who satellite test on rhel 6 or rhel 7
         export RHEL_COMPOSE=RHEL-6.8-20160414.0
+        export RHEL_COMPOSE_2=RHEL-6.9-20170309.0
         #export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
@@ -92,7 +93,7 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
-      - project: rhel6-install-provision
+      - project: rhel68-install-provision
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt

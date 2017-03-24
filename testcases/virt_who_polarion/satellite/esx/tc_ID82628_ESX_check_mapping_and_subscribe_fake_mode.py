@@ -57,9 +57,9 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
+            self.unset_all_virtwho_d_conf()
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.unset_all_virtwho_d_conf()
             self.set_esx_conf()
             self.runcmd_service("restart_virtwho")
             self.server_remove_system(host_uuid, SERVER_IP)

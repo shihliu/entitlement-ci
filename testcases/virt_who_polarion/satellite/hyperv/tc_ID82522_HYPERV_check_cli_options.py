@@ -24,9 +24,11 @@ class tc_ID82522_HYPERV_check_cli_options(HYPERVBase):
 
             # (3) Check "-i" option 
             check_msg = self.get_vw_cons("vw_interval_check_msg")
+            check_default_interval = self.get_vw_cons("vm_default_interval_msg")
+
             # (3.1) Check virt-who refresh default interval is 60s
             cmd = self.virtwho_cli("hyperv") + " -d"
-            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_default_interval, 1, 150)
             # (3.2) Check virt-who refresh interval is 60 when config interval less than 60s
             cmd = self.virtwho_cli("hyperv") + " -d -i 10"
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
@@ -35,7 +37,7 @@ class tc_ID82522_HYPERV_check_cli_options(HYPERVBase):
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 1, 150)
             self.check_virtwho_thread(0)
 
-            # (4) Check "-p" option 
+            # (4) Check "-p" option
             #(4.1) Check "DEBUG" info will not exist when run "virt-who --hyperv -p"
             self.config_option_setup_value("VIRTWHO_DEBUG", 0)
             # need to sleep for a second, or else virt-who pid hung up
