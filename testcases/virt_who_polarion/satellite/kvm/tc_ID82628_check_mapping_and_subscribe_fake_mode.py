@@ -19,7 +19,7 @@ class tc_ID82628_check_mapping_and_subscribe_fake_mode(KVMBase):
             virtwho_env = self.get_vw_cons("server_env")
             remote_user = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
             fake_file = "/tmp/fake_file"
-            fake_config_file = "/etc/virt-who.d/fake"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")

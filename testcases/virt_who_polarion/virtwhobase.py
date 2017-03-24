@@ -262,7 +262,7 @@ class VIRTWHOBase(Base):
 
     def set_virtwho_d_data(self, mode, targetmachine_ip=""):
         # prepare virt_who.d data.
-        conf_file = "/etc/virt-who.d/virt-who"
+        conf_file = "/etc/virt-who.d/virt-who.conf"
         if mode == "esx":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
         elif mode == "libvirt":
@@ -425,7 +425,7 @@ class VIRTWHOBase(Base):
             raise FailException("Failed to generate fake file in %s mode" % virtwho_mode)
 
     def set_fake_mode_conf(self, fake_file, is_hypervisor, virtwho_owner, virtwho_env, targetmachine_ip=""):
-        conf_file = "/etc/virt-who.d/fake"
+        conf_file = "/etc/virt-who.d/fake.conf"
         conf_data = "[fake]\n"\
                     "type=fake\n"\
                     "file=%s\n"\
@@ -449,9 +449,9 @@ class VIRTWHOBase(Base):
         cmd = "rm -f /etc/virt-who.d/*"
         ret, output = self.runcmd(cmd, "run cmd: %s" % cmd, targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to remove all configure file in /etc/virt-who.d/virt-who")
+            logger.info("Succeeded to remove all configure file in /etc/virt-who.d/virt-who.conf")
         else:
-            raise FailException("Test Failed - Failed to remove all configure file in /etc/virt-who.d/virt-who")
+            raise FailException("Test Failed - Failed to remove all configure file in /etc/virt-who.d/virt-who.conf")
 
     def run_virt_who_password(self, input_password, timeout=None):
     # Get encrypted password
