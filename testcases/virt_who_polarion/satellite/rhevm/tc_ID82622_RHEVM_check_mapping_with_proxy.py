@@ -27,7 +27,7 @@ class tc_ID82622_RHEVM_check_mapping_with_proxy(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.config_option_disable("http_proxy")
+            self.config_option_disable("https_proxy")
             self.config_option_disable("no_proxy")
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
