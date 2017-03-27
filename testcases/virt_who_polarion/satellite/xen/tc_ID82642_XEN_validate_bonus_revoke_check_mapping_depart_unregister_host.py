@@ -15,12 +15,11 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
-            self.vw_restart_virtwho()
-
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             guestuuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
+            self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

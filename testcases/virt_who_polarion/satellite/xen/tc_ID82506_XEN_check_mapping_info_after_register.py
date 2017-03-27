@@ -17,6 +17,7 @@ class tc_ID82506_XEN_check_mapping_info_after_register(XENBase):
             self.sub_unregister()
             self.set_xen_conf()
             # (2) Register host to server and check host/guest mapping info
+            self.xen_start_guest(guest_name, xen_host_ip)
             register_cmd = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
             self.hypervisor_check_uuid(host_uuid, guest_uuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
 

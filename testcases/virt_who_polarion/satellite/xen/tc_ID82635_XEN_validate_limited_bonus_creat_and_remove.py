@@ -15,11 +15,10 @@ class tc_ID82635_XEN_validate_limited_bonus_creat_and_remove(XENBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
 
-            self.vw_restart_virtwho()
-
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
+            self.runcmd_service("restart_virtwho")
 
             # (1) Check limited bonus pool will create after subscribe pool on hypervisor
             # (1.1) Start guest

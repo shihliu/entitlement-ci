@@ -1540,7 +1540,7 @@ class VIRTWHOBase(Base):
                 raise FailException("Failed to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))
         elif mode == "hyperv" or mode == "libvirt":
             proxy_prefix = "http://"
-            cmd = "sed -i '/http_proxy/d' /etc/sysconfig/virt-who; echo 'https_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
+            cmd = "sed -i '/http_proxy/d' /etc/sysconfig/virt-who; echo 'http_proxy=%s%s' >> /etc/sysconfig/virt-who" % (proxy_prefix, http_proxy)
             ret, output = self.runcmd(cmd, "configure http_proxy", targetmachine_ip)
             if ret == 0:
                 logger.info("Succeeded to configure http_proxy to %s%s" % (proxy_prefix, http_proxy))

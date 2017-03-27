@@ -16,11 +16,10 @@ class tc_ID82636_XEN_validate_dc_host_vdc_guest_multi_sockets(XENBase):
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_name = self.get_vw_cons("datacenter_name")
 
-            self.vw_restart_virtwho()
-
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
+            self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
