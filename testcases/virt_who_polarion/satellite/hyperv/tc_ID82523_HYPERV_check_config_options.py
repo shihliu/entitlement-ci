@@ -64,6 +64,7 @@ class tc_ID82523_HYPERV_check_config_options(HYPERVBase):
         finally:
             self.config_option_setup_value("VIRTWHO_DEBUG", 1)
             self.config_option_disable("VIRTWHO_INTERVAL")
+            self.config_option_disable("VIRTWHO_ONE_SHOT")
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
