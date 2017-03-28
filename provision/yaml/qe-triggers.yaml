@@ -12,13 +12,9 @@
     - shell: |
         #!/bin/bash
         export RHEL_COMPOSE=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        export RHEL_COMPOSE_2=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/RHEL-6.8-20160414.0/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
-        # SWITCH=Matrix1, run kvm/hyper-v against sam, esx/rhevm agaist satellite, xen against stage
-        # SWITCH=Matrix2, run kvm/hyper-v against satellite, esx/rhevm agaist stage, xen against sam
-        # SWITCH=Matrix3, run kvm/hyper-v against stage, esx/rhevm agaist sam, xen against satellite
-        #export SWITCH=(Matrix1/Matrix2/Matrix3)
-        #export RHEL_COMPOSE= (optional)
         export SERVER_TYPE=DEFAULT
         echo "*********************************setup env*********************************"
         if [ "$SWITCH"x = ""x ]
@@ -67,8 +63,8 @@
     - shell: |
         #!/bin/bash
         # switch, run virt-who satellite test on rhel 6 or rhel 7
-        export RHEL_COMPOSE=RHEL-6.8-20160414.0
-        export RHEL_COMPOSE_2=RHEL-6.9-20170309.0
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-6/COMPOSE_ID`
+        export RHEL_COMPOSE_2=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/RHEL-6.8-20160414.0/COMPOSE_ID`
         #export SERVER_COMPOSE=`curl -s -k -L http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
@@ -77,8 +73,8 @@
         #export RHEL_COMPOSE=(optional)
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE|RHEL_COMPOSE_2)' > $WORKSPACE/BUILD.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs

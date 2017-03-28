@@ -46,9 +46,6 @@
             fi
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
-            #export RHEL_COMPOSE=
-            #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
-            #export SWITCH=(Matrix1/Matrix2/Matrix3)
             echo "*********************************setup env*********************************"
             #convert switch for testing against satellite
             if [ "$SWITCH"x = "true"x ]
@@ -64,8 +61,8 @@
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -100,14 +97,17 @@
             nosetests satellite62_install.py
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
-            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
-            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt
-            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
-            echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
-            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/SERVER.txt
+            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo RHEL_COMPOSE_2=$RHEL_COMPOSE_2 >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
-            properties-file: $WORKSPACE/SERVER.txt
+            properties-file: $WORKSPACE/RESOURCES.txt
     publishers:
        - archive:
           artifacts: '**/**'

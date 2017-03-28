@@ -51,8 +51,8 @@
             fi
             $WORKSPACE/entitlement-ci/provision/rhel_base.sh
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -99,8 +99,8 @@
             fi
             $WORKSPACE/entitlement-ci/provision/rhel_base.sh --imagename=$RHEL_COMPOSE_2
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE_2)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -112,7 +112,8 @@
 - job-group:
     name: rhel6-install-provision-runtest
     jobs:
-      - 'rhel6-install-provision'
+      - 'rhel68-install-provision'
+      - 'rhel69-install-provision'
 
 - project:
     name: rhel6-install-jobs

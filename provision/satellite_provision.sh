@@ -45,8 +45,8 @@ pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 
-echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
-echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
+#echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
+#echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 
