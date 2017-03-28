@@ -26,6 +26,7 @@ class tc_ID82507_HYPERV_check_mapping_info_when_register_activekey(HYPERVBase):
             self.sub_unregister()
             self.register_with_active_key(key_name, hyperv_env)
             # (5) Restart virt-who and Check host/guest mappping info
+            time.sleep(10)
             self.vw_check_mapping_info_in_rhsm_log(hostuuid, guestuuid)
 
             self.assert_(True, case_name)

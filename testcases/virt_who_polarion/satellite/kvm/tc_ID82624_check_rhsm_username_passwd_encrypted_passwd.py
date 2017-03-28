@@ -23,7 +23,7 @@ class tc_ID82624_check_rhsm_username_passwd_encrypted_passwd(KVMBase):
             self.vw_check_mapping_info_number_in_rhsm_log(targetmachine_ip=remote_ip_2)
             # (1.2) Config kvm mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
             self.set_rhsm_user_pass("libvirt", server_user, "Welcome@*&$001", remote_ip_2)
-            self.vw_check_message_in_rhsm_log("Communication with subscription manager failed with code 500|failed to sent", targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("Invalid username or password", targetmachine_ip=remote_ip_2)
 
             # (2) Check "rhsm_username+rhsm_encrypted_passwd"
             self.unset_all_virtwho_d_conf(remote_ip_2)

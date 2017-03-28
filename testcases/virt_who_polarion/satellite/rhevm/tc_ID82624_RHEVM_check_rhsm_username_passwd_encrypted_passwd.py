@@ -18,7 +18,7 @@ class tc_ID82624_RHEVM_check_rhsm_username_passwd_encrypted_passwd(VDSMBase):
             self.vw_check_mapping_info_number_in_rhsm_log()
             # (1.2) Config rhevm mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
             self.set_rhsm_user_pass("rhevm", server_user, "Welcome@*&$001")
-            self.vw_check_message_in_rhsm_log("Communication with subscription manager failed with code 500|failed to sent")
+            self.vw_check_message_in_rhsm_log("Invalid username or password")
 
             # (2) Check "rhsm_username+rhsm_encrypted_passwd"
             self.unset_all_virtwho_d_conf()
@@ -39,6 +39,7 @@ class tc_ID82624_RHEVM_check_rhsm_username_passwd_encrypted_passwd(VDSMBase):
             self.sub_register(server_user, server_pass)
             self.unset_all_virtwho_d_conf()
             self.set_rhevm_conf()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
