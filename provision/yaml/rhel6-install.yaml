@@ -20,7 +20,7 @@
         - timestamps
 
 - job-template:
-    name: 'rhel68-install-provision'
+    name: 'rhel69-install-provision'
     defaults: virt-who-provision
     node: docker-rhel
     builders:
@@ -61,14 +61,14 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'rhel69-install-provision'
+          - project: 'rhel68-install-provision'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
 
 - job-template:
-    name: 'rhel69-install-provision'
+    name: 'rhel68-install-provision'
     defaults: virt-who-provision
     node: docker-rhel
     builders:
@@ -112,8 +112,8 @@
 - job-group:
     name: rhel6-install-provision-runtest
     jobs:
-      - 'rhel68-install-provision'
       - 'rhel69-install-provision'
+      - 'rhel68-install-provision'
 
 - project:
     name: rhel6-install-jobs

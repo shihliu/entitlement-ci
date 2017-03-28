@@ -103,14 +103,14 @@
             #export SWITCH=true/false
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
-            if [ "$NEWRUN" = ""]
+            if [ "$NEWRUN"x = ""x]
             then
               $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel69.redhat.com
               echo "show RESOURCES.txt"
               cat $WORKSPACE/RESOURCES.txt
               echo "show SERVER.txt"
               cat $WORKSPACE/SERVER.txt
-            elif [ "$NEWRUN" = "true"]
+            elif [ "$NEWRUN"x = "true"x]
             then
               $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel68.redhat.com
               echo "show RESOURCES.txt"
@@ -175,8 +175,8 @@
           echo "$file found.needn't to trigger"
           rm -rf $WORKSPACE/NEWRUN.txt
         else
-           export NEWRUN=true
-           env | grep -E 'NEWRUN' >> $WORKSPACE/NEWRUN.txt
+          export NEWRUN=true
+          env | grep -E 'NEWRUN' >> $WORKSPACE/NEWRUN.txt
         fi
         echo "********************************runtime env********************************"
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
@@ -195,10 +195,10 @@
     - default-virt-who-publishers
     - trigger-parameterized-builds:
       - project: virt-who-esx-provision
-        current-parameters: false
-        condition: ALWAYS
         property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/NEWRUN.txt
         fail-on-missing: true
+        current-parameters: false
+        condition: ALWAYS
           
 - job-group:
     name: virt-who-esx-provision-runtest

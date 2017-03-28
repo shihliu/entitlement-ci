@@ -89,7 +89,7 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
-      - project: rhel68-install-provision
+      - project: rhel69-install-provision
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt

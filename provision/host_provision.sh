@@ -44,7 +44,7 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo $CONTAINER_NAME "is not exist"
-docker run --privileged -itd --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
+docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
