@@ -102,10 +102,18 @@
             #setup environment here to run alone, change back when finished
             #export SWITCH=true/false
             #export RHEL_COMPOSE=
+            export SERVER_COMPOSE=ohsnap-satellite
+            export SERVER_IP=10.73.131.113
+            export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
+            export SERVER_TYPE=SATELLITE
+            export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
+            export RHEL_COMPOSE=RHEL-6.9-20170309.0
+            
             echo "*********************************setup env*********************************"
-            if [ -z "$RHEL_COMPOSE_2_EXIST"] &&  [-z "$RHEL_COMPOSE_EXIST"]
-            then
-              $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel69.redhat.com
+            #if [ $RHEL_COMPOSE_2_EXIST==""] &&  [$RHEL_COMPOSE_EXIST==""]
+            if [ "$RHEL_COMPOSE_2_EXIST"x = ""x ] && [ "$RHEL_COMPOSE_EXIST"x = ""x ] 
+            then    
+              $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=esxhost.rhel69.redhat.com
               echo "before test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
               echo "before test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
               echo "show RESOURCES.txt"
@@ -113,20 +121,20 @@
               export RHEL_COMPOSE_EXIST="True">>$WORKSPACE/RESOURCES.txt
               echo "after test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
               echo "after test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
-              #echo "show SERVER.txt"
-              #cat $WORKSPACE/SERVER.txt
+              echo "show RESOURCES.txt"
+              cat $WORKSPACE/RESOURCES.txt
             else
-              $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel68.redhat.com
+              $WORKSPACE/entitlement-ci/provision/host_provision.sh --imagename=$RHEL_COMPOSE_2 --containername=esxhost.rhel68.redhat.com
               echo "before test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
               echo "before test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
               echo "show RESOURCES.txt"
               cat $WORKSPACE/RESOURCES.txt
               export RHEL_COMPOSE_2_EXIST="True">>$WORKSPACE/RESOURCES.txt
-              export RHEL_COMPOSE_2_EXIST="">>$WORKSPACE/RESOURCES.txt
+              export RHEL_COMPOSE_EXIST="">>$WORKSPACE/RESOURCES.txt
               echo "after test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
               echo "after test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
-              #echo "show SERVER.txt"
-              #cat $WORKSPACE/SERVER.txt
+              echo "show RESOURCES.txt"
+              cat $WORKSPACE/RESOURCES.txt
             fi
             # Provision Test Resources
             echo "********************************runtime env********************************"
@@ -174,21 +182,24 @@
         nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/esx/
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/esx/
         nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
         echo "*********************************check trigger another esx*****************"  
-        if [ $RHEL_COMPOSE_EXIST=="True"]&& [ -z "$RHEL_COMPOSE_2_EXIST"]
+        if [ "$RHEL_COMPOSE_EXIST"x = "True"x ] && [ "$RHEL_COMPOSE_2_EXIST"x = ""x ] 
         then
           echo "after run 1 test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
           echo "fater run 1 test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+          echo "it need to run 2"
           export RHEL_COMPOSE_2_EXIST="True">>$WORKSPACE/NEWRUN.txt
           export RHEL_COMPOSE_EXIST="">>$WORKSPACE/NEWRUN.txt
         else
           echo "after run 2 test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
           echo "fater run 2 test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+          echo "it needn't to run 3"
           rm -rf $WORKSPACE/NEWRUN.txt
+        fi
         echo "********************************runtime env********************************"
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
