@@ -45,10 +45,10 @@ docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -
 issuccess=$?
 if [ $issuccess -eq 0 ]
 then
-   echo $CONTAINER_NAME "sucess to create!"
+   echo $CONTAINER_NAME "success to create!"
 else
    echo "Failed to create" $CONTAINER_NAME
-
+fi
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
@@ -68,4 +68,3 @@ else
    export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
 fi
 cat $RESOURCES_OUTPUT
-
