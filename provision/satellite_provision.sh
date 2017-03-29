@@ -40,7 +40,15 @@ then
    docker stop $CONTAINER_NAME
    docker rm $CONTAINER_NAME
 fi
+echo "begin to test container hostname"
 docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+issuccess=$?
+if [ $issuccess -eq 0 ]
+then
+   echo $CONTAINER_NAME "sucess to create!"
+else
+   echo "Failed to create" $CONTAINER_NAME
+
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
