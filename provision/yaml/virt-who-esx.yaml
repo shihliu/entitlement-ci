@@ -103,25 +103,35 @@
             #export SWITCH=true/false
             #export RHEL_COMPOSE=
             echo "*********************************setup env*********************************"
-            if [ "$NEWRUN"x = ""x]
+            if [ -z "$RHEL_COMPOSE_2_EXIST"] &&  [-z "$RHEL_COMPOSE_EXIST"]
             then
               $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel69.redhat.com
+              echo "before test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+              echo "before test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
               echo "show RESOURCES.txt"
               cat $WORKSPACE/RESOURCES.txt
-              echo "show SERVER.txt"
-              cat $WORKSPACE/SERVER.txt
-            elif [ "$NEWRUN"x = "true"x]
-            then
+              export RHEL_COMPOSE_EXIST="True">>$WORKSPACE/RESOURCES.txt
+              echo "after test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+              echo "after test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+              #echo "show SERVER.txt"
+              #cat $WORKSPACE/SERVER.txt
+            else
               $WORKSPACE/entitlement-ci/provision/host_provision.sh --containername=esxhost.rhel68.redhat.com
+              echo "before test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+              echo "before test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
               echo "show RESOURCES.txt"
               cat $WORKSPACE/RESOURCES.txt
-              echo "show SERVER.txt"
-              cat $WORKSPACE/SERVER.txt
+              export RHEL_COMPOSE_2_EXIST="True">>$WORKSPACE/RESOURCES.txt
+              export RHEL_COMPOSE_2_EXIST="">>$WORKSPACE/RESOURCES.txt
+              echo "after test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+              echo "after test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+              #echo "show SERVER.txt"
+              #cat $WORKSPACE/SERVER.txt
             fi
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -168,25 +178,28 @@
         nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
-        echo "*********************************check trigger another esx*********************************"   
-        file="$WORKSPACE/NEWRUN.txt"
-        if [ -f "$file" ]
+        echo "*********************************check trigger another esx*****************"  
+        if [ $RHEL_COMPOSE_EXIST=="True"]&& [ -z "$RHEL_COMPOSE_2_EXIST"]
         then
-          echo "$file found.needn't to trigger"
-          rm -rf $WORKSPACE/NEWRUN.txt
+          echo "after run 1 test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+          echo "fater run 1 test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+          export RHEL_COMPOSE_2_EXIST="True">>$WORKSPACE/NEWRUN.txt
+          export RHEL_COMPOSE_EXIST="">>$WORKSPACE/NEWRUN.txt
         else
-          export NEWRUN=true
-          env | grep -E 'NEWRUN' >> $WORKSPACE/NEWRUN.txt
-        fi
+          echo "after run 2 test RHEL_COMPOSE_2_EXIST is" $RHEL_COMPOSE_2_EXIST
+          echo "fater run 2 test RHEL_COMPOSE_EXIST is" $RHEL_COMPOSE_EXIST
+          rm -rf $WORKSPACE/NEWRUN.txt
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE_2|NEWRUN)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE_2|NEWRUN)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
+    - inject:
+        properties-file: $WORKSPACE/NEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -198,7 +211,7 @@
         property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/NEWRUN.txt
         fail-on-missing: true
         current-parameters: false
-        condition: ALWAYS
+        #condition: ALWAYS
           
 - job-group:
     name: virt-who-esx-provision-runtest

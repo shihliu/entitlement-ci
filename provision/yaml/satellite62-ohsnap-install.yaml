@@ -61,8 +61,8 @@
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -96,7 +96,7 @@
             pushd $WORKSPACE/entitlement-ci/testcases/sam_install
             nosetests satellite62_install.py
             popd
-            echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
+            echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
