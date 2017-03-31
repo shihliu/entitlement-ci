@@ -49,26 +49,28 @@ docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $SATIMG_NAME "is exist"
+   echo $SATIMG_NAME "is exist, we need to delete the old one then create new one"
    #Delete all containers related to satellite image
-   #docker ps -a | grep $SATIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
+   docker ps -a | grep $SATIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
    #Delete all <none> images
-   #docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
+   docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
    #Delete satellite images
-   #docker rmi $SATIMG_NAME
+   docker rmi $SATIMG_NAME
 else
-   mv Dockerfile Dockerfile-rhel
-   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
-   then
-      mv Dockerfile-sat-ohsnap Dockerfile
-      docker build -t $SATIMG_NAME .
-      mv Dockerfile Dockerfile-sat-ohsnap
-   else
-      mv Dockerfile-sat Dockerfile
-      docker build -t $SATIMG_NAME .
-      mv Dockerfile Dockerfile-sat
-   fi
-   mv Dockerfile-rhel Dockerfile
+   echo $SATIMG_NAME "is not exist, start to create a new one"
 fi
+
+mv Dockerfile Dockerfile-rhel
+if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
+then
+  mv Dockerfile-sat-ohsnap Dockerfile
+  docker build -t $SATIMG_NAME .
+  mv Dockerfile Dockerfile-sat-ohsnap
+else
+  mv Dockerfile-sat Dockerfile
+  docker build -t $SATIMG_NAME .
+  mv Dockerfile Dockerfile-sat
+fi
+mv Dockerfile-rhel Dockerfile
 
 popd

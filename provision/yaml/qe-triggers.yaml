@@ -69,12 +69,14 @@
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
+        #export VIRTWHO_SRC=(original) or (sattool)
         export SERVER_COMPOSE=ohsnap-satellite
+        export VIRTWHO_SRC=original
         #export RHEL_COMPOSE=(optional)
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE|RHEL_COMPOSE_2)' > $WORKSPACE/BUILD.txt
+        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE|RHEL_COMPOSE_2)' > $WORKSPACE/BUILD.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs

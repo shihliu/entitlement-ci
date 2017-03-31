@@ -24,11 +24,25 @@ class VIRTWHOBase(Base):
     def set_virtwho_version(self, targetmachine_ip=None):
         self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
+    def check_virtwho_pkg(self, rhevm_compose, server_ip=None, server_user=None, server_passwd=None):
+        cmd = "rpm -qa | grep virt-who"
+        ret, output = self.runcmd(cmd, "check virt-who package status", server_ip, server_user, server_passwd)
+        if "virt-who" in output and "sat" not in output:
+            logger.info("Succeeded to check virt-who package from original repo exist.need to delete it and deploy new one")
+            cmd = "rpm -e virt-who"
+            if ret == 0:
+                logger.info("Succeeded to delete virt-who package from original repo")
+            else:
+                raise FailException("Test Failed - Failed to delete virt-who package from original repo")
+        else:
+            logger.info("virt-who package is not install, need to install.")
+
     def sys_setup(self, targetmachine_ip=None):
         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
+        tool_src = get_exported_param("VIRTWHO_SRC")
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
-        if server_compose == "ohsnap-satellite":
+        if server_compose == "ohsnap-satellite" and tool_src == "sattool":
             if self.os_serial == "6":
                 cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
                     '[sat6-tools]\n'
