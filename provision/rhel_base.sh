@@ -46,7 +46,7 @@ fi
 echo compose_name=$RHEL_COMPOSE
 export redhat_root='/redhat_image/rootfs'
 echo redhat_root=$redhat_root
-if [ ! -d $redhat_root]; then
+if [ ! -d $redhat_root ]; then
    echo $redhat_root "is not exist"
 else
    echo $redhat_root "is exist, it should be deleted"

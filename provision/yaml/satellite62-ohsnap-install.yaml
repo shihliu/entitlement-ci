@@ -116,17 +116,17 @@
            - project: 'virt-who-esx-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
            - project: 'virt-who-hyperv-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
            - project: 'virt-who-xen-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
 
 - job-group:

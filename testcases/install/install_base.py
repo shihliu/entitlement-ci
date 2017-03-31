@@ -80,7 +80,7 @@ class Install_Base(Base):
             raise FailException("Test Failed - Failed to set /etc/hosts file.")
 
     def __auto_subscribe(self, targetmachine_ip=""):
-        cmd = "subscription-manager register --username=qa@redhat.com --password=CZvGMy7TwJpVKW9t --auto-attach"
+        cmd = "subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach"
         ret, output = self.runcmd(cmd, "auto attach", targetmachine_ip)
         if ret == 0 or "registered" in output:
             logger.info("Succeeded to auto attach.")
