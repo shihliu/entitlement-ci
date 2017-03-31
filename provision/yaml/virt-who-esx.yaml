@@ -64,7 +64,7 @@
         subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE -
           $BUILD_STATUS!'
         body: |-
-          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:
+          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
 
           Runtime Info As Follows:
 
@@ -103,7 +103,13 @@
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
             #export SWITCH=true/false
-            #export RHEL_COMPOSE=   
+            #export RHEL_COMPOSE=
+            export SERVER_COMPOSE=ohsnap-satellite
+            export SERVER_IP=10.73.131.113
+            export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
+            export SERVER_TYPE=SATELLITE
+            export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
+            export RHEL_COMPOSE=RHEL-6.9-20170309.0   
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
@@ -194,20 +200,20 @@
           then
              #run esx-rhel69-sattool.redhat.com
              export VIRTWHO_SRC=sattool
-             echo VIRTWHO_SRC=sattool>>$WORKSPACE/NEWRUN.txt
+             echo VIRTWHO_SRC=sattool>>$WORKSPACE/ESXNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "sattool"x ]
           then
              #run esx-rhel68-sattool.redhat.com
              export VIRTWHO_SRC=original
-             echo VIRTWHO_SRC=original>>$WORKSPACE/NEWRUN.txt  
+             echo VIRTWHO_SRC=original>>$WORKSPACE/ESXNEWRUN.txt  
           else
              # esx-rhel69-original.redhat.com
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/NEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/ESXNEWRUN.txt
           fi
         else 
           #run esx-rhel68-original.redhat.com
-          rm -rf $WORKSPACE/NEWRUN.txt
+          rm -rf $WORKSPACE/ESXNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
@@ -221,7 +227,7 @@
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/NEWRUN.txt
+        properties-file: $WORKSPACE/ESXNEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -230,7 +236,7 @@
     - default-virt-who-publishers
     - trigger-parameterized-builds:
       - project: virt-who-esx-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/NEWRUN.txt
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ESXNEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS
