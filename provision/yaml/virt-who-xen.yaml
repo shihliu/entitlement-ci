@@ -64,7 +64,7 @@
         subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE -
           $BUILD_STATUS!'
         body: |-
-          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE - Build # $BUILD_NUMBER - $BUILD_STATUS:
+          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
 
           Runtime Info As Follows:
 
@@ -75,6 +75,8 @@
 
           export RHEL_COMPOSE=$RHEL_COMPOSE
           export REMOTE_IP=$REMOTE_IP
+          export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
+          export VIRTWHO_SRC=$VIRTWHO_SRC
           export SERVER_TYPE=$SERVER_TYPE
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
@@ -163,6 +165,11 @@
     name: virt-who-xen-runtest
     defaults: virt-who-runtest
     node: 'rhel-slave'
+    builders:
+    - copyartifact:
+        project: virt-who-xen-provision
+        filter: '*.txt, *.json'
+        target: $WORKSPACE
     - shell: |
         #!/bin/bash
         echo "Jenkins machine info we are running on"
@@ -200,7 +207,7 @@
              export VIRTWHO_SRC=original
              echo VIRTWHO_SRC=original>>$WORKSPACE/XENNEWRUN.txt  
           else
-             #run xen-rhel69-original.redhat.com
+             #runxen-rhel69-original.redhat.com
              export RHEL_COMPOSE_EXIST=True
              echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/XENNEWRUN.txt
           fi
