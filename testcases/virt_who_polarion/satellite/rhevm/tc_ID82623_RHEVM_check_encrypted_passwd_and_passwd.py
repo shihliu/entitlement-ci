@@ -12,7 +12,7 @@ class tc_ID82623_RHEVM_check_encrypted_passwd_and_passwd(VDSMBase):
             self.runcmd_service("stop_virtwho")
             rhevm_ip = get_exported_param("RHEVM_IP")
             rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-            if "rhevm-4.0"in rhevm_version:
+            if "rhevm-4"in rhevm_version:
                 rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
             else:
                 rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"

@@ -28,7 +28,7 @@ class VDSMBase(VIRTWHOBase):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
-            if "rhevm-4.0" in rhevm_version :
+            if "rhevm-4" in rhevm_version :
                 if "7.2" in compose_name :
                     repo = "rhevm_7.2_40.repo"
                 else:
@@ -113,7 +113,7 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         # Update cluster cpu 
         # cmd = "rhevm-shell -c -E \"update cluster %s --cpu-id '%s' \"" % (cluster_name, cpu_type)
-        if "rhevm-4.0" in rhevm_version:
+        if "rhevm-4" in rhevm_version:
             cmd = "%s -c -E \"update cluster %s --name '%s' \"" % (shell_cmd, cluster_name, cpu_type)
         else:
             cmd = "%s -c -E \"update cluster %s --cpu-id '%s' \"" % (shell_cmd, cluster_name, cpu_type)
@@ -814,7 +814,7 @@ class VDSMBase(VIRTWHOBase):
         rhevm_ip = get_exported_param("RHEVM_IP")
         rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
         rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-        if "rhevm-4.0"in rhevm_version:
+        if "rhevm-4"in rhevm_version:
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
         else:
             rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"

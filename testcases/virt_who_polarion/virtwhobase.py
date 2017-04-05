@@ -121,7 +121,7 @@ class VIRTWHOBase(Base):
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             rhevm_ip = get_exported_param("RHEVM_IP")
             rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-            if "rhevm-4.0"in rhevm_version:
+            if "rhevm-4"in rhevm_version:
                 rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443" + "\/ovirt-engine\/"
             else:
                 rhevm_server = "https:\/\/" + get_exported_param("RHEVM_IP") + ":443"
@@ -290,7 +290,7 @@ class VIRTWHOBase(Base):
             virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_rhevm_info()
             rhevm_ip = get_exported_param("RHEVM_IP")
             rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-            if "rhevm-4.0"in rhevm_version:
+            if "rhevm-4"in rhevm_version:
                 virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443" + "/ovirt-engine/"
             else:
                 virtwho_server = "https://" + get_exported_param("RHEVM_IP") + ":443"
