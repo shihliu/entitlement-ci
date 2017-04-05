@@ -15,6 +15,7 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
+            self.set_esx_conf()
             self.vw_restart_virtwho()
 
             # start guest

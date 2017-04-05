@@ -37,10 +37,10 @@ class VIRTWHOConstants(object):
     "VIRTWHO_HYPERV_USERNAME":              "administrator",
     "VIRTWHO_HYPERV_PASSWORD":              "Welcome1",
     # xen
-    "XEN_HOST":                             "10.73.131.133",
-    "XEN_HOST_NAME_LABEL":                  "xenserver-icpovhag",
+    "XEN_HOST":                             "10.73.131.171",
+    "XEN_HOST_NAME_LABEL":                  "xenserver-ahssioit",
     "XEN_GUEST_NAME":                       "XEN_6.8_Server_x86_64",
-    "VIRTWHO_XEN_SERVER":                   "10.73.131.133",
+    "VIRTWHO_XEN_SERVER":                   "10.73.131.171",
     "VIRTWHO_XEN_USERNAME":                 "root",
     "VIRTWHO_XEN_PASSWORD":                 "Welcome1",
 
@@ -67,9 +67,9 @@ class VIRTWHOConstants(object):
     "wrong_env":                                "xxxxxxx",
     "wrong_passwd":                             "xxxxxxx",
     "vw_interval_check_msg":                    "hasn't changed, not sending",
-    "error_msg_with_wrong_passwd":               "Incorrect domain/username/password|incorrect user name or password|Authentication failure",
+    "error_msg_with_wrong_passwd":              "Incorrect domain/username/password|incorrect user name or password|Authentication failure",
     "vm_default_interval_msg":                  "3600 seconds interval",
-   
+
     "esx_error_msg_without_owner":              "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",
     "esx_error_msg_with_wrong_owner":           "Couldn't find organization 'xxxxxxx'|Organization with id xxxxxxx could not be found",
     "esx_error_msg_without_owner_in_conf":      "Option `owner` needs to be set in config `esx`",
