@@ -102,14 +102,13 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
-            #export SWITCH=true/false
-            #export RHEL_COMPOSE=
-            export SERVER_COMPOSE=ohsnap-satellite
-            export SERVER_IP=10.73.131.113
-            export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
-            export SERVER_TYPE=SATELLITE
-            export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
-            export RHEL_COMPOSE=RHEL-6.9-20170309.0   
+            #export SERVER_COMPOSE=ohsnap-satellite/satellite
+            #export SERVER_IP=10.73.131.113
+            #export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
+            #export SERVER_TYPE=SATELLITE
+            #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
+            #export RHEL_COMPOSE=release
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
@@ -120,35 +119,39 @@
             #echo "before test,RHEL_COMPOSE_RESULT is "$RHEL_COMPOSE_RESULT
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
-
-            if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = ""x ] 
-            then 
-                CONTAINTERNAME="esx-rhel6.9-sattool.redhat.com"
-                IMAGE_NAME="rhel6.9"
+			
+            if [ "$RHEL_COMPOSE"x = "release"x ]
+            then
+                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = ""x ] 
+                then 
+                    CONTAINTERNAME="esx-rhel6.9-sattool.redhat.com"
+                    IMAGE_NAME="rhel6.9"
+                else
+                    CONTAINTERNAME="esx-"$VIRTWHO_SRC".redhat.com"
+                    echo "container name is "$CONTAINTERNAME
+                    thisString= $CONTAINTERNAME
+                    searchString1="rhel6.9"
+                    searchString2="rhel6.8"
+                    searchString3="rhel7.3"
+                    case $thisString in 
+                        *"$searchString1"*) 
+                            IMAGENAME=$searchString1 
+                            echo "image name is" $IMAGENAME;;
+                        *"$searchString2"*) 
+                            IMAGENAME=$searchString2 
+                            echo "image name is" $IMAGENAME;;
+                        *)
+                            IMAGENAME=$searchString3
+                            echo "image name is" $IMAGENAME;;
+                    esac
+	            fi
+	            echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
+	            echo "After provision, IMAGENAME is "$IMAGENAME
+	            echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
+	            echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
+	            $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
             else
-                CONTAINTERNAME="esx-"$VIRTWHO_SRC".redhat.com"
-                echo "container name is "$CONTAINTERNAME
-                thisString= $CONTAINTERNAME
-                searchString1="rhel6.9"
-                searchString2="rhel6.8"
-                searchString3="rhel7.3"
-                case $thisString in 
-                    *"$searchString1"*) 
-                        IMAGENAME=$searchString1 
-                        echo "image name is" $IMAGENAME;;
-                    *"$searchString2"*) 
-                        IMAGENAME=$searchString2 
-                        echo "image name is" $IMAGENAME;;
-                    *)
-                        IMAGENAME=$searchString3
-                        echo "image name is" $IMAGENAME;;
-                esac
-            fi
-            echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
-            echo "After provision, IMAGENAME is "$IMAGENAME
-            echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
-            echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
-            $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
+	            $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"

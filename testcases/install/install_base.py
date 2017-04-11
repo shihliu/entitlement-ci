@@ -28,8 +28,25 @@ class Install_Base(Base):
         self.__set_selinux(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)
         self.__auto_subscribe(targetmachine_ip)
-        self.__satellite_repo_config_6(targetmachine_ip)
-        self.__add_satellite62_repo(compose, targetmachine_ip)
+        self.__attach_satellite_subscription(targetmachine_ip)
+        if "RHEL-7" in compose:
+            self.__enable_satellite_repo_7(targetmachine_ip)
+        else:
+            self.__enable_satellite_repo_6(targetmachine_ip)
+        # self.__add_satellite62_repo(compose, targetmachine_ip)
+        self.__install_satellite62(targetmachine_ip)
+        self.__deploy_satellite62(targetmachine_ip)
+        self.__import_manifest_satellite(targetmachine_ip)
+
+    def install_satellite_ohsnap(self, compose, targetmachine_ip=""):
+        self.__set_selinux(targetmachine_ip)
+        self.__set_hosts_file(targetmachine_ip)
+        self.__auto_subscribe(targetmachine_ip)
+        if "RHEL7" in compose:
+            self.__satellite_repo_config_7(targetmachine_ip)
+        else:
+            self.__satellite_repo_config_6(targetmachine_ip)
+        self.__add_satellite_ohsnap_repo(compose, targetmachine_ip)
         self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)

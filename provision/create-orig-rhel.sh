@@ -43,10 +43,11 @@ docker images|grep $IMAGE_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo $IMAGE_NAME"is exist"
+   echo $IMAGE_NAME"is exist, it neend't to pull it from repo"
 else
    docker pull registry.access.redhat.com/$IMAGE_NAME
    docker tag registry.access.redhat.com/$IMAGE_NAME $IMAGE_NAME
+   docker rmi registry.access.redhat.com/$IMAGE_NAME
 fi
 
 popd

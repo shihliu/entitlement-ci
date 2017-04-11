@@ -26,16 +26,32 @@ class Install_Base(Base):
 
     def install_satellite62(self, compose, targetmachine_ip=""):
         self.__set_selinux(targetmachine_ip)
-        self.__set_hostname(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)
-#         self.__auto_subscribe(targetmachine_ip)
-#         self.__satellite_repo_config_6(targetmachine_ip)
-#         self.__add_satellite62_repo(compose, targetmachine_ip)
-#         self.__install_satellite62(targetmachine_ip)
+        self.__auto_subscribe(targetmachine_ip)
+        self.__attach_satellite_subscription(targetmachine_ip)
+        if "RHEL-7" in compose:
+            self.__enable_satellite_repo_7(targetmachine_ip)
+        else:
+            self.__enable_satellite_repo_6(targetmachine_ip)
+        # self.__add_satellite62_repo(compose, targetmachine_ip)
+        self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 
-    def install_rhevm(self, compose, targetmachine_ip=""):
+    def install_satellite_ohsnap(self, compose, targetmachine_ip=""):
+        self.__set_selinux(targetmachine_ip)
+        self.__set_hosts_file(targetmachine_ip)
+        self.__auto_subscribe(targetmachine_ip)
+        if "RHEL7" in compose:
+            self.__satellite_repo_config_7(targetmachine_ip)
+        else:
+            self.__satellite_repo_config_6(targetmachine_ip)
+        self.__add_satellite_ohsnap_repo(compose, targetmachine_ip)
+        self.__install_satellite62(targetmachine_ip)
+        self.__deploy_satellite62(targetmachine_ip)
+        self.__import_manifest_satellite(targetmachine_ip)
+
+    def install_rhevm35(self, compose, targetmachine_ip=""):
         self.cm_install_wget(targetmachine_ip)
         self.__auto_subscribe(targetmachine_ip)
         self.__add_rhevm_repo(compose, targetmachine_ip)
@@ -72,16 +88,6 @@ class Install_Base(Base):
         else:
             raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
 
-    def __set_hostname(self, targetmachine_ip=""):
-        lgger.info("=================================")
-        SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
-        cmd = "hostname %s" %SERVER_HOSTNAME
-        ret, output = self.runcmd(cmd, "set satellite hostname", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to set satellite hostname to %s." %SERVER_HOSTNAME)
-        else:
-            raise FailException("Test Failed - Failed to set satellite hostname to %s." %SERVER_HOSTNAME)
-
     def __set_hosts_file(self, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
         ret, output = self.runcmd(cmd, "set /etc/hosts", targetmachine_ip)
@@ -98,6 +104,14 @@ class Install_Base(Base):
         else:
             raise FailException("Test Failed - Failed to auto attach.")
 
+    def __attach_satellite_subscription(self, targetmachine_ip=""):
+        cmd = "subscription-manager  subscribe --pool=8a85f981519abf020151a22d3c387f2a"
+        ret, output = self.runcmd(cmd, "attach Red Hat Satellite Employee Subscription", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to attach Red Hat Satellite Employee Subscription.")
+        else:
+            raise FailException("Test Failed - Failed to attach Red Hat Satellite Employee Subscription.")
+
     def __enable_sam_repo(self, targetmachine_ip=""):
         cmd = "yum-config-manager --disable; yum-config-manager --enable rhel-6-server-sam-rpms rhel-6-server-rpms"
         ret, output = self.runcmd(cmd, "enable sam repo", targetmachine_ip)
@@ -105,6 +119,22 @@ class Install_Base(Base):
             logger.info("Succeeded to enable sam repo")
         else:
             raise FailException("Test Failed - Failed to enable sam repo")
+
+    def __enable_satellite_repo_6(self, targetmachine_ip=""):
+        cmd = "subscription-manager repos --disable=*; subscription-manager repos --enable=rhel-6-server-rpms --enable=rhel-6-server-optional-rpms --enable=rhel-server-rhscl-6-rpms --enable=rhel-6-server-satellite-capsule-6.2-rpms --enable=rhel-6-server-satellite-6.2-rpms --enable=rhel-6-server-satellite-tools-6.2-rpms"
+        ret, output = self.runcmd(cmd, "enable satellite repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to enable satellite repo")
+        else:
+            raise FailException("Test Failed - Failed to enable satellite repo")
+
+    def __enable_satellite_repo_7(self, targetmachine_ip=""):
+        cmd = "subscription-manager repos --disable=*; subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-optional-rpms --enable=rhel-server-rhscl-7-rpms --enable=rhel-7-server-satellite-capsule-6.2-rpms --enable=rhel-7-server-satellite-6.2-rpms --enable=rhel-7-server-satellite-tools-6.2-rpms"
+        ret, output = self.runcmd(cmd, "enable satellite repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to enable satellite repo")
+        else:
+            raise FailException("Test Failed - Failed to enable satellite repo")
 
     def __satellite_repo_config_7(self, targetmachine_ip=""):
         cmd = "subscription-manager repos --disable \"*\""
@@ -203,6 +233,21 @@ class Install_Base(Base):
         else:
             raise FailException("Test Failed - Failed to add satellite repo.")
 
+    def __add_satellite_ohsnap_repo(self, satellite_compose, targetmachine_ip=""):
+        cmd = ('cat <<EOF > /etc/yum.repos.d/satellite.repo\n'
+            '[sat6]\n'
+            'name=Satellite 6\n'
+            'baseurl=%s\n'
+            'enabled=1\n'
+            'gpgcheck=0\n'
+            'EOF' % (satellite_compose)
+            )
+        ret, output = self.runcmd(cmd, "add satellite ohsnap repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to add satellite repo.")
+        else:
+            raise FailException("Test Failed - Failed to add satellite repo.")
+
     def __install_katello(self, targetmachine_ip=""):
         for item in range(3):
             cmd = "yum install -y katello-headpin-all"
@@ -273,6 +318,19 @@ class Install_Base(Base):
         ret, output = self.runcmd(cmd, "hammer manifest upload", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to import menifest.")
+            # After manifest is imported, enable repos of product(69.pem) for rhel7 and rhel6(bug 1256615 and bug 1436565)
+            cmd1 = "releasever=(7Server 7.0 7.1 7.2 7.3); for i in ${releasever[@]}; do hammer -u admin -p admin repository-set enable --id 2456 --product='Red Hat Enterprise Linux Server' --organization-id 1 --releasever $i --basearch x86_64; done"
+            ret, output = self.runcmd(cmd1, "enable repos of rhel7", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to enable repos of rhel7.")
+            else:
+                raise FailException("Test Failed - Failed to enable repos of rhel7.")
+            cmd2 = "releasever=(6Server 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9); for i in ${releasever[@]}; do hammer -u admin -p admin repository-set enable --id 168 --product='Red Hat Enterprise Linux Server' --organization-id 1 --releasever $i --basearch x86_64; done"
+            ret, output = self.runcmd(cmd2, "enable repos of rhel6", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to enable repos of rhel6.")
+            else:
+                raise FailException("Test Failed - Failed to enable repos of rhel6.")
         else:
             raise FailException("Test Failed - Failed to import menifest.")
 
@@ -327,22 +385,22 @@ class Install_Base(Base):
             'baseurl=http://bob.eng.lab.tlv.redhat.com/builds/latest_3.6/el%s/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
-            
+
             '[JBoss_latest]\n'
             'name=JBoss_latest\n'
             'baseurl=http://download.eng.tlv.redhat.com/pub/rhel/released/JBEAP-6/latest-released/JBEAP-6.4.8-RHEL-6/Server/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
-            
+
             '[rhevm-mgent]\n'
             'name=rhevm-mgent\n'
             'baseurl=http://download.eng.bos.redhat.com/rel-eng/RHEV/3.5.1/latest/mgmt-agents/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
-            
-            '[RHEL_6.7_optional]\n'
-            'name=RHEL_6.7_optional\n'
-            'baseurl=http://download.eng.tlv.redhat.com/released/RHEL-6-Supplementary/6.7/Server/x86_64/os/\n'
+
+            '[RHEL_6.8_optional]\n'
+            'name=RHEL_6.8_optional\n'
+            'baseurl=http://download.eng.tlv.redhat.com/released/RHEL-6-Supplementary/6.8/Server/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
             'EOF' % (rhevm_compose)
@@ -382,22 +440,15 @@ class Install_Base(Base):
             'enabled=1\n'
             'gpgcheck=0\n'
 
-            '[rhev-4.0.1-1]\n'
-            'name=rhev 4.0.1-1\n'
-#             'baseurl=http://satellite6.lab.eng.rdu2.redhat.com/devel/candidate-trees/Satellite/%s/compose/Satellite/x86_64/os/\n'
-            'baseurl=http://bob.eng.lab.tlv.redhat.com/builds/4.0/4.0.1-1/el%s/\n'
-            'enabled=1\n'
-            'gpgcheck=0\n'
-            
             '[test_rhel_z_stream]\n'
             'name=RHEL_7.2_candidate_zstream\n'
             'baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhel-7.2-z-candidate/x86_64/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
             
-            '[rhev-72-hypervisor]\n'
-            'name=rhev-72-hypervisor\n'
-            'baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhevh-rhel-7.2-candidate/x86_64/\n'
+            '[rhel-7.2-supplementary]\n'
+            'name=rhel-7.2-supplementary\n'
+            'baseurl=http://download.eng.tlv.redhat.com/pub/rhel/released/Supp-RHEL-7/7.2/Server/x86_64/os/\n'
             'enabled=1\n'
             'gpgcheck=0\n'
             'EOF' % (rhevm_compose, rhevm_compose)
@@ -450,6 +501,7 @@ class Install_Base(Base):
             logger.info("Succeeded to wget rhevm config file to rhevm")
         else:
             raise FailException("Failed to wget rhevm config file to rhevm")
+        rhevm_hostname = self.get_hostname(targetmachine_ip)
         cmd = "sed -i -e 's/rhevmhostname/%s/g' /root/rhevm36_config" % rhevm_hostname
         ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
         if ret == 0:
