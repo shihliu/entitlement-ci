@@ -42,7 +42,7 @@ class VIRTWHOBase(Base):
         server_compose = get_exported_param("SERVER_COMPOSE")
         tool_src = get_exported_param("VIRTWHO_SRC")
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
-        if server_compose == "ohsnap-satellite" and tool_src != "original":
+        if server_compose == "ohsnap-satellite" and "original" not in tool_src:
             if self.os_serial == "6":
                 cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
                     '[sat6-tools]\n'
