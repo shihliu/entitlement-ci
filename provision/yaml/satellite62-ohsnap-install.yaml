@@ -93,8 +93,8 @@
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/sam_install
-            nosetests satellite62_install.py
+            pushd $WORKSPACE/entitlement-ci/testcases/install
+            nosetests satellite_ohsnap_install.py
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt

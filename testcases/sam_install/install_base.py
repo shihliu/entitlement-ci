@@ -35,6 +35,19 @@ class Install_Base(Base):
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 
+    def install_satellite_ohsnap(self, compose, targetmachine_ip=""):
+        self.__set_selinux(targetmachine_ip)
+        self.__set_hosts_file(targetmachine_ip)
+        self.__auto_subscribe(targetmachine_ip)
+        if "RHEL7" in compose:
+            self.__satellite_repo_config_7(targetmachine_ip)
+        else:
+            self.__satellite_repo_config_6(targetmachine_ip)
+        self.__add_satellite_ohsnap_repo(compose, targetmachine_ip)
+        self.__install_satellite62(targetmachine_ip)
+        self.__deploy_satellite62(targetmachine_ip)
+        self.__import_manifest_satellite(targetmachine_ip)
+
     def install_rhevm(self, compose, targetmachine_ip=""):
         self.cm_install_wget(targetmachine_ip)
         self.__auto_subscribe(targetmachine_ip)
