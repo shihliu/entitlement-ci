@@ -767,6 +767,8 @@ class Base(unittest.TestCase):
             self.os_serial = "6"
         elif "RHEL-7" in rhel_compose:
             self.os_serial = "7"
+        elif "release" in rhel_compose:
+            logger.info("It's released version")
         else:
             raise FailException("Test Failed - Failed to get RHEL_COMPOSE.")
         # for rhevm testing
