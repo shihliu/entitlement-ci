@@ -20,6 +20,42 @@
         - timestamps
 
 - job-template:
+    name: 'rhel-install-provision'
+    defaults: virt-who-provision
+    node: docker-rhel
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SWITCH=true/false
+            #export RHEL_COMPOSE=
+            echo "*********************************setup env*********************************"
+            #convert switch for testing against satellite
+            if [ "$SWITCH"x = "true"x ]
+            then
+                export SWITCH=false
+            elif [ "$SWITCH"x = "false"x ]
+            then
+                export SWITCH=true
+            fi
+
+            #Provision rhel6.8 released img
+            $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel6.8
+            
+            #Provision rhel6.9 released img
+            $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel6.9
+
+            #Provision rhel7.3 released img
+            $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.3
+            echo "********************************runtime env********************************"
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+- job-template:
     name: 'rhel69-install-provision'
     defaults: virt-who-provision
     node: docker-rhel
@@ -114,6 +150,7 @@
     jobs:
       - 'rhel69-install-provision'
       - 'rhel68-install-provision'
+      - 'rhel-install-provision'
 
 - project:
     name: rhel6-install-jobs

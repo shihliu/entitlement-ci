@@ -30,8 +30,12 @@ if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=$RHEL_COMPOSE; fi
 if [ "$CONTAINER_NAME" == "" ]; then CONTAINER_NAME="rhel.redhat.com";fi
 
-RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
+if [ "$RHEL_COMPOSE"x != "release"x ] 
+then
+  RHEL_IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
+  echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
+else
+  RHEL_IMAGE_NAME=$IMAGE_NAME
 
 export PASS='red2015'
 

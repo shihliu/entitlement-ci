@@ -71,8 +71,9 @@
         #export SERVER_COMPOSE=(optional) or (ohsnap-satellite)
         #export VIRTWHO_SRC=(original) or (sattool)
         export SERVER_COMPOSE=ohsnap-satellite
-        export VIRTWHO_SRC=original
-        #export RHEL_COMPOSE=(optional)
+        export VIRTWHO_SRC=
+        export RHEL_COMPOSE=release
+        #export RHEL_COMPOSE=(optional) or (release)
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
         env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {{}}
@@ -91,7 +92,7 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
-      - project: rhel69-install-provision
+      - project: rhel-install-provision
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
