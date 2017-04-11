@@ -36,6 +36,7 @@ then
   echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
 else
   RHEL_IMAGE_NAME=$IMAGE_NAME
+fi
 
 export PASS='red2015'
 
