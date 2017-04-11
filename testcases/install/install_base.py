@@ -43,9 +43,9 @@ class Install_Base(Base):
         self.__set_selinux(targetmachine_ip)
         self.__set_hostname(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)
-        #self.__auto_subscribe(targetmachine_ip)
-        #self.__satellite_repo_config_6(targetmachine_ip)
-        #self.__add_satellite62_repo(compose, targetmachine_ip)
+        # self.__auto_subscribe(targetmachine_ip)
+        # self.__satellite_repo_config_6(targetmachine_ip)
+        # self.__add_satellite62_repo(compose, targetmachine_ip)
 #         self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
@@ -100,6 +100,16 @@ class Install_Base(Base):
             logger.info("Succeeded to set /etc/sysconfig/selinux.")
         else:
             raise FailException("Test Failed - Failed to set /etc/sysconfig/selinux.")
+
+    def __set_hostname(self, targetmachine_ip=""):
+        logger.info("=================================")
+        SATELLITE_HOSTNAME = get_exported_param("SATELLITE_HOSTNAME")
+        cmd = "hostname %s" % SATELLITE_HOSTNAME
+        ret, output = self.runcmd(cmd, "set satellite hostname", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to set satellite hostname to %s." % SATELLITE_HOSTNAME)
+        else:
+            raise FailException("Test Failed - Failed to set satellite hostname to %s." % SATELLITE_HOSTNAME)
 
     def __set_hosts_file(self, targetmachine_ip=""):
         cmd = "sed -i '/%s/d' /etc/hosts; echo \"%s `hostname`\" >> /etc/hosts" % (targetmachine_ip, targetmachine_ip)
