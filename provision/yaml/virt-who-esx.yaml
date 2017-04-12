@@ -134,7 +134,7 @@
                 else
                     CONTAINTERNAME="esx-"$VIRTWHO_SRC".redhat.com"
                     echo "container name is "$CONTAINTERNAME
-                    IMAGENAME=`$VIRTWHO_SRC | cut -d \- -f 1`
+                    IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
                     echo "image name is" $IMAGENAME 
                     #thisString= $VIRTWHO_SRC
                     #searchString1="rhel6.9"

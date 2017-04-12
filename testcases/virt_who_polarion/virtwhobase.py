@@ -38,7 +38,7 @@ class VIRTWHOBase(Base):
             logger.info("virt-who package is not install, need to install.")
 
     def sys_setup(self, targetmachine_ip=None):
-        self.cm_install_basetool(targetmachine_ip)
+#         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         logger.info("server_compose is %s" %server_compose)
         tool_src = get_exported_param("VIRTWHO_SRC")
