@@ -50,7 +50,9 @@ then
 fi
 echo $CONTAINER_NAME "is not exist"
 docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
-pipework br0  $CONTAINER_NAME  dhclient
+result = `pipework br0  $CONTAINER_NAME  dhclient`
+echo "pipework result is "$result
+docker exec -it $CONTAINER_NAME /sbin/ifconfig 
 #docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
 docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
