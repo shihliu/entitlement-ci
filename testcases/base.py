@@ -763,13 +763,17 @@ class Base(unittest.TestCase):
         logger.info("**************************************************************************************************************")
         self.test_server = get_exported_param("SERVER_TYPE")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
+        virtwho_src = get_exported_param("VIRTWHO_SRC")
         if "RHEL-6" in rhel_compose:
             self.os_serial = "6"
         elif "RHEL-7" in rhel_compose:
             self.os_serial = "7"
         elif "release" in rhel_compose:
-            system_version= self.get_os_serials()
-            self.os_serial = system_version
+            if "rhel7" in virtwho_src:
+                self.os_serial = "7"
+            else:
+                self.os_serial = "6"
+            logger.info("os_serial is %s" %self.os_serial)
         else:
             raise FailException("Test Failed - Failed to get RHEL_COMPOSE.")
         # for rhevm testing
