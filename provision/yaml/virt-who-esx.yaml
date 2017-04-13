@@ -123,6 +123,7 @@
             #RHEL_COMPOSE_2_RESULT=${{RHEL_COMPOSE_2_SIMPLE//./}}
             #echo "before test,RHEL_COMPOSE_RESULT is "$RHEL_COMPOSE_RESULT
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
+            echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
 
             if [ "$RHEL_COMPOSE"x = "release"x ]

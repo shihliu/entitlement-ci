@@ -41,7 +41,7 @@ class VIRTWHOBase(Base):
 #         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         logger.info("server_compose is %s" %server_compose)
-        tool_src = get_exported_param("VIRTWHO_SRC")
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s" %tool_src)
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):

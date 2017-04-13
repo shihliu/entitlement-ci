@@ -3,12 +3,17 @@ from utils.tools.shell import command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
+from testcases.sellocator import SelLocator
 from testcases.virt_who_polarion.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
     # ========================================================
     #       Common Functions
     # ========================================================
+    def cm_extend_beaker(self, hours="48", targetmachine_ip=""):
+        cmd = "extendtesttime.sh %s" % hours
+        (ret, output) = self.runcmd(cmd, "extend beaker machine: %s, reserver time as: %s hours" % (targetmachine_ip, hours), targetmachine_ip)
+
     def cm_change_hostname(self, targetmachine_ip=""):
         suffix = time.strftime("%m%H%M%S")
         new_hostname = self.get_hostname(targetmachine_ip) + "-" + suffix
@@ -131,6 +136,9 @@ class Base(unittest.TestCase):
         cmd = "cp -n %s %s" % (os.path.join(image_mount_path, "ENT_TEST_MEDIUM/images/kvm/*"), image_nfs_path)
         ret, output = self.runcmd(cmd, "copy all kvm images", targetmachine_ip)
 
+        # cmd = "umount %s" % (image_mount_path)
+        # ret, output = self.runcmd(cmd, "umount images in host")
+
     def cm_get_rhevm_shell(self):
         if "rhevm-4" in self.rhevm_version:
             # logger.info("It is rhevm4.X build, need to user ovirt-shell")
@@ -247,6 +255,8 @@ class Base(unittest.TestCase):
         if self.test_server == "SAM":
             if self.os_serial == "7" and name + "_el7" in rhsm_cons.sam_cons:
                 return rhsm_cons.sam_cons[name + "_el7"]
+            elif self.os_serial == "6" and name + "_el6" in rhsm_cons.sam_cons:
+                return rhsm_cons.sam_cons[name + "_el6"]
             else:
                 return rhsm_cons.sam_cons[name]
         elif self.test_server == "SATELLITE":
@@ -259,6 +269,8 @@ class Base(unittest.TestCase):
         elif self.test_server == "STAGE" :
             if self.os_serial == "7" and name + "_el7" in rhsm_cons.stage_cons:
                 return rhsm_cons.stage_cons[name + "_el7"]
+            elif self.os_serial == "6" and name + "_el6" in rhsm_cons.stage_cons:
+                return rhsm_cons.stage_cons[name + "_el6"]
             else:
                 return rhsm_cons.stage_cons[name]
         else:
@@ -343,13 +355,18 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to install candlepin cert and configure the system with sam configuration as %s." % samhostip)
         # workaround for bug https://bugzilla.redhat.com/show_bug.cgi?id=1310827
-        cmd = "echo '{\"proc_cpuinfo.common.flags\":\"*****************\"}' > /etc/rhsm/facts/cpuinfo_override.facts"
+        cmd = "echo '{\"proc_cpuinfo.common.flags\":\"*****************\",\"lscpu.flags\":\"*****************\"}' > /etc/rhsm/facts/cpuinfo_override.facts"
         self.runcmd(cmd, "update rhsm facts due to bug 1310827", targetmachine_ip)
 
     def configure_satellite_host(self, satellitehostip, satellitehostname, targetmachine_ip=""):
         # if "satellite" in satellitehostname:
             # for satellite installed in qeos
             # satellitehostname = satellitehostname + ".novalocal"
+        if targetmachine_ip != "":
+            # work around for bug https://bugzilla.redhat.com/show_bug.cgi?id=1417068
+            # add self ip, host name to /etc/hosts
+            hostname = self.get_hostname(targetmachine_ip)
+            self.configure_host_file(targetmachine_ip, hostname, targetmachine_ip)
         self.configure_host_file(satellitehostip, satellitehostname, targetmachine_ip)
         cmd = "rpm -qa | grep katello-ca-consumer | xargs rpm -e"
         ret, output = self.runcmd(cmd, "if katello-ca-consumer package exist, remove it.", targetmachine_ip)
@@ -721,6 +738,41 @@ class Base(unittest.TestCase):
             return output
 
     # ========================================================
+    #       Selenium Functions
+    # ========================================================
+    def sel_locator(self, name):
+        sel_locator = SelLocator()
+        if self.test_server == "SAM":
+            return sel_locator.sam_locators[name]
+        elif self.test_server == "SATELLITE":
+            return sel_locator.satellite_locators[name]
+        elif self.test_server == "STAGE" :
+            return sel_locator.stage_locators[name]
+        else:
+            return sel_locator.locator[name]
+
+    def sel_open_brower(self):
+        server_ip = get_exported_param("SERVER_IP")
+        if self.test_server == "SAM" :
+            server_url = 'https://%s/sam/' % server_ip
+        elif self.test_server == "SATELLITE":
+            server_url = 'https://%s/' % server_ip
+        else:
+            server_url = "https://access.stage.redhat.com/"
+        self.driver.get(server_url)
+        logger.info("Succeeded to run sel_open_brower")
+
+    def sel_login(self, username, password):
+        if self.test_server == "STAGE":
+            self.driver.find_element_by_id(self.sel_locator("home_login")).click()
+        self.driver.find_element_by_id(self.sel_locator("username")).clear()
+        self.driver.find_element_by_id(self.sel_locator("username")).send_keys(username)
+        self.driver.find_element_by_id(self.sel_locator("password")).clear()
+        self.driver.find_element_by_id(self.sel_locator("password")).send_keys(password)
+        self.driver.find_element_by_id(self.sel_locator("login")).click()
+        logger.info("Succeeded to run sel_login")
+
+    # ========================================================
     #       Skip Test Functions
     # ========================================================
 
@@ -751,9 +803,6 @@ class Base(unittest.TestCase):
     # ========================================================
     #       unittest setup
     # ========================================================
-if __name__ == "__main__":
-    unittest.main()
-    
     def setUp(self):
         # show log in unittest report
         self.unittest_handler = logging.StreamHandler(sys.stdout)
@@ -826,4 +875,3 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     unittest.main()
-
