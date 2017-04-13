@@ -816,6 +816,7 @@ class Base(unittest.TestCase):
         self.test_server = get_exported_param("SERVER_TYPE")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
         virtwho_src = get_exported_param("VIRTWHO_SRC")
+        logger.info("virtwho_src is %s" %virtwho_src )
         if "RHEL-6" in rhel_compose:
             self.os_serial = "6"
         elif "RHEL-7" in rhel_compose:
@@ -823,6 +824,8 @@ class Base(unittest.TestCase):
         elif "release" in rhel_compose:
             if "rhel7" in virtwho_src:
                 self.os_serial = "7"
+            elif "rhel6" in virtwho_src:
+                self.os_serial = "6"
             else:
                 self.os_serial = "6"
             logger.info("os_serial is %s" %self.os_serial)
