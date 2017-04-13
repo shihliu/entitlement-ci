@@ -3,7 +3,7 @@ from utils.tools.shell import command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-from testcases.sellocator import SelLocator
+#from testcases.sellocator import SelLocator
 from testcases.virt_who_polarion.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
@@ -740,16 +740,16 @@ class Base(unittest.TestCase):
     # ========================================================
     #       Selenium Functions
     # ========================================================
-    def sel_locator(self, name):
-        sel_locator = SelLocator()
-        if self.test_server == "SAM":
-            return sel_locator.sam_locators[name]
-        elif self.test_server == "SATELLITE":
-            return sel_locator.satellite_locators[name]
-        elif self.test_server == "STAGE" :
-            return sel_locator.stage_locators[name]
-        else:
-            return sel_locator.locator[name]
+    #def sel_locator(self, name):
+    #    sel_locator = SelLocator()
+    #    if self.test_server == "SAM":
+    #        return sel_locator.sam_locators[name]
+    #    elif self.test_server == "SATELLITE":
+    #        return sel_locator.satellite_locators[name]
+    #    elif self.test_server == "STAGE" :
+    #        return sel_locator.stage_locators[name]
+    #    else:
+    #        return sel_locator.locator[name]
 
     def sel_open_brower(self):
         server_ip = get_exported_param("SERVER_IP")
