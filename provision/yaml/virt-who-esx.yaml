@@ -123,7 +123,6 @@
             #RHEL_COMPOSE_2_RESULT=${{RHEL_COMPOSE_2_SIMPLE//./}}
             #echo "before test,RHEL_COMPOSE_RESULT is "$RHEL_COMPOSE_RESULT
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
-            echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
 
             if [ "$RHEL_COMPOSE"x = "release"x ]
@@ -132,6 +131,7 @@
                 then 
                     CONTAINTERNAME="esx-rhel6.9-sattool.redhat.com"
                     IMAGENAME="rhel6.9"
+                    export VIRTWHO_SRC="no"
                 else
                     CONTAINTERNAME="esx-"$VIRTWHO_SRC".redhat.com"
                     echo "container name is "$CONTAINTERNAME
@@ -215,7 +215,7 @@
         echo "************************check trigger condition of another esx*****************" 
         if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         then 
-          if [ "$VIRTWHO_SRC"x = ""x ] 
+          if [ "$VIRTWHO_SRC"x = "no"x ] 
           then
              #run esx-rhel69-sattool.redhat.com
              export VIRTWHO_SRC_ORIGINAL=rhel6.9-sattool

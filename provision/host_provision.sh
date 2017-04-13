@@ -58,17 +58,17 @@ then
 else
    echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
 fi
-docker exec -i $CONTAINER_NAME /sbin/ifconfig
 if [[ $CONTAINER_NAME =~ "rhel7" ]]
 then
-    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet "|awk '{print $2}'`
+    docker exec -i $CONTAINER_NAME ifconfig
+    REMOTE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
 else
     REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 fi
 echo "REMOTE_IP is "$REMOTE_IP
 #docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
-docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
+#docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
 docker exec -i $CONTAINER_NAME sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 docker exec -i $CONTAINER_NAME ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 docker exec -i $CONTAINER_NAME ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
