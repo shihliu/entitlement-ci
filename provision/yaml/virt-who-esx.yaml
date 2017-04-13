@@ -109,11 +109,6 @@
             #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
             #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3
-            export SERVER_IP=10.73.131.225
-            export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
-            export SERVER_COMPOSE=ohsnap-satellite
-            export SERVER_TYPE=SATELLITE
-            export RHEL_COMPOSE=release
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
