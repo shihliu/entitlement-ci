@@ -29,7 +29,7 @@ done
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
 if [ "$SATIMG_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then SATIMG_NAME="satellite62-ohsnap"; \
-else SATIMG_NAME="sat62";fi
+else SATIMG_NAME="sat-cdn";fi
 
 # Make rhel68 base img
 pushd $WORKSPACE/entitlement-ci/provision

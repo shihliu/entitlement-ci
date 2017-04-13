@@ -132,21 +132,6 @@
                     echo "container name is "$CONTAINTERNAME
                     IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
                     echo "image name is" $IMAGENAME 
-                    #thisString= $VIRTWHO_SRC
-                    #searchString1="rhel6.9"
-                    #searchString2="rhel6.8"
-                    #searchString3="rhel7.3"
-                    #case $thisString in
-                    #    *"$searchString1"*) 
-                    #        IMAGENAME=$searchString1 
-                    #        echo "image name is" $IMAGENAME;;
-                    #    *"$searchString2"*) 
-                    #        IMAGENAME=$searchString2 
-                    #        echo "image name is" $IMAGENAME;;
-                    #    *)
-                    #        IMAGENAME=$searchString3
-                    #        echo "image name is" $IMAGENAME;;
-                    #esac
                 fi
                 echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
                 echo "After provision, IMAGENAME is "$IMAGENAME
@@ -154,6 +139,7 @@
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
             else
+                CONTAINTERNAME="esx-"$RHEL_COMPOSE".redhat.com"
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
             fi
             cat $WORKSPACE/RESOURCES.txt
@@ -246,9 +232,9 @@
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt

@@ -86,64 +86,11 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-    publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'rhel68-install-provision'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
-
-- job-template:
-    name: 'rhel68-install-provision'
-    defaults: virt-who-provision
-    node: docker-rhel
-    builders:
-        - shell: |
-            #!/bin/bash
-            echo "*********************************setup env*********************************"
-            #setup environment here to run alone, change back when finished
-            #export SWITCH=true/false
-            #export RHEL_COMPOSE=
-            echo "*********************************setup env*********************************"
-            #convert switch for testing against satellite
-            if [ "$SWITCH"x = "true"x ]
-            then
-                export SWITCH=false
-            elif [ "$SWITCH"x = "false"x ]
-            then
-                export SWITCH=true
-            fi
-            kinit -k -t $KEYTAB $PRINCIPAL
-            #Provision RHEL_COMPOSE img
-            echo "RHEL_COMPOSE" is $RHEL_COMPOSE_2
-            
-            docker images|grep $RHEL_COMPOSE_2
-            isRhelExist=$?
-            if [ $isRhelExist -eq 0 ]
-            then
-               docker rmi -f $RHEL_COMPOSE_2
-            fi
-            $WORKSPACE/entitlement-ci/provision/rhel_base.sh --imagename=$RHEL_COMPOSE_2
-            echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE_2)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE_2)' >> $WORKSPACE/RESOURCES.txt
-            echo "********************************runtime env********************************"
-        - inject:
-            properties-file: $WORKSPACE/RESOURCES.txt
-    publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
   
 - job-group:
     name: rhel6-install-provision-runtest
     jobs:
       - 'rhel6-install-provision'
-      - 'rhel68-install-provision'
       - 'rhel-release-install-provision'
 
 - project:

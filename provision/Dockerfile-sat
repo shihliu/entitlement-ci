@@ -3,8 +3,8 @@ MAINTAINER "shihliu@redhat.com"
 
 #Instll satellite package
 RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN subscription-manager subscribe --pool=8a85f981519abf020151a22d3c387f2a
 RUN subscription-manager repos --disable "*"
-RUN subscription-manager  subscribe --pool=8a85f981519abf020151a22d3c387f2a
 RUN subscription-manager repos --enable=rhel-6-server-rpms --enable=rhel-6-server-optional-rpms --enable=rhel-server-rhscl-6-rpms --enable=rhel-6-server-satellite-capsule-6.2-rpms --enable=rhel-6-server-satellite-6.2-rpms --enable=rhel-6-server-satellite-tools-6.2-rpms
 RUN yum install -y satellite
 
