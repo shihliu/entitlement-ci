@@ -54,6 +54,7 @@ then
     docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
 else
     docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
+fi
 pipework br0  $CONTAINER_NAME  dhclient
 isGetIp=$?
 if [ $isGetIp -eq 0 ]
