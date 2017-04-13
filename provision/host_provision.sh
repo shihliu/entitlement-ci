@@ -50,9 +50,21 @@ then
 fi
 echo $CONTAINER_NAME "is not exist"
 docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
-result = `pipework br0  $CONTAINER_NAME  dhclient`
-echo "pipework result is "$result
-docker exec -it $CONTAINER_NAME /sbin/ifconfig 
+pipework br0  $CONTAINER_NAME  dhclient
+isGetIp=$?
+if [ $isGetIp -eq 0 ]
+then
+   echo "success to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+else
+   echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+fi
+docker exec -it $CONTAINER_NAME /sbin/ifconfig
+if [[ $CONTAINER_NAME =~ "rhel7" ]]
+then
+    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet "|awk '{print $2}'`
+else
+    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
+fi
 #docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
 docker exec -i $CONTAINER_NAME yum install -y openssh-server net-tools passwd
@@ -61,12 +73,6 @@ docker exec -i $CONTAINER_NAME ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 docker exec -i $CONTAINER_NAME ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 echo -e "$PASS\n$PASS" | docker exec -i $CONTAINER_NAME /usr/bin/passwd
-if [[ $CONTAINER_NAME =~ "rhel7" ]]
-then
-    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet "|awk '{print $2}'`
-else
-    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-fi
 echo REMOTE_IP=$REMOTE_IP>>RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 
