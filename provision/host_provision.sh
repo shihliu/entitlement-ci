@@ -49,8 +49,11 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo $CONTAINER_NAME "is not exist"
-docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
-#docker run --privileged -itd -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup  centos  /usr/sbin/init
+if [[ $CONTAINER_NAME =~ "rhel7" ]]
+then
+    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
+else
+    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
 pipework br0  $CONTAINER_NAME  dhclient
 isGetIp=$?
 if [ $isGetIp -eq 0 ]
