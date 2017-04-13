@@ -751,6 +751,9 @@ class Base(unittest.TestCase):
     # ========================================================
     #       unittest setup
     # ========================================================
+if __name__ == "__main__":
+    unittest.main()
+    
     def setUp(self):
         # show log in unittest report
         self.unittest_handler = logging.StreamHandler(sys.stdout)
@@ -778,9 +781,23 @@ class Base(unittest.TestCase):
             raise FailException("Test Failed - Failed to get RHEL_COMPOSE.")
         # for rhevm testing
         rhevm_ip = get_exported_param("RHEVM_IP")
-        if get_exported_param("RHEVM_IP") != "":
+        if get_exported_param("RHEVM_IP") is not None:
             self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip, showlogger=False)
             self.rhevm_shell = self.cm_get_rhevm_shell()
+        try:
+            self.driver = None
+            from selenium import webdriver
+            from pyvirtualdisplay import Display
+            self.display = Display(visible=0, size=(800, 600))
+            self.display.start()
+            # from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+            # self.driver = webdriver.Remote(
+            #   command_executor='http://10.66.128.228:4444/wd/hub',
+            #   desired_capabilities=DesiredCapabilities.FIREFOX)
+            self.driver = webdriver.Firefox()
+            self.driver.implicitly_wait(20)
+        except ImportError:
+            logger.info("selenium not installed, related cases are not available ...")
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
 #         SERVER_IP = get_exported_param("SERVER_IP")
 #         SERVER_HOSTNAME = get_exported_param("SERVER_HOSTNAME")
@@ -791,6 +808,9 @@ class Base(unittest.TestCase):
         logger.info("**************************************************************************************************************")
 
     def tearDown(self):
+        if self.driver != None:
+            self.driver.quit()
+            self.display.stop()
         logger.removeHandler(self.unittest_handler)
 
 #     def test_self(self):
@@ -806,3 +826,4 @@ class Base(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
