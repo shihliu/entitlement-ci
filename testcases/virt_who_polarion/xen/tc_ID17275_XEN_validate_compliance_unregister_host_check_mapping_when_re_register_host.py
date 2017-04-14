@@ -15,7 +15,7 @@ class tc_ID17275_XEN_validate_compliance_unregister_host_check_mapping_when_re_r
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)

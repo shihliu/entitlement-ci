@@ -15,7 +15,7 @@ class tc_ID82634_validate_unlimited_bonus_creat_and_remove(KVMBase):
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             # (1) Check unlimited bonus pool will create after subscribe pool on hypervisor
             # (1.1) Start guest

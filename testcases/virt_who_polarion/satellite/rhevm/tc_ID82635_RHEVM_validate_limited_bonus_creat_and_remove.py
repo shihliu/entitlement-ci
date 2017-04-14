@@ -15,7 +15,7 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

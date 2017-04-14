@@ -18,7 +18,7 @@ class tc_ID17286_XEN_validate_limited_bonus_pool_creation(XENBase):
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             # register guest to Server
             if not self.sub_isregistered(guestip):

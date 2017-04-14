@@ -15,7 +15,7 @@ class tc_ID82636_HYPERV_validate_dc_host_vdc_guest_multi_sockets(HYPERVBase):
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_name = self.get_vw_cons("datacenter_name")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.hyperv_start_guest(guest_name)
             guestip = self.hyperv_get_guest_ip(guest_name)

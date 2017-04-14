@@ -35,7 +35,7 @@ class tc_ID17251_validate_compliance_revoke_after_unregister_fake_kvm_mode(KVMBa
             self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
 
             # (3) restart virt-who service and make virt-who run at fake mode
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
@@ -63,7 +63,7 @@ class tc_ID17251_validate_compliance_revoke_after_unregister_fake_kvm_mode(KVMBa
             self.vw_stop_guests(guest_name)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

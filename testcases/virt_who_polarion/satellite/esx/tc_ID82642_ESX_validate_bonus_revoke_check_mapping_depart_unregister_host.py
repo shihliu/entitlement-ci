@@ -16,7 +16,7 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             self.set_esx_conf()
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):

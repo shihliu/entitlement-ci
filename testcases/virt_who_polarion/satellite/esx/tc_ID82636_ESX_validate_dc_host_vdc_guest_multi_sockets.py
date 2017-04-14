@@ -16,7 +16,7 @@ class tc_ID82636_ESX_validate_dc_host_vdc_guest_multi_sockets(ESXBase):
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_name = self.get_vw_cons("datacenter_name")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):

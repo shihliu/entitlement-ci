@@ -14,7 +14,7 @@ class tc_ID82635_HYPERV_validate_limited_bonus_creat_and_remove(HYPERVBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.hyperv_start_guest(guest_name)
             guestip = self.hyperv_get_guest_ip(guest_name)

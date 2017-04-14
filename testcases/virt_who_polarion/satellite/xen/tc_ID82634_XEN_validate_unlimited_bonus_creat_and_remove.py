@@ -20,7 +20,7 @@ class tc_ID82634_XEN_validate_unlimited_bonus_creat_and_remove(XENBase):
             # (1.1) Start guest
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             # (1.2) Register guest to server
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)

@@ -9,7 +9,8 @@ class ESXBase(VIRTWHOBase):
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        self.vw_restart_virtwho()
+        #self.runcmd_service("restart_virtwho")
+        self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
@@ -20,7 +21,7 @@ class ESXBase(VIRTWHOBase):
         self.esx_start_guest_first(guest_name, esx_host)
         # self.esx_service_restart(ESX_HOST)
         self.esx_stop_guest(guest_name, esx_host)
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -347,8 +348,8 @@ class ESXBase(VIRTWHOBase):
         if guestname != "" and guestuuid == "Default":
             guestuuid = self.esx_get_guest_uuid(guestname, destination_ip)
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.vw_restart_virtwho()
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
+        self.runcmd_service("restart_virtwho")
         # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")

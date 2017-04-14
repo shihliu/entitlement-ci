@@ -15,7 +15,7 @@ class tc_ID82635_ESX_validate_limited_bonus_creat_and_remove(ESXBase):
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):
                 self.esx_stop_guest(guest_name, esx_host_ip)

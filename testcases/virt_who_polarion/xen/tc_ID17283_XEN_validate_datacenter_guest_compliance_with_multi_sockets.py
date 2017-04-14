@@ -15,7 +15,7 @@ class tc_ID17283_XEN_validate_datacenter_guest_compliance_with_multi_sockets(XEN
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_name = self.get_vw_cons("datacenter_name")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)

@@ -17,7 +17,7 @@ class tc_ID17262_ESX_check_guest_attribute_after_resume_pause_poweroff_poweron(E
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             # start guest
             if self.esx_guest_ispoweron(guest_name, esx_host_ip):

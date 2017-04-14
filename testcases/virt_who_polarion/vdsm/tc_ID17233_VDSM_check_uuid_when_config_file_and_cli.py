@@ -35,7 +35,7 @@ class tc_ID17233_VDSM_check_uuid_when_config_file_and_cli(VDSMBase):
         finally:
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             self.vw_restart_virtwho(remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

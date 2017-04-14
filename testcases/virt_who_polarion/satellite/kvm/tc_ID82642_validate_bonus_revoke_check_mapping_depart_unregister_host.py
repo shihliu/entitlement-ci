@@ -15,7 +15,7 @@ class tc_ID82642_validate_bonus_revoke_check_mapping_depart_unregister_host(KVMB
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             hostuuid = self.get_hostname()
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)

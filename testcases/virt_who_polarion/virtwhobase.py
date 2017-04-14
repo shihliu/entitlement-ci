@@ -1314,11 +1314,11 @@ class VIRTWHOBase(Base):
             raise FailException("Failed to get hypervisor's capabilities on %s" % self.get_hg_info(targetmachine_ip))
 
     def cal_virtwho_thread(self, targetmachine_ip=""):
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
             cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
             ret, output = self.runcmd(cmd, "calculate virt-who thread", targetmachine_ip)

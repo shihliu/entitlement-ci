@@ -15,7 +15,7 @@ class tc_ID82642_RHEVM_validate_bonus_revoke_check_mapping_depart_unregister_hos
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

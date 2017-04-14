@@ -14,7 +14,7 @@ class tc_ID82642_HYPERV_validate_bonus_revoke_check_mapping_depart_unregister_ho
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
 
             self.hyperv_start_guest(guest_name)
             guestip = self.hyperv_get_guest_ip(guest_name)

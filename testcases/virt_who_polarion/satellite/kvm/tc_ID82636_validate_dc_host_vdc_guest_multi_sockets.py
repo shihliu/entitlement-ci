@@ -19,7 +19,7 @@ class tc_ID82636_validate_dc_host_vdc_guest_multi_sockets(KVMBase):
             self.setup_custom_facts("cpu.cpu_socket(s)", "4")
             poolid = self.get_pool_by_SKU(host_test_sku)
 
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
             

@@ -359,7 +359,7 @@ class KVMBase(VIRTWHOBase):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
         # mount all needed guests
         self.mount_images()
         # add guests in host machine.
@@ -414,7 +414,7 @@ class KVMBase(VIRTWHOBase):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
 
     def kvm_sys_setup_arch(self, targetmachine_ip=""):
         self.sys_setup(targetmachine_ip)

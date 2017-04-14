@@ -58,7 +58,7 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.unset_virtwho_d_conf(fake_file, remote_ip_2)
             self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
             self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             self.vw_restart_virtwho(remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

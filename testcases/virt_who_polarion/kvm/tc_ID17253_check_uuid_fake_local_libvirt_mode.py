@@ -43,7 +43,7 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
             self.vw_define_all_guests()
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
