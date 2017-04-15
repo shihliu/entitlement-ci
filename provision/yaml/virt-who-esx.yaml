@@ -61,10 +61,10 @@
         recipients: shihliu@redhat.com
         reply-to: shihliu@redhat.com
         content-type: default
-        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $VIRTWHO_SRC_ORIGINAL -
+        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $VIRTWHO_ORIGINAL_SRC -
           $BUILD_STATUS!'
         body: |-
-          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_SRC_ORIGINAL- Build # $BUILD_NUMBER - $BUILD_STATUS:
+          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_ORIGINAL_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
 
           Runtime Info As Follows:
 
@@ -76,7 +76,7 @@
           export RHEL_COMPOSE=$RHEL_COMPOSE
           export REMOTE_IP=$REMOTE_IP
           export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
-          export VIRTWHO_SRC=$VIRTWHO_SRC_ORIGINAL
+          export VIRTWHO_SRC=$VIRTWHO_ORIGINAL_SRC
           export SERVER_TYPE=$SERVER_TYPE
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
@@ -96,7 +96,7 @@
 - job-template:
     name: 'virt-who-esx-provision'
     defaults: virt-who-provision
-    node: docker-rhel
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -122,7 +122,7 @@
 
             if [ "$RHEL_COMPOSE"x = "release"x ]
             then
-                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = ""x ] 
+                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "no"x ] 
                 then 
                     CONTAINTERNAME="esx-rhel6.9-sattool.redhat.com"
                     IMAGENAME="rhel6.9"
@@ -199,42 +199,47 @@
           if [ "$VIRTWHO_SRC"x = "no"x ] 
           then
              #run esx-rhel69-sattool.redhat.com
-             export VIRTWHO_SRC_ORIGINAL=rhel6.9-sattool
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-sattool
              export VIRTWHO_SRC=rhel6.8-sattool
+             export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/ESXNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
-             export VIRTWHO_SRC_ORIGINAL=rhel6.8-sattool
+             $export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
              export VIRTWHO_SRC=rhel7.3-sattool
+             export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/ESXNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
-             export VIRTWHO_SRC_ORIGINAL=rhel7.3-sattool
+             $export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
              export VIRTWHO_SRC=rhel6.9-original
+             export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/ESXNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
-             export VIRTWHO_SRC_ORIGINAL=rhel6.9-original
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
              export VIRTWHO_SRC=rhel6.8-original
+             export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/ESXNEWRUN.txt   
           else
              # esx-rhel73-original.redhat.com
-             export VIRTWHO_SRC_ORIGINAL=rhel6.8-original
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
              export VIRTWHO_SRC=rhel7.3-original
+             export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/ESXNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
              echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/ESXNEWRUN.txt
           fi
         else
-          export VIRTWHO_SRC_ORIGINAL=rhel7.3-original
+          export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
           rm -rf $WORKSPACE/ESXNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_SRC_ORIGINAL|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
