@@ -213,6 +213,13 @@ class Base(unittest.TestCase):
             return output.strip("\n").strip(" ")
         else: raise FailException("Failed to get os serials")
 
+    def get_os_serials_update(self, targetmachine_ip=""):
+        cmd = "cat /etc/redhat-release |awk '{print $7}'| awk -F \".\" '{print $1}'"
+        (ret, output) = self.runcmd(cmd, "get system version", targetmachine_ip=targetmachine_ip, showlogger=False)
+        if ret == 0:
+            return output.strip("\n").strip(" ")
+        else: raise FailException("Failed to get os serials")
+
     def get_os_platform(self, targetmachine_ip=""):
         cmd = "lsb_release -i"
         (ret, output) = self.runcmd(cmd, showlogger=False)
@@ -313,7 +320,8 @@ class Base(unittest.TestCase):
         if targetmachine_ip != None and targetmachine_ip != "":
             os_serial = self.os_serial
         else:
-            os_serial = self.get_os_serials(targetmachine_ip)
+            #os_serial = self.get_os_serials(targetmachine_ip)
+            os_serial = self.get_os_serials_update(targetmachine_ip)
         logger.info("-----os serial is %s" %os_serial)
         if cmd_name in virtwho_cons.virt_who_commands:
             if os_serial == "7":
