@@ -43,6 +43,10 @@ class VIRTWHOBase(Base):
         logger.info("server_compose is %s" %server_compose)
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s" %tool_src)
+        # check if host registered to cdn server
+        if not self.sub_isregistered():
+            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
+            self.sub_auto_subscribe()
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
             if self.os_serial == "6":
@@ -69,16 +73,13 @@ class VIRTWHOBase(Base):
             else:
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
-        # register guest to server
-        if not self.sub_isregistered():
-            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
-            self.sub_auto_subscribe()
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=True)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")       
+        self.sub.unregister(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
@@ -537,7 +538,7 @@ class VIRTWHOBase(Base):
                 logger.info("Failed to installed subscription-manager on System %s " % self.get_hg_info(targetmachine_ip))
             return False
         elif "has been deleted" in output:
-            logger.info("System % is unregistered on server side"  % self.get_hg_info(targetmachine_ip))
+            logger.info("System is unregistered on server side" )
             self.sub_clean(targetmachine_ip)
             return False
         else:
