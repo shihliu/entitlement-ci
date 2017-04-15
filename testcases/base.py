@@ -314,6 +314,7 @@ class Base(unittest.TestCase):
             os_serial = self.os_serial
         else:
             os_serial = self.get_os_serials(targetmachine_ip)
+        logger.info("-----os serial is %s" %os_serial)
         if cmd_name in virtwho_cons.virt_who_commands:
             if os_serial == "7":
                 cmd = virtwho_cons.virt_who_commands[cmd_name + "_systemd"]
