@@ -79,7 +79,7 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")       
-        self.sub.unregister(targetmachine_ip)
+        self.sub_unregister(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
