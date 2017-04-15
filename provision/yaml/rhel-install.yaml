@@ -22,7 +22,7 @@
 - job-template:
     name: 'rhel-release-install-provision'
     defaults: virt-who-provision
-    node: docker-rhel
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
