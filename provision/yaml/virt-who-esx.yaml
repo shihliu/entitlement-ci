@@ -108,7 +108,7 @@
             #export SERVER_TYPE=SATELLITE
             #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
-            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
@@ -122,17 +122,18 @@
 
             if [ "$RHEL_COMPOSE"x = "release"x ]
             then
-                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "no"x ] 
+                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "default"x ] 
                 then 
                     CONTAINTERNAME="esx-rhel6.9-sattool.redhat.com"
                     IMAGENAME="rhel6.9"
-                    export VIRTWHO_SRC="no"
-                    export VIRTWHO_ORIGINAL_SRC="no"
+                    export VIRTWHO_SRC="default"
+                    export VIRTWHO_ORIGINAL_SRC="rhel6.9-sattool"
                 else
                     CONTAINTERNAME="esx-"$VIRTWHO_SRC".redhat.com"
                     echo "container name is "$CONTAINTERNAME
                     IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
                     echo "image name is" $IMAGENAME 
+                    export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
                 fi
                 echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
                 echo "After provision, IMAGENAME is "$IMAGENAME
@@ -199,38 +200,31 @@
         echo "************************check trigger condition of another esx*****************" 
         if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         then 
-          if [ "$VIRTWHO_SRC"x = "no"x ] 
+          if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
             echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/ESXNEWRUN.txt
             export VIRTWHO_SRC=rhel6.8-sattool
-            if [ "$VIRTWHO_ORIGINAL_SRC"X = "no"X ] 
-            then
-             #run esx-rhel69-sattool.redhat.com
-              export VIRTWHO_ORIGINAL_SRC=rhel6.9-sattool
-            else
-              export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-            fi
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
-             export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
              export VIRTWHO_SRC=rhel7.3-sattool
-             $export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/ESXNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
-             export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
+             #export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
              export VIRTWHO_SRC=rhel6.9-original
              #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/ESXNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
-             export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
              export VIRTWHO_SRC=rhel6.8-original
              #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/ESXNEWRUN.txt   
           else
              # esx-rhel73-original.redhat.com
-             export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
              export VIRTWHO_SRC=rhel7.3-original
              #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/ESXNEWRUN.txt 

@@ -61,10 +61,10 @@
         recipients: shihliu@redhat.com
         reply-to: shihliu@redhat.com
         content-type: default
-        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $RHEL_COMPOSE -
+        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $VIRTWHO_ORIGINAL_SRC -
           $BUILD_STATUS!'
         body: |-
-          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
+          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_ORIGINAL_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
 
           Runtime Info As Follows:
 
@@ -76,7 +76,7 @@
           export RHEL_COMPOSE=$RHEL_COMPOSE
           export REMOTE_IP=$REMOTE_IP
           export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
-          export VIRTWHO_SRC=$VIRTWHO_SRC
+          export VIRTWHO_SRC=$VIRTWHO_ORIGINAL_SRC
           export SERVER_TYPE=$SERVER_TYPE
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
@@ -96,7 +96,7 @@
 - job-template:
     name: 'virt-who-hyperv-provision'
     defaults: virt-who-provision
-    node: docker-rhel
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -108,12 +108,7 @@
             #export SERVER_TYPE=SATELLITE
             #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
-            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3
-            export SERVER_IP=10.73.131.225
-            export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
-            export SERVER_COMPOSE=ohsnap-satellite
-            export SERVER_TYPE=SATELLITE
-            export RHEL_COMPOSE=release
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
@@ -127,30 +122,18 @@
 
             if [ "$RHEL_COMPOSE"x = "release"x ]
             then
-                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = ""x ] 
+                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "default"x ] 
                 then 
                     CONTAINTERNAME="hyperv-rhel6.9-sattool.redhat.com"
                     IMAGENAME="rhel6.9"
+                    export VIRTWHO_SRC="default"
+                    export VIRTWHO_ORIGINAL_SRC="rhel6.9-sattool"
                 else
                     CONTAINTERNAME="hyperv-"$VIRTWHO_SRC".redhat.com"
                     echo "container name is "$CONTAINTERNAME
                     IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
                     echo "image name is" $IMAGENAME 
-                    #thisString= $VIRTWHO_SRC
-                    #searchString1="rhel6.9"
-                    #searchString2="rhel6.8"
-                    #searchString3="rhel7.3"
-                    #case $thisString in
-                    #    *"$searchString1"*) 
-                    #        IMAGENAME=$searchString1 
-                    #        echo "image name is" $IMAGENAME;;
-                    #    *"$searchString2"*) 
-                    #        IMAGENAME=$searchString2 
-                    #        echo "image name is" $IMAGENAME;;
-                    #    *)
-                    #        IMAGENAME=$searchString3
-                    #        echo "image name is" $IMAGENAME;;
-                    #esac
+                    export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
                 fi
                 echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
                 echo "After provision, IMAGENAME is "$IMAGENAME
@@ -158,13 +141,14 @@
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
             else
+                CONTAINTERNAME="hyperv-"$RHEL_COMPOSE".redhat.com"
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
             fi
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -195,6 +179,8 @@
         echo "Pinging Test Resources"
         cat $WORKSPACE/RESOURCES.txt
         echo REMOTE_IP=$REMOTE_IP
+        echo VIRTWHO_ORIGINAL_SRC=$VIRTWHO_ORIGINAL_SRC
+        echo VIRTWHO_SRC=$VIRTWHO_SRC
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=
@@ -207,53 +193,62 @@
         nosetests virtwho_hyperv_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/hyperv/
-        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        popd
+        #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/hyperv/
+        #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        #popd
 
         echo "************************check trigger condition of another hyperv*****************" 
         if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         then 
-          if [ "$VIRTWHO_SRC"x = ""x ] 
+          if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
-             #run hyperv-rhel69-sattool.redhat.com
-             export VIRTWHO_SRC=rhel6.8-sattool
-             echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/HYPERVNEWRUN.txt
+            echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/hypervNEWRUN.txt
+            export VIRTWHO_SRC=rhel6.8-sattool
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
              export VIRTWHO_SRC=rhel7.3-sattool
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/HYPERVNEWRUN.txt
+             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/hypervNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
+             #export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
              export VIRTWHO_SRC=rhel6.9-original
-             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/HYPERVNEWRUN.txt         
+             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/hypervNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
              export VIRTWHO_SRC=rhel6.8-original
-             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/HYPERVNEWRUN.txt   
+             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/hypervNEWRUN.txt   
           else
              # hyperv-rhel73-original.redhat.com
+             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
              export VIRTWHO_SRC=rhel7.3-original
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/HYPERVNEWRUN.txt 
+             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/hypervNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/HYPERVNEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/hypervNEWRUN.txt
           fi
-        else 
-          rm -rf $WORKSPACE/HYPERVNEWRUN.txt
+        else
+          export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
+          rm -rf $WORKSPACE/hypervNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
+        echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/HYPERVNEWRUN.txt
+        properties-file: $WORKSPACE/hypervNEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -262,7 +257,7 @@
     - default-virt-who-publishers
     - trigger-parameterized-builds:
       - project: virt-who-hyperv-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/HYPERVNEWRUN.txt
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/hypervNEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS

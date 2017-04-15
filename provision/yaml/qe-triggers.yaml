@@ -104,8 +104,8 @@
         #setup environment here to run alone, change back when finished
         export SERVER_COMPOSE=ohsnap-satellite
         export RHEL_COMPOSE=release
-        export VIRTWHO_SRC=no
-        #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or null, when it is null,it will create all images
+        export VIRTWHO_SRC=default
+        #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or default, when it is null,it will create all images
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
         env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}

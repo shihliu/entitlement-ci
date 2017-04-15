@@ -69,8 +69,12 @@ class VIRTWHOBase(Base):
             else:
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
+        # register guest to server
+        if not self.sub_isregistered():
+            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
+            self.sub_auto_subscribe()
         cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=True)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
@@ -507,6 +511,15 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to encode virt-who-password.")
 
+    def sub_clean(self, targetmachine_ip=""):         
+        # need to clean local data after unregister
+        cmd = "subscription-manager clean"
+        ret, output = self.runcmd(cmd, "clean system", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to clean %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to clean %s." % self.get_hg_info(targetmachine_ip))
+
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
         cmd = "subscription-manager identity"
@@ -522,6 +535,10 @@ class VIRTWHOBase(Base):
                 logger.info("subscription-manager has been installed on System %s " % self.get_hg_info(targetmachine_ip))
             else:
                 logger.info("Failed to installed subscription-manager on System %s " % self.get_hg_info(targetmachine_ip))
+            return False
+        elif "has been deleted" in output:
+            logger.info("System % is unregistered on server side"  % self.get_hg_info(targetmachine_ip))
+            self.sub_clean(targetmachine_ip)
             return False
         else:
             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
