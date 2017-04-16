@@ -91,6 +91,14 @@ class XENBase(VIRTWHOBase):
         else:
             raise FailException("Failed to get host's uuid")
 
+    def xen_get_hw_uuid(self, targetmachine_ip=""):
+        cmd = "xe host-get-cpu-features"
+        ret, output = self.runcmd_xen(cmd, "get xen hwuuid", targetmachine_ip)
+        if ret == 0:
+            return output.strip()
+        else:
+            raise FailException("Failed to get xen hwuuid")
+
     def xen_get_guest_status(self, guest_name, targetmachine_ip=""):
         cmd = "xe vm-list name-label=%s" % guest_name
         ret, output = self.runcmd_xen(cmd, "get guest's status", targetmachine_ip)
@@ -117,6 +125,8 @@ class XENBase(VIRTWHOBase):
             logger.info("Already in running status for vm %s, nothing to do ..." % guest_name)
         else:
             raise FailException("Failed to start vm %s" % guest_name)
+        # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
+        self.runcmd_service("restart_virtwho")
 
     def xen_stop_guest(self, guest_name, targetmachine_ip=""):
         cmd = "xe vm-shutdown vm=%s" % guest_name
@@ -129,6 +139,8 @@ class XENBase(VIRTWHOBase):
                 raise FailException("Failed to stop vm %s" % guest_name)
         else:
             raise FailException("Failed to shutdown vm %s" % guest_name)
+        # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
+        self.runcmd_service("restart_virtwho")
 
     def xen_suspend_guest(self, guest_name, targetmachine_ip=""):
         cmd = "xe vm-suspend vm=%s" % guest_name
@@ -141,6 +153,8 @@ class XENBase(VIRTWHOBase):
                 raise FailException("Failed to suspend vm %s" % guest_name)
         else:
             raise FailException("Failed to suspend vm %s" % guest_name)
+        # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
+        self.runcmd_service("restart_virtwho")
 
     def xen_resume_guest(self, guest_name, targetmachine_ip=""):
         cmd = "xe vm-resume vm=%s" % guest_name
@@ -153,6 +167,8 @@ class XENBase(VIRTWHOBase):
                 raise FailException("Failed to resume vm %s" % guest_name)
         else:
             raise FailException("Failed to resume vm %s" % guest_name)
+        # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
+        self.runcmd_service("restart_virtwho")
 
     def set_xen_conf(self, debug=1, targetmachine_ip=""):
         xen_owner, xen_env, xen_server, xen_username, xen_password = self.get_xen_info()

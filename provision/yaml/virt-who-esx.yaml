@@ -193,9 +193,9 @@
         nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
 
-        #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/esx/
-        #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        #popd
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/esx/
+        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        popd
 
         echo "************************check trigger condition of another esx*****************" 
         if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
