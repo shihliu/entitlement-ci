@@ -118,14 +118,15 @@
             properties-file: $WORKSPACE/RESOURCES.txt
 
 - job-group:
-    name: rhel6-install-provision-runtest
+    name: rhel-install-provision-runtest
     jobs:
       - 'rhel6-install-provision'
+      - 'rhel7-install-provision'
       - 'rhel-release-install-provision'
 
 - project:
-    name: rhel6-install-jobs
-    project: rhel6-install
+    name: rhel-install-jobs
+    project: rhel-install
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: qeos_rhel6_install
@@ -134,4 +135,4 @@
     # tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-      - rhel6-install-provision-runtest
+      - rhel-install-provision-runtest

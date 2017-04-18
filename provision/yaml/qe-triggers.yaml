@@ -135,6 +135,7 @@
     - qe-rhel-6-trigger
     - qe-rhel-7-trigger
     - qe-satellite-62-ohsnap-trigger
+
 - project:
     name: qe-triggers-jobs
     project: qe-triggers

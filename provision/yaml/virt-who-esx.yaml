@@ -96,7 +96,7 @@
 - job-template:
     name: 'virt-who-esx-provision'
     defaults: virt-who-provision
-    node: docker-rhel7
+    node: docker-rhel7-2
     builders:
         - shell: |
             #!/bin/bash

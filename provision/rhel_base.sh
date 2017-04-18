@@ -53,7 +53,7 @@ else
    rm -rf $redhat_root
 fi
 mkdir -p $redhat_root
-wget http://10.66.144.9/home/shihliu/define.repo
+wget http://10.66.144.9/home/shihliu/define_rhel74.repo
 mv define.repo /etc/yum.repos.d
 echo $compose_name
 sed -i -e 's/'rhelbuild'/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define.repo
