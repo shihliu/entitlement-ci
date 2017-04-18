@@ -54,14 +54,14 @@ else
 fi
 mkdir -p $redhat_root
 wget http://10.66.144.9/home/shihliu/define_rhel74.repo
-mv define.repo /etc/yum.repos.d
+mv define_rhel74.repo /etc/yum.repos.d
 echo $compose_name
-sed -i -e 's/'rhelbuild'/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define.repo
+sed -i -e 's/'rhelbuild'/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define_rhel74.repo
 rpm --root $redhat_root --initdb
 yum -y reinstall --downloadonly --downloaddir . redhat-release
 rpm --root $redhat_root -ivh redhat-release*.rpm
 rpm --root $redhat_root --import  $redhat_root/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-cp /etc/yum.repos.d/define.repo $redhat_root/etc/yum.repos.d
+cp /etc/yum.repos.d/define_rhel74.repo $redhat_root/etc/yum.repos.d
 yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
 cp /etc/resolv.conf $redhat_root/etc
