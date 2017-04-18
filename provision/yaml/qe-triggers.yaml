@@ -17,8 +17,8 @@
         export SERVER_TYPE=DEFAULT
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
-        env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -49,20 +49,20 @@
     - pollurl:
         cron: H/9 * * * *
         urls:
-        - url: http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-7/COMPOSE_ID
+        - url: http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID
           check-content:
           - simple: true
     builders:
     - shell: |
         #!/bin/bash
-        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.pek2.redhat.com/pub/rhel/rel-eng/latest-RHEL-7/COMPOSE_ID`
+        export RHEL_COMPOSE=`curl -s -k -L http://download.eng.bos.redhat.com/rel-eng/latest-RHEL-7/COMPOSE_ID`
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         export SERVER_TYPE=DEFAULT
         echo "*********************************setup env*********************************"
         echo "********************************runtime env********************************"
-        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(RHEL_COMPOSE|SWITCH|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(RHEL_COMPOSE|SERVER_TYPE)' > $WORKSPACE/SERVER.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
