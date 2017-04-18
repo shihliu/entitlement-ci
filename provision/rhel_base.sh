@@ -61,8 +61,8 @@ rpm --root $redhat_root --initdb
 yum -y reinstall --downloadonly --downloaddir . redhat-release
 rpm --root $redhat_root -ivh redhat-release*.rpm
 rpm --root $redhat_root --import  $redhat_root/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
-rm -rf /etc/yum.repos.d
-mkdir /etc/yum.repos.d
+rm -rf $redhat_root/etc/yum.repos.d
+mkdir $redhat_root/etc/yum.repos.d
 cp /etc/yum.repos.d/define_rhel74.repo $redhat_root/etc/yum.repos.d
 yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
