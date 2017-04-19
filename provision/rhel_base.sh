@@ -64,7 +64,12 @@ rpm --root $redhat_root --import  $redhat_root/etc/pki/rpm-gpg/RPM-GPG-KEY-redha
 rm -rf $redhat_root/etc/yum.repos.d
 mkdir $redhat_root/etc/yum.repos.d
 cp /etc/yum.repos.d/define_rhel74.repo $redhat_root/etc/yum.repos.d
-yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum hostname coreutils net-tools
+if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
+then
+    yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum hostname coreutils net-tools
+else
+    yum -y --installroot=$redhat_root --setopt=tsflags='nodocs' --setopt=override_install_langs=en_US.UTF-8 install yum
+fi
 sed -i "/distroverpkg=redhat-release/a override_install_langs=en_US.UTF-8\ntsflags=nodocs" $redhat_root/etc/yum.conf
 cp /etc/resolv.conf $redhat_root/etc
 chroot $redhat_root /bin/bash yum clean all
