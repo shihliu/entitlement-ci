@@ -49,7 +49,7 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo $CONTAINER_NAME "is not exist"
-if [[ $CONTAINER_NAME =~ "rhel7" ] ||[ $CONTAINER_NAME =~ "RHEL-7" ]]
+if [ $CONTAINER_NAME =~ "rhel7" ] ||[ $CONTAINER_NAME =~ "RHEL-7" ]
 then
     docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
 else
