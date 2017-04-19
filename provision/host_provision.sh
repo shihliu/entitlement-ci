@@ -63,7 +63,7 @@ then
 else
    echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
 fi
-if [[ $CONTAINER_NAME =~ "rhel7" ] ||[ $CONTAINER_NAME =~ "RHEL-7" ]]
+if [ $CONTAINER_NAME =~ "rhel7" ] ||[ $CONTAINER_NAME =~ "RHEL-7" ]
 then
     docker exec -i $CONTAINER_NAME ifconfig
     REMOTE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
