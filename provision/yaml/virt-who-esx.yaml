@@ -189,16 +189,27 @@
         #export SERVER_TYPE=
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-        nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        popd
+        if [ "$RHEL_COMPOSE" == "release" ]
+        then
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/esx/
-        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/esx/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+        else
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/esx/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+        fi
         echo "************************check trigger condition of another esx*****************" 
-        if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
+        #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
+        if [ "$RHEL_COMPOSE" == "release" ]
         then 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
@@ -206,33 +217,28 @@
             export VIRTWHO_SRC=rhel6.8-sattool
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
              export VIRTWHO_SRC=rhel7.3-sattool
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/ESXNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
              export VIRTWHO_SRC=rhel6.9-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/ESXNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
              export VIRTWHO_SRC=rhel6.8-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/ESXNEWRUN.txt   
-          else
-             # esx-rhel73-original.redhat.com
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
+          elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
+          then
              export VIRTWHO_SRC=rhel7.3-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
              echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/ESXNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
              echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/ESXNEWRUN.txt
+          else
+             export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
+             rm -rf $WORKSPACE/ESXNEWRUN.txt
           fi
         else
-          export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
+          export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
           rm -rf $WORKSPACE/ESXNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
