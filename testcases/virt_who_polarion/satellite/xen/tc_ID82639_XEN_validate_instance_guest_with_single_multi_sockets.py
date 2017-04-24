@@ -127,7 +127,7 @@ class tc_ID82639_XEN_validate_instance_guest_with_single_multi_sockets(XENBase):
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

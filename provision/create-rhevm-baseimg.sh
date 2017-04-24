@@ -28,8 +28,20 @@ done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel73"; fi
-if [ "$RHEVMIMG_NAME" == "" ] && [ "$RHEL_COMPOSE" =~ "RHEL-7" ]; then RHEVMIMG_NAME="rhevm4"; \
-else RHEVMIMG_NAME="rhevm36";fi
+if [ "$RHEVMIMG_NAME" == "" ] 
+then
+    if [ "$RHEL_COMPOSE"x = "release"x ]
+	    if [ "$VIRTWHO_SRC"x =~ "rhel7"x ]
+	    then
+	        RHEVMIMG_NAME="rhevm4"
+	    else
+	        RHEVMIMG_NAME="rhevm36"
+	    fi
+elif [ "$RHEL_COMPOSE" =~ "RHEL-7" ]
+then 
+    RHEVMIMG_NAME="rhevm4"
+else 
+    RHEVMIMG_NAME="rhevm36"
 
 # Make rhevm base img
 docker images|grep $RHEVMIMG_NAME

@@ -45,7 +45,7 @@ class tc_ID82634_XEN_validate_unlimited_bonus_creat_and_remove(XENBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

@@ -59,7 +59,7 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
             self.assert_(False, case_name)
         finally:
             self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

@@ -48,7 +48,7 @@ class tc_ID82635_XEN_validate_limited_bonus_creat_and_remove(XENBase):
             # unsubscribe all subscriptions on  hypervisor
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
