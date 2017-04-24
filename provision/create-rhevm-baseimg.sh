@@ -31,19 +31,24 @@ if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel73"; fi
 if [ "$RHEVMIMG_NAME" == "" ] 
 then
     if [ "$RHEL_COMPOSE"x = "release"x ]
+    then
 	    if [ "$VIRTWHO_SRC"x =~ "rhel7"x ]
 	    then
 	        RHEVMIMG_NAME="rhevm4"
 	    else
 	        RHEVMIMG_NAME="rhevm36"
 	    fi
-elif [ "$RHEL_COMPOSE" =~ "RHEL-7" ]
-then 
+    elif [ "$RHEL_COMPOSE" =~ "RHEL-7" ]
+    then 
+        RHEVMIMG_NAME="rhevm4"
+    else 
+        RHEVMIMG_NAME="rhevm36"
+    fi
+else
     RHEVMIMG_NAME="rhevm4"
-else 
-    RHEVMIMG_NAME="rhevm36"
 
 # Make rhevm base img
+pushd $WORKSPACE/entitlement-ci/provision
 docker images|grep $RHEVMIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
@@ -60,7 +65,7 @@ else
 fi
 
 mv Dockerfile Dockerfile-rhel
-if [[ $RHEL_COMPOSE =~ "RHEL-7"* ]]
+if [ "$RHEVMIMG_NAME" == "rhevm4" ]
 then
   mv Dockerfile-rhevm4 Dockerfile
   docker build -t $RHEVMIMG_NAME .

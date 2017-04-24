@@ -67,7 +67,7 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite62-ohsnap-install-runtest'
+          - project: 'rhevm-install-runtest'
             current-parameters: true
             condition: 'SUCCESS'
             property-file: $WORKSPACE/RESOURCES.txt
@@ -90,12 +90,19 @@
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/install
-              if [[ $RHEL_COMPOSE =~ "RHEL-7"* ]]
-              then
+            if [ "$RHEL_COMPOSE"x = "release"x ]
+                if [ "$VIRTWHO_SRC"x =~ "rhel7"x ]
+                then
+                    nosetests rhevm41_install.py
+                else
+                    nosetests rhevm36_install.py
+                fi
+            elif [ "$RHEL_COMPOSE" =~ "RHEL-7" ]
+            then 
                 nosetests rhevm41_install.py
-              else
+            else 
                 nosetests rhevm36_install.py
-              fi
+            fi
             popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
