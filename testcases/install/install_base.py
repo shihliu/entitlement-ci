@@ -86,6 +86,9 @@ class Install_Base(Base):
         self.__install_rhevm(targetmachine_ip)
         self.__deploy_rhevm40(targetmachine_ip)
 
+    def install_rhevm41(self, compose, targetmachine_ip=""):
+        self.__deploy_rhevm41(targetmachine_ip)
+
     def __stop_iptables(self, targetmachine_ip=""):
         cmd = "service iptables stop"
         ret, output = self.runcmd(cmd, "service iptables stop", targetmachine_ip)
@@ -542,6 +545,29 @@ class Install_Base(Base):
     def __deploy_rhevm40(self, targetmachine_ip=""):
         ''' wget rhevm config file to rhevm '''
         conf_file = "rhevm_40_2.conf"
+        cmd = "wget -P /root/ %s/%s" % (self.get_vw_cons("data_folder"), conf_file)
+        ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to wget rhevm config file to rhevm")
+        else:
+            raise FailException("Failed to wget rhevm config file to rhevm")
+        rhevm_hostname = self.get_hostname(targetmachine_ip)
+        cmd = "sed -i -e 's/rhevmhostname/%s/g' /root/%s" % (rhevm_hostname, conf_file)
+        ret, output = self.runcmd(cmd, "updating repo file to the latest rhel repo", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to update repo file to the latest rhel repo")
+        else:
+            raise FailException("Test Failed - Failed to update repo file to the latest rhel repo")
+        cmd = "engine-setup --config-append=/root/%s" % conf_file
+        ret, output = self.runcmd(cmd, "rhevm-configure", targetmachine_ip, timeout=1800)
+        if ret == 0:
+            logger.info("Succeeded to run rhevm-configure --deployment=sam --user-pass=admin.")
+        else:
+            raise FailException("Test Failed - Failed to run rhevm-configure --deployment=sam --user-pass=admin.")
+
+    def __deploy_rhevm41(self, targetmachine_ip=""):
+        ''' wget rhevm config file to rhevm '''
+        conf_file = "rhevm_41.conf"
         cmd = "wget -P /root/ %s/%s" % (self.get_vw_cons("data_folder"), conf_file)
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
         if ret == 0:

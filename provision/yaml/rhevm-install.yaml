@@ -1,0 +1,142 @@
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+
+- defaults:
+    name: virt-who-runtest
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
+
+- job-template:
+    name: 'rhevm-install-provision'
+    defaults: virt-who-provision
+    node: docker-server
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            echo "*********************************setup env*********************************"
+            #convert switch for testing against satellite
+            if [ "$SWITCH"x = "true"x ]
+            then
+                export SWITCH=false
+            elif [ "$SWITCH"x = "false"x ]
+            then
+                export SWITCH=true
+            fi
+            kinit -k -t $KEYTAB $PRINCIPAL
+            #Provision base img
+            $WORKSPACE/entitlement-ci/provision/create-rhevm-baseimg.sh
+            # Provision Test Resources
+            $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite62-ohsnap-install-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+- job-template:
+    name: 'rhevm-install-runtest'
+    defaults: virt-who-runtest
+    node: 'satellite-slave'
+    builders:
+        - copyartifact:
+            project: 'rhevm-install-provision'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            echo "Jenkins machine info we are running on"
+            ifconfig
+            echo "Pinging Test Resources"
+            cat $WORKSPACE/RESOURCES.txt
+            # echo "*********************************setup env*********************************"
+            pushd $WORKSPACE/entitlement-ci/testcases/install
+              if [[ $RHEL_COMPOSE =~ "RHEL-7"* ]]
+              then
+                nosetests rhevm41_install.py
+              else
+                nosetests rhevm36_install.py
+              fi
+            popd
+            echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
+            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
+            echo RHEVM_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
+            echo RHEVM_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo RHEL_COMPOSE_2=$RHEL_COMPOSE_2 >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+       - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+       - trigger-parameterized-builds:
+           - project: 'virt-who-rhev-provision'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt
+             fail-on-missing: true
+
+- job-group:
+    name: rhevm-install-provision-runtest
+    jobs:
+      - 'rhevm-install-provision'
+      - 'rhevm-install-runtest'
+
+- project:
+    name: rhevm-install-jobs
+    project: rhevm-install
+    project_defaults: entitlement-ci/config/project_defaults
+    topology_path: entitlement-ci/config
+    topology: qeos_rhevm_install
+    ssh_keyfile: entitlement-ci/config/keys/ent-key
+    # beaker_keyfile: entitlement-ci/config/keys/beaker-key
+    # tests_path: entitlement-ci/tests
+    testparams: echo "I am a test parameter"
+    jobs:
+      - rhevm-install-provision-runtest
