@@ -1,0 +1,17 @@
+[rhevm41]
+name=rhevm41
+baseurl=http://bob.eng.lab.tlv.redhat.com/builds/latest_4.1/el7/
+enabled=1
+gpgcheck=0
+
+[test_rhel_z_stream]
+name=RHEL_7.2_candidate_zstream
+baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhel-7.3-z-candidate/x86_64/
+enabled=1
+gpgcheck=0
+
+[rhel-7.3-supplementary]
+name=rhel-7.2-supplementary
+baseurl=http://download.eng.tlv.redhat.com/pub/rhel/released/Supp-RHEL-7/7.3/Server/x86_64/os/
+enabled=1
+gpgcheck=0
