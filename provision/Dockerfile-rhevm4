@@ -2,8 +2,8 @@ FROM registry.access.redhat.com/rhel7.3:latest
 MAINTAINER "shihliu@redhat.com"
 
 #Instll rhevm4.0 package
-RUN yum install -y wget
 RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN yum install -y wget
 RUN yum-config-manager --disable rhel-7-server-rt-beta-rpms rhel-7-server-tus-rpms
 RUN rpm -Uvh http://bob.eng.lab.tlv.redhat.com/builds/latest_4.0/rhev-release-latest-4.0.noarch.rpm
 RUN wget http://10.66.144.9/home/shihliu/repo/rhevm41.repo

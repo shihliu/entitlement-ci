@@ -32,12 +32,12 @@ if [ "$RHEVMIMG_NAME" == "" ]
 then
     if [[ "$RHEL_COMPOSE" == "release" ]]
     then
-	if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
-	then
-	    RHEVMIMG_NAME="rhevm4"
-	else
-	    RHEVMIMG_NAME="rhevm36"
-	fi
+	    if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
+	    then
+	        RHEVMIMG_NAME="rhevm4"
+	    else
+	        RHEVMIMG_NAME="rhevm36"
+	    fi
     elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
     then 
         RHEVMIMG_NAME="rhevm4"
@@ -47,7 +47,6 @@ then
 else
     RHEVMIMG_NAME="rhevm4"
 fi
-
 # Make rhevm base img
 pushd $WORKSPACE/entitlement-ci/provision
 docker images|grep $RHEVMIMG_NAME
