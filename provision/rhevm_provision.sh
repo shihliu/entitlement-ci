@@ -27,9 +27,27 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
-if [[ "$RHEVMIMG_NAME" == "" ]] && [[ $RHEL_COMPOSE =~ "rhel7" ]]; then RHEVMIMG_NAME="rhevm4"; \
-else RHEVMIMG_NAME="rhevm36";fi
-CONTAINER_NAME=$IMAGE_NAME".redhat.com"
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel73"; fi
+if [ "$RHEVMIMG_NAME" == "" ] 
+then
+    if [[ "$RHEL_COMPOSE" == "release" ]]
+    then
+	    if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
+	    then
+	        RHEVMIMG_NAME="rhevm4"
+	    else
+	        RHEVMIMG_NAME="rhevm36"
+	    fi
+    elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+    then 
+        RHEVMIMG_NAME="rhevm4"
+    else 
+        RHEVMIMG_NAME="rhevm36"
+    fi
+else
+    RHEVMIMG_NAME="rhevm4"
+fi
+CONTAINER_NAME=$RHEVMIMG_NAME".redhat.com"
 
 docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
