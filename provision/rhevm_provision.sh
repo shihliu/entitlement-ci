@@ -58,26 +58,29 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo "begin to test container hostname"
-if [[ $RHEL_COMPOSE =~ "RHEL-7" ]]
-then
-    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME /usr/sbin/init
-else
-    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME bash
-fi
-issuccess=$?
-if [ $issuccess -eq 0 ]
-then
-   echo $CONTAINER_NAME "success to create!"
-else
-   echo "Failed to create" $CONTAINER_NAME
-fi
-pipework br0  $CONTAINER_NAME  dhclient
 
-if [[ $RHEL_COMPOSE =~ "RHEL-7" ]]
+if [[ "$RHEL_COMPOSE" == "release" ]]
 then
+    if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
+	then
+	    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME /usr/sbin/init
+        pipework br0  $CONTAINER_NAME  dhclient
+        docker exec -i $CONTAINER_NAME ifconfig
+        RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
+	else
+	    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME bash
+        pipework br0  $CONTAINER_NAME  dhclient
+        RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`        
+	fi
+elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+then 
+    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME /usr/sbin/init
+    pipework br0  $CONTAINER_NAME  dhclient
     docker exec -i $CONTAINER_NAME ifconfig
-    RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
-else
+    RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
+else 
+	docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME bash
+    pipework br0  $CONTAINER_NAME  dhclient
     RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 fi
 
