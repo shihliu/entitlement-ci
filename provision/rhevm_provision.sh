@@ -72,7 +72,6 @@ else
    echo "Failed to create" $CONTAINER_NAME
 fi
 pipework br0  $CONTAINER_NAME  dhclient
-docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 
 if [[ $RHEL_COMPOSE =~ "RHEL-7" ]]
 then
