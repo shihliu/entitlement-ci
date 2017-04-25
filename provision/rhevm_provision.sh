@@ -27,7 +27,7 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
-if [ "$RHEVMIMG_NAME" == "" ] && [ "$RHEL_COMPOSE" =~ "RHEL-7" ]; then RHEVMIMG_NAME="rhevm4"; \
+if [[ "$RHEVMIMG_NAME" == "" ]] && [[ $RHEL_COMPOSE =~ "rhel7" ]]; then RHEVMIMG_NAME="rhevm4"; \
 else RHEVMIMG_NAME="rhevm36";fi
 CONTAINER_NAME=$IMAGE_NAME".redhat.com"
 
