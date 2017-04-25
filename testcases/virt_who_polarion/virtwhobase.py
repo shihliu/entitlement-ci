@@ -44,9 +44,9 @@ class VIRTWHOBase(Base):
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s" %tool_src)
         # check if host registered to cdn server
-        if not self.sub_isregistered():
+        if not self.sub_isregistered(targetmachine_ip):
             self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
-            self.sub_auto_subscribe()
+            self.sub_auto_subscribe(targetmachine_ip)
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
             if self.os_serial == "6":

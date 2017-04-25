@@ -28,7 +28,9 @@ class VDSMBase(VIRTWHOBase):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
-            if "rhevm-4" in rhevm_version :
+            if "rhevm-4.1" in rhevm_version:
+                repo = "rhevm_7.3_41.repo"
+            elif "rhevm-4.0" in rhevm_version :
                 if "7.2" in compose_name :
                     repo = "rhevm_7.2_40.repo"
                 else:
@@ -75,6 +77,9 @@ class VDSMBase(VIRTWHOBase):
 
     def config_vdsm_env_setup(self, rhel_compose, rhevm_version, targetmachine_ip=""):
     # System setup for RHEL+RHEVM testing env
+        if not self.sub_isregistered(targetmachine_ip):
+            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q", targetmachine_ip)
+            self.sub_auto_subscribe(targetmachine_ip)
         self.cm_install_basetool(targetmachine_ip)
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
@@ -841,11 +846,10 @@ class VDSMBase(VIRTWHOBase):
         self.rhevm_stop_vm(guest_name, rhevm_ip)
 
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        self.sys_setup(targetmachine_ip)
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname()
-        RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
+#         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
         NFSserver_ip = get_exported_param("REMOTE_IP")
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
@@ -855,6 +859,7 @@ class VDSMBase(VIRTWHOBase):
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose, rhevm_version)
         self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
+        self.sys_setup(targetmachine_ip)
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
@@ -864,7 +869,7 @@ class VDSMBase(VIRTWHOBase):
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
