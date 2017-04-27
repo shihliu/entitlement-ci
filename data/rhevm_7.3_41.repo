@@ -1,13 +1,15 @@
-#[server]
-#name=server
-#baseurl=http://download.eng.bos.redhat.com/rel-eng/rhelbuild/compose/Server/x86_64/os/
-#enable=1
-#gpgcheck=0
+[server]
+name=server
+#baseurl=http://download.eng.bos.redhat.com/rel-eng/release/compose/Server/x86_64/os/
+baseurl=http://download.eng.pek2.redhat.com//pub/rhel/rel-eng/RHEL-7.3-20161019.0/compose/Server/x86_64/os/
+enable=0
+gpgcheck=0
 
 [server-optional]
 name=server-optional
-#baseurl=http://download.englab.nay.redhat.com/pub/rhel/rel-eng/rhelbuild/compose/Server-optional/x86_64/os
-baseurl=http://download.eng.bos.redhat.com/rel-eng/rhelbuild/compose/Server-optional/x86_64/os/
+#baseurl=http://download.englab.nay.redhat.com/pub/rhel/rel-eng/release/compose/Server-optional/x86_64/os
+#baseurl=http://download.eng.bos.redhat.com/rel-eng/release/compose/Server-optional/x86_64/os/
+baseurl=http://download.eng.pek2.redhat.com//pub/rhel/rel-eng/RHEL-7.3-20161019.0/compose/Server-optional/x86_64/os/
 enable=1
 gpgcheck=0
 

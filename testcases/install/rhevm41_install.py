@@ -1,7 +1,7 @@
 from utils import *
 from testcases.install.install_base import Install_Base
 
-class RHEVM40_Install(Install_Base):
+class RHEVM41_Install(Install_Base):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

@@ -388,8 +388,8 @@ class Base(unittest.TestCase):
         else:
             raise FailException("Failed to install candlepin cert and configure the system with satellite configuration.")
 
-    def configure_host_file(self, server_ip, server_hostname, targetmachine_ip=""):
-        cmd = "sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (server_ip, server_ip, server_hostname)
+    def configure_host_file(self, server_ip, server_hostname, targetmachine_ip=""):     
+        cmd = "sed -i '/%s/d' /etc/hosts; sed -i '/%s/d' /etc/hosts; echo '%s %s' >> /etc/hosts" % (server_hostname, server_ip, server_ip, server_hostname)
         ret, output = self.runcmd(cmd, "configure /etc/hosts", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to configure /etc/hosts")

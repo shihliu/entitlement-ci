@@ -858,8 +858,10 @@ class VDSMBase(VIRTWHOBase):
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose, rhevm_version)
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
-        self.sys_setup(targetmachine_ip)
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
+        # System setup for virt-who on two hosts
+        self.sys_setup()
+#         self.sys_setup(get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
