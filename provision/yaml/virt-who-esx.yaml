@@ -96,7 +96,7 @@
 - job-template:
     name: 'virt-who-esx-provision'
     defaults: virt-who-provision
-    node: docker-rhel7-2
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -139,7 +139,7 @@
                 echo "After provision, IMAGE_NAME is "$IMAGE_NAME
                 echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME --IMAGE_NAME=$IMAGE_NAME
+                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
             else
                 CONTAINER_NAME="esx-"$RHEL_COMPOSE".redhat.com"
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME
