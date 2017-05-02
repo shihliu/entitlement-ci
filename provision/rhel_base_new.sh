@@ -61,7 +61,7 @@ if [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
 then 
     mv Dockerfile Dockerfile-bk
     mv Dockerfile-rhel7 Dockerfile
-    docker build --build-arg rhel_compose=$compose_name -t $RHEL_IMAGE_NAME .
+    docker build --build-arg RHEL_COMPOSE=$RHEL_COMPOSE -t $RHEL_IMAGE_NAME .
     mv Dockerfile Dockerfile-rhel7
     mv Dockerfile-bk Dockerfile
 else
