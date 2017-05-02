@@ -552,7 +552,7 @@ class VDSMBase(VIRTWHOBase):
                     self.rhevm_define_guest(rhevm_vm_name, NFSserver_ip)
                     self.create_storage_pool(NFSserver_ip)
                     self.install_virtV2V(NFSserver_ip)
-                    self.convert_guest_to_nfs(NFSserver_ip, NFSserver_ip, nfs_dir_for_export, rhevm_vm_name, targetmachine_ip)
+                    self.convert_guest_to_nfs(NFSserver_ip, NFSserver_ip, nfs_dir_for_export, rhevm_vm_name, NFSserver_ip)
                     self.rhevm_undefine_guest(rhevm_vm_name, NFSserver_ip)
                     data_storage_id = self.get_domain_id("data_storage", targetmachine_ip)
                     export_storage_id = self.get_domain_id("export_storage", targetmachine_ip)

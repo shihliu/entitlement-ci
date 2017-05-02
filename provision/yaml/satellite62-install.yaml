@@ -51,6 +51,7 @@
             #export SERVER_TYPE=
             echo "*********************************setup env*********************************"
             #convert switch for testing against satellite
+            export SERVER_TYPE="SATELLITE"
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision RHEL6.8 base img
             $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
