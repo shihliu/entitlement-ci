@@ -4,7 +4,6 @@ MAINTAINER "shihliu@redhat.com"
 # Register, subscribe and Install packages
 RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
 RUN yum install -y wget
-RUN yum install -y python-paramiko
 RUN subscription-manager unregister
 RUN wget -P /etc/yum.repos.d/ http://10.66.144.9/home/shihliu/repo/define_rhel.repo
 ARG RHEL_COMPOSE
