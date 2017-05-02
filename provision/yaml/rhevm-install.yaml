@@ -91,6 +91,7 @@
             # echo "*********************************setup env*********************************"
             pushd $WORKSPACE/entitlement-ci/testcases/install
             if [ "$RHEL_COMPOSE"x = "release"x ]
+            then
                 if [[ $VIRTWHO_SRC =~ "rhel7" ]]
                 then
                     nosetests rhevm41_install.py

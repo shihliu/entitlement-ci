@@ -60,7 +60,7 @@ else
    echo $SATIMG_NAME "is not exist, start to create a new one"
 fi
 
-mv Dockerfile Dockerfile-rhel
+mv Dockerfile Dockerfile-bk
 if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
 then
   mv Dockerfile-sat-ohsnap Dockerfile
@@ -71,6 +71,6 @@ else
   docker build -t $SATIMG_NAME .
   mv Dockerfile Dockerfile-sat
 fi
-mv Dockerfile-rhel Dockerfile
+mv Dockerfile-bk Dockerfile
 
 popd

@@ -1,34 +1,23 @@
-[server]
-name=server
-#baseurl=http://download.eng.bos.redhat.com/rel-eng/release/compose/Server/x86_64/os/
-baseurl=http://download.eng.pek2.redhat.com//pub/rhel/rel-eng/RHEL-7.3-20161019.0/compose/Server/x86_64/os/
-enable=0
-gpgcheck=0
-
-[server-optional]
-name=server-optional
-#baseurl=http://download.englab.nay.redhat.com/pub/rhel/rel-eng/release/compose/Server-optional/x86_64/os
-#baseurl=http://download.eng.bos.redhat.com/rel-eng/release/compose/Server-optional/x86_64/os/
-baseurl=http://download.eng.pek2.redhat.com//pub/rhel/rel-eng/RHEL-7.3-20161019.0/compose/Server-optional/x86_64/os/
-enable=1
-gpgcheck=0
-
-[test_rhel_z_stream]
+[rhel73_z_stream]
 name=RHEL_7.3_candidate_zstream
-#baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhel-7.2-z-candidate/x86_64/
 baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhel-7.3-candidate/x86_64/
 enabled=1
 gpgcheck=0
 
 [rhev-73-hypervisor]
 name=RHEVH_73
-#baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhevh-rhel-7.2-candidate/x86_64/
 baseurl=http://download.eng.tlv.redhat.com/rel-eng/repos/rhevh-rhel-7.3-candidate/x86_64/
 enabled=1
 gpgcheck=0
 
-[rhevm]
-name=rhevm
+[rhevm-4.1-latest]
+name=rhevm-4.1-latest
 baseurl=http://bob.eng.lab.tlv.redhat.com/builds/latest_4.1/el7/
+enabled=1
+gpgcheck=0
+
+[jboss-eap-7.0.Z]
+name=jboss eap 7.0.Z
+baseurl=http://download.eng.tlv.redhat.com/pub/rhel/devel/candidates/JBEAP/composing/latest-JBEAP-7.0-RHEL-7/compose/Server/x86_64/os/
 enabled=1
 gpgcheck=0

@@ -1,24 +1,25 @@
 from utils import *
-from testcases.virt_who_polarion.vdsmbase import VDSMBase
+from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class virtwho_rhel_rhevm_setup(VDSMBase):
+class tc_ID1033_check_vw_config_permission(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-#             self.rhel_rhevm_sys_setup()
-            self.rhel_rhevm_static_sys_setup(get_exported_param("RHEVM_HOST1_IP"))
-            self.rhel_rhevm_setup()
-            self.generate_ssh_key()
-#             self.cm_install_desktop()
+            virt_who_conf_file = "/etc/sysconfig/virt-who"
+            virt_who_pid_file = "/var/run/virt-who.pid"
+            self.cm_check_file_mode(virt_who_conf_file, "600")
+            self.runcmd_service("restart_virtwho")
+            self.cm_check_file_mode(virt_who_pid_file, "600")
             self.assert_(True, case_name)
+        except Exception, SkipTest:
+            logger.info(str(SkipTest))
+            raise SkipTest
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.set_virtwho_version()
-            self.cm_set_rhsm_version()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -1,17 +1,15 @@
 from utils import *
-from testcases.virt_who_polarion.vdsmbase import VDSMBase
-from utils.exception.failexception import FailException
+from testcases.virt_who.virtwhobase import VIRTWHOBase
 
-class virtwho_rhel_rhevm_setup(VDSMBase):
+class virtwho_rhel_rhevm_setup(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-#             self.rhel_rhevm_sys_setup()
-            self.rhel_rhevm_static_sys_setup(get_exported_param("RHEVM_HOST1_IP"))
+            self.rhel_rhevm_sys_setup()
             self.rhel_rhevm_setup()
             self.generate_ssh_key()
-#             self.cm_install_desktop()
+            # self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
