@@ -57,11 +57,20 @@ echo compose_name=$RHEL_COMPOSE
 echo original_rhel=$ORIGINAL_RHEL
 pushd $WORKSPACE/entitlement-ci/provision
 
-mv Dockerfile Dockerfile-bk
-mv Dockerfile-rhel Dockerfile
-docker build -t $RHEL_IMAGE_NAME .
-mv Dockerfile Dockerfile-rhel
-mv Dockerfile-bk Dockerfile
+if [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+then 
+    mv Dockerfile Dockerfile-bk
+    mv Dockerfile-rhel7 Dockerfile
+    docker build -t $RHEL_IMAGE_NAME .
+    mv Dockerfile Dockerfile-rhel7
+    mv Dockerfile-bk Dockerfile
+else
+    mv Dockerfile Dockerfile-bk
+    mv Dockerfile-rhel6 Dockerfile
+    docker build -t $RHEL_IMAGE_NAME .
+    mv Dockerfile Dockerfile-rhel6
+    mv Dockerfile-bk Dockerfile
+fi
 
 popd
 

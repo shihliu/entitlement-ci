@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/$ORIGINAL_RHEL:latest
+FROM registry.access.redhat.com/rhel7.3:latest
 MAINTAINER "shihliu@redhat.com"
 
 # Register, subscribe and Install packages

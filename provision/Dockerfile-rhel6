@@ -1,0 +1,28 @@
+FROM registry.access.redhat.com/rhel6.8:latest
+MAINTAINER "shihliu@redhat.com"
+
+# Register, subscribe and Install packages
+RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN yum install -y wget
+RUN subscription-manager unregister
+RUN wget -P /etc/yum.repos.d/ http://10.66.144.9/home/shihliu/repo/define_rhel.repo
+RUN sed -i 's/rhelbuild/$RHEL_COMPOSE/g' /etc/yum.repos.d/define_rhel.repo
+RUN yum clean all
+RUN yum update -y
+RUN yum install -y openssh-server net-tools hostname sudo
+RUN yum install -y python-paramiko
+RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+RUN echo "root:red2015" | chpasswd
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+RUN yum install -y gcc openssl-devel python-devel
+
+VOLUME ["/sys/fs"]
+VOLUME ["/run"]
+VOLUME ["/export"]
+
+RUN mkdir /var/run/sshd
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
+
+
