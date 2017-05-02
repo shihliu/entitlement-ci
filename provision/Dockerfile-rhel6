@@ -6,7 +6,9 @@ RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7
 RUN yum install -y wget
 RUN subscription-manager unregister
 RUN wget -P /etc/yum.repos.d/ http://10.66.144.9/home/shihliu/repo/define_rhel.repo
-RUN sed -i 's/rhelbuild/$RHEL_COMPOSE/g' /etc/yum.repos.d/define_rhel.repo
+ARG RHEL_COMPOSE
+RUN echo $RHEL_COMPOSE
+RUN sed -i 's/rhelbuild/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define_rhel.repo
 RUN yum clean all
 RUN yum update -y
 RUN yum install -y openssh-server net-tools hostname sudo

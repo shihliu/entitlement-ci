@@ -503,7 +503,7 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to enable auth_unix_rw")
         else:
             raise FailException("Failed to enable auth_unix_rw")
-        self.vw_restart_libvirtd_vdsm()
+        self.vw_restart_libvirtd_vdsm(targetmachine_ip)
         time.sleep(30)
 #         v2v import vm from remote libvirt to rhevm
 #         cmd = "virt-v2v -i libvirt -ic qemu+ssh://root@%s/system -o rhev -os %s:%s --network rhevm %s" % (origin_machine_ip, NFS_server, NFS_export_dir, vm_hostname)
@@ -924,10 +924,10 @@ class VDSMBase(VIRTWHOBase):
             self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
 #         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
         # Add network bridge "ovirtmgmt"
