@@ -471,25 +471,25 @@ class VDSMBase(VIRTWHOBase):
             else:
                 raise FailException("Failed to destroy autotest_pool")
         cmd = "virsh pool-create /tmp/autotest_pool.xml"
-        ret, output = self.runcmd(cmd, "import vm to rhevm")
+        ret, output = self.runcmd(cmd, "import vm to rhevm", targetmachine_ip)
         if ret == 0 and "autotest_pool created" in output:
             logger.info("Succeeded to create autotest_pool")
         else:
             raise FailException("Failed to create autotest_pool")
         if self.os_serial == "6":
             cmd = "virsh pool-define /tmp/autotest_pool.xml"
-            ret, output = self.runcmd(cmd, "define storage pool")
+            ret, output = self.runcmd(cmd, "define storage pool", targetmachine_ip)
             if ret == 0 and "autotest_pool defined" in output:
                 logger.info("Succeeded to define storage pool")
             else:
                 raise FailException("Failed to define storage pool")
             cmd = "virsh pool-list"
-            ret, output = self.runcmd(cmd, "list storage pool")
+            ret, output = self.runcmd(cmd, "list storage pool", targetmachine_ip)
             if ret == 0 and "autotest_pool" in output and "active" in output:
                 logger.info("Succeeded to list storage pool")
             else:
                 cmd = "virsh pool-start autotest_pool"
-                ret, output = self.runcmd(cmd, "start storage pool")
+                ret, output = self.runcmd(cmd, "start storage pool", targetmachine_ip)
                 if ret == 0 and "autotest_pool started" in output:
                     logger.info("Succeeded to start storage pool")
                 else:

@@ -141,7 +141,7 @@
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
             else
-                CONTAINTERNAME="xen-"$RHEL_COMPOSE".redhat.com"
+                CONTAINTERNAME="xen-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
                 $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
             fi
             cat $WORKSPACE/RESOURCES.txt

@@ -59,7 +59,7 @@ pushd $WORKSPACE/entitlement-ci/provision
 
 mv Dockerfile Dockerfile-bk
 mv Dockerfile-rhel Dockerfile
-docker build -t $SATIMG_NAME .
+docker build -t $RHEL_IMAGE_NAME .
 mv Dockerfile Dockerfile-rhel
 mv Dockerfile-bk Dockerfile
 

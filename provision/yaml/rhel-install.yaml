@@ -108,14 +108,36 @@
             then
                docker rmi -f $RHEL_COMPOSE
             fi
-            $WORKSPACE/entitlement-ci/provision/rhel_base.sh
+            $WORKSPACE/entitlement-ci/provision/rhel_base_new.sh
+            if [ "$SERVER_TYPE" == "stage" ]
+            then 
+                echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
             echo "***********************provision $RHEL_COMPOSE img*************************"
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
+        - inject:
+            properties-file: $WORKSPACE/STAGE_TRIGGER.txt
+        publishers:
+        - archive:
+            artifacts: '**/**'
+            allow-empty: 'true'
+        - trigger-parameterized-builds:
+          - project: virt-who-esx-provision
+            property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+            fail-on-missing: true
+            current-parameters: false
+          - project: virt-who-hyperv-provision
+            property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+            fail-on-missing: true
+            current-parameters: false
+          - project: virt-who-xen-provision
+            property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+            fail-on-missing: true
+            current-parameters: false
 
 - job-group:
     name: rhel-install-provision-runtest
