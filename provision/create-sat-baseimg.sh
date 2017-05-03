@@ -50,7 +50,7 @@ docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $SATIMG_NAME "is exist, we needn't to delete the old one then create new one"
+   echo $SATIMG_NAME "is exist, we needn't to delete the old one"
 else
    echo $SATIMG_NAME "is not exist, start to create a new one"
    mv Dockerfile Dockerfile-bk

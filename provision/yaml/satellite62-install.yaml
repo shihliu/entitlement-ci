@@ -57,9 +57,15 @@
             $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
             # Provision Satellite Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh
+            echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
+            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
+            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo SWITCH=$SWITCH >> $WORKSPACE/RESOURCES.txt
+            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -68,11 +74,16 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-          - project: 'satellite62-install-runtest'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
+          - project: virt-who-esx-provision
+            property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/TRIGGER_NEXT.txt
             fail-on-missing: true
+            current-parameters: false
+      #- trigger-parameterized-builds:
+      #    - project: 'satellite62-install-runtest'
+      #      current-parameters: true
+      #      condition: 'SUCCESS'
+      #      property-file: $WORKSPACE/RESOURCES.txt
+      #     fail-on-missing: true
 
 - job-template:
     name: 'satellite62-install-runtest'

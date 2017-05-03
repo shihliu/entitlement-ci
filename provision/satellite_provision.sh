@@ -37,7 +37,7 @@ docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo $CONTAINER_NAME "is exist!need to delete to create new one"
+   echo $CONTAINER_NAME "is exist!"
 else
    echo "begin to test container hostname"
    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
@@ -48,11 +48,11 @@ else
    else
       echo "Failed to create" $CONTAINER_NAME
    fi
+   echo TRIGGER_NEXT=True>>$WORKSPACE/TRIGGER_NEXT.txt
 fi
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-
 
 :<<eof
 # Make satellite container and get its ip
