@@ -110,11 +110,11 @@
                docker rmi -f $RHEL_IMAGE_NAME
             fi
             $WORKSPACE/entitlement-ci/provision/rhel_base_new.sh
-            if [ "$SERVER_TYPE" == "DEFAULT" ]
+            if [ "$SERVER_TYPE"x = "DEFAULT"x ]
             then
                 export SERVER_TYPE="STAGE"
             fi
-            if [ "$SERVER_TYPE" == "STAGE" ]
+            if [ "$SERVER_TYPE"x = "STAGE"x ]
             then 
                 echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
             fi
