@@ -101,20 +101,23 @@
             echo "*********************************setup env*********************************"
             echo "***********************provision $RHEL_COMPOSE img*************************"
             echo "RHEL_COMPOSE" is $RHEL_COMPOSE
+            RHEL_IMAGE_NAME=$(echo $RHEL_COMPOSE | tr '[A-Z]' '[a-z]')
             
-            docker images|grep $RHEL_COMPOSE
+            docker images|grep $RHEL_IMAGE_NAME
             isRhelExist=$?
             if [ $isRhelExist -eq 0 ]
             then
-               docker rmi -f $RHEL_COMPOSE
+               docker rmi -f $RHEL_IMAGE_NAME
             fi
             $WORKSPACE/entitlement-ci/provision/rhel_base_new.sh
             if [ "$SERVER_TYPE" == "DEFAULT" ]
             then
                 export SERVER_TYPE="STAGE"
+            fi
             if [ "$SERVER_TYPE" == "STAGE" ]
             then 
                 echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
+            fi
             echo "***********************provision $RHEL_COMPOSE img*************************"
             echo "********************************runtime env********************************"
             env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
