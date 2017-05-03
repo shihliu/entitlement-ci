@@ -45,6 +45,32 @@ else
 fi
 
 # Make satellite62 base img
+# Keep the existed satellite62 base img if it is exist
+docker images|grep $SATIMG_NAME
+isSatExist=$? 
+if [ $isSatExist -eq 0 ]
+then
+   echo $SATIMG_NAME "is exist, we needn't to delete the old one then create new one"
+else
+   echo $SATIMG_NAME "is not exist, start to create a new one"
+   mv Dockerfile Dockerfile-bk
+   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
+   then
+     mv Dockerfile-sat-ohsnap Dockerfile
+     docker build -t $SATIMG_NAME .
+     mv Dockerfile Dockerfile-sat-ohsnap
+   else
+     mv Dockerfile-sat Dockerfile
+     docker build -t $SATIMG_NAME .
+     mv Dockerfile Dockerfile-sat
+   fi
+   mv Dockerfile-bk Dockerfile
+   fi
+
+:<<eof
+# Make satellite62 base img
+# Delete existed img to create a new one
+
 docker images|grep $SATIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
@@ -72,5 +98,8 @@ else
   mv Dockerfile Dockerfile-sat
 fi
 mv Dockerfile-bk Dockerfile
+
+eof
+
 
 popd
