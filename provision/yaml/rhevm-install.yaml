@@ -36,7 +36,7 @@
 - job-template:
     name: 'rhevm-install-provision'
     defaults: virt-who-provision
-    node: docker-server
+    node: docker-rhel7-2
     builders:
         - shell: |
             #!/bin/bash

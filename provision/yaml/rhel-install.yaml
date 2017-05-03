@@ -90,7 +90,7 @@
 - job-template:
     name: 'rhel7-install-provision'
     defaults: virt-who-provision
-    node: docker-rhel7-2
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
