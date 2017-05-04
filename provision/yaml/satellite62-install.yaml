@@ -67,17 +67,13 @@
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
+
       - trigger-parameterized-builds:
-          - project: virt-who-esx-provision
-            property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/TRIGGER_NEXT.txt
+          - project: 'satellite62-install-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
             fail-on-missing: true
-            current-parameters: false
-      #- trigger-parameterized-builds:
-      #    - project: 'satellite62-install-runtest'
-      #      current-parameters: true
-      #      condition: 'SUCCESS'
-      #      property-file: $WORKSPACE/RESOURCES.txt
-      #     fail-on-missing: true
 
 - job-template:
     name: 'satellite62-install-runtest'

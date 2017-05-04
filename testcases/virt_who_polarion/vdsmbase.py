@@ -914,7 +914,7 @@ class VDSMBase(VIRTWHOBase):
         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
 #         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
         # System setup for virt-who on two hosts
-#         self.sys_setup()
+        self.sys_setup(RHEVM_HOST1_IP)
 #         self.sys_setup(get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)

@@ -547,6 +547,7 @@ class VIRTWHOBase(Base):
 
     def sub_register(self, username, password, targetmachine_ip=""):
         ''' register the machine. '''
+        self.sub_clean(targetmachine_ip)
         cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
         ret, output = self.runcmd(cmd, "register system", targetmachine_ip)
         if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
