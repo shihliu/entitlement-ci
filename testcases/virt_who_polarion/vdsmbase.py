@@ -92,13 +92,13 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to enable useful rhel repo in %s" % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to enable useful rhel repo in %s" % self.get_hg_info(targetmachine_ip))
-#         self.cm_install_basetool(targetmachine_ip)
-#         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-#         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
-#         if ret == 0:
-#             logger.info("Succeeded to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
-#         else:
-#             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
+        self.cm_install_basetool(targetmachine_ip)
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
         self.get_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)
         vdsm_version = self.cm_get_rpm_version("vdsm", targetmachine_ip)
         if vdsm_version is "null":

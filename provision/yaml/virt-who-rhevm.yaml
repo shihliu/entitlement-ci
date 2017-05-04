@@ -81,8 +81,6 @@
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
           export SERVER_COMPOSE=$SERVER_COMPOSE
-          export RHEVM_IP=$REMOTE_IP
-          export RHEVM_HOSTNAME=$RHEVM_HOSTNAME
 
           Details:
 
@@ -96,7 +94,7 @@
         - recipients
 
 - job-template:
-    name: 'virt-who-rhev-provision'
+    name: 'virt-who-rhevm-provision'
     defaults: virt-who-provision
     node: docker-rhel7
     builders:
@@ -126,31 +124,31 @@
             then
                 if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "default"x ] 
                 then 
-                    CONTAINTERNAME="rhevm-rhel6.9-sattool.redhat.com"
-                    IMAGENAME="rhel6.9"
+                    CONTAINER_NAME="rhevm-rhel6.9-sattool.redhat.com"
+                    IMAGE_NAME="rhel6.9"
                     export VIRTWHO_SRC="default"
                     export VIRTWHO_ORIGINAL_SRC="rhel6.9-sattool"
                 else
-                    CONTAINTERNAME="rhevm-"$VIRTWHO_SRC".redhat.com"
-                    echo "container name is "$CONTAINTERNAME
-                    IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
-                    echo "image name is" $IMAGENAME 
+                    CONTAINER_NAME="rhevm-"$VIRTWHO_SRC".redhat.com"
+                    echo "container name is "$CONTAINER_NAME
+                    IMAGE_NAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
+                    echo "image name is" $IMAGE_NAME 
                     export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
                 fi
-                echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
-                echo "After provision, IMAGENAME is "$IMAGENAME
+                echo "After provision, CONTAINER_NAME is "$CONTAINER_NAME
+                echo "After provision, IMAGE_NAME is "$IMAGE_NAME
                 echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
+                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
             else
-                CONTAINTERNAME="rhevm-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
+                CONTAINER_NAME="rhevm-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
+                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME
             fi
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_IP|RHEVM_HOSTNAME|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_IP|RHEVM_HOSTNAME|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -159,19 +157,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-        - project: virt-who-rhev-runtest
+        - project: virt-who-rhevm-runtest
           current-parameters: false
           condition: SUCCESS
           property-file: $WORKSPACE/RESOURCES.txt
           fail-on-missing: true
 
 - job-template:
-    name: virt-who-rhev-runtest
+    name: virt-who-rhevm-runtest
     defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     - copyartifact:
-        project: virt-who-rhev-provision
+        project: virt-who-rhevm-provision
         filter: '*.txt, *.json'
         target: $WORKSPACE
     - shell: |
@@ -194,7 +192,7 @@
         if [ "$RHEL_COMPOSE" == "release" ]
         then
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests virtwho_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/rhevm/
@@ -202,7 +200,7 @@
             popd
         else
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests virtwho_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/rhevm/
@@ -215,48 +213,48 @@
         then 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
-            echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/rhevmNEWRUN.txt
+            echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
             export VIRTWHO_SRC=rhel6.8-sattool
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
              export VIRTWHO_SRC=rhel7.3-sattool
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/rhevmNEWRUN.txt
+             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
              export VIRTWHO_SRC=rhel6.9-original
-             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/rhevmNEWRUN.txt         
+             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/RHEVMNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
              export VIRTWHO_SRC=rhel6.8-original
-             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/rhevmNEWRUN.txt   
+             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/RHEVMNEWRUN.txt   
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
           then
              export VIRTWHO_SRC=rhel7.3-original
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/rhevmNEWRUN.txt 
+             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/RHEVMNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/rhevmNEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/RHEVMNEWRUN.txt
           else
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
-             rm -rf $WORKSPACE/rhevmNEWRUN.txt
+             rm -rf $WORKSPACE/RHEVMNEWRUN.txt
           fi
         else
           export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-          rm -rf $WORKSPACE/rhevmNEWRUN.txt
+          rm -rf $WORKSPACE/RHEVMNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/rhevmNEWRUN.txt
+        properties-file: $WORKSPACE/RHEVMNEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -264,17 +262,17 @@
     - default-virt-who-runtest-publishers
     - default-virt-who-publishers
     - trigger-parameterized-builds:
-      - project: virt-who-rhev-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/rhevmNEWRUN.txt
+      - project: virt-who-rhevm-provision
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/RHEVMNEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS
           
 - job-group:
-    name: virt-who-rhev-provision-runtest
+    name: virt-who-rhevm-provision-runtest
     jobs:
-    - virt-who-rhev-provision
-    - virt-who-rhev-runtest
+    - virt-who-rhevm-provision
+    - virt-who-rhevm-runtest
 - project:
     name: virt-who-rhevm-jobs
     project: virt-who-rhevm
@@ -286,5 +284,5 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-    - virt-who-rhev-provision-runtest
+    - virt-who-rhevm-provision-runtest
     polarion_template: virt-who for rhevm auto template

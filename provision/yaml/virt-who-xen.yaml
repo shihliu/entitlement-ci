@@ -124,25 +124,25 @@
             then
                 if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "default"x ] 
                 then 
-                    CONTAINTERNAME="xen-rhel6.9-sattool.redhat.com"
-                    IMAGENAME="rhel6.9"
+                    CONTAINER_NAME="xen-rhel6.9-sattool.redhat.com"
+                    IMAGE_NAME="rhel6.9"
                     export VIRTWHO_SRC="default"
                     export VIRTWHO_ORIGINAL_SRC="rhel6.9-sattool"
                 else
-                    CONTAINTERNAME="xen-"$VIRTWHO_SRC".redhat.com"
-                    echo "container name is "$CONTAINTERNAME
-                    IMAGENAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
-                    echo "image name is" $IMAGENAME 
+                    CONTAINER_NAME="xen-"$VIRTWHO_SRC".redhat.com"
+                    echo "container name is "$CONTAINER_NAME
+                    IMAGE_NAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
+                    echo "image name is" $IMAGE_NAME 
                     export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
                 fi
-                echo "After provision, CONTAINTERNAME is "$CONTAINTERNAME
-                echo "After provision, IMAGENAME is "$IMAGENAME
+                echo "After provision, CONTAINER_NAME is "$CONTAINER_NAME
+                echo "After provision, IMAGE_NAME is "$IMAGE_NAME
                 echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME --imagename=$IMAGENAME
+                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
             else
-                CONTAINTERNAME="xen-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINTERNAME
+                CONTAINER_NAME="xen-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
+                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME
             fi
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
@@ -189,51 +189,57 @@
         #export SERVER_TYPE=
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-        nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        popd
+        if [ "$RHEL_COMPOSE" == "release" ]
+        then
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
-        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/xen/
-        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-        popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/xen/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+        else
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
 
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
+            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd
+        fi
         echo "************************check trigger condition of another xen*****************" 
-        if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
+        #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
+        if [ "$RHEL_COMPOSE" == "release" ]
         then 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
-            echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/xenNEWRUN.txt
+            echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/XENNEWRUN.txt
             export VIRTWHO_SRC=rhel6.8-sattool
           elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-sattool
              export VIRTWHO_SRC=rhel7.3-sattool
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/xenNEWRUN.txt
+             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/XENNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel7.3-sattool
              export VIRTWHO_SRC=rhel6.9-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/xenNEWRUN.txt         
+             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/XENNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.9-original
              export VIRTWHO_SRC=rhel6.8-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/xenNEWRUN.txt   
-          else
-             # xen-rhel73-original.redhat.com
-             #export VIRTWHO_ORIGINAL_SRC=rhel6.8-original
+             echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/XENNEWRUN.txt   
+          elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
+          then
              export VIRTWHO_SRC=rhel7.3-original
-             #export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/xenNEWRUN.txt 
+             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/XENNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/xenNEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/XENNEWRUN.txt
+          else
+             export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
+             rm -rf $WORKSPACE/XENNEWRUN.txt
           fi
         else
-          export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
-          rm -rf $WORKSPACE/xenNEWRUN.txt
+          export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+          rm -rf $WORKSPACE/XENNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
@@ -248,7 +254,7 @@
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/xenNEWRUN.txt
+        properties-file: $WORKSPACE/XENNEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -257,7 +263,7 @@
     - default-virt-who-publishers
     - trigger-parameterized-builds:
       - project: virt-who-xen-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/xenNEWRUN.txt
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/XENNEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS

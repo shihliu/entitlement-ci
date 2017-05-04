@@ -40,6 +40,24 @@ fi
 
 export PASS='red2015'
 
+# Wait for rhel img ready
+export loop_time=1
+while [ $loop_time -le 100 ]
+do
+  docker images|grep $RHEL_IMAGE_NAME
+  if [ $? -eq 0 ]
+  then
+    echo $RHEL_IMAGE_NAME " is exist."
+    break
+  else
+    echo $RHEL_IMAGE_NAME "is not exist, need to wait...."
+    loop_time=`expr $loop_time + 1`
+    sleep 5s
+    echo "loop_time is "$loop_time
+  fi
+done
+
+# Create new rhel container
 docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
