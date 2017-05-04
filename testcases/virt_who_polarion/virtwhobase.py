@@ -40,15 +40,15 @@ class VIRTWHOBase(Base):
     def sys_setup(self, targetmachine_ip=None):
 #         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
-        logger.info("server_compose is %s" %server_compose)
+        logger.info("server_compose is %s" % server_compose)
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
-        logger.info("tool_src is %s" %tool_src)
-        # check if host registered to cdn server
-        if not self.sub_isregistered(targetmachine_ip):
-            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
-            self.sub_auto_subscribe(targetmachine_ip)
+        logger.info("tool_src is %s" % tool_src)
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
+        # check if host registered to cdn server
+            if not self.sub_isregistered(targetmachine_ip):
+                self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
+                self.sub_auto_subscribe(targetmachine_ip)
             if self.os_serial == "6":
                 cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
                     '[sat6-tools]\n'
@@ -538,7 +538,7 @@ class VIRTWHOBase(Base):
                 logger.info("Failed to installed subscription-manager on System %s " % self.get_hg_info(targetmachine_ip))
             return False
         elif "has been deleted" in output:
-            logger.info("System is unregistered on server side" )
+            logger.info("System is unregistered on server side")
             self.sub_clean(targetmachine_ip)
             return False
         else:
@@ -547,7 +547,6 @@ class VIRTWHOBase(Base):
 
     def sub_register(self, username, password, targetmachine_ip=""):
         ''' register the machine. '''
-        self.sub_clean(targetmachine_ip)
         cmd = "subscription-manager register --username=%s --password=%s" % (username, password)
         ret, output = self.runcmd(cmd, "register system", targetmachine_ip)
         if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
