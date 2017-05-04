@@ -3,7 +3,7 @@ from utils.tools.shell import command
 from utils.exception.failexception import FailException
 from testcases.rhsm.rhsmconstants import RHSMConstants
 from testcases.rhsm.rhsmguilocator import RHSMGuiLocator
-#from testcases.sellocator import SelLocator
+# from testcases.sellocator import SelLocator
 from testcases.virt_who_polarion.virtwhoconstants import VIRTWHOConstants
 
 class Base(unittest.TestCase):
@@ -159,7 +159,7 @@ class Base(unittest.TestCase):
             elif "rhsmcertd" in checkcmd:
                 time.sleep(100)
             elif "virsh" in checkcmd:
-                time.sleep(5)
+                time.sleep(60)
             else:
                 time.sleep(20)
         else:
@@ -199,6 +199,9 @@ class Base(unittest.TestCase):
     def runcmd_service(self, command, targetmachine_ip=""):
         cmd = self.get_service_cmd(command, targetmachine_ip)
         return self.runcmd(cmd, "run service cmd: %s" % cmd, targetmachine_ip)
+
+#     def runcmd_ctrl_c(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+#         return command.runcmd_ctrl_c(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def runcmd_local(self, cmd, timeout=None, showlogger=True):
         return command.runcmd_local(cmd, timeout, showlogger)
@@ -749,16 +752,16 @@ class Base(unittest.TestCase):
     # ========================================================
     #       Selenium Functions
     # ========================================================
-    #def sel_locator(self, name):
-    #    sel_locator = SelLocator()
-    #    if self.test_server == "SAM":
-    #        return sel_locator.sam_locators[name]
-    #    elif self.test_server == "SATELLITE":
-    #        return sel_locator.satellite_locators[name]
-    #    elif self.test_server == "STAGE" :
-    #        return sel_locator.stage_locators[name]
-    #    else:
-    #        return sel_locator.locator[name]
+#     def sel_locator(self, name):
+#         sel_locator = SelLocator()
+#         if self.test_server == "SAM":
+#             return sel_locator.sam_locators[name]
+#         elif self.test_server == "SATELLITE":
+#             return sel_locator.satellite_locators[name]
+#         elif self.test_server == "STAGE" :
+#             return sel_locator.stage_locators[name]
+#         else:
+#             return sel_locator.locator[name]
 
     def sel_open_brower(self):
         server_ip = get_exported_param("SERVER_IP")
@@ -858,6 +861,7 @@ class Base(unittest.TestCase):
             self.driver = webdriver.Firefox()
             self.driver.implicitly_wait(20)
         except ImportError:
+            pass
             logger.info("selenium not installed, related cases are not available ...")
         logger.info("********** Begin Running ...**** OS: RHEL %s **** Server: %s **********" % (self.os_serial, self.test_server))
 #         SERVER_IP = get_exported_param("SERVER_IP")

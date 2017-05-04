@@ -66,7 +66,7 @@ class VIRTWHOConstants(object):
     "wrong_owner":                              "xxxxxxx",
     "wrong_env":                                "xxxxxxx",
     "wrong_passwd":                             "xxxxxxx",
-    "vw_interval_check_msg":                    "hasn't changed, not sending",
+    "vw_interval_check_msg":                    "No data to send, waiting for next interval",
     "error_msg_with_wrong_passwd":              "Incorrect domain/username/password|incorrect user name or password|Authentication failure",
     "vm_default_interval_msg":                  "3600 seconds interval",
 
