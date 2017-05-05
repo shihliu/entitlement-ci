@@ -85,6 +85,11 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/SERVER.txt
+      - project: 'rhevm-install-provision'
+        current-parameters: false
+        condition: 'SUCCESS'
+        property-file: $WORKSPACE/SERVER.txt
+        fail-on-missing: true
 
 - job-template:
     name: qe-satellite-62-ohsnap-trigger

@@ -52,7 +52,7 @@ do
   else
     echo $RHEL_IMAGE_NAME "is not exist, need to wait...."
     loop_time=`expr $loop_time + 1`
-    sleep 5s
+    sleep 60s
     echo "loop_time is "$loop_time
   fi
 done

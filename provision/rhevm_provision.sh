@@ -49,6 +49,24 @@ else
 fi
 CONTAINER_NAME=$RHEVMIMG_NAME".redhat.com"
 
+# Wait for rhevm img ready
+export loop_time=1
+while [ $loop_time -le 100 ]
+do
+  docker images|grep $RHEVMIMG_NAME
+  if [ $? -eq 0 ]
+  then
+    echo $RHEVMIMG_NAME " is exist."
+    break
+  else
+    echo $RHEVMIMG_NAME "is not exist, need to wait...."
+    loop_time=`expr $loop_time + 1`
+    sleep 60s
+    echo "loop_time is "$loop_time
+  fi
+done
+
+# Create rhevm container
 docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]

@@ -44,7 +44,7 @@ pushd $WORKSPACE/entitlement-ci/provision
 #if [ $isRhelExist -eq 0 ]
 EXIST_IMAGE_NAME=`docker images | awk '{print $1}'|grep $IMAGE_NAME| cut -c1-7`
 echo "EXIST_IMAGE_NAME is "$EXIST_IMAGE_NAME
-if [ $EXIST_IMAGE_NAME -eq $IMAGE_NAME ]
+if [[ "$EXIST_IMAGE_NAME" == "IMAGE_NAME" ]]
 then
    echo $IMAGE_NAME"is exist, it neend't to pull it from repo"
 else

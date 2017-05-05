@@ -55,23 +55,23 @@
             #Provision base img
             $WORKSPACE/entitlement-ci/provision/create-rhevm-baseimg.sh
             # Provision Test Resources
-            $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
+            #$WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-    publishers:
-      - archive:
-          artifacts: '*.txt, *.json'
-          allow-empty: 'true'
-      - trigger-parameterized-builds:
-          - project: 'rhevm-install-runtest'
-            current-parameters: true
-            condition: 'SUCCESS'
-            property-file: $WORKSPACE/RESOURCES.txt
-            fail-on-missing: true
+    #publishers:
+    #  - archive:
+    #      artifacts: '*.txt, *.json'
+    #      allow-empty: 'true'
+    #  - trigger-parameterized-builds:
+    #      - project: 'rhevm-install-runtest'
+    #        current-parameters: true
+    #        condition: 'SUCCESS'
+    #        property-file: $WORKSPACE/RESOURCES.txt
+    #        fail-on-missing: true
 
 - job-template:
     name: 'rhevm-install-runtest'
@@ -85,10 +85,13 @@
         - shell: |
             #!/bin/bash
             echo "Jenkins machine info we are running on"
-            ifconfig
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
+            # Provision Test Resources
+            # Create rhevm machine
+            $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
+            # Configure rhevm machine       
             pushd $WORKSPACE/entitlement-ci/testcases/install
             if [ "$RHEL_COMPOSE"x = "release"x ]
             then
