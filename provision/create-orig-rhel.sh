@@ -39,9 +39,12 @@ pushd $WORKSPACE/entitlement-ci/provision
 #RHEL_COMPOSE_RESULT=${RHEL_COMPOSE_SIMPLE//-/}
 #IMAGE_NAME=$( tr '[A-Z]' '[a-z]' <<< $RHEL_COMPOSE_RESULT)
 
-docker images|grep $IMAGE_NAME
-isRhelExist=$?
-if [ $isRhelExist -eq 0 ]
+#docker images|grep $IMAGE_NAME
+#isRhelExist=$?
+#if [ $isRhelExist -eq 0 ]
+EXIST_IMAGE_NAME=`docker images | awk '{print $1}'|grep $IMAGE_NAME| cut -c1-7`
+echo "EXIST_IMAGE_NAME is "$EXIST_IMAGE_NAME
+if [ $EXIST_IMAGE_NAME -eq $IMAGE_NAME ]
 then
    echo $IMAGE_NAME"is exist, it neend't to pull it from repo"
 else
