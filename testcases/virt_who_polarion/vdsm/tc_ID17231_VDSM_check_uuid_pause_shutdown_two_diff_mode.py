@@ -53,7 +53,7 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
         finally:
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.update_vm_to_host(guest_name, remote_host_name, rhevm_ip)
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
+            self.unset_all_virtwho_d_conf(remote_ip_2 )
             self.runcmd_service("restart_virtwho")
             self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

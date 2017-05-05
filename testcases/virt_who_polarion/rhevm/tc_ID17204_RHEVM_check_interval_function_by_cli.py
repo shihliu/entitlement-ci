@@ -9,9 +9,11 @@ class tc_ID17204_RHEVM_check_interval_function_by_cli(VDSMBase):
         try:
             self.runcmd_service("stop_virtwho")
             check_msg = self.get_vw_cons("vw_interval_check_msg")
+            check_default_interval = self.get_vw_cons("vm_default_interval_msg")
+
             #(1) Check virt-who refresh default interval is 60s
             cmd = self.virtwho_cli("rhevm") + " -d"
-            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_default_interval, 1, 150)
             #(2) Check virt-who refresh interval is 60 when config interval less than 60s
             cmd = self.virtwho_cli("rhevm") + " -d -i 10"
             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)

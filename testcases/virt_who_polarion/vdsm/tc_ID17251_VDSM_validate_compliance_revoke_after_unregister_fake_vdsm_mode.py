@@ -16,7 +16,7 @@ class tc_ID17251_VDSM_validate_compliance_revoke_after_unregister_fake_vdsm_mode
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
             VIRTWHO_ENV = self.get_vw_cons("server_env")
             fake_file = "/tmp/fake_file"
-            fake_config_file = "/etc/virt-who.d/fake"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
@@ -36,7 +36,7 @@ class tc_ID17251_VDSM_validate_compliance_revoke_after_unregister_fake_vdsm_mode
             self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
 
             # (3) restart virt-who service and make virt-who run at fake mode
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
@@ -64,7 +64,7 @@ class tc_ID17251_VDSM_validate_compliance_revoke_after_unregister_fake_vdsm_mode
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

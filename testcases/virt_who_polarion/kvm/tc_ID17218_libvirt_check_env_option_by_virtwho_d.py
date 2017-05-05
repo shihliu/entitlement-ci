@@ -17,8 +17,7 @@ class tc_ID17218_libvirt_check_env_option_by_virtwho_d(KVMBase):
 
             # (1) When "env" is not exist, virt-who should show error info
             self.set_virtwho_sec_config_with_keyvalue("libvirt", "env", "", remote_ip_2)
-#             if self.get_os_serials(remote_ip_2) == 6:
-            if self.os_serial(remote_ip_2) == 6:
+            if self.get_os_serials(remote_ip_2) == "6":
                 self.vw_check_message("service virt-who restart", error_msg_without_env, cmd_retcode=1, targetmachine_ip=remote_ip_2)
             else:
                 self.runcmd_service("restart_virtwho", targetmachine_ip=remote_ip_2)
@@ -35,7 +34,7 @@ class tc_ID17218_libvirt_check_env_option_by_virtwho_d(KVMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2)
+            self.unset_all_virtwho_d_conf(remote_ip_2)
             self.update_config_to_default(remote_ip_2)
             self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

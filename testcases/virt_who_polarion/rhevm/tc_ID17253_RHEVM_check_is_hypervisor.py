@@ -19,6 +19,7 @@ class tc_ID17253_RHEVM_check_is_hypervisor(VDSMBase):
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
 
             # (1) Set rhevm fake mode with is_hypervisor=True, it will not show host/guest mapping info
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("rhevm")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

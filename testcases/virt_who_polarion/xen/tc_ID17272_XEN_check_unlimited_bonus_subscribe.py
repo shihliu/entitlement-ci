@@ -20,7 +20,7 @@ class tc_ID17272_XEN_check_unlimited_bonus_subscribe(XENBase):
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
 
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
 
             # (2) Register guest to server
             if not self.sub_isregistered(guestip):

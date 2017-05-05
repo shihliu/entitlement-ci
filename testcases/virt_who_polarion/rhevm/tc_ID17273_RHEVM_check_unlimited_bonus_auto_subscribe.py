@@ -17,7 +17,7 @@ class tc_ID17273_RHEVM_check_unlimited_bonus_auto_subscribe(VDSMBase):
 #             sku_name = self.get_vw_cons("datacenter_name")
             sku_name = self.get_vw_cons("datacenter_bonus_name")
 
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
 
             # (1) Start guest
             self.rhevm_start_vm(guest_name, rhevm_ip)

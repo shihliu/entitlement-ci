@@ -15,17 +15,22 @@ class tc_ID17260_check_uuid_after_add_vm_restart_libvirtd(KVMBase):
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
+            self.config_option_setup_value("VIRTWHO_INTERVAL", 60)
+            self.runcmd_service("restart_virtwho")
+            cmd_stop_guest = "virsh destroy %s" % guest_name
 
             self.vw_start_guests(guest_name)
 
             # (1) start guest then check if the uuid is correctly monitored by virt-who.
-            self.vw_check_uuid(guestuuid, uuidexists=True, checkcmd="service libvirtd restart")
+            self.vw_check_message_in_rhsm_log("Using libvirt url", checkcmd="service libvirtd restart")
+            self.vw_check_uuid(guestuuid, uuidexists=True, checkcmd=cmd_stop_guest)
+            self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
             # (2). register guest to Server
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
-            #(3).subscribe host to the physical pool and guest subscribe bonus pool
+            # (3).subscribe host to the physical pool and guest subscribe bonus pool
             self.sub_subscribe_sku(test_sku)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             self.sub_listconsumed(sku_name, guestip)
@@ -45,6 +50,8 @@ class tc_ID17260_check_uuid_after_add_vm_restart_libvirtd(KVMBase):
             self.vw_stop_guests(guest_name)
             # unsubscribe host
             self.sub_unsubscribe()
+            self.config_option_disable("VIRTWHO_INTERVAL")
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             remote_env = self.get_vw_cons("server_env")
             remote_user = self.get_vw_cons("VIRTWHO_LIBVIRT_USERNAME")
             fake_file = "/tmp/fake_file"
-            fake_config_file = "/etc/virt-who.d/fake"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
 
             # define a guest
             self.vw_define_guest(guest_name)
@@ -31,7 +31,7 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.set_virtwho_sec_config(mode, remote_ip_2)
             self.generate_fake_file("kvm", fake_file, remote_ip_2)
             # (3) delete virt-who's remote libvirt config on host2
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
+            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who.conf", remote_ip_2 )
             # (4) configure fake mode on host2
             self.set_fake_mode_conf(fake_file, "True", remote_owner, remote_env, remote_ip_2)
             # (5) check if guest uuid is correctly monitored by virt-who.
@@ -57,8 +57,8 @@ class tc_ID17252_check_uuid_fake_remote_libvird(KVMBase):
             self.vw_define_all_guests()
             self.unset_virtwho_d_conf(fake_file, remote_ip_2)
             self.unset_virtwho_d_conf(fake_config_file, remote_ip_2)
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
-            self.runcmd_service("restart_virtwho")
+            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who.conf", remote_ip_2 )
+            self.vw_restart_virtwho()
             self.vw_restart_virtwho(remote_ip_2)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

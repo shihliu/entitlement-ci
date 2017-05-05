@@ -137,6 +137,8 @@ class XENBase(VIRTWHOBase):
                 logger.info("Success to stop vm %s" % guest_name)
             else:
                 raise FailException("Failed to stop vm %s" % guest_name)
+        elif "didn't acknowledge the need to shutdown" in output:
+            logger.info("vm is started, it needn't to shutdown")
         else:
             raise FailException("Failed to shutdown vm %s" % guest_name)
         # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately

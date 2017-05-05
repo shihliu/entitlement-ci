@@ -31,7 +31,7 @@ class tc_ID17232_check_uuid_two_config_same_mode(KVMBase):
             self.assert_(False, case_name)
         finally:
             self.vw_define_all_guests()
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who", remote_ip_2 )
+            self.unset_all_virtwho_d_conf(remote_ip_2 )
             self.clean_remote_libvirt_conf(remote_ip_2)
             self.runcmd_service("restart_virtwho")
             self.runcmd_service("restart_virtwho", remote_ip_2)

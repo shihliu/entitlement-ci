@@ -14,7 +14,7 @@ class tc_ID17249_VDSM_check_uuid_fake_vdsm_mode(VDSMBase):
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
             VIRTWHO_ENV = self.get_vw_cons("server_env")
             fake_file = "/tmp/fake_file"
-            fake_config_file = "/etc/virt-who.d/fake"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
@@ -44,7 +44,7 @@ class tc_ID17249_VDSM_check_uuid_fake_vdsm_mode(VDSMBase):
             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

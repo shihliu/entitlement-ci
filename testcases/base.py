@@ -112,6 +112,10 @@ class Base(unittest.TestCase):
         ''' mount the images prepared '''
         if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
             image_server = self.get_vw_cons("local_image_server")
+        elif get_exported_param("REMOTE_IP").startswith("10.66.13"):
+            image_server = self.get_vw_cons("local_image_server")
+        elif get_exported_param("REMOTE_IP").startswith("10.66.144"):
+            image_server = self.get_vw_cons("local_image_server")
         else:
             image_server = self.get_vw_cons("beaker_image_server")
         if "kvm" in mode:

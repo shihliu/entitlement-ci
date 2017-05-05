@@ -12,9 +12,9 @@ class tc_ID17201_VDSM_check_debug_function_by_config(VDSMBase):
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
             # (1) enable debug mode, check debug info is exist on virt-who log.
-            self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_DEBUG", 1)
             self.rhevm_start_vm(guest_name, rhevm_ip)
+            self.runcmd_service("stop_virtwho")
             self.vw_check_message_in_debug_cmd("virt-who --vdsm -d", "%s|\"vdsm\" mode|DEBUG" % guestuuid, message_exists=True)
 
             # (2) diable debug mode, check debug info is not exist on virt-who log.

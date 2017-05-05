@@ -27,6 +27,7 @@ class tc_ID17250_RHEVM_check_bonus_subscribe_in_fake_mode(VDSMBase):
             # (1) Unregister rhevm hypervisor in server 
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register rhevm hypervisor with fake mode
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("rhevm")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

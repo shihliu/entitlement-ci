@@ -11,7 +11,7 @@ class tc_ID17209_RHEVM_check_config_option_by_cli(VDSMBase):
             self.config_option_disable("VIRTWHO_RHEVM")
 
 #           (1) Check virt-who send h/g mapping info one time when run "virt-who -c "
-            conf_file = "/etc/virt-who.d/virt-who"
+            conf_file = "/etc/virt-who.d/virt-who.conf"
             self.set_virtwho_sec_config("rhevm")
             cmd = "virt-who -c %s -o -d" % conf_file
             self.vw_check_mapping_info_number(cmd, 1)

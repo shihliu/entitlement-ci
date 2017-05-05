@@ -15,7 +15,7 @@ class tc_ID17272_HYPERV_check_unlimited_bonus_subscribe(HYPERVBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
 
             # (1) Start guest
             self.hyperv_start_guest(guest_name)

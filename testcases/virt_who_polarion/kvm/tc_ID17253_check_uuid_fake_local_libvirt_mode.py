@@ -13,7 +13,7 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
             VIRTWHO_ENV = self.get_vw_cons("server_env")
             fake_file = "/tmp/fake_file"
-            fake_config_file = "/etc/virt-who.d/fake"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
 
             # define a guest
             self.vw_define_guest(guest_name)
@@ -42,8 +42,8 @@ class tc_ID17253_check_uuid_fake_local_libvirt_mode(KVMBase):
         finally:
             self.vw_define_all_guests()
             self.unset_virtwho_d_conf(fake_file)
-            self.unset_virtwho_d_conf(fake_config_file)
-            self.runcmd_service("restart_virtwho")
+            self.unset_all_virtwho_d_conf()
+            self.vw_restart_virtwho()
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

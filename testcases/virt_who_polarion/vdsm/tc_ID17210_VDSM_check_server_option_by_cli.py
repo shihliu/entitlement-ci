@@ -9,9 +9,9 @@ class tc_ID17210_VDSM_check_server_option_by_cli(VDSMBase):
         try:
             guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
-            self.runcmd_service("stop_virtwho")
             server_type = get_exported_param("SERVER_TYPE")
             self.rhevm_start_vm(guest_name, rhevm_ip)
+            self.runcmd_service("stop_virtwho")
 
             if server_type == "SAM":
                 self.vw_check_mapping_info_number("virt-who -o -d --vdsm --sam", 1)

@@ -18,6 +18,7 @@ class tc_ID17275_validate_compliance_unregister_host_check_mapping_when_re_regis
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
+            self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

@@ -18,6 +18,7 @@ class tc_ID17274_validate_compliance_revoke_on_guest_when_remove_parent_pool(KVM
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
+            self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

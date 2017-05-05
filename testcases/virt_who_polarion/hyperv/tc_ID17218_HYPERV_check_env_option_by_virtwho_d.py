@@ -32,7 +32,7 @@ class tc_ID17218_HYPERV_check_env_option_by_virtwho_d(HYPERVBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.unset_virtwho_d_conf("/etc/virt-who.d/virt-who")
+            self.unset_all_virtwho_d_conf()
             self.set_hyperv_conf()
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

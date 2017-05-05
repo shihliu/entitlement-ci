@@ -17,6 +17,7 @@ class tc_ID17286_validate_limited_bonus_pool_creation(KVMBase):
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
+            self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

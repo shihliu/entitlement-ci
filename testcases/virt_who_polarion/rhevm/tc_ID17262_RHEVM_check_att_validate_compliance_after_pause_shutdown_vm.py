@@ -22,7 +22,7 @@ class tc_ID17262_RHEVM_check_att_validate_compliance_after_pause_shutdown_vm(VDS
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             sku_name = self.get_vw_cons("datacenter_name")
 
-            self.runcmd_service("restart_virtwho")
+            self.vw_restart_virtwho()
 
             # (1) Register guest to SAM and subscribe to the bonus pool
             if not self.sub_isregistered(guestip):

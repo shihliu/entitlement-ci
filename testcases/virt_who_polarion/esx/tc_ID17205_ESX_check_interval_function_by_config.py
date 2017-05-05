@@ -8,9 +8,12 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             self.runcmd_service("stop_virtwho")
-            loop_msg = self.get_vw_cons("vw_interval_check_msg")
             self.config_option_disable("VIRTWHO_INTERVAL")
-            self.vw_check_message_number_in_rhsm_log(loop_msg, 2, 150)
+            loop_msg = self.get_vw_cons("vw_interval_check_msg")
+            check_default_interval = self.get_vw_cons("vm_default_interval_msg")
+
+            self.config_option_disable("VIRTWHO_INTERVAL")
+            self.vw_check_message_number_in_rhsm_log(check_default_interval, 1, 150)
             self.runcmd_service("stop_virtwho")
             self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
             self.vw_check_message_number_in_rhsm_log(loop_msg, 2, 150)
@@ -29,6 +32,7 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
             self.assert_(False, case_name)
         finally:
             self.config_option_disable("VIRTWHO_INTERVAL")
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

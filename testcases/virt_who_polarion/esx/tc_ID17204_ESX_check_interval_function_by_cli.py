@@ -9,8 +9,11 @@ class tc_ID17204_ESX_check_interval_function_by_cli(ESXBase):
         try:
             self.runcmd_service("stop_virtwho")
             loop_msg = self.get_vw_cons("vw_interval_check_msg")
+            check_default_interval = self.get_vw_cons("vm_default_interval_msg")
+
             cmd = self.virtwho_cli("esx") + " -d"
-            self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 2, 150)
+#             self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 2, 150)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_default_interval, 1, 100)
             cmd = self.virtwho_cli("esx") + " -d -i 10"
             self.vw_check_message_number_in_debug_cmd(cmd, loop_msg, 2, 150)
             cmd = self.virtwho_cli("esx") + " -d -i 120"
