@@ -112,9 +112,9 @@ class Base(unittest.TestCase):
         ''' mount the images prepared '''
         if get_exported_param("REMOTE_IP").startswith("hp-z220-"):
             image_server = self.get_vw_cons("local_image_server")
-        elif get_exported_param("REMOTE_IP").startswith("10.66.13"):
+        elif get_exported_param("RHEVM_HOST1_IP").startswith("10.73.13"):
             image_server = self.get_vw_cons("local_image_server")
-        elif get_exported_param("REMOTE_IP").startswith("10.66.144"):
+        elif get_exported_param("RHEVM_HOST1_IP").startswith("10.66.144"):
             image_server = self.get_vw_cons("local_image_server")
         else:
             image_server = self.get_vw_cons("beaker_image_server")

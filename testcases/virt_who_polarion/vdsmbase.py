@@ -218,9 +218,18 @@ class VDSMBase(VIRTWHOBase):
         else:
             return False
 
+    def cm_update_system(self, targetmachine_ip=""):
+        cmd = "yum update -y"
+        ret, output = self.runcmd(cmd, "yum update all system package", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to update all system package")
+        else:
+            raise FailException("Failed to update all system package")
+
     def rhevm_add_host(self, host_name, host_ip, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
+        self.cm_update_system(host_ip)
         if not self.rhevm_check_host_exist(host_name, targetmachine_ip):
             cmd = "%s -c -E 'add host --name \"%s\" --address \"%s\" --root_password red2015'" % (shell_cmd, host_name, host_ip)
             ret, output = self.runcmd(cmd, "add host to rhevm", targetmachine_ip, showlogger=False)
@@ -923,8 +932,8 @@ class VDSMBase(VIRTWHOBase):
         if "rhevm-3.6" in rhevm_version:
             self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
-        self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
 #         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
