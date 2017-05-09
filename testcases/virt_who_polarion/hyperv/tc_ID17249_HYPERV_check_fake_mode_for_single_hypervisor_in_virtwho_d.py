@@ -7,7 +7,6 @@ class tc_ID17249_HYPERV_check_fake_mode_for_single_hypervisor_in_virtwho_d(HYPER
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
 
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -18,6 +17,7 @@ class tc_ID17249_HYPERV_check_fake_mode_for_single_hypervisor_in_virtwho_d(HYPER
             host_uuid = self.hyperv_get_host_uuid()
             
             # (1) Set hyperv fake mode, it will show host/guest mapping info
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("hyperv")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

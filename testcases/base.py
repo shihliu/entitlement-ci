@@ -114,6 +114,8 @@ class Base(unittest.TestCase):
             image_server = self.get_vw_cons("local_image_server")
         elif get_exported_param("RHEVM_HOST1_IP").startswith("10.73.13"):
             image_server = self.get_vw_cons("local_image_server")
+        elif get_exported_param("RHEVM_HOST1_IP").startswith("hp-z220-"):
+            image_server = self.get_vw_cons("local_image_server")
         elif get_exported_param("RHEVM_HOST1_IP").startswith("10.66.144"):
             image_server = self.get_vw_cons("local_image_server")
         else:

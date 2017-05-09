@@ -14,7 +14,7 @@ class tc_ID17220_check_service_by_ssh(KVMBase):
                 logger.info("Succeeded to run virt-who restart by ssh")
             else:
                 raise FailException("Failed to run virt-who restart by ssh")
-            self.check_virtwho_thread(2)
+            self.check_virtwho_thread(1)
 
             # (2) When remote check virt-who status, it should success
             ssh_cmd = "ssh %s %s" % (get_exported_param("REMOTE_IP"), self.get_service_cmd("status_virtwho"))

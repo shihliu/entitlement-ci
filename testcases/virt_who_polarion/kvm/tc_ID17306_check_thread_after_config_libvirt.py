@@ -15,7 +15,7 @@ class tc_ID17306_check_thread_after_config_libvirt(KVMBase):
                     self.runcmd_service("restart_virtwho")
                     self.vw_check_message_in_rhsm_log("Too many active clients", message_exists=False)
                     self.list_vm()
-                    self.check_virtwho_thread(2)
+                    self.check_virtwho_thread(1)
                     time.sleep(5)
             else:
                 logger.info("Libvirtd config not support it here, it Only supported in rhel6")

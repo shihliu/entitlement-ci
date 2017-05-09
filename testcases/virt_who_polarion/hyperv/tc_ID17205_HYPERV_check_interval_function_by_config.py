@@ -26,7 +26,7 @@ class tc_ID17205_HYPERV_check_interval_function_by_config(HYPERVBase):
             #(4).Check virt-who thread will not increase after restart it.
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
-                self.check_virtwho_thread(2)
+                self.check_virtwho_thread(1)
                 time.sleep(5)
 
             self.assert_(True, case_name)

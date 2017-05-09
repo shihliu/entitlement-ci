@@ -23,7 +23,7 @@ class tc_ID17205_ESX_check_interval_function_by_config(ESXBase):
             self.vw_check_message_number_in_rhsm_log(loop_msg, 1, 150)
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
-                self.check_virtwho_thread(2)
+                self.check_virtwho_thread(1)
                 time.sleep(5)
 
             self.assert_(True, case_name)

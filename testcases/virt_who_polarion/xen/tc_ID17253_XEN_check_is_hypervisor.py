@@ -7,7 +7,6 @@ class tc_ID17253_XEN_check_is_hypervisor(XENBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
 
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -20,6 +19,7 @@ class tc_ID17253_XEN_check_is_hypervisor(XENBase):
             self.xen_start_guest(guest_name, xen_host_ip)
 
             # (1) Set xen fake mode with is_hypervisor=True, it will show host/guest mapping info
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

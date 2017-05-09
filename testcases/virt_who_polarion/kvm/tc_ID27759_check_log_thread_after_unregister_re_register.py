@@ -16,7 +16,7 @@ class tc_ID27759_check_log_thread_after_unregister_re_register(KVMBase):
             #(2).Register host,check virt-who log and threads
             cmd_reg = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
             self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd=cmd_reg)
-            self.check_virtwho_thread(2)
+            self.check_virtwho_thread(1)
 
             self.assert_(True, case_name)
         except Exception, e:

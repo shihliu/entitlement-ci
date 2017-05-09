@@ -24,10 +24,10 @@ class tc_ID17251_XEN_check_bonus_revoke_in_fake_mode(XENBase):
 
             # (1) Unregister xen hypervisor in server 
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register xen hypervisor with fake mode
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

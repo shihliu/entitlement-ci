@@ -9,7 +9,6 @@ class tc_ID17250_XEN_check_bonus_subscribe_in_fake_mode(XENBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")
@@ -27,6 +26,7 @@ class tc_ID17250_XEN_check_bonus_subscribe_in_fake_mode(XENBase):
             # (1) Unregister xen hypervisor in server 
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register xen hypervisor with fake mode
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)

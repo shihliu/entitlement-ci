@@ -13,7 +13,7 @@ class tc_ID17199_check_default_config(KVMBase):
             self.vw_stop_virtwho()
             self.vw_check_message_in_rhsm_log("DEBUG", message_exists=False)
             # (4) Check virt-who processes and virt-who service status.
-            self.check_virtwho_thread(2)
+            self.check_virtwho_thread(1)
             self.vw_check_virtwho_status()
             # (5) Stop virt-who service and check virt-who processes.
             self.vw_stop_virtwho()
