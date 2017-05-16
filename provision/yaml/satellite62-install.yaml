@@ -67,7 +67,6 @@
       - archive:
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
-
       - trigger-parameterized-builds:
           - project: 'satellite62-install-runtest'
             current-parameters: true

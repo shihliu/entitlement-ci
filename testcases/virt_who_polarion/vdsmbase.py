@@ -3,6 +3,122 @@ from testcases.virt_who_polarion.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
 class VDSMBase(VIRTWHOBase):
+    def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
+        # System setup for virt-who on two hosts
+        self.sys_setup(targetmachine_ip)
+        RHEVM_IP = get_exported_param("RHEVM_IP")
+        RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+        RHEVM_HOST1_NAME, RHEVM_HOST2_NAME = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        NFSserver_ip = get_exported_param("REMOTE_IP")
+        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
+        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
+
+        # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version)
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
+        self.install_vdsm_package(rhel_compose)
+        self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
+        # Configure env on rhevm(add two host,storage,guest)
+        self.conf_rhevm_shellrc(RHEVM_IP)
+        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+        # Configure cluster and dc to 3.5 
+        if "rhevm-3.6" in rhevm_version:
+            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
+            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
+        self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
+        # Add network bridge "ovirtmgmt"
+#         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+        if "rhevm-3.5" not in rhevm_version:
+            if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
+                self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
+                self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+        # change target guest host name, or else satellite testing will fail due to same name
+        self.rhevm_change_guest_name(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+
+    def rhel_rhevm_static_sys_setup(self, targetmachine_ip=""):
+        RHEVM_IP = get_exported_param("RHEVM_IP")
+        RHEVM_HOST1_IP = get_exported_param("RHEVM_HOST1_IP")
+        RHEVM_HOST2_IP = get_exported_param("RHEVM_HOST2_IP")  
+        RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+        RHEVM_HOST1_NAME = self.get_hostname(RHEVM_HOST1_IP)
+        RHEVM_HOST2_NAME = self.get_hostname(RHEVM_HOST2_IP)
+        NFSserver_ip = get_exported_param("RHEVM_HOST1_IP")
+        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
+        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
+        rhel_compose = get_exported_param("RHEL_HOST_COMPOSE")
+        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
+
+        # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
+        # System setup for virt-who on two hosts
+        self.sys_setup(RHEVM_HOST1_IP)
+        self.sys_setup(get_exported_param("REMOTE_IP_2"))
+        # Configure env on rhevm(add two host,storage,guest)
+        self.conf_rhevm_shellrc(RHEVM_IP)
+        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+        # Configure cluster and dc to 3.5 
+        if "rhevm-3.6" in rhevm_version:
+            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
+            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
+#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
+        # Add network bridge "ovirtmgmt"
+#         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
+        if "rhevm-3.5" not in rhevm_version:
+            if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
+                self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
+                self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+        # change target guest host name, or else satellite testing will fail due to same name
+        self.rhevm_change_guest_name(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+
+    def rhel_vdsm_setup(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who configure file
+        self.update_config_to_default()
+        self.update_rhel_vdsm_configure(60)
+        self.service_command("restart_virtwho")
+        # configure slave machine
+        slave_machine_ip = get_exported_param("REMOTE_IP_2")
+        if slave_machine_ip != None and slave_machine_ip != "":
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
+            # update virt-who configure file
+            self.update_config_to_default()
+            self.update_rhel_vdsm_configure(60, slave_machine_ip)
+            self.service_command("restart_virtwho", slave_machine_ip)
+
+    def rhel_rhevm_setup(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        RHEVM_IP = get_exported_param("RHEVM_IP")
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who to rhevm mode in /etc/sysconfig/virt-who
+        self.update_config_to_default()
+        self.set_rhevm_conf()
+        self.service_command("restart_virtwho")
+
     def configure_rhel_host_bridge(self, targetmachine_ip=""):
     # Configure rhevm bridge on RHEL host
         network_dev = ""
@@ -24,7 +140,7 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed to get network device in %s" % self.get_hg_info(targetmachine_ip))
 
-    def get_rhevm_repo_file(self, compose_name, rhevm_version, targetmachine_ip=""):
+    def set_rhevm_repo_file(self, compose_name, rhevm_version, targetmachine_ip=""):
     # Get rhevm repo
         ''' wget rhevm repo file and add to rhel host '''
         if self.os_serial == "7":
@@ -80,6 +196,8 @@ class VDSMBase(VIRTWHOBase):
         if not self.sub_isregistered(targetmachine_ip):
             self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q", targetmachine_ip)
             self.sub_auto_subscribe(targetmachine_ip)
+        self.cm_install_basetool(targetmachine_ip)
+        self.set_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)
         cmd = "subscription-manager repos --disable=*"
         ret, output = self.runcmd(cmd, "disable all repo", targetmachine_ip, showlogger=False)
         if ret == 0:
@@ -92,14 +210,12 @@ class VDSMBase(VIRTWHOBase):
             logger.info("Succeeded to enable useful rhel repo in %s" % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to enable useful rhel repo in %s" % self.get_hg_info(targetmachine_ip))
-        self.cm_install_basetool(targetmachine_ip)
         cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
         ret, output = self.runcmd(cmd, "install kvm and related packages for kvm testing", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s" % self.get_hg_info(targetmachine_ip))
-        self.get_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)
         vdsm_version = self.cm_get_rpm_version("vdsm", targetmachine_ip)
         if vdsm_version is "null":
             cmd = "yum install -y vdsm"
@@ -109,6 +225,22 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("Succeeded to install vdsm and related packages in %s" % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Test Failed - Failed to install vdsm and related packages in %s" % self.get_hg_info(targetmachine_ip))
+#         self.stop_firewall(targetmachine_ip)
+
+    def install_vdsm_package(self, rhel_compose, targetmachine_ip=""):
+        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+        ret, output = self.runcmd(cmd, "install virtualization related packages", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
+        self.set_rhevm_repo_file(rhel_compose, targetmachine_ip)
+        cmd = "yum install -y vdsm"
+        ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to install vdsm and related packages in %s" % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to install vdsm and related packages in %s" % self.get_hg_info(targetmachine_ip))
         self.stop_firewall(targetmachine_ip)
 
     def conf_rhevm_shellrc(self, targetmachine_ip=""):
@@ -229,10 +361,10 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_add_host(self, host_name, host_ip, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
-        self.cm_update_system(host_ip)
+#         self.cm_update_system(host_ip)
         if not self.rhevm_check_host_exist(host_name, targetmachine_ip):
             cmd = "%s -c -E 'add host --name \"%s\" --address \"%s\" --root_password red2015'" % (shell_cmd, host_name, host_ip)
-            ret, output = self.runcmd(cmd, "add host to rhevm", targetmachine_ip, showlogger=False)
+            ret, output = self.runcmd(cmd, "add host to rhevm", targetmachine_ip)
             if ret == 0:
                 self.rhevm_check_host_status(host_name, "up", targetmachine_ip)
             else:
@@ -602,6 +734,22 @@ class VDSMBase(VIRTWHOBase):
     def rhevm_check_vm_status(self, vm_name, vm_status, targetmachine_ip):
         self.rhevm_check_vm_key_value(vm_name, "status-state", vm_status, targetmachine_ip)
 
+#     def rhevm_start_vm(self, vm_name, targetmachine_ip):
+#         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
+#         get_vm_cmd = self.get_vm_cmd(vm_name, targetmachine_ip)
+#         # Start VM on RHEVM
+#         cmd = "%s -c -E 'action vm %s start'" % (shell_cmd, vm_name)
+#         for item in range(10):
+#             ret, output = self.runcmd(cmd, "start vm on rhevm", targetmachine_ip, showlogger=False)
+#             if "Storage Domain cannot be accessed" in output:
+#                 time.sleep(30)
+#             elif ret == 0:
+#                 logger.info("Success to run start command %s" % cmd)
+#                 break
+#         else:
+#             raise FailException("Failed to start vm %s on rhevm" % vm_name)
+#         self.rhevm_check_vm_status(vm_name, "up", targetmachine_ip)
+
     def rhevm_start_vm(self, vm_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         get_vm_cmd = self.get_vm_cmd(vm_name, targetmachine_ip)
@@ -611,12 +759,15 @@ class VDSMBase(VIRTWHOBase):
             ret, output = self.runcmd(cmd, "start vm on rhevm", targetmachine_ip, showlogger=False)
             if "Storage Domain cannot be accessed" in output:
                 time.sleep(30)
+                continue
             elif ret == 0:
                 logger.info("Success to run start command %s" % cmd)
                 break
         else:
             raise FailException("Failed to start vm %s on rhevm" % vm_name)
         self.rhevm_check_vm_status(vm_name, "up", targetmachine_ip)
+        # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
+        self.runcmd_service("restart_virtwho")
 
     def rhevm_stop_vm(self, vm_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
@@ -851,133 +1002,36 @@ class VDSMBase(VIRTWHOBase):
         else:
             raise FailException("Test Failed - Failed  to set rhevm mode in /etc/sysconfig/virt-who")
 
-    def rhevm_change_guest_name(self):
+#     def rhevm_change_guest_name(self):
+#         guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+#         rhevm_ip = get_exported_param("RHEVM_IP")
+#         self.rhevm_start_vm(guest_name, rhevm_ip)
+#         (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+#         network_card = self.vdsm_get_vm_nw(guest_name, rhevm_ip)
+#         for item in range(2):
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.vdsm_rm_vm_nw(guest_name, network_card, rhevm_ip)
+#             self.vdsm_add_vm_nw(guest_name, rhevm_ip)
+#             self.rhevm_start_vm(guest_name, rhevm_ip)
+#             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+#         self.cm_change_hostname(guestip)
+#         self.rhevm_stop_vm(guest_name, rhevm_ip)
+
+    def rhevm_change_guest_name(self, guest_name, targetmachine_ip=""):
         guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         rhevm_ip = get_exported_param("RHEVM_IP")
-        self.rhevm_start_vm(guest_name, rhevm_ip)
-        (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-        network_card = self.vdsm_get_vm_nw(guest_name, rhevm_ip)
-        for item in range(2):
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
-            self.vdsm_rm_vm_nw(guest_name, network_card, rhevm_ip)
-            self.vdsm_add_vm_nw(guest_name, rhevm_ip)
-            self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-        self.cm_change_hostname(guestip)
-        self.rhevm_stop_vm(guest_name, rhevm_ip)
-
-    def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        RHEVM_IP = get_exported_param("RHEVM_IP")
-        RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-        RHEVM_HOST1_NAME = self.get_hostname()
-#         RHEVM_HOST2_NAME = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-        NFSserver_ip = get_exported_param("REMOTE_IP")
-        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
-        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-        rhel_compose = get_exported_param("RHEL_COMPOSE")
-        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
-
-        # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version)
-#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
-        # System setup for virt-who on two hosts
-        self.sys_setup()
-#         self.sys_setup(get_exported_param("REMOTE_IP_2"))
-        # Configure env on rhevm(add two host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-        # Configure cluster and dc to 3.5 
-        if "rhevm-3.6" in rhevm_version:
-            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
-            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
-#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("REMOTE_IP"), RHEVM_IP)
-#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
-        # Add network bridge "ovirtmgmt"
-#         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
-        if "rhevm-3.5" not in rhevm_version:
-            if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
-                self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
-                self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-        # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name()
-
-    def rhel_rhevm_static_sys_setup(self, targetmachine_ip=""):
-        RHEVM_IP = get_exported_param("RHEVM_IP")
-        RHEVM_HOST1_IP = get_exported_param("RHEVM_HOST1_IP")
-        RHEVM_HOST2_IP = get_exported_param("RHEVM_HOST2_IP")  
-        RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
-        RHEVM_HOST1_NAME = self.get_hostname(RHEVM_HOST1_IP)
-#         RHEVM_HOST2_NAME = self.get_hostname(RHEVM_HOST2_IP)
-        NFSserver_ip = get_exported_param("RHEVM_HOST1_IP")
-        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
-        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-        rhel_compose = get_exported_param("RHEL_HOST_COMPOSE")
-        rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
-
-        # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
-#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
-        # System setup for virt-who on two hosts
-        self.sys_setup(RHEVM_HOST1_IP)
-#         self.sys_setup(get_exported_param("REMOTE_IP_2"))
-        # Configure env on rhevm(add two host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-        # Configure cluster and dc to 3.5 
-        if "rhevm-3.6" in rhevm_version:
-            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
-            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
-#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
-#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
-        # Add network bridge "ovirtmgmt"
-#         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
-        if "rhevm-3.5" not in rhevm_version:
-            if self.vdsm_check_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP) is True:
-                self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
-                self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
-        # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name()
-
-    def rhel_vdsm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-        # if host already registered, unregister it first, then configure and register it
-        self.sub_unregister()
-        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who configure file
-        self.update_config_to_default()
-        self.update_rhel_vdsm_configure(60)
-        self.service_command("restart_virtwho")
-        # configure slave machine
-        slave_machine_ip = get_exported_param("REMOTE_IP_2")
-        if slave_machine_ip != None and slave_machine_ip != "":
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister(slave_machine_ip)
-            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
-            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
-            # update virt-who configure file
-            self.update_config_to_default()
-            self.update_rhel_vdsm_configure(60, slave_machine_ip)
-            self.service_command("restart_virtwho", slave_machine_ip)
-
-    def rhel_rhevm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-        RHEVM_IP = get_exported_param("RHEVM_IP")
-        # if host already registered, unregister it first, then configure and register it
-        self.sub_unregister()
-        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who to rhevm mode in /etc/sysconfig/virt-who
-        self.update_config_to_default()
-        self.set_rhevm_conf()
-        self.service_command("restart_virtwho")
+        self.rhevm_start_vm(guest_name, targetmachine_ip)
+        while True:
+            (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, targetmachine_ip)
+            try:
+                self.cm_change_hostname(guestip)
+                logger.info("Succeeded to change rhevm guest hostname")
+                break
+            except Exception, e:
+                logger.info("Failed to change rhevm guest hostname, failed to connect to guest %s" % guest_name)
+                network_card = self.vdsm_get_vm_nw(guest_name, targetmachine_ip)
+                self.rhevm_stop_vm(guest_name, targetmachine_ip)
+                self.vdsm_rm_vm_nw(guest_name, network_card, targetmachine_ip)
+                self.vdsm_add_vm_nw(guest_name, targetmachine_ip)
+                self.rhevm_start_vm(guest_name, targetmachine_ip)
+        self.rhevm_stop_vm(guest_name, targetmachine_ip)

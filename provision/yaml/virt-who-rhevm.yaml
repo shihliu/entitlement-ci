@@ -94,7 +94,7 @@
         - recipients
 
 - job-template:
-    name: 'virt-who-rhevm-provision'
+    name: 'virt-who-rhev-provision'
     defaults: virt-who-provision
     node: docker-rhel7
     builders:
@@ -109,6 +109,8 @@
             #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
             #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
+            export RHEVM_HOST1_IP=hp-z220-10.qe.lab.eng.nay.redhat.com
+            export RHEVM_HOST2_IP=hp-z220-04.qe.lab.eng.nay.redhat.com
             echo "*********************************setup env*********************************"
             #Get RHEL-6.9
             #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
@@ -147,8 +149,8 @@
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -157,19 +159,19 @@
           artifacts: '*.txt, *.json'
           allow-empty: 'true'
       - trigger-parameterized-builds:
-        - project: virt-who-rhevm-runtest
+        - project: virt-who-rhev-runtest
           current-parameters: false
           condition: SUCCESS
           property-file: $WORKSPACE/RESOURCES.txt
           fail-on-missing: true
 
 - job-template:
-    name: virt-who-rhevm-runtest
+    name: virt-who-rhev-runtest
     defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     - copyartifact:
-        project: virt-who-rhevm-provision
+        project: virt-who-rhev-provision
         filter: '*.txt, *.json'
         target: $WORKSPACE
     - shell: |
@@ -245,9 +247,9 @@
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
@@ -269,10 +271,10 @@
         #condition: ALWAYS
           
 - job-group:
-    name: virt-who-rhevm-provision-runtest
+    name: virt-who-rhev-provision-runtest
     jobs:
-    - virt-who-rhevm-provision
-    - virt-who-rhevm-runtest
+    - virt-who-rhev-provision
+    - virt-who-rhev-runtest
 - project:
     name: virt-who-rhevm-jobs
     project: virt-who-rhevm
