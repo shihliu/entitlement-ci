@@ -220,4 +220,3 @@ class HYPERVBase(VIRTWHOBase):
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
-

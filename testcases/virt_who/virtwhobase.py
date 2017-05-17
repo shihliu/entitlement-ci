@@ -25,10 +25,17 @@ class VIRTWHOBase(Base):
         self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
     def sys_setup(self, targetmachine_ip=None):
-        self.cm_install_basetool(targetmachine_ip)
+#         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
+        logger.info("server_compose is %s" % server_compose)
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        logger.info("tool_src is %s" % tool_src)
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
-        if server_compose == "ohsnap-satellite":
+        if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
+        # check if host registered to cdn server
+            if not self.sub_isregistered(targetmachine_ip):
+                self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
+                self.sub_auto_subscribe(targetmachine_ip)
             if self.os_serial == "6":
                 cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
                     '[sat6-tools]\n'
@@ -54,11 +61,12 @@ class VIRTWHOBase(Base):
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=True)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")       
+        self.sub_unregister(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
@@ -491,6 +499,15 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Failed to encode virt-who-password.")
 
+    def sub_clean(self, targetmachine_ip=""):         
+        # need to clean local data after unregister
+        cmd = "subscription-manager clean"
+        ret, output = self.runcmd(cmd, "clean system", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to clean %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Failed to clean %s." % self.get_hg_info(targetmachine_ip))
+
     def sub_isregistered(self, targetmachine_ip=""):
         ''' check whether the machine is registered. '''
         cmd = "subscription-manager identity"
@@ -498,7 +515,20 @@ class VIRTWHOBase(Base):
         if ret == 0:
             logger.info("System %s is registered." % self.get_hg_info(targetmachine_ip))
             return True
-        else: 
+        elif "command not found" in output: 
+            logger.info("subscription-manager isn't exist, need to install it")
+            cmd = "yum install -y subscription-manager"
+            ret, output = self.runcmd(cmd, "install subscription-manager", targetmachine_ip)
+            if ret == 0:
+                logger.info("subscription-manager has been installed on System %s " % self.get_hg_info(targetmachine_ip))
+            else:
+                logger.info("Failed to installed subscription-manager on System %s " % self.get_hg_info(targetmachine_ip))
+            return False
+        elif "has been deleted" in output:
+            logger.info("System is unregistered on server side")
+            self.sub_clean(targetmachine_ip)
+            return False
+        else:
             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
             return False
 
@@ -1258,7 +1288,8 @@ class VIRTWHOBase(Base):
         availpoollist = self.sub_listavailpools(sku, targetmachine_ip)
         if availpoollist != None:
             for index in range(0, len(availpoollist)):
-                if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku):
+#                 if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku):
+                if("SKU" in availpoollist[index] and availpoollist[index]["SKU"] == sku and "Temporary" not in availpoollist[index]["SubscriptionType"]):
                     rindex = index
                     break
                 elif("ProductId" in availpoollist[index] and availpoollist[index]["ProductId"] == sku):
@@ -1289,11 +1320,11 @@ class VIRTWHOBase(Base):
             raise FailException("Failed to get hypervisor's capabilities on %s" % self.get_hg_info(targetmachine_ip))
 
     def cal_virtwho_thread(self, targetmachine_ip=""):
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
-            self.vw_restart_virtwho()
+            self.runcmd_service("restart_virtwho")
             time.sleep(1)
             cmd = "ps -ef | grep -v grep | grep virt-who |wc -l"
             ret, output = self.runcmd(cmd, "calculate virt-who thread", targetmachine_ip)
@@ -1563,7 +1594,7 @@ class VIRTWHOBase(Base):
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
@@ -1574,7 +1605,7 @@ class VIRTWHOBase(Base):
         self.esx_start_guest_first(guest_name, esx_host)
         # self.esx_service_restart(ESX_HOST)
         self.esx_stop_guest(guest_name, esx_host)
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -1903,8 +1934,8 @@ class VIRTWHOBase(Base):
         if guestname != "" and guestuuid == "Default":
             guestuuid = self.esx_get_guest_uuid(guestname, destination_ip)
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.vw_restart_virtwho()
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
+        self.runcmd_service("restart_virtwho")
         # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
@@ -2316,6 +2347,8 @@ class VIRTWHOBase(Base):
                 logger.info("Success to stop vm %s" % guest_name)
             else:
                 raise FailException("Failed to stop vm %s" % guest_name)
+        elif "didn't acknowledge the need to shutdown" in output:
+            logger.info("vm is started, it needn't to shutdown")
         else:
             raise FailException("Failed to shutdown vm %s" % guest_name)
         # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
@@ -2712,7 +2745,7 @@ class VIRTWHOBase(Base):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
         # mount all needed guests
         self.mount_images()
         # add guests in host machine.
@@ -2767,7 +2800,7 @@ class VIRTWHOBase(Base):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
 
     def kvm_sys_setup_arch(self, targetmachine_ip=""):
         self.sys_setup(targetmachine_ip)

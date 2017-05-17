@@ -9,7 +9,6 @@ class ESXBase(VIRTWHOBase):
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        #self.runcmd_service("restart_virtwho")
         self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)

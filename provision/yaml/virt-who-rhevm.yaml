@@ -286,5 +286,5 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-    - virt-who-rhevm-provision-runtest
+    - virt-who-rhev-provision-runtest
     polarion_template: virt-who for rhevm auto template
