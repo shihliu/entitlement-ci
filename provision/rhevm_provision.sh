@@ -103,6 +103,7 @@ else
 fi
 
 export REMOTE_IP=$RHEVM_IP
+export RHEVM_IP=$RHEVM_IP
 echo "REMOTE_IP is" $REMOTE_IP
 echo "RHEVM_IP is" $RHEVM_IP
 echo RHEVM_IP=$RHEVM_IP>>RESOURCES.txt
