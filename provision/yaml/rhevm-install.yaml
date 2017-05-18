@@ -79,9 +79,11 @@
             # Create rhevm machine
             $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
             # echo "*********************************show env*********************************" 
-            echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
-            echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
-            echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            #echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
+            #echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            #echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo "Check WORKSPACE/RESOURCES.txt again is as the following"
+            cat $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
@@ -102,8 +104,8 @@
 - job-template:
     name: 'rhevm-install-runtest-start'
     defaults: virt-who-runtest
-    #node: 'satellite-slave'
-    node: docker-rhel7-3
+    node: 'satellite-slave'
+    #node: docker-rhel7-3
     builders:
         - copyartifact:
             project: 'rhevm-install-runtest'
