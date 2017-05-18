@@ -107,6 +107,8 @@ echo RHEVM_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
 echo RHEVM_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
 echo REMOTE_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
 echo REMOTE_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
+echo "WORKSPACE/RESOURCES.txt is as the following"
+cat $WORKSPACE/RESOURCES.txt
 
 echo "Provisioning with the following environment"
 echo "-------------------------------------------"
