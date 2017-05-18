@@ -16,8 +16,8 @@ class VDSMBase(VIRTWHOBase):
         rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-#         self.config_vdsm_env_setup(rhel_compose, rhevm_version)
-#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version)
+        self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
         self.install_vdsm_package(rhel_compose)
         self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
@@ -71,7 +71,7 @@ class VDSMBase(VIRTWHOBase):
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
         self.clean_nfs_env(RHEVM_HOST1_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
@@ -466,6 +466,12 @@ class VDSMBase(VIRTWHOBase):
                 time.sleep(10)
 
     def clean_nfs_env(self, targetmachine_ip): 
+        cmd = "service nfs stop"
+        ret, output = self.runcmd(cmd, "stop nfs service", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to stop nfs service")
+        else:
+            logger.info("Failed to stop nfs service")
         cmd = "umount 10.66.144.9:/data/projects/sam-virtwho/pub" 
         ret, output = self.runcmd(cmd, "umount data", targetmachine_ip)
         if ret == 0:

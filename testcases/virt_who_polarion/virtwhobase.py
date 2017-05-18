@@ -40,9 +40,8 @@ class VIRTWHOBase(Base):
     def sys_setup(self, targetmachine_ip=None):
 #         self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
-        logger.info("server_compose is %s" % server_compose)
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
-        logger.info("tool_src is %s" % tool_src)
+        logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
         # check if host registered to cdn server
@@ -74,11 +73,11 @@ class VIRTWHOBase(Base):
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=True)
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")       
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
         self.sub_unregister(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
@@ -1454,6 +1453,13 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to scp id_rsa.pub to remote host")
 
+    def order_mapping_info(self, obj):
+        if isinstance(obj, dict):
+            return sorted((k, self.order_mapping_info(v)) for k, v in obj.items())
+        if isinstance(obj, list):
+            return sorted(self.order_mapping_info(x) for x in obj)
+        else:
+            return obj
 
     # ========================================================
     #       Basic Functions For Satellite Test

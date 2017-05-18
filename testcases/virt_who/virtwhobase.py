@@ -24,13 +24,26 @@ class VIRTWHOBase(Base):
     def set_virtwho_version(self, targetmachine_ip=None):
         self.cm_set_rpm_version("VIRTWHO_VERSION", "virt-who", targetmachine_ip)
 
+    def check_virtwho_pkg(self, rhevm_compose, server_ip=None, server_user=None, server_passwd=None):
+        cmd = "rpm -qa | grep virt-who"
+        ret, output = self.runcmd(cmd, "check virt-who package status", server_ip, server_user, server_passwd)
+        if "virt-who" in output and "sat" not in output:
+            logger.info("Succeeded to check virt-who package from original repo exist.need to delete it and deploy new one")
+            cmd = "rpm -e virt-who"
+            if ret == 0:
+                logger.info("Succeeded to delete virt-who package from original repo")
+            else:
+                raise FailException("Test Failed - Failed to delete virt-who package from original repo")
+        else:
+            logger.info("virt-who package is not install, need to install.")
+
     def sys_setup(self, targetmachine_ip=None):
-#         self.cm_install_basetool(targetmachine_ip)
+        self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
-        logger.info("server_compose is %s" % server_compose)
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
-        logger.info("tool_src is %s" % tool_src)
+        logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
+#         if server_compose == "ohsnap-satellite":
         if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
         # check if host registered to cdn server
             if not self.sub_isregistered(targetmachine_ip):
@@ -61,12 +74,11 @@ class VIRTWHOBase(Base):
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=True)
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")       
-        self.sub_unregister(targetmachine_ip)
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
@@ -528,7 +540,7 @@ class VIRTWHOBase(Base):
             logger.info("System is unregistered on server side")
             self.sub_clean(targetmachine_ip)
             return False
-        else:
+        else: 
             logger.info("System %s is not registered." % self.get_hg_info(targetmachine_ip))
             return False
 
@@ -1594,7 +1606,7 @@ class VIRTWHOBase(Base):
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        self.runcmd_service("restart_virtwho")
+        self.vw_restart_virtwho()
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
@@ -1605,7 +1617,7 @@ class VIRTWHOBase(Base):
         self.esx_start_guest_first(guest_name, esx_host)
         # self.esx_service_restart(ESX_HOST)
         self.esx_stop_guest(guest_name, esx_host)
-        self.runcmd_service("restart_virtwho")
+        self.vw_restart_virtwho()
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -1934,8 +1946,8 @@ class VIRTWHOBase(Base):
         if guestname != "" and guestuuid == "Default":
             guestuuid = self.esx_get_guest_uuid(guestname, destination_ip)
         rhsmlogfile = os.path.join(rhsmlogpath, "rhsm.log")
-        self.runcmd_service("restart_virtwho")
-        self.runcmd_service("restart_virtwho")
+        self.vw_restart_virtwho()
+        self.vw_restart_virtwho()
         # need to sleep tail -3, then can get the output normally
         cmd = "sleep 15; tail -3 %s " % rhsmlogfile
         ret, output = self.runcmd(cmd, "check output in rhsm.log")
@@ -2347,8 +2359,6 @@ class VIRTWHOBase(Base):
                 logger.info("Success to stop vm %s" % guest_name)
             else:
                 raise FailException("Failed to stop vm %s" % guest_name)
-        elif "didn't acknowledge the need to shutdown" in output:
-            logger.info("vm is started, it needn't to shutdown")
         else:
             raise FailException("Failed to shutdown vm %s" % guest_name)
         # since virt-who changed to wait 3600 to refresh, so for xen/rhevm, restart virt-who to take effect immediately
@@ -2745,7 +2755,7 @@ class VIRTWHOBase(Base):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.runcmd_service("restart_virtwho")
+        self.vw_restart_virtwho()
         # mount all needed guests
         self.mount_images()
         # add guests in host machine.
@@ -2800,7 +2810,7 @@ class VIRTWHOBase(Base):
         # update virt-who configure file
         self.update_vw_configure()
         # restart virt-who service
-        self.runcmd_service("restart_virtwho")
+        self.vw_restart_virtwho()
 
     def kvm_sys_setup_arch(self, targetmachine_ip=""):
         self.sys_setup(targetmachine_ip)

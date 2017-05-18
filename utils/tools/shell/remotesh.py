@@ -57,7 +57,7 @@ class RemoteSH(object):
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(remote_ip, 22, username, password)
-        #trying to resolve large output issue
+        # trying to resolve large output issue
         ssh._transport.window_size = 2147483647
         if timeout == None:
             stdin, stdout, stderr = ssh.exec_command(cmd)
@@ -145,6 +145,27 @@ class RemoteSH(object):
                     break
         if channel.recv_ready():
 #             data = channel.recv(1048576)
+            data = channel.recv(1073741824)
+            output += data
+        return channel.recv_exit_status(), output
+
+    @classmethod
+    def run_paramiko_ctrl_c(self, cmd, remote_ip, username, password, timeout=None):
+        """Execute the given commands and kill via ctrl+c."""
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(remote_ip, 22, username, password)
+        channel = ssh.get_transport().open_session()
+        channel.settimeout(6000)
+        channel.get_pty()
+        channel.exec_command(cmd)
+        logger.debug("sleep 5 seconds and press ctrc+c to kill command")
+        time.sleep(5)
+        channel.send(chr(3))
+        # channel.send("\x03")
+        output = ""
+        if channel.recv_ready():
             data = channel.recv(1073741824)
             output += data
         return channel.recv_exit_status(), output

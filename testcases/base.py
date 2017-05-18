@@ -212,8 +212,8 @@ class Base(unittest.TestCase):
         cmd = self.get_service_cmd(command, targetmachine_ip)
         return self.runcmd(cmd, "run service cmd: %s" % cmd, targetmachine_ip)
 
-#     def runcmd_ctrl_c(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
-#         return command.runcmd_ctrl_c(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
+    def runcmd_ctrl_c(self, cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+        return command.runcmd_ctrl_c(cmd, cmddesc, targetmachine_ip, targetmachine_user, targetmachine_pass, timeout, showlogger)
 
     def runcmd_local(self, cmd, timeout=None, showlogger=True):
         return command.runcmd_local(cmd, timeout, showlogger)

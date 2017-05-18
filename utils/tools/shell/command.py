@@ -30,6 +30,10 @@ class Command(object):
         ret, output = RemoteSH.run_paramiko_interact(cmd, self.remote_ip, self.username, self.password, timeout)
         return ret, output
 
+    def run_ctrl_c(self, cmd, timeout=None, comments=True):
+        ret, output = RemoteSH.run_paramiko_ctrl_c(cmd, self.remote_ip, self.username, self.password, timeout)
+        return ret, output
+
 def runcmd(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
     if targetmachine_ip != None and targetmachine_ip != "":
         if targetmachine_user != None and targetmachine_user != "":
@@ -49,6 +53,16 @@ def runcmd_interact(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user
     else:
         commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
     return commander.run_interact(cmd, timeout, cmddesc)
+
+def runcmd_ctrl_c(cmd, cmddesc=None, targetmachine_ip=None, targetmachine_user=None, targetmachine_pass=None, timeout=None, showlogger=True):
+    if targetmachine_ip != None and targetmachine_ip != "":
+        if targetmachine_user != None and targetmachine_user != "":
+            commander = Command(targetmachine_ip, targetmachine_user, targetmachine_pass)
+        else:
+            commander = Command(targetmachine_ip, "root", "red2015")
+    else:
+        commander = Command(get_exported_param("REMOTE_IP"), "root", "red2015")
+    return commander.run_ctrl_c(cmd, timeout, cmddesc)
 
 def runcmd_local(cmd, timeout=None, showlogger=True):
     return LocalSH.local_run(cmd, timeout, showlogger)
