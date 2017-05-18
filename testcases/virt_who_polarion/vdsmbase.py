@@ -72,7 +72,6 @@ class VDSMBase(VIRTWHOBase):
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
 #         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
-        self.clean_nfs_env(RHEVM_HOST1_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
@@ -364,6 +363,7 @@ class VDSMBase(VIRTWHOBase):
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
 #         self.cm_update_system(host_ip)
         if not self.rhevm_check_host_exist(host_name, targetmachine_ip):
+            self.clean_nfs_env(host_ip)
             cmd = "%s -c -E 'add host --name \"%s\" --address \"%s\" --root_password red2015'" % (shell_cmd, host_name, host_ip)
             ret, output = self.runcmd(cmd, "add host to rhevm", targetmachine_ip)
             if ret == 0:
@@ -497,7 +497,11 @@ class VDSMBase(VIRTWHOBase):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         # Add storagedomain in rhevm and active it
         cmd = "mkdir %s" % storage_dir
-        self.runcmd(cmd, "create storage nfs folder", NFS_server)
+        ret, output = self.runcmd(cmd, "create storage nfs folder", NFS_server)
+        if ret == 0 :
+            logger.info("Succeeded to make dir %s" % storage_dir)
+        else:
+            raise FailException("Failed to make dir %s" % storage_dir)
         cmd = "sed -i '/%s/d' /etc/exports; echo '%s *(rw,no_root_squash)' >> /etc/exports" % (storage_dir.replace('/', '\/'), storage_dir)
         ret, output = self.runcmd(cmd, "set /etc/exports for nfs", NFS_server)
         if ret == 0:

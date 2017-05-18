@@ -82,6 +82,7 @@
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
           export SERVER_COMPOSE=$SERVER_COMPOSE
+          export RHEVM_IP=$RHEVM_IP
 
           Details:
 
@@ -107,11 +108,8 @@
             #export SERVER_IP=10.73.131.113
             #export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
             #export SERVER_TYPE=SATELLITE
-            #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
             #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
-            export RHEVM_HOST1_IP=hp-z220-10.qe.lab.eng.nay.redhat.com
-            export RHEVM_HOST2_IP=hp-z220-04.qe.lab.eng.nay.redhat.com
             echo "*********************************setup env*********************************"
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
@@ -143,8 +141,8 @@
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -171,12 +169,13 @@
     - shell: |
         #!/bin/bash
         echo "Jenkins machine info we are running on"
-        ifconfig
         echo "Pinging Test Resources"
         cat $WORKSPACE/RESOURCES.txt
         echo REMOTE_IP=$REMOTE_IP
         echo VIRTWHO_ORIGINAL_SRC=$VIRTWHO_ORIGINAL_SRC
         echo VIRTWHO_SRC=$VIRTWHO_SRC
+        export RHEVM_HOST1_IP=hp-z220-10.qe.lab.eng.nay.redhat.com
+        export RHEVM_HOST2_IP=hp-z220-04.qe.lab.eng.nay.redhat.com
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=
@@ -195,13 +194,21 @@
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
         else
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            #nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #popd
+
+            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/rhevm/
+            #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+              nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/rhevm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/all/
+              export HYPERVISOR_TYPE=rhevm
+              nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd 
         fi
         echo "************************check trigger condition of another rhevm*****************" 
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]

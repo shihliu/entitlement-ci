@@ -106,7 +106,6 @@
             #export SERVER_IP=10.73.131.113
             #export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
             #export SERVER_TYPE=SATELLITE
-            #export RHEL_COMPOSE_2=RHEL-6.8-20160414.0
             #export RHEL_COMPOSE=release
             #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
             echo "*********************************setup env*********************************"
@@ -147,8 +146,8 @@
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_2|RHEL_COMPOSE_EXIST|RHEL_COMPOSE_2_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -199,13 +198,21 @@
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
         else
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            #nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #popd
+
+            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
+            #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            #popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
+              nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/all/
+              export HYPERVISOR_TYPE=xen
+              nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            popd 
         fi
         echo "************************check trigger condition of another xen*****************" 
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]

@@ -61,8 +61,8 @@
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite_provision.sh
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -101,10 +101,9 @@
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
-            echo RHEL_COMPOSE_2=$RHEL_COMPOSE_2 >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
-            env | grep -E '(RHEL_COMPOSE|RHEL_COMPOSE_2|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
