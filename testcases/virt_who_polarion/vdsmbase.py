@@ -58,10 +58,10 @@ class VDSMBase(VIRTWHOBase):
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
         # System setup for virt-who on two hosts
         self.sys_setup(RHEVM_HOST1_IP)
-        self.sys_setup(get_exported_param("REMOTE_IP_2"))
+#         self.sys_setup(get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
@@ -71,7 +71,7 @@ class VDSMBase(VIRTWHOBase):
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
         self.clean_nfs_env(RHEVM_HOST1_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
