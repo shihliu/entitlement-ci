@@ -102,6 +102,7 @@ else
     RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 fi
 
+echo "WORKSPACE is" $WORKSPACE
 echo RHEVM_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
 echo RHEVM_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
 echo REMOTE_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt

@@ -55,6 +55,23 @@ pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 
+
+echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
+echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
+echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
+echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
+
+echo "Provisioning with the following environment"
+echo "-------------------------------------------"
+echo "SITE:                     $SITE"
+
+if [ "$RESOURCES_DIR" != "" ]; then
+   export RESOURCES_OUTPUT=$RESOURCES_DIR/RESOURCES.txt
+else
+   export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
+fi
+cat $RESOURCES_OUTPUT
+
 :<<eof
 # Make satellite container and get its ip
 # Keep the existed satellite container if it is exist
@@ -79,19 +96,3 @@ pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 eof
-
-echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
-echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
-echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-
-echo "Provisioning with the following environment"
-echo "-------------------------------------------"
-echo "SITE:                     $SITE"
-
-if [ "$RESOURCES_DIR" != "" ]; then
-   export RESOURCES_OUTPUT=$RESOURCES_DIR/RESOURCES.txt
-else
-   export RESOURCES_OUTPUT=$WORKSPACE/RESOURCES.txt
-fi
-cat $RESOURCES_OUTPUT
