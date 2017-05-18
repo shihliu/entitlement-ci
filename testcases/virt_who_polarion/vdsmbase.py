@@ -72,6 +72,7 @@ class VDSMBase(VIRTWHOBase):
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("REMOTE_IP_2"), RHEVM_IP)
+        self.clean_nfs_env(RHEVM_HOST1_IP)
         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
@@ -464,6 +465,27 @@ class VDSMBase(VIRTWHOBase):
                 logger.info("sleep 10 in wait_for_status")
                 time.sleep(10)
 
+    def clean_nfs_env(self, targetmachine_ip): 
+        cmd = "umount 10.66.144.9:/data/projects/sam-virtwho/pub" 
+        ret, output = self.runcmd(cmd, "umount data", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to umount data")
+        else:
+            logger.info("Failed to umount data")
+        # Add storagedomain in rhevm and active it
+        cmd = "rm -rf /root/data/ /root/export/"
+        ret, output = self.runcmd(cmd, "delete storage data", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to delete storage data")
+        else:
+            logger.info("Failed to delete storage data")
+        cmd = "rm -rf /tmp/images_mnt"
+        ret, output = self.runcmd(cmd, "delete tmp dat", targetmachine_ip)
+        if ret == 0 :
+            logger.info("Succeeded to delete tmp dat")
+        else:
+            logger.info("Failed to delete tmp dat")
+                
     def add_storagedomain_to_rhevm(self, storage_name, attach_host_name, domaintype, storage_format, NFS_server, storage_dir, targetmachine_ip): 
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)

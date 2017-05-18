@@ -76,7 +76,8 @@
           export RHEL_COMPOSE=$RHEL_COMPOSE
           export REMOTE_IP=$REMOTE_IP
           export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
-          export VIRTWHO_SRC=$VIRTWHO_ORIGINAL_SRC
+          export RHEVM_HOST1_IP=$RHEVM_HOST1_IP
+          export RHEVM_HOST2_IP=$RHEVM_HOST2_IP
           export SERVER_TYPE=$SERVER_TYPE
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
@@ -112,13 +113,6 @@
             export RHEVM_HOST1_IP=hp-z220-10.qe.lab.eng.nay.redhat.com
             export RHEVM_HOST2_IP=hp-z220-04.qe.lab.eng.nay.redhat.com
             echo "*********************************setup env*********************************"
-            #Get RHEL-6.9
-            #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
-            #RHEL_COMPOSE_RESULT=${{RHEL_COMPOSE_SIMPLE//./}}
-            #Get RHEL-6.8
-            #RHEL_COMPOSE_2_SIMPLE=${{RHEL_COMPOSE_2:0:8}}
-            #RHEL_COMPOSE_2_RESULT=${{RHEL_COMPOSE_2_SIMPLE//./}}
-            #echo "before test,RHEL_COMPOSE_RESULT is "$RHEL_COMPOSE_RESULT
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
 
@@ -194,7 +188,7 @@
         if [ "$RHEL_COMPOSE" == "release" ]
         then
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/rhevm/
@@ -202,7 +196,7 @@
             popd
         else
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            nosetests virtwho_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/rhevm/
