@@ -66,10 +66,6 @@
     defaults: virt-who-runtest
     node: docker-rhel7-3
     builders:
-        #- copyartifact:
-        #    project: 'satellite62-install-runtest'
-        #    filter: '*.txt, *.json'
-        #    target: $WORKSPACE
         - shell: |
             #!/bin/bash
             echo "Jenkins machine info we are running on"
