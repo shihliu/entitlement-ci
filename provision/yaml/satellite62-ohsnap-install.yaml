@@ -127,11 +127,11 @@
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
-           #- project: 'rhevm-install-provision'
-           #  current-parameters: false
-           #  condition: 'SUCCESS'
-           #  property-file: $WORKSPACE/SERVER.txt
-           #  fail-on-missing: true
+           - project: 'rhevm-install-runtest'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/SERVER.txt
+             fail-on-missing: true
 
 - job-group:
     name: satellite62-ohsnap-install-provision-runtest
