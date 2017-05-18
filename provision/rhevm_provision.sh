@@ -102,14 +102,10 @@ else
     RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 fi
 
-export REMOTE_IP=$RHEVM_IP
-export RHEVM_IP=$RHEVM_IP
-echo "REMOTE_IP is" $REMOTE_IP
-echo "RHEVM_IP is" $RHEVM_IP
-echo RHEVM_IP=$RHEVM_IP>>RESOURCES.txt
-echo RHEVM_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
-echo REMOTE_IP=$RHEVM_IP>>RESOURCES.txt
-echo REMOTE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
+echo RHEVM_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
+echo RHEVM_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
+echo REMOTE_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
+echo REMOTE_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
 
 echo "Provisioning with the following environment"
 echo "-------------------------------------------"

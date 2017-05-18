@@ -60,60 +60,72 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-    #publishers:
-    #  - archive:
-    #      artifacts: '*.txt, *.json'
-    #      allow-empty: 'true'
-    #  - trigger-parameterized-builds:
-    #      - project: 'rhevm-install-runtest'
-    #        current-parameters: true
-    #        condition: 'SUCCESS'
-    #        property-file: $WORKSPACE/RESOURCES.txt
-    #        fail-on-missing: true
 
 - job-template:
     name: 'rhevm-install-runtest'
     defaults: virt-who-runtest
-    #node: 'satellite-slave'
     node: docker-rhel7-3
     builders:
         #- copyartifact:
-        #    project: 'rhevm-install-provision'
+        #    project: 'satellite62-install-runtest'
         #    filter: '*.txt, *.json'
         #    target: $WORKSPACE
         - shell: |
             #!/bin/bash
             echo "Jenkins machine info we are running on"
             echo "Pinging Test Resources"
+            echo "RESOURCES.TXT is as the following"
             cat $WORKSPACE/RESOURCES.txt
+            echo "SERVER.TXT is as the following"
+            cat $WORKSPACE/SERVER.txt
             # echo "*********************************setup env*********************************"
             # Provision Test Resources
             # Create rhevm machine
             $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
-            # Configure rhevm machine       
-            pushd $WORKSPACE/entitlement-ci/testcases/install
-            if [ "$RHEL_COMPOSE"x = "release"x ]
-            then
-                if [[ $VIRTWHO_SRC =~ "rhel7" ]]
-                then
-                    nosetests rhevm41_install.py
-                else
-                    nosetests rhevm36_install.py
-                fi
-            elif [[ $RHEL_COMPOSE =~ "RHEL-7" ]]
-            then 
-                nosetests rhevm41_install.py
-            else 
-                nosetests rhevm36_install.py
-            fi
-            popd
+            # echo "*********************************show env*********************************" 
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
-            echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
-            echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
-            echo RHEVM_IP=$REMOTE_IP >> $WORKSPACE/RESOURCES.txt
-            echo RHEVM_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/RESOURCES.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+       - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+       - trigger-parameterized-builds:
+           - project: 'rhevm-install-runtest-start'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt
+             fail-on-missing: true
+
+- job-template:
+    name: 'rhevm-install-runtest-start'
+    defaults: virt-who-runtest
+    #node: 'satellite-slave'
+    node: docker-rhel7-3
+    builders:
+        - copyartifact:
+            project: 'rhevm-install-runtest'
+            filter: '*.txt, *.json'
+            target: $WORKSPACE
+        - shell: |
+            #!/bin/bash
+            echo "Jenkins machine info we are running on"
+            echo "RESOURCES.TXT is as the following"
+            cat $WORKSPACE/RESOURCES.txt
+            echo "SERVER.TXT is as the following"
+            cat $WORKSPACE/SERVER.txt
+            # echo "*********************************setup env*********************************"
+            pushd $WORKSPACE/entitlement-ci/testcases/install
+            nosetests rhevm41_install.py
+            popd
+
+            echo "********************************runtime env********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
@@ -136,7 +148,8 @@
     jobs:
       - 'rhevm-install-provision'
       - 'rhevm-install-runtest'
-
+      - 'rhevm-install-runtest-start'
+      
 - project:
     name: rhevm-install-jobs
     project: rhevm-install
