@@ -85,6 +85,18 @@ class VDSMBase(VIRTWHOBase):
         # change target guest host name, or else satellite testing will fail due to same name
         self.rhevm_change_guest_name(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
 
+    def rhel_rhevm_setup(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        RHEVM_IP = get_exported_param("RHEVM_IP")
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who to rhevm mode in /etc/sysconfig/virt-who
+        self.update_config_to_default()
+        self.set_rhevm_conf()
+        self.service_command("restart_virtwho")
+
     def rhel_vdsm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
@@ -106,18 +118,6 @@ class VDSMBase(VIRTWHOBase):
             self.update_config_to_default()
             self.update_rhel_vdsm_configure(60, slave_machine_ip)
             self.service_command("restart_virtwho", slave_machine_ip)
-
-    def rhel_rhevm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-        RHEVM_IP = get_exported_param("RHEVM_IP")
-        # if host already registered, unregister it first, then configure and register it
-        self.sub_unregister()
-        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
-        self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who to rhevm mode in /etc/sysconfig/virt-who
-        self.update_config_to_default()
-        self.set_rhevm_conf()
-        self.service_command("restart_virtwho")
 
     def configure_rhel_host_bridge(self, targetmachine_ip=""):
     # Configure rhevm bridge on RHEL host
@@ -376,16 +376,6 @@ class VDSMBase(VIRTWHOBase):
                     return True
                 raise FailException("Failed to add host %s to rhevm" % host_name)
 
-    def rhevm_mantenance_host(self, host_name, targetmachine_ip):
-        shell_cmd = self.get_rhevm_shell(targetmachine_ip)
-        # Maintenance Host on RHEVM
-        cmd = "%s -c -E 'action host \"%s\" deactivate'" % (shell_cmd, host_name)
-        ret, output = self.runcmd(cmd, "Maintenance host on rhevm", targetmachine_ip)
-        if ret == 0:
-            self.rhevm_check_host_status(host_name, "maintenance", targetmachine_ip)
-        else:
-            raise FailException("Failed to maintenance host %s on rhevm" % host_name)
-
     def rhevm_commitnetconfig_host(self, host_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
         # Maintenance Host on RHEVM
@@ -395,6 +385,16 @@ class VDSMBase(VIRTWHOBase):
 #             self.rhevm_check_host_status(host_name, "maintenance", targetmachine_ip)
 #         else:
 #             raise FailException("Failed to commitnetconfig host %s on rhevm" % host_name)
+
+    def rhevm_mantenance_host(self, host_name, targetmachine_ip):
+        shell_cmd = self.get_rhevm_shell(targetmachine_ip)
+        # Maintenance Host on RHEVM
+        cmd = "%s -c -E 'action host \"%s\" deactivate'" % (shell_cmd, host_name)
+        ret, output = self.runcmd(cmd, "Maintenance host on rhevm", targetmachine_ip)
+        if ret == 0:
+            self.rhevm_check_host_status(host_name, "maintenance", targetmachine_ip)
+        else:
+            raise FailException("Failed to maintenance host %s on rhevm" % host_name)
 
     def rhevm_delete_host(self, host_name, targetmachine_ip):
         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
