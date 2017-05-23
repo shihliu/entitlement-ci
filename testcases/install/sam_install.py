@@ -8,7 +8,7 @@ class SAM_Install(Install_Base):
         try:
             compose = "latest-SAM-1.4-RHEL-6"
             sam_server = get_exported_param("REMOTE_IP")
-            self.install_sam(compose, sam_server)
+            self.install_sam_docker(compose, sam_server)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

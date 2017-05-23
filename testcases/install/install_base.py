@@ -14,6 +14,16 @@ class Install_Base(Base):
         self.__deploy_sam(targetmachine_ip)
         self.__import_manifest(targetmachine_ip)
 
+    def install_sam_docker(self, compose, targetmachine_ip=""):
+        self.__stop_iptables(targetmachine_ip)
+        self.__set_selinux(targetmachine_ip)
+        self.__set_hosts_file(targetmachine_ip)
+#         self.__auto_subscribe(targetmachine_ip)
+#         self.__enable_sam_repo(targetmachine_ip)
+#         self.__install_katello(targetmachine_ip)
+        self.__deploy_sam(targetmachine_ip)
+        self.__import_manifest(targetmachine_ip)
+
     def install_satellite(self, compose, targetmachine_ip=""):
         self.__set_selinux(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)

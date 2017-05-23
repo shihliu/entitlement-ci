@@ -55,7 +55,6 @@ else
   mv Dockerfile-sam Dockerfile
   docker build -t $SAMIMG_NAME .
   mv Dockerfile Dockerfile-sam
+  mv Dockerfile-bk Dockerfile
 fi
-mv Dockerfile-bk Dockerfile
-
 popd
