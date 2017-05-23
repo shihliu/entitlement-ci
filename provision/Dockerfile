@@ -16,7 +16,7 @@ RUN yum install -y git
 
 # Update nosetest to make it run with -xunit
 RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-RUN yum install -y python-pip
+RUN yum install -y python-pip python-unittest2
 RUN yum update python-nose
 RUN pip install --upgrade nose
 # Update paramiko to make it with esx6.5

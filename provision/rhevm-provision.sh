@@ -51,7 +51,7 @@ CONTAINER_NAME=$RHEVMIMG_NAME".redhat.com"
 
 # Wait for rhevm img ready
 export loop_time=1
-while [ $loop_time -le 100 ]
+while [ $loop_time -le 1000 ]
 do
   docker images|grep $RHEVMIMG_NAME
   if [ $? -eq 0 ]
