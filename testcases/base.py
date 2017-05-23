@@ -799,6 +799,14 @@ class Base(unittest.TestCase):
     # ========================================================
     #       Skip Test Functions
     # ========================================================
+    def skip_run_case(self, skip_reason):
+        try:
+            self.skipTest(skip_reason)
+        except Exception, SkipTest:
+            logger.info(str(SkipTest))
+            raise SkipTest
+        finally:
+            logger.info("========== End of Running Test Case: skipped ... ==========")
 
     def skip_rhel7_check(self):
         if self.os_serial == "7" :
