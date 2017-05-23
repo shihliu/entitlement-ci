@@ -1,6 +1,10 @@
-import re, os, sys, shutil, logging, time, unittest, socket
+import re, os, sys, shutil, logging, time, socket
 import json, requests, paramiko
 from utils.constants import *
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 def get_log_file():
     """
