@@ -52,8 +52,9 @@ class tc_ID1001_check_virtwho_from_repo(VIRTWHOBase):
                 'gpgcheck=0\n'
                 'EOF'
                 ) % (repo_file_name, rhel_compose, rhel_compose, rhel_compose, rhel_compose, rhel_compose, rhel_compose, rhel_compose, rhel_compose)
+            # No virt-who package in "virt-who-ComputeNode" and "virt-who-Server-aarch64" repo with Bug 1373391 - closed as NOTABUG.
             ret, output = self.runcmd(cmd, "enable virt-who all arch/variant repo")
-            for item in ("virt-who-Client", "virt-who-ComputeNode", "virt-who-Workstation", "virt-who-Server-x86_64", "virt-who-Server-ppc64", "virt-who-Server-ppc64le", "virt-who-Server-aarch64", "virt-who-Server-s390x"):
+            for item in ("virt-who-Client", "virt-who-Workstation", "virt-who-Server-x86_64", "virt-who-Server-ppc64", "virt-who-Server-ppc64le", "virt-who-Server-s390x"):
                 cmd = "repoquery -a --repoid=%s | grep virt-who" % item
                 ret, output = self.runcmd(cmd, "check virt-who package exist in %s" % item)
                 if ret == 0:
