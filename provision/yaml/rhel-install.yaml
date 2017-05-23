@@ -78,7 +78,7 @@
             then
                docker rmi -f $RHEL_COMPOSE
             fi
-            $WORKSPACE/entitlement-ci/provision/rhel_base.sh
+            $WORKSPACE/entitlement-ci/provision/rhel-base.sh
             echo "***********************provision $RHEL_COMPOSE img*************************"
             echo "********************************runtime env********************************"
             env | grep -E '(SERVER_COMPOSE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
@@ -109,7 +109,7 @@
             then
                docker rmi -f $RHEL_IMAGE_NAME
             fi
-            $WORKSPACE/entitlement-ci/provision/rhel_base_new.sh
+            $WORKSPACE/entitlement-ci/provision/rhel-base-new.sh
             if [ "$SERVER_TYPE"x = "DEFAULT"x ]
             then
                 export SERVER_TYPE="STAGE"

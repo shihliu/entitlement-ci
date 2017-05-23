@@ -56,7 +56,7 @@
             #Provision RHEL6.8 base img
             $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
             # Provision Satellite Test Resources
-            $WORKSPACE/entitlement-ci/provision/satellite_provision.sh
+            $WORKSPACE/entitlement-ci/provision/satellite-provision.sh
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt

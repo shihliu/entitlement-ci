@@ -138,10 +138,10 @@
                 echo "After provision, IMAGE_NAME is "$IMAGE_NAME
                 echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
                 echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
+                $WORKSPACE/entitlement-ci/provision/host-provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
             else
                 CONTAINER_NAME="esx-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
-                $WORKSPACE/entitlement-ci/provision/host_provision.sh  --containername=$CONTAINER_NAME
+                $WORKSPACE/entitlement-ci/provision/host-provision.sh  --containername=$CONTAINER_NAME
             fi
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources

@@ -77,7 +77,7 @@
             # echo "*********************************setup env*********************************"
             # Provision Test Resources
             # Create rhevm machine
-            $WORKSPACE/entitlement-ci/provision/rhevm_provision.sh
+            $WORKSPACE/entitlement-ci/provision/rhevm-provision.sh
             # echo "*********************************show env*********************************" 
             #echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
             #echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
