@@ -52,17 +52,10 @@ then
 else
   echo $SAMIMG_NAME "is not exist, start to create a new one"
   mv Dockerfile Dockerfile-bk
-  if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
-  then
-    mv Dockerfile-sat-ohsnap Dockerfile
-    docker build -t $SAMIMG_NAME .
-    mv Dockerfile Dockerfile-sat-ohsnap
-  else
-    mv Dockerfile-sat Dockerfile
-    docker build -t $SAMIMG_NAME .
-    mv Dockerfile Dockerfile-sat
-  fi
-  mv Dockerfile-bk Dockerfile
+  mv Dockerfile-sam Dockerfile
+  docker build -t $SAMIMG_NAME .
+  mv Dockerfile Dockerfile-sam
 fi
+mv Dockerfile-bk Dockerfile
 
 popd
