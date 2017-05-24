@@ -25,7 +25,7 @@ class tc_ID1006_check_debug_function_by_config(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 

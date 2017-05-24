@@ -36,7 +36,7 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
@@ -66,7 +66,7 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
     def run_rhevm(self):
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")

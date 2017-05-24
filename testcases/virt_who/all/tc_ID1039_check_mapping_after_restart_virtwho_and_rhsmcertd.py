@@ -22,7 +22,7 @@ class tc_ID1039_check_mapping_after_restart_virtwho_and_rhsmcertd(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
 
@@ -40,7 +40,7 @@ class tc_ID1039_check_mapping_after_restart_virtwho_and_rhsmcertd(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)

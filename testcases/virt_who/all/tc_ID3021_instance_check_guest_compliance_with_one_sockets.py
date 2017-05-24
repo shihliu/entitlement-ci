@@ -78,7 +78,7 @@ class tc_ID3021_instance_check_guest_compliance_with_one_sockets(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             test_sku = self.get_vw_cons("instancebase_sku_id")
             sku_name = self.get_vw_cons("instancebase_name")
@@ -150,7 +150,7 @@ class tc_ID3021_instance_check_guest_compliance_with_one_sockets(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
 
             test_sku = self.get_vw_cons("instancebase_sku_id")

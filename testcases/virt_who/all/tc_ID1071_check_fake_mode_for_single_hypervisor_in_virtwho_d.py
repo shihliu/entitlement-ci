@@ -40,7 +40,7 @@ class tc_ID1071_check_fake_mode_for_single_hypervisor_in_virtwho_d(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
@@ -81,7 +81,7 @@ class tc_ID1071_check_fake_mode_for_single_hypervisor_in_virtwho_d(VIRTWHOBase):
 
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)

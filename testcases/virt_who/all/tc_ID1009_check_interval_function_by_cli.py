@@ -26,7 +26,7 @@ class tc_ID1009_check_interval_function_by_cli(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             self.runcmd_service("stop_virtwho")
             check_msg = self.get_vw_cons("vw_interval_check_msg")

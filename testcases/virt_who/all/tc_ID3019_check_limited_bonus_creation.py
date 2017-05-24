@@ -40,7 +40,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             test_sku = self.get_vw_cons("productid_guest")
             bonus_quantity = self.get_vw_cons("guestlimit")
@@ -71,7 +71,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
 
             test_sku = self.get_vw_cons("productid_guest")

@@ -53,28 +53,27 @@ docker images|grep $RHEVMIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $RHEVMIMG_NAME "is exist, we need to delete the old one then create new one"
+   echo $RHEVMIMG_NAME "is exist, we needn't to delete the old one then create new one"
    #Delete all containers related to rhevm image
-   docker ps -a | grep $RHEVMIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
+   #docker ps -a | grep $RHEVMIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
    #Delete all <none> images
-   docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
+   #docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
    #Delete satellite images
-   docker rmi $RHEVMIMG_NAME
+   #docker rmi $RHEVMIMG_NAME
 else
    echo $RHEVMIMG_NAME "is not exist, start to create a new one"
-fi
-
-mv Dockerfile Dockerfile-bk
-if [ "$RHEVMIMG_NAME" == "rhevm4" ]
-then
-  mv Dockerfile-rhevm4 Dockerfile
-  docker build -t $RHEVMIMG_NAME .
-  mv Dockerfile Dockerfile-rhevm4
-else
-  mv Dockerfile-rhevm36 Dockerfile
-  docker build -t $RHEVMIMG_NAME .
-  mv Dockerfile Dockerfile-rhevm36
+   mv Dockerfile Dockerfile-bk
+   if [ "$RHEVMIMG_NAME" == "rhevm4" ]
+   then
+     mv Dockerfile-rhevm4 Dockerfile
+     docker build -t $RHEVMIMG_NAME .
+     mv Dockerfile Dockerfile-rhevm4
+   else
+     mv Dockerfile-rhevm36 Dockerfile
+     docker build -t $RHEVMIMG_NAME .
+     mv Dockerfile Dockerfile-rhevm36
 fi
 mv Dockerfile-bk Dockerfile
+fi
 
 popd

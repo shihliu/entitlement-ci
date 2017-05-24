@@ -55,7 +55,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
@@ -109,7 +109,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
