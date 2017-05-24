@@ -45,7 +45,7 @@ else
 fi
 
 # Make satellite62 or satellite62-ohsnap base img
-if [ "$SERVER_COMPOSE" == "release" ]
+if [ "$RHEL_COMPOSE" == "release" ]
 then
 # Make satellite62-ohsnap base img
 # Delete existed img to create a new one
