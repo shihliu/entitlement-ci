@@ -11,7 +11,7 @@ RUN echo $RHEL_COMPOSE
 RUN sed -i 's/rhelbuild/'$RHEL_COMPOSE'/g' /etc/yum.repos.d/define_rhel.repo
 RUN yum clean all
 RUN yum update -y
-RUN yum install -y openssh-server net-tools hostname sudo
+RUN yum install -y openssh-server net-tools wget hostname sudo
 RUN yum install -y virt-who
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN echo "root:red2015" | chpasswd

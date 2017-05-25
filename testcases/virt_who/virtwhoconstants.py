@@ -30,10 +30,10 @@ class VIRTWHOConstants(object):
     "VIRTWHO_LIBVIRT_USERNAME":             "root",
     "VIRTWHO_LIBVIRT_PASSWORD":             "",
     # hyperv
-    "HYPERV_HOST":                          "10.73.131.226",
+    "HYPERV_HOST":                          "10.73.131.159",
     "HYPERV_PORT":                          6555,
     "HYPERV_GUEST_NAME":                    "HYPERV_7.2_Server_x86_64",
-    "VIRTWHO_HYPERV_SERVER":                "10.73.131.226",
+    "VIRTWHO_HYPERV_SERVER":                "10.73.131.159",
     "VIRTWHO_HYPERV_USERNAME":              "administrator",
     "VIRTWHO_HYPERV_PASSWORD":              "Welcome1",
     # xen
