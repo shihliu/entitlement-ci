@@ -2,7 +2,7 @@ from utils import *
 from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class tc_ID0000_template(VIRTWHOBase):
+class tc_ID1023_check_owner_option_by_virtwho_d(VIRTWHOBase):
     def run_kvm(self):
         try:
             remote_ip = get_exported_param("REMOTE_IP")

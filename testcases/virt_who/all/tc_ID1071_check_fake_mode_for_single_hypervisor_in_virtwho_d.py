@@ -144,7 +144,6 @@ class tc_ID1071_check_fake_mode_for_single_hypervisor_in_virtwho_d(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
 
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -154,6 +153,7 @@ class tc_ID1071_check_fake_mode_for_single_hypervisor_in_virtwho_d(VIRTWHOBase):
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)
             host_uuid = self.xen_get_host_uuid(xen_host_ip)
             self.xen_start_guest(guest_name, xen_host_ip)
+            self.runcmd_service("stop_virtwho")
 
             # (1) Set xen fake mode, it will show host/guest mapping info
             fake_file = self.generate_fake_file("xen")

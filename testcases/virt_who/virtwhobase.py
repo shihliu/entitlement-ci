@@ -2858,7 +2858,7 @@ class VIRTWHOBase(Base):
         self.rhevm_add_host(rhevm_host2_name, get_exported_param("REMOTE_IP_2"), rhevm_ip)
         self.add_storagedomain_to_rhevm("data_storage", rhevm_host1_name, "data", "v3", nfs_ip, nfs_dir_for_storage, rhevm_ip)
         self.add_storagedomain_to_rhevm("export_storage", rhevm_host1_name, "export", "v1", nfs_ip, nfs_dir_for_export, rhevm_ip)
-        self.add_vm_to_rhevm(rhel_rhevm_guest_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
+        self.add_vm_to_rhevm(rhel_rhevm_guest_name, guest_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
         self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
         self.update_vm_name(rhel_rhevm_guest_name, guest_name, rhevm_ip)
         if "rhevm-3.5" not in self.rhevm_version:
@@ -2885,24 +2885,24 @@ class VIRTWHOBase(Base):
         rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
-        # System setup for virt-who on two hosts
-        self.sys_setup(RHEVM_HOST1_IP)
-#         self.sys_setup(get_exported_param("REMOTE_IP_2"))
-        # Configure env on rhevm(add two host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.conf_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
-        # Configure cluster and dc to 3.5 
-        if "rhevm-3.6" in rhevm_version:
-            self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
-            self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
-#         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
-#         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
+# #         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
+#         # System setup for virt-who on two hosts
+#         self.sys_setup(RHEVM_HOST1_IP)
+# #         self.sys_setup(get_exported_param("REMOTE_IP_2"))
+#         # Configure env on rhevm(add two host,storage,guest)
+#         self.conf_rhevm_shellrc(RHEVM_IP)
+#         self.conf_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+#         # Configure cluster and dc to 3.5 
+#         if "rhevm-3.6" in rhevm_version:
+#             self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
+#             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
+# #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
+# #         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, GUEST_NAME, RHEVM_HOST1_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
 #         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
 #         self.update_vm_name(RHEL_RHEVM_GUEST_NAME, GUEST_NAME, RHEVM_IP)
         # Add network bridge "ovirtmgmt"
@@ -3234,7 +3234,8 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to update vm %s to host %s" % (vm_name, rhevm_host_name))
         else:
             raise FailException("Failed to update vm %s to host %s" % (vm_name, rhevm_host_name))
-
+        time.sleep(60)
+        
     def rhevm_info_dict(self, output, targetmachine_ip=""):
         # parse rhevm-result to dict
         rhevm_info_dict = {}
@@ -3274,7 +3275,7 @@ class VIRTWHOBase(Base):
                 logger.info("sleep 10 in wait_for_status")
                 time.sleep(10)
 
-    def clean_nfs_env(self, targetmachine_ip): 
+    def clean_nfs_env(self, file, targetmachine_ip): 
         cmd = "service nfs stop"
         ret, output = self.runcmd(cmd, "stop nfs service", targetmachine_ip)
         if ret == 0:
@@ -3288,12 +3289,12 @@ class VIRTWHOBase(Base):
         else:
             logger.info("Failed to umount data")
         # Add storagedomain in rhevm and active it
-        cmd = "rm -rf /root/data/ /root/export/"
+        cmd = "rm -rf %s" % file
         ret, output = self.runcmd(cmd, "delete storage data", targetmachine_ip)
         if ret == 0:
-            logger.info("Succeeded to delete storage data")
+            logger.info("Succeeded to delete storage data %s" % file)
         else:
-            logger.info("Failed to delete storage data")
+            logger.info("Failed to delete storage data %s" % file)
         cmd = "rm -rf /tmp/images_mnt"
         ret, output = self.runcmd(cmd, "delete tmp dat", targetmachine_ip)
         if ret == 0 :
@@ -3309,6 +3310,7 @@ class VIRTWHOBase(Base):
             logger.info("storagedomains %s is exist in rhevm" % storage_name)
         else:
             logger.info("storagedomains %s is not exist in rhevm" % storage_name)
+            self.clean_nfs_env(storage_dir, nfs_server)
             # configure nfs env
             cmd = "mkdir %s" % storage_dir
             self.runcmd(cmd, "create storage nfs folder", nfs_server)
@@ -3512,37 +3514,49 @@ class VIRTWHOBase(Base):
         ret, output = self.runcmd(cmd, "import guest %s in rhevm" % guest_name, targetmachine_ip)
         self.rhevm_check_vm_status(guest_name, "down", targetmachine_ip)
 
+    def get_rhevm_shell(self, targetmachine_ip=""):
+#         return "ovirt-shell"
+        rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
+        if "rhevm-4" in rhevm_version:
+            logger.info("It is rhevm4.X build, need to user ovirt-shell")
+            return "ovirt-shell"
+        else:
+            logger.info("It is rhevm3.X build, need to user rhevm-shell")
+            return "rhevm-shell"
+
     def add_vm_to_rhevm(self, rhevm_vm_name, vm_name, host_name, nfsserver_ip, nfs_dir_for_export, targetmachine_ip):
+#         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
 #         shell_cmd = self.get_rhevm_shell(targetmachine_ip)
+        data_storage_id = self.get_domain_id("data_storage", targetmachine_ip)
+        export_storage_id = self.get_domain_id("export_storage", targetmachine_ip)
         # Add defined guest to rhevm
-        while True:
-            cmd = "%s -c -E ' list vms --name %s'" % (self.rhevm_shell, vm_name)
-            ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip, showlogger=False)
-            if ret == 0 :
-                if vm_name in output:
-                    logger.info("Succeeded to list vm %s ,it has been imported" % vm_name)
-                    break
-                else:        
-                    while True:
-                        cmd = "%s -c -E ' list vms --name %s'" % (self.rhevm_shell, rhevm_vm_name)
-                        ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip, showlogger=False)
-                        if ret == 0 :
-                            if rhevm_vm_name in output and "virt-v2v" in output:
-                                logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
-                                break
-                            else:
-                                self.rhevm_define_guest(rhevm_vm_name, nfsserver_ip)
-                                self.create_storage_pool(nfsserver_ip)
-                                self.install_virtV2V(nfsserver_ip)
-                                self.convert_guest_to_nfs(nfsserver_ip, nfsserver_ip, nfs_dir_for_export, rhevm_vm_name, nfsserver_ip)
-                                self.rhevm_undefine_guest(rhevm_vm_name, nfsserver_ip)
-                                data_storage_id = self.get_domain_id("data_storage", targetmachine_ip)
-                                export_storage_id = self.get_domain_id("export_storage", targetmachine_ip)
-                                self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
-                                self.update_vm_to_host(rhevm_vm_name, host_name, targetmachine_ip)
-                                self.update_vm_name(rhevm_vm_name, vm_name, targetmachine_ip)
-            else:
-                raise FailException("Failed to list vm in rhevm")
+        cmd = "%s -c -E ' list vms'" % self.rhevm_shell
+        ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip, showlogger=True)
+#         if ret == 0 :
+        if vm_name in output:
+            logger.info("-----------output is %s===========" %output)
+            logger.info("Succeeded to list vm %s ,it has been imported" % vm_name)
+#             break
+        else:        
+            while True:
+                cmd = "%s -c -E ' list vms --name %s'" % (self.rhevm_shell, rhevm_vm_name)
+                ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip, showlogger=True)
+                if ret == 0 :
+                    if rhevm_vm_name in output and "virt-v2v" in output:
+                        logger.info("Succeeded to list vm %s before import vm" % rhevm_vm_name)
+                        break
+                    else:
+                        self.rhevm_define_guest(rhevm_vm_name, nfsserver_ip)
+                        self.create_storage_pool(nfsserver_ip)
+                        self.install_virtV2V(nfsserver_ip)
+                        self.convert_guest_to_nfs(nfsserver_ip, nfsserver_ip, nfs_dir_for_export, rhevm_vm_name, nfsserver_ip)
+                        self.rhevm_undefine_guest(rhevm_vm_name, nfsserver_ip)
+                        self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
+            self.update_vm_to_host(rhevm_vm_name, host_name, targetmachine_ip)
+            self.update_vm_name(rhevm_vm_name, vm_name, targetmachine_ip)
+            self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
+#         else:
+#             raise FailException("Failed to list vm in rhevm")
 
     def rhevm_check_vm_key_value(self, vm_name, vm_key, vm_value, targetmachine_ip):
         get_vm_cmd = self.get_vm_cmd(vm_name, targetmachine_ip)

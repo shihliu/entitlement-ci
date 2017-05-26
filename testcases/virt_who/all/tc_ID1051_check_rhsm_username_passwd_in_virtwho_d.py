@@ -86,6 +86,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
             # (1) Disable xen mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_XEN")
+            self.config_option_disable("VIRTWHO_ESX")
             # (2) Config xen mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
             self.set_rhsm_user_pass("xen", server_user, server_pass)
             self.vw_check_mapping_info_number_in_rhsm_log()

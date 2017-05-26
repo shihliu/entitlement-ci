@@ -148,7 +148,6 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
 
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -159,6 +158,7 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
             host_uuid = self.xen_get_host_uuid(xen_host_ip)
 
             self.xen_start_guest(guest_name, xen_host_ip)
+            self.runcmd_service("stop_virtwho")
 
             # (1) Set xen fake mode with is_hypervisor=True, it will show host/guest mapping info
             fake_file = self.generate_fake_file("xen")
