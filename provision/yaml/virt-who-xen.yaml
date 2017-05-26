@@ -206,7 +206,7 @@
             #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             #popd
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-              nosetests virtwho_esx_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+              nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/all/

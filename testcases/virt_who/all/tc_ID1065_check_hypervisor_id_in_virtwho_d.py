@@ -51,8 +51,8 @@ class tc_ID1065_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-            host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
-            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP"), rhevm_ip)
+            host_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
+            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST1_IP"), rhevm_ip)
 
             # (1) Set hypervisor_id=uuid, it will show uuid 
             self.set_hypervisor_id("rhevm", "uuid")

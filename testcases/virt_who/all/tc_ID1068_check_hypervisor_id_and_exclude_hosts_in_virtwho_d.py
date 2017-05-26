@@ -53,10 +53,10 @@ class tc_ID1068_check_hypervisor_id_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
-            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP"), rhevm_ip)
-            host_name_sec = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
-            host_hwuuid_sec = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
+            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST1_IP"), rhevm_ip)
+            host_name_sec = self.get_hostname(get_exported_param("RHEVM_HOST2_IP"))
+            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("RHEVM_HOST2_IP"), rhevm_ip)
+            host_hwuuid_sec = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST2_IP"), rhevm_ip)
 
             # (1) Set hypervisor_id=uuid and exclude_host_uuids=host_uuid, it will not show host1/guest uuid mapping info, it will show host2/guest uuid mapping info
             self.set_hypervisor_id_exclude_host_uuids("rhevm", "uuid", host_uuid)

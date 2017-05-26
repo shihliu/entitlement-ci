@@ -48,11 +48,11 @@ class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-            host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
-            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP"), rhevm_ip)
-            host_name_sec = self.get_hostname(get_exported_param("REMOTE_IP_2"))
-            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
-            host_hwuuid_sec = self.get_host_hwuuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
+            host_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
+            host_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST1_IP"), rhevm_ip)
+            host_name_sec = self.get_hostname(get_exported_param("RHEVM_HOST2_IP"))
+            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("RHEVM_HOST2_IP"), rhevm_ip)
+            host_hwuuid_sec = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST2_IP"), rhevm_ip)
 
             # (1) Set hypervisor_id=uuid, and fitler_host_uuids, it will only show host/guest uuid mapping info
             self.set_hypervisor_id_filter_host_uuids("rhevm", "uuid", host_uuid)

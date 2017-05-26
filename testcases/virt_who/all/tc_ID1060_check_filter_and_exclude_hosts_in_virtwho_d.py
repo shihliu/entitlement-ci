@@ -42,7 +42,7 @@ class tc_ID1060_check_filter_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("REMOTE_IP_2"), rhevm_ip)
+            host_uuid_sec = self.get_host_uuid_on_rhevm(get_exported_param("RHEVM_HOST2_IP"), rhevm_ip)
 
             # (1) Set filter_host_uuid=host_uuid and exclude_host_uuid=host_uuid_sec, it will show host_uuid not host_uuid_sec
             self.set_filter_exclude_host_uuids("rhevm", host_uuid, host_uuid_sec)
