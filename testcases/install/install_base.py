@@ -361,12 +361,12 @@ class Install_Base(Base):
                 logger.info("Succeeded to enable repos of rhel7.")
             else:
                 raise FailException("Test Failed - Failed to enable repos of rhel7.")
-            cmd2 = "releasever=(6Server 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9); for i in ${releasever[@]}; do hammer -u admin -p admin repository-set enable --id 168 --product='Red Hat Enterprise Linux Server' --organization-id 1 --releasever $i --basearch x86_64; done"
-            ret, output = self.runcmd(cmd2, "enable repos of rhel6", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to enable repos of rhel6.")
-            else:
-                raise FailException("Test Failed - Failed to enable repos of rhel6.")
+#             cmd2 = "releasever=(6Server 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 6.9); for i in ${releasever[@]}; do hammer -u admin -p admin repository-set enable --id 168 --product='Red Hat Enterprise Linux Server' --organization-id 1 --releasever $i --basearch x86_64; done"
+#             ret, output = self.runcmd(cmd2, "enable repos of rhel6", targetmachine_ip)
+#             if ret == 0:
+#                 logger.info("Succeeded to enable repos of rhel6.")
+#             else:
+#                 raise FailException("Test Failed - Failed to enable repos of rhel6.")
         else:
             raise FailException("Test Failed - Failed to import menifest.")
 

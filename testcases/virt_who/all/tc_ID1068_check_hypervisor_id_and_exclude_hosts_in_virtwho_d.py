@@ -66,12 +66,12 @@ class tc_ID1068_check_hypervisor_id_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             self.vw_check_message_in_rhsm_log("%s|%s|%s" % (host_hwuuid, host_name_sec, host_hwuuid_sec), message_exists=False)
             # (2) Set hypervisor_id=hostname and exclude_host_uuids=host_name, it will not show host1/guest name mapping info, it will show host2/guest name mapping info
             self.set_hypervisor_id_exclude_host_uuids("rhevm", "hostname", host_name)
-            self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid, uuid_exist=False)
+#             self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_name_sec, "")
             self.vw_check_message_in_rhsm_log("%s|%s|%s|%s" % (host_uuid, host_hwuuid, host_uuid_sec, host_hwuuid_sec), message_exists=False)
             # (3) Set hypervisor_id=hwuuid, and exclude_host_uuids, it will not show host1/guest hwuuid mapping info, it will show host2/guest hwuuid mapping info
             self.set_hypervisor_id_exclude_host_uuids("rhevm", "hwuuid", host_hwuuid)
-            self.vw_check_mapping_info_in_rhsm_log(host_hwuuid, guest_uuid, uuid_exist=False)
+#             self.vw_check_mapping_info_in_rhsm_log(host_hwuuid, guest_uuid, uuid_exist=False)
             self.vw_check_mapping_info_in_rhsm_log(host_hwuuid_sec, "")
             self.vw_check_mapping_info_in_rhsm_log(host_name, uuid_exist=False)
             self.vw_check_message_in_rhsm_log("%s|%s|%s" % (host_uuid, host_name_sec, host_uuid_sec), message_exists=False)
