@@ -7,6 +7,7 @@ class virtwho_rhel_rhevm_setup(VIRTWHOBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
 #             self.rhel_rhevm_sys_setup()
+            self.sys_setup()
             self.rhel_rhevm_static_sys_setup()
             self.rhel_rhevm_setup()
 #             self.generate_ssh_key()
