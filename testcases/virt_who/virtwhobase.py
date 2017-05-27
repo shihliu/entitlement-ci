@@ -1522,7 +1522,8 @@ class VIRTWHOBase(Base):
 
     def conf_hammel_credential(self, username, passwd, targetmachine_ip=""):
         tagetmachine_hostname = self.get_hostname(targetmachine_ip)
-        cmd = "echo -e ':foreman:\n  :host: 'https://%s/'\n  :username: '%s'\n  :password: '%s'\n' > /root/.hammer/cli_config.yml" % (tagetmachine_hostname, username, passwd)
+#         cmd = "echo -e ':foreman:\n  :host: 'https://%s/'\n  :username: '%s'\n  :password: '%s'\n' > /root/.hammer/cli_config.yml" % (tagetmachine_hostname, username, passwd)
+        cmd = "echo -e ':foreman:\n  :host: 'https://%s/'\n  :username: '%s'\n  :password: '%s'\n' > /etc/hammer/cli_config.yml" % (tagetmachine_hostname, username, passwd)
         ret, output = self.runcmd(cmd, "config hammer credentials in satellite %s", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to config hammer credentials in satellite %s" % targetmachine_ip)
