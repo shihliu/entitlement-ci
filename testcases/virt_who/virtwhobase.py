@@ -3003,7 +3003,8 @@ class VIRTWHOBase(Base):
     def get_vm_cmd(self, vm_name, targetmachine_ip=""):
         if "rhevm-4" in self.rhevm_version:
             # logger.info("It is rhevm4.X build, need to use 'list vms'")
-            return "list vms %s --show-all" % vm_name
+#             return "list vms %s --show-all" % vm_name
+            return "list vms --query name=%s --show-all" % vm_name
         else:
             # logger.info("It is rhevm3.X build, need to use 'show vm'")
             return "show vm %s" % vm_name
