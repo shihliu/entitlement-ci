@@ -236,10 +236,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.server_unsubscribe_all_system(host_uuid, server_ip)
+#             self.server_unsubscribe_all_system(host_uuid, server_ip)
             self.esx_stop_guest(guest_name, esx_host_ip)
-            self.unset_all_virtwho_d_conf()
-            self.set_esx_conf()
+#             self.unset_all_virtwho_d_conf()
+#             self.set_esx_conf()
             logger.info("---------- succeed to restore environment ----------")
 
     def run_xen(self):

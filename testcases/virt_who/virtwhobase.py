@@ -944,6 +944,7 @@ class VIRTWHOBase(Base):
 
     def check_bonus_exist(self, sku_id, bonus_quantity, targetmachine_ip="", bonus_exist=True):
         # check bonus pool is exist or not
+        self.sub_refresh(targetmachine_ip)
         cmd = "subscription-manager list --available"
         ret, output = self.runcmd(cmd, "run 'subscription-manager list --available'", targetmachine_ip)
         if ret == 0:
@@ -3653,7 +3654,7 @@ class VIRTWHOBase(Base):
         get_vm_cmd = self.get_vm_cmd(vm_name, targetmachine_ip)
         # Get guest ip
         cmd = "%s -c -E '%s'" % (self.rhevm_shell, get_vm_cmd)
-        ret, output = self.runcmd(cmd, "list vms in rhevm", targetmachine_ip, showlogger=False)
+        ret, output = self.runcmd(cmd, "list vms in rhevm", targetmachine_ip, showlogger=True)
         if ret == 0:
             guestip = self.get_key_rhevm(output, "guest_info-ips-ip-address", "name", vm_name, targetmachine_ip)
             hostuuid = self.get_key_rhevm(output, "host-id", "name", vm_name, targetmachine_ip)
