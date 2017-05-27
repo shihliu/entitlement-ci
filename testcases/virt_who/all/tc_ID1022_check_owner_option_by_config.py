@@ -96,6 +96,7 @@ class tc_ID1022_check_owner_option_by_config(VIRTWHOBase):
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_ESX_OWNER")
+            self.config_option_disable("VIRTWHO_RHEVM")
             if self.os_serial == "6":
                 self.vw_check_message("service virt-who restart", error_msg_without_owner, cmd_retcode=1)
             else:

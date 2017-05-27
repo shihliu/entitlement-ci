@@ -190,7 +190,7 @@
         echo "*********************************setup env*********************************"
         if [ "$RHEL_COMPOSE" == "release" ]
         then
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
             nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
