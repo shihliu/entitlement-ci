@@ -111,7 +111,7 @@ class tc_ID82639_XEN_validate_instance_guest_with_single_multi_sockets(XENBase):
             self.check_installed_status(installed_status_key, installed_status_value, guestip)
             # (2.5) Subscribe guest to 6 instance pool
             self.sub_unsubscribe(guestip)
-            self.sub_limited_subscribetopool(poolid, "6", guestip)
+            self.sub_limited_subscribetopool(poolid, "4", guestip)
             # check consumed subscription with Status Details: 'Subscription is current'
             self.check_consumed_status(test_sku, "StatusDetails", "Subscription is current", guestip)
             # check the Status of installed product, should be 'Subscribed' status
