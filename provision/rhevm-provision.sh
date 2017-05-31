@@ -32,7 +32,7 @@ if [ "$RHEVMIMG_NAME" == "" ]
 then
     if [[ "$RHEL_COMPOSE" == "release" ]]
     then
-	    if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
+	    if [[ "$VIRTWHO_SRC" =~ "rhel7" ]] || [[ "$VIRTWHO_SRC" =~ "default" ]]
 	    then
 	        RHEVMIMG_NAME="rhevm4"
 	    else
