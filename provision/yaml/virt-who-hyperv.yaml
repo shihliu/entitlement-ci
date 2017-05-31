@@ -187,6 +187,7 @@
         #export SERVER_IP=
         #export SERVER_TYPE=
         #export SERVER_HOSTNAME=
+        export HYPERVISOR_TYPE=hyperv
         echo "*********************************setup env*********************************"
         if [ "$RHEL_COMPOSE" == "release" ]
         then
