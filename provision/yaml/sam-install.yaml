@@ -55,8 +55,9 @@
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision RHEL6.8 base img
             $WORKSPACE/entitlement-ci/provision/create-sam-baseimg.sh
-            # Auto provision SAM Test Resources(Need it when auto create SAM)
+            # ***********Auto provision SAM Test Resources(Need it when auto create SAM)******
             #$WORKSPACE/entitlement-ci/provision/sam-provision.sh
+            # *****************************************************       
             # Manual provision SAM Test Resources    
             export SERVER_IP=10.66.128.61
             export SERVER_HOSTNAME=samserv.redhat.com
@@ -98,10 +99,11 @@
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
-            # Auto provision SAM Test Resources(Need it when auto create SAM)
+            # ***********Auto provision SAM Test Resources(Need it when auto create SAM)******
             #pushd $WORKSPACE/entitlement-ci/testcases/install
             #nosetests sam_install.py
             #popd
+            # *****************************************************    
             echo SERVER_TYPE=SAM > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt

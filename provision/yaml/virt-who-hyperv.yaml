@@ -109,13 +109,6 @@
             #export RHEL_COMPOSE=release
             #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
             echo "*********************************setup env*********************************"
-            #Get RHEL-6.9
-            #RHEL_COMPOSE_SIMPLE=${{RHEL_COMPOSE:0:8}}
-            #RHEL_COMPOSE_RESULT=${{RHEL_COMPOSE_SIMPLE//./}}
-            #Get RHEL-6.8
-            #RHEL_COMPOSE_2_SIMPLE=${{RHEL_COMPOSE_2:0:8}}
-            #RHEL_COMPOSE_2_RESULT=${{RHEL_COMPOSE_2_SIMPLE//./}}
-            #echo "before test,RHEL_COMPOSE_RESULT is "$RHEL_COMPOSE_RESULT
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
 

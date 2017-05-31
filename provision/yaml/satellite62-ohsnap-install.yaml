@@ -48,6 +48,7 @@
             #setup environment here to run alone, change back when finished
             echo "*********************************setup env*********************************"
             #convert switch for testing against satellite
+            export SERVER_TYPE="SATELLITE"
             if [ "$SWITCH"x = "true"x ]
             then
                 export SWITCH=false

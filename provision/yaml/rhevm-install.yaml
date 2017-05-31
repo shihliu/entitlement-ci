@@ -42,6 +42,9 @@
             #!/bin/bash
             echo "*********************************setup env*********************************"
             #setup environment here to run alone, change back when finished
+            #export SERVER_COMPOSE=ohsnap-satellite
+            #export RHEL_COMPOSE=release
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or default, when it is null,it will create all images
             echo "*********************************setup env*********************************"
             #convert switch for testing against satellite
             if [ "$SWITCH"x = "true"x ]
