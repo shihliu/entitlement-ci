@@ -126,7 +126,6 @@
             pushd $WORKSPACE/entitlement-ci/testcases/install
             nosetests rhevm41_install.py
             popd
-
             echo "********************************runtime env********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}

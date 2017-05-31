@@ -112,11 +112,12 @@
             if [ "$SERVER_TYPE"x = "DEFAULT"x ]
             then
                 export SERVER_TYPE="STAGE"
-            fi
-            if [ "$SERVER_TYPE"x = "STAGE"x ]
-            then 
                 echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
             fi
+            #if [ "$SERVER_TYPE"x = "STAGE"x ]
+            #then 
+            #    echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
+            #fi
             echo "***********************provision $RHEL_COMPOSE img*************************"
             echo "********************************runtime env********************************"
             env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
@@ -140,6 +141,10 @@
           fail-on-missing: true
           current-parameters: false
         - project: virt-who-xen-provision
+          property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+          fail-on-missing: true
+          current-parameters: false
+        - project: 'rhevm-install-runtest'
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
           current-parameters: false
