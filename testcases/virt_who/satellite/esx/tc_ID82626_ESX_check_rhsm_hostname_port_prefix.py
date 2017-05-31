@@ -1,8 +1,8 @@
 from utils import *
-from testcases.virt_who_polarion.esxbase import ESXBase
+from from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class tc_ID82626_ESX_check_rhsm_hostname_port_prefix(ESXBase):
+class tc_ID82626_ESX_check_rhsm_hostname_port_prefix(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

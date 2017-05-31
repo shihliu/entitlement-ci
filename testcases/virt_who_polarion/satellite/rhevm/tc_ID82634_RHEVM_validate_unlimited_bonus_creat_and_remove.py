@@ -10,7 +10,6 @@ class tc_ID82634_RHEVM_validate_unlimited_bonus_creat_and_remove(VDSMBase):
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
-            host_uuid = self.rhevm_get_host_uuid()
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
@@ -21,7 +20,7 @@ class tc_ID82634_RHEVM_validate_unlimited_bonus_creat_and_remove(VDSMBase):
             # (1) Check unlimited bonus pool will create after subscribe pool on hypervisor
             # (1.1) Start guest
             self.rhevm_start_vm(guest_name, rhevm_ip)
-            (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             # (1.2) Register guest to server
             if not self.sub_isregistered(guestip):
                 self.configure_server(server_ip, server_hostname, guestip)

@@ -195,17 +195,10 @@
             nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/satellite/xen/
+            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/satellite/xen/
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
         else
-            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
-            #nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            #popd
-
-            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/xen/
-            #nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            #popd
             pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
               nosetests virtwho_xen_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd

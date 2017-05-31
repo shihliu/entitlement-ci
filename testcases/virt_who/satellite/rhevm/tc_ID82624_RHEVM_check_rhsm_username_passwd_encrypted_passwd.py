@@ -1,8 +1,9 @@
 from utils import *
-from testcases.virt_who_polarion.vdsmbase import VDSMBase
+# from testcases.virt_who_polarion.vdsmbase import VDSMBase
+from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class tc_ID82624_RHEVM_check_rhsm_username_passwd_encrypted_passwd(VDSMBase):
+class tc_ID82624_RHEVM_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

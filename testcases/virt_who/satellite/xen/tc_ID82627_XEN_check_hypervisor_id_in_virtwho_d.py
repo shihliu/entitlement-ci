@@ -1,8 +1,8 @@
 from utils import *
-from testcases.virt_who_polarion.xenbase import XENBase
+from from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class tc_ID82627_XEN_check_hypervisor_id_in_virtwho_d(XENBase):
+class tc_ID82627_XEN_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

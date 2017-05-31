@@ -1,8 +1,9 @@
 from utils import *
-from testcases.virt_who_polarion.vdsmbase import VDSMBase
+# from testcases.virt_who.vdsmbase import VDSMBase
+from testcases.virt_who.virtwhobase import VIRTWHOBase
 from utils.exception.failexception import FailException
 
-class tc_ID82505_RHEVM_check_cert_and_rhsm_config(VDSMBase):
+class tc_ID82505_RHEVM_check_cert_and_rhsm_config(VIRTWHOBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
