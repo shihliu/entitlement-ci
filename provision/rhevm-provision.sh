@@ -90,6 +90,7 @@ then
    fi
 else
    echo "begin to create new rhevm contaner"
+   echo EXIST_RHEVM=FALSE>>$WORKSPACE/ISEXISTRHEVM.txt
    if [[ "$RHEL_COMPOSE" == "release" ]]
    then
        if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]

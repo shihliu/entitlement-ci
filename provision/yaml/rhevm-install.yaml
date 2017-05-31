@@ -90,12 +90,19 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
+        - inject:
+            properties-file: $WORKSPACE/ISEXISTRHEVM.txt
     publishers:
        - archive:
           artifacts: '**/**'
           allow-empty: 'true'
        - trigger-parameterized-builds:
            - project: 'rhevm-install-runtest-start'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ISEXISTRHEVM.txt
+             fail-on-missing: true
+           - project: 'virt-who-rhev-provision'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt

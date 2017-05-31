@@ -311,7 +311,10 @@ class Base(unittest.TestCase):
             # raise FailException("Failed to get virt-who constant %s" % name)
 
     def get_vw_guest_name(self, guest_name):
-        return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
+        if "release" in get_exported_param("RHEL_HOST_COMPOSE") and "rhevm" in get_exported_param("HYPERVISOR_TYPE"):
+            return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()+ "_" + get_exported_param("HYPERVISOR_TYPE")
+        else:
+            return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
 
     def get_hostname(self, targetmachine_ip=""):
         cmd = "hostname"

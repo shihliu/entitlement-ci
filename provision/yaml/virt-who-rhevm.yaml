@@ -177,6 +177,7 @@
         echo VIRTWHO_SRC=$VIRTWHO_SRC
         export RHEVM_HOST1_IP=hp-z220-10.qe.lab.eng.nay.redhat.com
         export RHEVM_HOST2_IP=hp-z220-04.qe.lab.eng.nay.redhat.com
+        export HYPERVISOR_TYPE=rhevm
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=
@@ -195,7 +196,7 @@
             nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             popd
         else
-            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion/
+            #pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
             #nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
             #popd
 

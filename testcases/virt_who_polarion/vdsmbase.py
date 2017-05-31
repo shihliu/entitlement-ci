@@ -48,6 +48,7 @@ class VDSMBase(VIRTWHOBase):
         RHEVM_HOST1_IP = get_exported_param("RHEVM_HOST1_IP")
         RHEVM_HOST2_IP = get_exported_param("RHEVM_HOST2_IP")  
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+        GUEST_NAME = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME = self.get_hostname(RHEVM_HOST1_IP)
         RHEVM_HOST2_NAME = self.get_hostname(RHEVM_HOST2_IP)
         NFSserver_ip = get_exported_param("RHEVM_HOST1_IP")
@@ -57,25 +58,25 @@ class VDSMBase(VIRTWHOBase):
         rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
+#         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST1_IP)
 #         self.config_vdsm_env_setup(rhel_compose, rhevm_version, RHEVM_HOST2_IP)
         # System setup for virt-who on two hosts
-        self.sys_setup(RHEVM_HOST1_IP)
+#         self.sys_setup(RHEVM_HOST1_IP)
 #         self.sys_setup(get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
-        self.conf_rhevm_shellrc(RHEVM_IP)
-        self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
+#         self.conf_rhevm_shellrc(RHEVM_IP)
+#         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)
         # Configure cluster and dc to 3.5 
         if "rhevm-3.6" in rhevm_version:
             self.update_dc_compa_version("Default", "5", "3", RHEVM_IP)
             self.update_cluster_compa_version("Default", "5", "3", RHEVM_IP)
 #         self.update_cluster_cpu("Default", "Intel Penryn Family", RHEVM_IP)
-        self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
+#         self.rhevm_add_host(RHEVM_HOST1_NAME, get_exported_param("RHEVM_HOST1_IP"), RHEVM_IP)
 #         self.rhevm_add_host(RHEVM_HOST2_NAME, get_exported_param("RHEVM_HOST2_IP"), RHEVM_IP)
-        self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
-        self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
-        self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("data_storage", RHEVM_HOST1_NAME, "data", "v3", NFSserver_ip, nfs_dir_for_storage, RHEVM_IP)
+#         self.add_storagedomain_to_rhevm("export_storage", RHEVM_HOST1_NAME, "export", "v1", NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.add_vm_to_rhevm(RHEL_RHEVM_GUEST_NAME, NFSserver_ip, nfs_dir_for_export, RHEVM_IP)
+#         self.update_vm_to_host(RHEL_RHEVM_GUEST_NAME, RHEVM_HOST1_NAME, RHEVM_IP)
         # Add network bridge "ovirtmgmt"
 #         if "rhevm-3.6" in rhevm_version and "RHEL-6.8" in rhel_compose:
         if "rhevm-3.5" not in rhevm_version:
@@ -83,7 +84,8 @@ class VDSMBase(VIRTWHOBase):
                 self.vdsm_rm_vm_nw(RHEL_RHEVM_GUEST_NAME, "eth0", RHEVM_IP)
                 self.vdsm_add_vm_nw(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
         # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+#         self.rhevm_change_guest_name(RHEL_RHEVM_GUEST_NAME, RHEVM_IP)
+        self.rhevm_change_guest_name(GUEST_NAME, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
