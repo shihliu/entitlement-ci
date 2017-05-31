@@ -12,7 +12,7 @@ class tc_ID17231_VDSM_check_uuid_pause_shutdown_two_diff_mode(VDSMBase):
             remote_host_name = self.get_hostname()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_host2_name = self.get_hostname(remote_ip_2)
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             mode="libvirt"

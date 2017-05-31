@@ -8,7 +8,7 @@ class tc_ID17283_VDSM_validate_datacenter_guest_compliance_with_multi_sockets(VD
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
 
             host_test_sku = self.get_vw_cons("datacenter_sku_id")

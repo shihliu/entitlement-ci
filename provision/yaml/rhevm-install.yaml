@@ -90,8 +90,6 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-        - inject:
-            properties-file: $WORKSPACE/ISEXISTRHEVM.txt
     publishers:
        - archive:
           artifacts: '**/**'

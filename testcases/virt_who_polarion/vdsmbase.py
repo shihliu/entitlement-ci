@@ -1037,7 +1037,7 @@ class VDSMBase(VIRTWHOBase):
             raise FailException("Test Failed - Failed  to set rhevm mode in /etc/sysconfig/virt-who")
 
 #     def rhevm_change_guest_name(self):
-#         guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+#         guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
 #         rhevm_ip = get_exported_param("RHEVM_IP")
 #         self.rhevm_start_vm(guest_name, rhevm_ip)
 #         (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
@@ -1052,7 +1052,7 @@ class VDSMBase(VIRTWHOBase):
 #         self.rhevm_stop_vm(guest_name, rhevm_ip)
 
     def rhevm_change_guest_name(self, guest_name, targetmachine_ip=""):
-        guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+        guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
         rhevm_ip = get_exported_param("RHEVM_IP")
         self.rhevm_start_vm(guest_name, targetmachine_ip)
         while True:

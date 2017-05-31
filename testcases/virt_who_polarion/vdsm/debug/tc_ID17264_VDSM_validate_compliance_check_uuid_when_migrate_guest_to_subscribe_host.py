@@ -9,7 +9,7 @@ class tc_ID17264_VDSM_validate_compliance_check_uuid_when_migrate_guest_to_subsc
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             dest_host_name = self.get_hostname(get_exported_param("REMOTE_IP_2"))
             dest_host_uuid = self.get_host_uuid_on_rhevm(dest_host_name, rhevm_ip)

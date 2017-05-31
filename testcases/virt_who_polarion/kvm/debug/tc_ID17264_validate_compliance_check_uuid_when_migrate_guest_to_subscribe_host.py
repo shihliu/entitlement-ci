@@ -9,7 +9,7 @@ class tc_ID17264_validate_compliance_check_uuid_when_migrate_guest_to_subscribe_
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
             master_machine_ip = get_exported_param("REMOTE_IP")
             slave_machine_ip = get_exported_param("REMOTE_IP_2")

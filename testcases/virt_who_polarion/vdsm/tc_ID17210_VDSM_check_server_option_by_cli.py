@@ -7,7 +7,7 @@ class tc_ID17210_VDSM_check_server_option_by_cli(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             server_type = get_exported_param("SERVER_TYPE")
             self.rhevm_start_vm(guest_name, rhevm_ip)

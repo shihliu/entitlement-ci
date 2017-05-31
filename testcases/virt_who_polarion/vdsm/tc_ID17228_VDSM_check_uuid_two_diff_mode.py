@@ -12,7 +12,7 @@ class tc_ID17228_VDSM_check_uuid_two_diff_mode(VDSMBase):
             remote_host_name = self.get_hostname()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_host2_name = self.get_hostname(remote_ip_2)
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)

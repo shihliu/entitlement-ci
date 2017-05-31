@@ -10,7 +10,7 @@ class tc_ID82507_RHEVM_check_mapping_info_when_register_activekey(VDSMBase):
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             key_name = "define_key"
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)

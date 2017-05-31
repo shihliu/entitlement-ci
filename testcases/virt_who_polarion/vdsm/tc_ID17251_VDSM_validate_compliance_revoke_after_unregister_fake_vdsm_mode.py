@@ -10,7 +10,7 @@ class tc_ID17251_VDSM_validate_compliance_revoke_after_unregister_fake_vdsm_mode
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
 
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")

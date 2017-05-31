@@ -38,7 +38,8 @@ class VIRTWHOBase(Base):
             logger.info("virt-who package is not install, need to install.")
 
     def sys_setup(self, targetmachine_ip=None):
-        self.cm_install_basetool(targetmachine_ip)
+        if "release" not in get_exported_param("RHEL_COMPOSE"):
+            self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
@@ -2844,7 +2845,7 @@ class VIRTWHOBase(Base):
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         self.sys_setup(targetmachine_ip)
         rhevm_ip = get_exported_param("RHEVM_IP") 
-        rhel_rhevm_guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+        rhel_rhevm_guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
         guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
         rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
         nfs_ip = get_exported_param("REMOTE_IP")

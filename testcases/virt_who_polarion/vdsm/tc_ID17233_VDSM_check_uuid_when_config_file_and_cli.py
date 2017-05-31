@@ -9,7 +9,7 @@ class tc_ID17233_VDSM_check_uuid_when_config_file_and_cli(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             mode="libvirt"

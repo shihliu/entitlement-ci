@@ -8,7 +8,7 @@ class tc_ID17271_RHEVM_check_unlimited_bonus_creation(VDSMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-            guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
+            guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
