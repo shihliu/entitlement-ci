@@ -55,8 +55,17 @@
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision RHEL6.8 base img
             $WORKSPACE/entitlement-ci/provision/create-sam-baseimg.sh
-            # Provision Satellite Test Resources
-            $WORKSPACE/entitlement-ci/provision/sam-provision.sh
+            # Auto provision SAM Test Resources(Need it when auto create SAM)
+            #$WORKSPACE/entitlement-ci/provision/sam-provision.sh
+            # Manual provision SAM Test Resources    
+            export SERVER_IP=10.66.128.61
+            export SERVER_HOSTNAME=samserv.redhat.com
+            export SERVER_COMPOSE=Check CDN Repo
+            echo SERVER_IP=$SERVER_IP>>RESOURCES.txt
+            echo SERVER_HOSTNAME=$SERVER_HOSTNAME>>RESOURCES.txt
+            echo SERVER_COMPOSE=$SERVER_COMPOSE>>RESOURCES.txt
+            echo REMOTE_IP=$SERVER_IP>>RESOURCES.txt
+            echo REMOTE_HOSTNAME=$SERVER_HOSTNAME>>RESOURCES.txt
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|SERVER_IP|SERVER_HOSTNAME)' >> $WORKSPACE/RESOURCES.txt
@@ -89,14 +98,14 @@
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/install
-            nosetests sam_install.py
-            popd
+            # Auto provision SAM Test Resources(Need it when auto create SAM)
+            #pushd $WORKSPACE/entitlement-ci/testcases/install
+            #nosetests sam_install.py
+            #popd
             echo SERVER_TYPE=SAM > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt
             echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/SERVER.txt
-            echo SWITCH=$SWITCH >> $WORKSPACE/SERVER.txt
             echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/SERVER.txt
             echo "********************************runtime env********************************"
         - inject:

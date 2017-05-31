@@ -79,9 +79,6 @@
             # Create rhevm machine
             $WORKSPACE/entitlement-ci/provision/rhevm-provision.sh
             # echo "*********************************show env*********************************" 
-            #echo SERVER_TYPE=SATELLITE > $WORKSPACE/RESOURCES.txt
-            #echo SERVER_COMPOSE=$SERVER_COMPOSE >> $WORKSPACE/RESOURCES.txt
-            #echo RHEL_COMPOSE=$RHEL_COMPOSE >> $WORKSPACE/RESOURCES.txt
             echo "Check WORKSPACE/RESOURCES.txt again is as the following"
             cat $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
@@ -95,15 +92,15 @@
           artifacts: '**/**'
           allow-empty: 'true'
        - trigger-parameterized-builds:
-           - project: 'rhevm-install-runtest-start'
-             current-parameters: false
-             condition: 'SUCCESS'
-             property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ISEXISTRHEVM.txt
-             fail-on-missing: true
            - project: 'virt-who-rhev-provision'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt
+             fail-on-missing: true
+           - project: 'rhevm-install-runtest-start'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ISEXISTRHEVM.txt
              fail-on-missing: true
 
 - job-template:
