@@ -602,6 +602,10 @@ class Base(unittest.TestCase):
     def satellite_system_info(self, info_key, uuid, username="", password=""):
         host_id = self.satellite_name_to_id(uuid)
         return self.get_json("api/v2/hosts/%s" % host_id)[info_key]
+    
+    def satellite_guest_info(self, info_key, uuid, username="", password=""):
+        host_id = self.satellite_name_to_id(uuid)
+        return self.server_system_info("virtual_guests", host_id, username="admin", password="admin")
 
     # ========================================================
     #       STAGE Functions https://hosted.englab.nay.redhat.com/issues/11373
