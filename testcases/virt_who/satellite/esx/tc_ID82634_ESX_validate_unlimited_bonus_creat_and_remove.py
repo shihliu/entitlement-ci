@@ -1,8 +1,8 @@
 from utils import *
-from from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who_polarion.esxbase import ESXBase
 from utils.exception.failexception import FailException
 
-class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(VIRTWHOBase):
+class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(ESXBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

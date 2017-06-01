@@ -1,8 +1,8 @@
 from utils import *
-from from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who_polarion.xenbase import XENBase
 from utils.exception.failexception import FailException
 
-class tc_ID82526_XEN_check_mapping_in_sec_config(VIRTWHOBase):
+class tc_ID82526_XEN_check_mapping_in_sec_config(XENBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)

@@ -1,9 +1,9 @@
 from utils import *
-from from testcases.virt_who.virtwhobase import VIRTWHOBase
+from testcases.virt_who_polarion.kvmbase import KVMBase
 from utils.exception.failexception import FailException
 from utils.libvirtAPI.Python import utils
 
-class tc_ID82624_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
+class tc_ID82624_check_rhsm_username_passwd_encrypted_passwd(KVMBase):
     def test_run(self):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
