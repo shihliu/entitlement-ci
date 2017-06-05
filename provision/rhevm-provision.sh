@@ -72,23 +72,30 @@ docker ps -a|grep $CONTAINER_NAME
 isRhelExist=$?
 if [ $isRhelExist -eq 0 ]
 then
-   echo $CONTAINER_NAME "is exist!needn't to delete it"
+	echo $CONTAINER_NAME "is exist!needn't to delete it"
+   # Get CONTAINER'S IP		
    #docker stop $CONTAINER_NAME
    #docker rm $CONTAINER_NAME
-   if [[ "$RHEL_COMPOSE" == "release" ]]
-   then
-       if [[ "$VIRTWHO_SRC" =~ "rhel6" ]]
-	   then
-           RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`        
-	   else
-           RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
-	   fi
-   elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
-   then 
-       RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
-   else 
-       RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-   fi
+	if [[ "$RHEL_COMPOSE" == "release" ]]
+	then
+		if [[ "$VIRTWHO_SRC" =~ "rhel6" ]]
+		then
+			RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`        
+		else
+			RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
+		fi
+	elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+	then 
+		RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
+	else 
+		RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
+	fi
+	if [[ "$RHEVM_IP" == "" ]]
+	then
+		docker stop $CONTAINER_NAME
+		docker start $CONTAINER_NAME
+		pipework br0 $CONTAINER_NAME dhclient
+		RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
 else
    echo "begin to create new rhevm contaner"
    echo EXIST_RHEVM=FALSE>>$WORKSPACE/ISEXISTRHEVM.txt

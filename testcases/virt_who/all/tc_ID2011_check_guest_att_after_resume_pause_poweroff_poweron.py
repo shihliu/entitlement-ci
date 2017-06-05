@@ -240,6 +240,7 @@ class tc_ID2011_check_guest_att_after_resume_pause_poweroff_poweron(VIRTWHOBase)
             # check if the uuid is correctly monitored by virt-who on host1 and host2
             self.hypervisor_check_uuid(host_uuid, guest_uuid, uuidexists=True)
             self.vw_check_attr(guest_name, 1, 'hyperv', 1, guest_uuid)
+
             # consumed subscriptions is still exist on guest
             self.sub_listconsumed(sku_name, guestip)
             # (5) Stop guest    
@@ -288,17 +289,21 @@ class tc_ID2011_check_guest_att_after_resume_pause_poweroff_poweron(VIRTWHOBase)
             self.sub_listconsumed(sku_name, guestip)
 
             self.esx_pause_guest(guest_name, esx_host_ip)
+            self.runcmd_service("restart_virtwho")
 #             self.vw_check_attr(guest_name, 1, "esx", "VMware ESXi", 3, guest_uuid)
             self.vw_check_attr(guest_name, 1, "esx", 3, guest_uuid)
             self.esx_resume_guest(guest_name, esx_host_ip)
+            self.runcmd_service("restart_virtwho")
             self.vw_check_attr(guest_name, 1, "esx", 1, guest_uuid)
             # refresh on the guest 
             self.sub_refresh(guestip)
             # list consumed subscriptions on the guest, should be not revoked
             self.sub_listconsumed(sku_name, guestip)
             self.esx_stop_guest(guest_name, esx_host_ip)
+            self.runcmd_service("restart_virtwho")
             self.vw_check_attr(guest_name, 0, "esx", 5, guest_uuid)
             self.esx_start_guest(guest_name, esx_host_ip)
+            self.runcmd_service("restart_virtwho")
             self.vw_check_attr(guest_name, 1, "esx", 1, guest_uuid)
             # refresh on the guest 
             self.sub_refresh(guestip)

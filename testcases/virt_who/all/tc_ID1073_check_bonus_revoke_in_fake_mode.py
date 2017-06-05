@@ -131,7 +131,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister rhevm hypervisor in server 
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+#             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
             self.server_remove_system(host_uuid, SERVER_IP)
@@ -179,7 +179,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister hyperv hypervisor in server 
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+#             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
             self.server_remove_system(host_uuid, SERVER_IP)
@@ -295,14 +295,15 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister xen hypervisor in server 
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+#             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
             self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register xen hypervisor with fake mode
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
-            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            self.runcmd_service("restart_virtwho")         
+#             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
             # (3) Start guest and register guest to SAM
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             if not self.sub_isregistered(guestip):
