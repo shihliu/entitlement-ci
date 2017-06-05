@@ -84,6 +84,7 @@
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
           export SERVER_COMPOSE=$SERVER_COMPOSE
           export RHEVM_IP=$RHEVM_IP
+          export HYPERVISOR_TYPE=rhevm
 
           Details:
 

@@ -96,6 +96,7 @@ then
 		docker start $CONTAINER_NAME
 		pipework br0 $CONTAINER_NAME dhclient
 		RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
+	fi
 else
    echo "begin to create new rhevm contaner"
    echo EXIST_RHEVM=FALSE>>$WORKSPACE/ISEXISTRHEVM.txt

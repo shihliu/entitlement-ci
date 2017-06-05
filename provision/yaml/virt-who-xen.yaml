@@ -81,6 +81,7 @@
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
           export SERVER_COMPOSE=$SERVER_COMPOSE
+          export HYPERVISOR_TYPE=xen
 
           Details:
 
