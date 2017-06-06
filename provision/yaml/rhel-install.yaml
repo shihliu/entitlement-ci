@@ -144,6 +144,10 @@
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
           current-parameters: false
+        - project: virt-who-remote-libvirt-runtest
+          property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+          fail-on-missing: true
+          current-parameters: false        
         - project: 'rhevm-install-runtest'
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
