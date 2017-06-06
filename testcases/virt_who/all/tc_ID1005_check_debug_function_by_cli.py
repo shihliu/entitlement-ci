@@ -9,11 +9,29 @@ class tc_ID1005_check_debug_function_by_cli(VIRTWHOBase):
             guestuuid = self.vw_get_uuid(guest_name)
             # (1) Run virt-who, check debug info is not exist on virt-who log.
             self.runcmd_service("stop_virtwho")
+            runcmd = ""
             self.vw_check_message_in_debug_cmd("virt-who", "DEBUG|ERROR", message_exists=False)
             # (2) Run virt-who -d, check guest uuid and DEBUG exist on virt-who log.
             self.vw_check_message_in_debug_cmd("virt-who -d", "%s|using libvirt as backend|DEBUG" % guestuuid, message_exists=True)
         finally:
             self.runcmd_service("restart_virtwho")
+            logger.info("---------- succeed to restore environment ----------")
+
+    def run_remote_libvirt(self):
+        try:
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            guestuuid = self.vw_get_uuid(guest_name)
+            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            # (1) Check "DEBUG" info is exist when run "virt-who --rhevm -d"
+            self.runcmd_service("stop_virtwho", remote_ip_2)
+            cmd = self.virtwho_cli("libvirt") + " -d"
+            self.vw_check_message_in_debug_cmd(cmd, "DEBUG", targetmachine_ip=remote_ip_2)
+            # (2) Check "DEBUG" info is not exist when run "virt-who --rhevm",no "-d" option
+            cmd = self.virtwho_cli("libvirt")
+            self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR", message_exists=False, targetmachine_ip=remote_ip_2)
+        finally:
+            self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

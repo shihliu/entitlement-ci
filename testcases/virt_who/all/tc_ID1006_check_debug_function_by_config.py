@@ -23,6 +23,27 @@ class tc_ID1006_check_debug_function_by_config(VIRTWHOBase):
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            guestuuid = self.vw_get_uuid(guest_name)
+            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            
+            # (1) enable debug mode, check debug info is exist on virt-who log.
+            self.runcmd_service("stop_virtwho", remote_ip_2)
+            self.config_option_setup_value("VIRTWHO_DEBUG", 1, remote_ip_2)
+            self.vw_check_message_in_rhsm_log("%s|using libvirt as backend|DEBUG" % guestuuid, message_exists=True, targetmachine_ip=remote_ip_2)
+            # (2) diable debug mode, check debug info is not exist on virt-who log.
+            self.runcmd_service("stop_virtwho", remote_ip_2)
+            self.config_option_setup_value("VIRTWHO_DEBUG", 0, remote_ip_2)
+            self.vw_check_message_in_rhsm_log("DEBUG|ERROR", message_exists=False, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("guests found", targetmachine_ip=remote_ip_2)
+        finally:
+            self.config_option_setup_value("VIRTWHO_DEBUG", 1, remote_ip_2)
+            self.runcmd_service("restart_virtwho", remote_ip_2)
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")

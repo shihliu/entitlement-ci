@@ -116,13 +116,13 @@ class Base(unittest.TestCase):
             image_server = self.get_vw_cons("local_image_server")
         elif get_exported_param("RHEVM_HOST1_IP").startswith("hp-z220-"):
             image_server = self.get_vw_cons("local_image_server")
-        elif get_exported_param("RHEVM_HOST1_IP").startswith("10.66.144"):
+        elif get_exported_param("RHEVM_HOST1_IP").startswith("10.66"):
             image_server = self.get_vw_cons("local_image_server")
         elif get_exported_param("RHEVM_HOST2_IP").startswith("10.73.13"):
             image_server = self.get_vw_cons("local_image_server")
         elif get_exported_param("RHEVM_HOST2_IP").startswith("hp-z220-"):
             image_server = self.get_vw_cons("local_image_server")
-        elif get_exported_param("RHEVM_HOST2_IP").startswith("10.66.144"):
+        elif get_exported_param("RHEVM_HOST2_IP").startswith("10.66"):
             image_server = self.get_vw_cons("local_image_server")
         else:
             image_server = self.get_vw_cons("beaker_image_server")
@@ -314,8 +314,9 @@ class Base(unittest.TestCase):
         logger.info("================================")
         logger.info("RHEL_COMPOSE is %s" , get_exported_param("RHEL_COMPOSE"))
         logger.info("================================")
-        if "release" in get_exported_param("RHEL_COMPOSE") and "rhevm" in get_exported_param("HYPERVISOR_TYPE"):
-            return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()+ "_" + get_exported_param("HYPERVISOR_TYPE")
+        if "release" in get_exported_param("RHEL_COMPOSE"):
+            if "rhevm" in get_exported_param("HYPERVISOR_TYPE") or "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+                return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()+ "_" + get_exported_param("HYPERVISOR_TYPE")
         else:
             return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
 

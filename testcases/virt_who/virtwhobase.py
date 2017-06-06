@@ -40,6 +40,7 @@ class VIRTWHOBase(Base):
     def sys_setup(self, targetmachine_ip=None):
         if "release" not in get_exported_param("RHEL_COMPOSE"):
             self.cm_install_basetool(targetmachine_ip)
+        self.cm_update_system(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
@@ -84,14 +85,24 @@ class VIRTWHOBase(Base):
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
         # stop iptables service
-        cmd = "service iptables stop"
-        ret, output = self.runcmd(cmd, "Stop iptables service", targetmachine_ip)
-        cmd = "service iptables status"
-        ret, output = self.runcmd(cmd, "Chech iptables service status", targetmachine_ip)
-        if ("Firewall is stopped" in output) or ("Firewall is not running" in output) or ("Active: inactive" in output):
-            logger.info("Succeeded to stop iptables service.")
+        if self.get_os_serials(targetmachine_ip) == "7":
+            cmd = "systemctl stop firewalld.service"
+            ret, output = self.runcmd(cmd, "Stop firewalld service", targetmachine_ip)
+            cmd = "systemctl status firewalld.service"
+            ret, output = self.runcmd(cmd, "Check firewalld service status", targetmachine_ip)
+            if ("Stopped firewalld" in output) or ("inactive" in output) or ("Active: inactive" in output):
+                logger.info("Succeeded to stop firewalld service.")
+            else:
+                logger.info("Failed to stop firewalld service.")
         else:
-            logger.info("Failed to stop iptables service.")
+            cmd = "service iptables stop"
+            ret, output = self.runcmd(cmd, "Stop iptables service", targetmachine_ip)
+            cmd = "service iptables status"
+            ret, output = self.runcmd(cmd, "Chech iptables service status", targetmachine_ip)
+            if ("Firewall is stopped" in output) or ("Firewall is not running" in output) or ("Active: inactive" in output):
+                logger.info("Succeeded to stop iptables service.")
+            else:
+                logger.info("Failed to stop iptables service.")
         # setenforce as 0
         cmd = "setenforce 0"
         ret, output = self.runcmd(cmd, "Set setenforce 0", targetmachine_ip)
@@ -1211,7 +1222,7 @@ class VIRTWHOBase(Base):
         self.runcmd(cmd, "generate %s to parse virt-who -d output info" % tmp_file, targetmachine_ip=targetmachine_ip)
         cmd = "cat %s" % tmp_file
         self.vw_check_message(cmd, message, message_exists, 0, targetmachine_ip)
-        self.kill_pid("virt-who")
+        self.kill_pid("virt-who", targetmachine_ip)
 
     def vw_check_mapping_info_in_rhsm_log(self, host_uuid, guest_uuid="", checkcmd="restart_virtwho", uuid_exist=True, targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"
@@ -2409,23 +2420,47 @@ class VIRTWHOBase(Base):
     # ========================================================
     def kvm_bridge_setup(self, targetmachine_ip=""):
         network_dev = ""
-        cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
-        ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
+        cmd = "hostname -I | grep -E '^10.'"
+        ret, output = self.runcmd(cmd, "check dev ip start with 10.", targetmachine_ip)
         if ret == 0:
-            network_dev = output.strip()
-            logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
-            if not "switch" in output:
-                cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
-                ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
-                if ret == 0:
-                    logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+            logger.info("Success to check dev ip start with 10.")
+            cmd = "ip route | grep `hostname -I | awk {'print $1'}` | awk {'print $3'}"
+            ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
+            if ret == 0:
+                network_dev = output.strip()
+                logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
+                if not "switch" in output:
+                    cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
+                    ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
+                    if ret == 0:
+                        logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                    else:
+                        raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                    self.service_command("restart_network", targetmachine_ip)
                 else:
-                    raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
-                self.service_command("restart_network", targetmachine_ip)
+                    logger.info("Bridge already setup for virt-who testing, do nothing ...")
             else:
-                logger.info("Bridge already setup for virt-who testing, do nothing ...")
+                raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
         else:
-            raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
+            logger.info("Dev ip is not start with 10.")
+            cmd = "ip route | grep `hostname -I | awk {'print $2'}` | awk {'print $3'}"
+            ret, output = self.runcmd(cmd, "get network device", targetmachine_ip)
+            if ret == 0:
+                network_dev = output.strip()
+                logger.info("Succeeded to get network device in %s." % self.get_hg_info(targetmachine_ip))
+                if not "switch" in output:
+                    cmd = "sed -i '/^BOOTPROTO/d' /etc/sysconfig/network-scripts/ifcfg-%s; echo \"BRIDGE=switch\" >> /etc/sysconfig/network-scripts/ifcfg-%s;echo \"DEVICE=switch\nBOOTPROTO=dhcp\nONBOOT=yes\nTYPE=Bridge\"> /etc/sysconfig/network-scripts/ifcfg-br0" % (network_dev, network_dev)
+                    ret, output = self.runcmd(cmd, "setup bridge for kvm testing", targetmachine_ip)
+                    if ret == 0:
+                        logger.info("Succeeded to set /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                    else:
+                        raise FailException("Test Failed - Failed to /etc/sysconfig/network-scripts in %s." % self.get_hg_info(targetmachine_ip))
+                    self.service_command("restart_network", targetmachine_ip)
+                else:
+                    logger.info("Bridge already setup for virt-who testing, do nothing ...")
+            else:
+                raise FailException("Test Failed - Failed to get network device in %s." % self.get_hg_info(targetmachine_ip))
+
 
     def kvm_permission_setup(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/#user = \"root\"/user = \"root\"/g' -e 's/#group = \"root\"/group = \"root\"/g' -e 's/#dynamic_ownership = 1/dynamic_ownership = 1/g' /etc/libvirt/qemu.conf"
@@ -2750,6 +2785,35 @@ class VIRTWHOBase(Base):
     # ========================================================
     #       KVM - test env set up function
     # ========================================================
+    def remote_libvirt_setup(self):
+        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+        # if host already registered, unregister it first, then configure and register it
+        self.sub_unregister()
+        self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+        self.sub_register(SERVER_USER, SERVER_PASS)
+        # update virt-who configure file
+        self.update_vw_configure()
+        # restart virt-who service
+        self.vw_restart_virtwho()
+        # mount all needed guests
+#         self.mount_images()
+        # add guests in host machine.
+        self.vw_define_guest(guest_name)
+        # change target guest host name, or else satellite testing will fail due to same name
+        self.vw_change_guest_name()
+        # configure slave machine
+        slave_machine_ip = get_exported_param("REMOTE_IP_2")
+        if slave_machine_ip != None and slave_machine_ip != "":
+            # if host already registered, unregister it first, then configure and register it
+            self.sub_unregister(slave_machine_ip)
+            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
+            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
+#             image_nfs_path = self.get_vw_cons("nfs_image_path")
+#             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
+            self.set_remote_libvirt_conf(get_exported_param("REMOTE_IP"), slave_machine_ip)
+            self.runcmd_service("restart_virtwho", slave_machine_ip)
+
     def kvm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
@@ -2787,6 +2851,7 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing in %s." % self.get_hg_info(targetmachine_ip))
+        self.cm_update_system(targetmachine_ip)
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
         cmd = "service libvirtd start"
