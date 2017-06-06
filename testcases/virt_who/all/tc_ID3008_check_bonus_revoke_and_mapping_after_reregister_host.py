@@ -46,6 +46,12 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
             self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()

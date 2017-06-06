@@ -12,6 +12,12 @@ class tc_ID2004_no_guest_on_hypervisor(VIRTWHOBase):
             self.vw_define_all_guests()
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             rhevm_ip = get_exported_param("RHEVM_IP")

@@ -38,6 +38,12 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
             self.vw_restart_virtwho()
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")

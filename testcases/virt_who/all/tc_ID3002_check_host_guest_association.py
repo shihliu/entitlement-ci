@@ -9,6 +9,12 @@ class tc_ID3002_check_host_guest_association(VIRTWHOBase):
         finally:
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.skipTest("test case skiped, not fit for vdsm ...")

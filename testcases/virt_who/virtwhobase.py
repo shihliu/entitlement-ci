@@ -1286,7 +1286,7 @@ class VIRTWHOBase(Base):
         time.sleep(waiting_time)
         cmd = "cat %s" % tmp_file
         self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
-        self.kill_pid("virt-who")
+        self.kill_pid("virt-who", targetmachine_ip)
 
     def vw_check_message_number_in_rhsm_log(self, message, msg_num=1, waiting_time=0, checkcmd="restart_virtwho", targetmachine_ip=""):
         tmp_file = "/tmp/tail.rhsm.log"

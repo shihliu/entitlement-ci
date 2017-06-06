@@ -30,6 +30,12 @@ class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
                 self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.skipTest("test case skiped, not fit for vdsm ...")

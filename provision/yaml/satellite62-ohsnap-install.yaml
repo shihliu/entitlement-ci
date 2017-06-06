@@ -128,6 +128,10 @@
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
+           - project: 'virt-who-remote-libvirt-runtest'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/SERVER.txt
            - project: 'rhevm-install-runtest'
              current-parameters: false
              condition: 'SUCCESS'

@@ -19,6 +19,12 @@ class tc_ID1018_check_server_option_by_cli(VIRTWHOBase):
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")

@@ -20,6 +20,12 @@ class tc_ID1039_check_mapping_after_restart_virtwho_and_rhsmcertd(VIRTWHOBase):
             self.vw_stop_guests(guest_name)
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")

@@ -23,6 +23,12 @@ class tc_ID1016_check_config_option_by_cli(VIRTWHOBase):
             self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.runcmd_service("stop_virtwho")

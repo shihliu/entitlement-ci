@@ -42,6 +42,12 @@ class tc_ID1056_check_filter_hosts_in_virtwho_d(VIRTWHOBase):
             self.runcmd_service("restart_virtwho", remote_ip_2)
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.skipTest("test case skiped, not fit for vdsm ...")

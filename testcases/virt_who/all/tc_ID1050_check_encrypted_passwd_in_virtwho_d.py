@@ -15,6 +15,12 @@ class tc_ID1050_check_encrypted_passwd_in_virtwho_d(VIRTWHOBase):
         finally:
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_rhevm(self):
         try:
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()

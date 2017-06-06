@@ -13,6 +13,22 @@ class tc_ID1007_check_oneshot_function_by_cli(VIRTWHOBase):
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            guestuuid = self.vw_get_uuid(guest_name)
+            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            # (1) Check "DEBUG" info is exist when run "virt-who --rhevm -d"
+            self.runcmd_service("stop_virtwho", remote_ip_2)
+            cmd = self.virtwho_cli("libvirt") + " -o -d"
+            for i in range(1, 5):
+                self.vw_check_mapping_info_number(cmd, 1, targetmachine_ip=remote_ip_2)
+            self.check_virtwho_thread(0, remote_ip_2)
+        finally:
+            self.runcmd_service("restart_virtwho", remote_ip_2)
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.runcmd_service("stop_virtwho")

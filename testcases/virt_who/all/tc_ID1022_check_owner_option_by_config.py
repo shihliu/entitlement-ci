@@ -30,6 +30,12 @@ class tc_ID1022_check_owner_option_by_config(VIRTWHOBase):
         finally:
             logger.info("---------- succeed to restore environment ----------")
 
+    def run_remote_libvirt(self):
+        try:
+            self.skipTest("test case skiped, not fit for vdsm ...")
+        finally:
+            logger.info("---------- succeed to restore environment ----------")
+
     def run_vdsm(self):
         try:
             self.skipTest("test case skiped, not fit for vdsm ...")
