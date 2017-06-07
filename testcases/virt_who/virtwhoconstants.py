@@ -65,7 +65,7 @@ class VIRTWHOConstants(object):
     # message constant, maybe create a new file in future
     "wrong_owner":                              "xxxxxxx",
     "wrong_env":                                "xxxxxxx",
-    "wrong_passwd":                             "xxxxxxWelcome@*&$001xxxx",
+    "wrong_passwd":                             "xxxxxxWelcome",
     "vw_interval_check_msg":                    "No data to send, waiting for next interval",
     "error_msg_with_wrong_passwd":              "Incorrect domain/username/password|incorrect user name or password|Authentication failure",
     "vm_default_interval_msg":                  "3600 seconds interval",
