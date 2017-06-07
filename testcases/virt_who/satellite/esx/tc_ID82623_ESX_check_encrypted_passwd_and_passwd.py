@@ -15,14 +15,15 @@ class tc_ID82623_ESX_check_encrypted_passwd_and_passwd(ESXBase):
             # (1.1) Disable esx mode in /etc/sysconfig/virt-who
             self.config_option_disable("VIRTWHO_ESX")
             # (1.2) Check encrypted_password before run virt-who-password cmd
-            self.set_encrypted_password("esx", "xxxxxxWelcome@*&$001xxxx")
+#             self.set_encrypted_password("esx", "xxxxxxWelcome@*&$001xxxx")
+            self.set_encrypted_password("esx", "xxxxxxWelcome")
             self.vw_check_message_in_rhsm_log("can't be decrypted, possibly corrupted")
             # (1.3) Config correct encryped password of esx mode in /etc/virt-who.d/virtwho, check virt-who send h/g mapping successfully
             encrypted_password = self.run_virt_who_password(esx_password)
             self.set_encrypted_password("esx", encrypted_password)
             self.vw_check_mapping_info_number_in_rhsm_log()
             # (1.4) Config wrong encryped password of esx mode in /etc/virt-who.d/virtwho, check virt-who can't send h/g mapping 
-            self.set_encrypted_password("esx", "xxxxxxWelcome@*&$001xxxx")
+            self.set_encrypted_password("esx", "xxxxxxWelcome")
             self.vw_check_message_in_rhsm_log("can't be decrypted, possibly corrupted")
 
             # (2) Check password option in /etc/virt-who.d/xxx

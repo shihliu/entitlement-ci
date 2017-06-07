@@ -42,8 +42,44 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
+            test_sku = self.get_vw_cons("datacenter_sku_id")
+            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
+            bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
+            sku_name = self.get_vw_cons("datacenter_bonus_name")
+
+            self.vw_start_guests(guest_name, remote_ip_1)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
+            self.runcmd_service("restart_virtwho")
+
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+            # subscribe the hypervisor to the physical pool which can generate bonus pool
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            # (1). guest auto subscribe bonus pool
+            self.sub_unsubscribe(guestip)
+            self.sub_auto_subscribe(guestip)
+            # (2). Check consumed subscriptions' name on guest
+            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
+            # (3). check the Status of installed product, should be 'Subscribed' status
+            installed_status_key = "Status"
+            installed_status_value = "Subscribed"
+            self.check_installed_status(installed_status_key, installed_status_value, guestip)
         finally:
+            self.sub_unsubscribe()
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            # register hypervisor
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            self.runcmd_service("restart_virtwho")
+            self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

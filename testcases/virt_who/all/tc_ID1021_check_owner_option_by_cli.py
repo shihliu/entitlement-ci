@@ -26,8 +26,26 @@ class tc_ID1021_check_owner_option_by_cli(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+#             remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            error_msg_without_owner = self.get_vw_cons("libvirt_error_msg_without_owner")
+            error_msg_with_wrong_owner = self.get_vw_cons("libvirt_error_msg_with_wrong_owner")
+            libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
+            self.runcmd_service("stop_virtwho")
+
+            # (1) When "--libvirt-owner" is not exist, virt-who should show error info
+            cmd_without_owner = "virt-who --libvirt --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (libvirt_env, remote_ip_1, libvirt_username, libvirt_password) + " -o -d"
+            self.vw_check_message(cmd_without_owner, error_msg_without_owner, cmd_retcode=1)
+            # (2) When "--libvirt-owner" with wrong config, virt-who should show error info
+            cmd_with_wrong_owner = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (self.get_vw_cons("wrong_owner"), libvirt_env, remote_ip_1, libvirt_username, libvirt_password) + " -o -d"
+            self.vw_check_message(cmd_with_wrong_owner, error_msg_with_wrong_owner)
+            # (3) When "--libvirt-owner" with correct config, virt-who should show error info
+            cmd = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (libvirt_owner, libvirt_env, remote_ip_1, libvirt_username, libvirt_password) + " -o -d"
+            self.vw_check_mapping_info_number(cmd, 1)
         finally:
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

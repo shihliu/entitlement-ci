@@ -22,8 +22,21 @@ class tc_ID1039_check_mapping_after_restart_virtwho_and_rhsmcertd(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            # (1) Check host/guest mapping info is exist 
+            self.vw_check_uuid(guestuuid, uuidexists=True)
+
+            # (2) Check host/guest mapping has not update after restart rhsmcert
+            self.vw_start_guests(guest_name, remote_ip_1)
+            self.vw_check_message_in_rhsm_log("ERROR", message_exists=False, checkcmd="restart_rhsmcertd")
+            # (3) Check host/guest mapping info is exist after restart virt-who 
+            self.vw_check_uuid(guestuuid, uuidexists=True)
         finally:
+            self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

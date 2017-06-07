@@ -34,8 +34,37 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
+            test_sku = self.get_vw_cons("productid_unlimited_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_name = self.get_vw_cons("productname_unlimited_guest")
+
+            self.vw_define_guest(guest_name, remote_ip_1)
+            self.vw_start_guests(guest_name, remote_ip_1)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
+            self.runcmd_service("restart_virtwho")
+
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+            # (1) Subscribe hypervisor
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+
+            # (2). list available pools on guest, check unlimited bonus pool generated.
+            self.check_bonus_exist(test_sku, bonus_quantity, guestip)
         finally:
+            self.sub_unsubscribe()
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            self.vw_stop_guests(guest_name, remote_ip_1)
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

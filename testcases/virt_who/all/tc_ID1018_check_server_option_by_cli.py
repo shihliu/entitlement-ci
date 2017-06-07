@@ -21,8 +21,25 @@ class tc_ID1018_check_server_option_by_cli(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            self.runcmd_service("stop_virtwho")
+            server_type = get_exported_param("SERVER_TYPE")
+            if server_type == "SAM":
+                cmd = self.virtwho_cli("libvirt") + " -o -d --sam"
+                self.vw_check_mapping_info_number(cmd, 1)
+                self.check_virtwho_thread(0)
+            elif server_type == "SATELLITE":
+                cmd = self.virtwho_cli("libvirt") + " -o -d --satellite6"
+                self.vw_check_mapping_info_number(cmd, 1)
+                self.check_virtwho_thread(0)
+            else:
+                logger.info("it is %s mode, needn't to run this command" % server_type)
         finally:
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

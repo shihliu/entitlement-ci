@@ -24,8 +24,25 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+#             self.update_config_to_default()
+            self.config_option_disable("VIRTWHO_LIBVIRT")
+            self.update_vw_configure()
+            self.runcmd_service("stop_virtwho")
+
+            # (1) Config libvirt mode in /etc/virt-who.d with correct rhsm_username and rhsm_password
+            self.set_rhsm_user_pass("libvirt", server_user, server_pass)
+            self.vw_check_mapping_info_number_in_rhsm_log()
+            # (2) Config libvirt mode in /etc/virt-who.d with wrong rhsm_username and rhsm_password
+            self.set_rhsm_user_pass("libvirt", server_user, "xxxxxxxx")
+            self.vw_check_message_in_rhsm_log("Invalid username or password")
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

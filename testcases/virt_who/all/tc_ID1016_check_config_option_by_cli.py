@@ -25,8 +25,24 @@ class tc_ID1016_check_config_option_by_cli(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            mode = "libvirt"
+
+#           (1) Check virt-who send h/g mapping info one time when run "virt-who -c "
+            self.runcmd_service("stop_virtwho")
+            conf_file = "/etc/virt-who.d/virt-who.conf"
+            self.set_virtwho_sec_config(mode)
+            cmd = "virt-who -c %s -o -d" % conf_file
+            self.vw_check_mapping_info_number(cmd, 1)
+#           (2) Check virt-who send h/g mapping info one time when run "virt-who -config "
+            cmd = "virt-who --config=%s  -o -d" % conf_file
+            self.vw_check_mapping_info_number(cmd, 1)
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

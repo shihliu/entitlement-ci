@@ -34,30 +34,30 @@ class tc_ID1010_check_interval_function_by_config(VIRTWHOBase):
     def run_remote_libvirt(self):
         try:
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
-            guestuuid = self.vw_get_uuid(guest_name)
-            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
-            self.runcmd_service("stop_virtwho", remote_ip_2)
-            self.config_option_disable("VIRTWHO_INTERVAL", remote_ip_2)
+            self.runcmd_service("stop_virtwho")
+            self.config_option_disable("VIRTWHO_INTERVAL")
             check_msg = self.get_vw_cons("vw_interval_check_msg")
             check_default_interval = self.get_vw_cons("vm_default_interval_msg")
 
             # (1) Check virt-who refresh default interval is 60s
             self.vw_check_message_number_in_rhsm_log(check_default_interval, 1, 150)
             # (2) Check virt-who refresh interval is 60 when config interval less than 60s
-            self.runcmd_service("stop_virtwho", remote_ip_2)
-            self.config_option_setup_value("VIRTWHO_INTERVAL", 10, remote_ip_2)
-            self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150, targetmachine_ip=remote_ip_2)
+            self.runcmd_service("stop_virtwho")
+            self.config_option_setup_value("VIRTWHO_INTERVAL", 10)
+            self.vw_check_message_number_in_rhsm_log(check_msg, 2, 150)
             # (3) Check virt-who refresh interval is equal to config interval when config interval over 60s
-            self.runcmd_service("stop_virtwho", remote_ip_2)
-            self.check_virtwho_thread(0, remote_ip_2)
-            self.config_option_setup_value("VIRTWHO_INTERVAL", 120, remote_ip_2)
-            self.vw_check_message_number_in_rhsm_log(check_msg, 1, 150, targetmachine_ip=remote_ip_2)
+            self.runcmd_service("stop_virtwho")
+            self.check_virtwho_thread(0)
+            self.config_option_setup_value("VIRTWHO_INTERVAL", 120)
+            self.vw_check_message_number_in_rhsm_log(check_msg, 1, 150)
             # (4).Check virt-who thread will not increase after restart it.
             for i in range(5):
-                self.runcmd_service("restart_virtwho", remote_ip_2)
-                self.check_virtwho_thread(1, remote_ip_2)
+                self.runcmd_service("restart_virtwho")
+                self.check_virtwho_thread(1)
                 time.sleep(5)
         finally:
             self.config_option_disable("VIRTWHO_INTERVAL")

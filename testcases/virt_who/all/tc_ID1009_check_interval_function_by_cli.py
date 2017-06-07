@@ -27,27 +27,27 @@ class tc_ID1009_check_interval_function_by_cli(VIRTWHOBase):
     def run_remote_libvirt(self):
         try:
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
-            guestuuid = self.vw_get_uuid(guest_name)
-            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
-            self.runcmd_service("stop_virtwho", remote_ip_2)
+            self.runcmd_service("stop_virtwho")
             check_msg = self.get_vw_cons("vw_interval_check_msg")
             check_default_interval = self.get_vw_cons("vm_default_interval_msg")
             # (1) Check virt-who refresh default interval is 60s
             cmd = self.virtwho_cli("libvirt") + " -d"
 #             self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
-            self.vw_check_message_number_in_debug_cmd(cmd, check_default_interval, 1, 100, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_default_interval, 1, 100)
             # (2) Check virt-who refresh interval is 60 when config interval less than 60s
             cmd = self.virtwho_cli("libvirt") + " -d -i 10"
-            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 2, 150)
             # (3) Check virt-who refresh interval is equal to config interval when config interval over 60s
             cmd = self.virtwho_cli("libvirt") + " -d -i 120"
-            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 1, 150, targetmachine_ip=remote_ip_2)
-            self.check_virtwho_thread(0, remote_ip_2)
+            self.vw_check_message_number_in_debug_cmd(cmd, check_msg, 1, 150)
+            self.check_virtwho_thread(0)
         finally:
-            self.update_vw_configure(remote_ip_2)
-            self.runcmd_service("restart_virtwho", remote_ip_2)
+            self.update_vw_configure()
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

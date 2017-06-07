@@ -302,7 +302,10 @@ class VIRTWHOBase(Base):
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_esx_info()
         elif mode == "libvirt":
             virtwho_owner, virtwho_env, virtwho_username, virtwho_password = self.get_libvirt_info()
-            virtwho_server = get_exported_param("REMOTE_IP")
+            if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+                virtwho_server = get_exported_param("REMOTE_IP_1")
+            else:
+                virtwho_server = get_exported_param("REMOTE_IP")
         elif mode == "hyperv":
             virtwho_owner, virtwho_env, virtwho_server, virtwho_username, virtwho_password = self.get_hyperv_info()
         elif mode == "xen":

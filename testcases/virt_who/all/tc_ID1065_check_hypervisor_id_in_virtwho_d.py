@@ -23,7 +23,7 @@ class tc_ID1065_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
             self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid, targetmachine_ip=remote_ip_2)
             # (3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
             self.set_hypervisor_id("libvirt", "hwuuid", remote_ip_2)
-            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in libvirt backend", message_exists=True, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in libvirt backend|Invalid option hwuuid for hypervisor_id", message_exists=True, targetmachine_ip=remote_ip_2)
         finally:
             self.unset_all_virtwho_d_conf(remote_ip_2)
             self.runcmd_service("restart_virtwho", remote_ip_2)
@@ -35,8 +35,33 @@ class tc_ID1065_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
+            self.runcmd_service("stop_virtwho")
+            self.vw_define_guest(guest_name, remote_ip_1)
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
+
+            # (1) Set hypervisor_id=uuid, it will show uuid 
+            self.set_hypervisor_id("libvirt", "uuid")
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            # (2) Set hypervisor_id=hostname, it will show hostname 
+            self.set_hypervisor_id("libvirt", "hostname")
+            self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid)
+            # (3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
+            self.set_hypervisor_id("libvirt", "hwuuid")
+            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in libvirt backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.runcmd_service("restart_virtwho")
+            self.sub_unregister()
+            if not self.sub_isregistered():
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+                self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

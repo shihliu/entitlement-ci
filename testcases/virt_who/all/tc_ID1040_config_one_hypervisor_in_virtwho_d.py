@@ -19,8 +19,14 @@ class tc_ID1040_config_one_hypervisor_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            self.runcmd_service("stop_virtwho")
+            self.update_vw_configure()
+            # (1) Config libvirt mode in /etc/virt-who.d
+            self.set_virtwho_sec_config("libvirt")
+            self.vw_check_mapping_info_number_in_rhsm_log()
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):
