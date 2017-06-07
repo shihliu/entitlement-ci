@@ -20,18 +20,18 @@ class tc_ID1005_check_debug_function_by_cli(VIRTWHOBase):
     def run_remote_libvirt(self):
         try:
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
-            guestuuid = self.vw_get_uuid(guest_name)
-            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
             # (1) Check "DEBUG" info is exist when run "virt-who --rhevm -d"
-            self.runcmd_service("stop_virtwho", remote_ip_2)
+            self.runcmd_service("stop_virtwho")
             cmd = self.virtwho_cli("libvirt") + " -d"
-            self.vw_check_message_in_debug_cmd(cmd, "DEBUG", targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_debug_cmd(cmd, "DEBUG")
             # (2) Check "DEBUG" info is not exist when run "virt-who --rhevm",no "-d" option
             cmd = self.virtwho_cli("libvirt")
-            self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR", message_exists=False, targetmachine_ip=remote_ip_2)
+            self.vw_check_message_in_debug_cmd(cmd, "DEBUG|ERROR", message_exists=False)
         finally:
-            self.runcmd_service("restart_virtwho", remote_ip_2)
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

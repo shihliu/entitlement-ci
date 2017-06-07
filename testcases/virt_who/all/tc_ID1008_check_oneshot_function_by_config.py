@@ -21,21 +21,21 @@ class tc_ID1008_check_oneshot_function_by_config(VIRTWHOBase):
     def run_remote_libvirt(self):
         try:
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
-            guestuuid = self.vw_get_uuid(guest_name)
-            remote_ip = get_exported_param("REMOTE_IP")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
-            self.runcmd_service("stop_virtwho", remote_ip_2)
-            self.config_option_disable("VIRTWHO_INTERVAL", remote_ip_2)
-            self.config_option_setup_value("VIRTWHO_ONE_SHOT", 1, remote_ip_2)
+            self.runcmd_service("stop_virtwho")
+            self.config_option_disable("VIRTWHO_INTERVAL")
+            self.config_option_setup_value("VIRTWHO_ONE_SHOT", 1)
             tmp_file = "/tmp/tail.rhsm.log"
-            self.generate_tmp_log("restart_virtwho", tmp_file, targetmachine_ip=remote_ip_2)
+            self.generate_tmp_log("restart_virtwho", tmp_file)
             cmd = "cat %s" % tmp_file
-            self.vw_check_mapping_info_number(cmd, 1, remote_ip_2)
-            self.check_virtwho_thread(0, remote_ip_2)
+            self.vw_check_mapping_info_number(cmd, 1)
+            self.check_virtwho_thread(0)
         finally:
-            self.config_option_disable("VIRTWHO_ONE_SHOT", remote_ip_2)
-            self.runcmd_service("restart_virtwho", remote_ip_2)
+            self.config_option_disable("VIRTWHO_ONE_SHOT")
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

@@ -317,6 +317,8 @@ class Base(unittest.TestCase):
         if "release" in get_exported_param("RHEL_COMPOSE"):
             if "rhevm" in get_exported_param("HYPERVISOR_TYPE") or "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
                 return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()+ "_" + get_exported_param("HYPERVISOR_TYPE")
+            else:
+                return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()    
         else:
             return VIRTWHOConstants().virtwho_cons[guest_name] + "_" + self.test_server.capitalize()
 

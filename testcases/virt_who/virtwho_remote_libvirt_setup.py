@@ -6,10 +6,11 @@ class virtwho_kvm_setup(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            self.kvm_sys_setup()
-            self.kvm_sys_setup(get_exported_param("REMOTE_IP_2"))
+            self.sys_setup()
+            self.kvm_static_sys_setup(get_exported_param("REMOTE_IP_1"))
+            self.kvm_static_sys_setup(get_exported_param("REMOTE_IP_2"))
             self.remote_libvirt_setup()
-            self.generate_ssh_key()
+            self.generate_ssh_key_define()
 #             self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:

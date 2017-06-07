@@ -38,8 +38,8 @@ class VIRTWHOBase(Base):
             logger.info("virt-who package is not install, need to install.")
 
     def sys_setup(self, targetmachine_ip=None):
-        if "release" not in get_exported_param("RHEL_COMPOSE"):
-            self.cm_install_basetool(targetmachine_ip)
+#         if "release" not in get_exported_param("RHEL_COMPOSE"):
+#             self.cm_install_basetool(targetmachine_ip)
         self.cm_update_system(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
@@ -146,7 +146,10 @@ class VIRTWHOBase(Base):
             cmd = "virt-who --rhevm --rhevm-owner=%s --rhevm-env=%s --rhevm-server=%s --rhevm-username=%s --rhevm-password=%s" % (rhevm_owner, rhevm_env, rhevm_server, rhevm_username, rhevm_password)
         elif mode == "libvirt":
             libvirt_owner, libvirt_env, libvirt_username, libvirt_password = self.get_libvirt_info()
-            libvirt_server = get_exported_param("REMOTE_IP")
+            if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+                libvirt_server = get_exported_param("REMOTE_IP_1")
+            else:
+                libvirt_server = get_exported_param("REMOTE_IP")
             cmd = "virt-who --libvirt --libvirt-owner=%s --libvirt-env=%s --libvirt-server=%s --libvirt-username=%s --libvirt-password=%s" % (libvirt_owner, libvirt_env, libvirt_server, libvirt_username, libvirt_password)
         else:
             raise FailException("Failed to get virt-who comand line with %s mode" % mode)
@@ -1450,8 +1453,12 @@ class VIRTWHOBase(Base):
         return ret, output
 
     def generate_ssh_key(self, targetmachine_ip=""):
-        remote_ip_2 = get_exported_param("REMOTE_IP_2")
-        remote_ip = get_exported_param("REMOTE_IP")
+        if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+            remote_ip_2 = get_exported_param("REMOTE_IP")
+            remote_ip = get_exported_param("REMOTE_IP_1")
+        else:
+            remote_ip_2 = get_exported_param("REMOTE_IP_2")
+            remote_ip = get_exported_param("REMOTE_IP")
         username = "root"
         password = "red2015"
         # generate pub-key in host2, then copy the key to host1
@@ -2775,44 +2782,38 @@ class VIRTWHOBase(Base):
         else:
             raise FailException("Test Failed - Failed to restore_libvirtd_config.")
 
-    def vw_change_guest_name(self):
-        guest_name = self.get_vw_cons("KVM_GUEST_NAME")
-        self.vw_start_guests(guest_name)
-        guestip = self.kvm_get_guest_ip(guest_name)
+    def vw_change_guest_name(self, targetmachine_ip=""):
+        if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME") 
+        else:    
+            guest_name = self.get_vw_cons("KVM_GUEST_NAME")
+        self.vw_start_guests(guest_name, targetmachine_ip)
+        guestip = self.kvm_get_guest_ip(guest_name, targetmachine_ip)
         self.cm_change_hostname(guestip)
-        self.vw_stop_guests(guest_name)
+        self.vw_stop_guests(guest_name, targetmachine_ip)
 
     # ========================================================
     #       KVM - test env set up function
     # ========================================================
     def remote_libvirt_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        remote_host_1 = get_exported_param("REMOTE_IP_1")
+        remote_host_2 = get_exported_param("REMOTE_IP_2")
         guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+ 
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
-        # update virt-who configure file
-        self.update_vw_configure()
+        # update virt-who configure file tp remote_libvirt mode
+        self.set_remote_libvirt_conf(remote_host_1)
         # restart virt-who service
-        self.vw_restart_virtwho()
-        # mount all needed guests
-#         self.mount_images()
+        self.runcmd_service("restart_virtwho")
         # add guests in host machine.
-        self.vw_define_guest(guest_name)
+        self.vw_define_guest(guest_name, remote_host_1)
         # change target guest host name, or else satellite testing will fail due to same name
-        self.vw_change_guest_name()
-        # configure slave machine
-        slave_machine_ip = get_exported_param("REMOTE_IP_2")
-        if slave_machine_ip != None and slave_machine_ip != "":
-            # if host already registered, unregister it first, then configure and register it
-            self.sub_unregister(slave_machine_ip)
-            self.configure_server(SERVER_IP, SERVER_HOSTNAME, slave_machine_ip)
-            self.sub_register(SERVER_USER, SERVER_PASS, slave_machine_ip)
-#             image_nfs_path = self.get_vw_cons("nfs_image_path")
-#             self.mount_images_in_slave_machine(slave_machine_ip, image_nfs_path, image_nfs_path)
-            self.set_remote_libvirt_conf(get_exported_param("REMOTE_IP"), slave_machine_ip)
-            self.runcmd_service("restart_virtwho", slave_machine_ip)
+        self.vw_change_guest_name(remote_host_1)
+
 
     def kvm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
@@ -2854,6 +2855,24 @@ class VIRTWHOBase(Base):
         self.cm_update_system(targetmachine_ip)
         self.kvm_bridge_setup(targetmachine_ip)
         self.kvm_permission_setup(targetmachine_ip)
+        cmd = "service libvirtd start"
+        ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        else:
+            raise FailException("Test Failed - Failed to start service libvirtd in %s." % self.get_hg_info(targetmachine_ip))
+        # need to start virtlogd service, or else migration will fail
+        # commented result check, sometimes virtlogd service do not exist
+        cmd = "service virtlogd start"
+        ret, output = self.runcmd(cmd, "restart virtlogd service", targetmachine_ip)
+#         if ret == 0:
+#             logger.info("Succeeded to start service virtlogd in %s." % self.get_hg_info(targetmachine_ip))
+#         else:
+#             raise FailException("Test Failed - Failed to start service virtlogd in %s." % self.get_hg_info(targetmachine_ip))
+        self.stop_firewall(targetmachine_ip)
+
+    def kvm_static_sys_setup(self, targetmachine_ip=""):
+        self.cm_update_system(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:

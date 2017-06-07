@@ -77,6 +77,8 @@
           export REMOTE_IP=$REMOTE_IP
           export REMOTE_HOSTNAME=$REMOTE_HOSTNAME
           export VIRTWHO_SRC=$VIRTWHO_ORIGINAL_SRC
+          export RHEL_HOST1_IP=$REMOTE_HOST_1
+          export RHEL_HOST2_IP=$REMOTE_HOST_2
           export SERVER_TYPE=$SERVER_TYPE
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
@@ -95,14 +97,76 @@
         - recipients
 
 - job-template:
+    name: 'virt-who-remote-libvirt-provision'
+    defaults: virt-who-provision
+    node: docker-rhel7
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SERVER_COMPOSE=ohsnap-satellite/satellite
+            #export SERVER_IP=10.73.131.113
+            #export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
+            #export SERVER_TYPE=SATELLITE
+            #export RHEL_COMPOSE=release
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
+            echo "*********************************setup env*********************************"
+            echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
+            echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
+
+            if [ "$RHEL_COMPOSE"x = "release"x ]
+            then
+                if [ "$RHEL_COMPOSE_EXIST"x = ""x ] && [ "$VIRTWHO_SRC"x = "default"x ] 
+                then 
+                    CONTAINER_NAME="remote-libvirt-rhel6.9-sattool.redhat.com"
+                    IMAGE_NAME="rhel6.9"
+                    export VIRTWHO_SRC="default"
+                    export VIRTWHO_ORIGINAL_SRC="rhel6.9-sattool"
+                else
+                    CONTAINER_NAME="remote-libvirt-"$VIRTWHO_SRC".redhat.com"
+                    echo "container name is "$CONTAINER_NAME
+                    IMAGE_NAME=`echo $VIRTWHO_SRC | cut -d - -f 1`
+                    echo "image name is" $IMAGE_NAME 
+                    export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+                fi
+                echo "After provision, CONTAINER_NAME is "$CONTAINER_NAME
+                echo "After provision, IMAGE_NAME is "$IMAGE_NAME
+                echo "After provision, RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
+                echo "After provision, VIRTWHO_SRC is "$VIRTWHO_SRC
+                $WORKSPACE/entitlement-ci/provision/host-provision.sh  --containername=$CONTAINER_NAME --imagename=$IMAGE_NAME
+            else
+                CONTAINER_NAME="remote-libvirt-"$RHEL_COMPOSE"."$SERVER_TYPE".redhat.com"
+                $WORKSPACE/entitlement-ci/provision/host-provision.sh  --containername=$CONTAINER_NAME
+            fi
+            cat $WORKSPACE/RESOURCES.txt
+            # Provision Test Resources
+            echo "********************************runtime env********************************"
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+        - project: virt-who-remote-libvirt-runtest
+          current-parameters: false
+          condition: SUCCESS
+          property-file: $WORKSPACE/RESOURCES.txt
+          fail-on-missing: true
+
+- job-template:
     name: virt-who-remote-libvirt-runtest
     defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
-    #- copyartifact:
-    #    project: virt-who-esx-provision
-    #    filter: '*.txt, *.json'
-    #    target: $WORKSPACE
+    - copyartifact:
+        project: virt-who-remote-libvirt-provision
+        filter: '*.txt, *.json'
+        target: $WORKSPACE
     - shell: |
         #!/bin/bash
         echo "Jenkins machine info we are running on"
@@ -111,70 +175,72 @@
         echo REMOTE_IP=$REMOTE_IP
         echo VIRTWHO_ORIGINAL_SRC=$VIRTWHO_ORIGINAL_SRC
         echo VIRTWHO_SRC=$VIRTWHO_SRC
-        export REMOTE_IP=10.66.129.77
+        export REMOTE_IP_1=10.66.129.77
         export REMOTE_IP_2=10.66.129.148
-        export HYPERVISOR_TYPE=remote_libvirt
+        export HYPERVISOR_TYPE=remote-libvirt
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=
+        #export REMOTE_IP=
         #export SERVER_IP=
         #export SERVER_TYPE=
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
         pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-          nosetests virtwho_remote_libvirt_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+          nosetests virtwho_rhel_remote-libvirt_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd
         pushd $WORKSPACE/entitlement-ci/testcases/virt_who/all/
+          export HYPERVISOR_TYPE=remote_libvirt
           nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
         popd 
-        echo "************************check trigger condition of another remote libvirt*****************" 
+        echo "************************check trigger condition of another remote-libvirt*****************" 
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         if [ "$RHEL_COMPOSE" == "release" ]
         then 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
-          #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+          #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
           #  export VIRTWHO_SRC=rhel6.8-sattool
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           #then
              export VIRTWHO_SRC=rhel7.3-sattool
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
              export VIRTWHO_SRC=rhel6.9-original
-             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt         
+             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/RHEVMNEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
           #   export VIRTWHO_SRC=rhel6.8-original
-          #   echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt   
+          #   echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/RHEVMNEWRUN.txt   
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
           #then
              export VIRTWHO_SRC=rhel7.3-original
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt 
+             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/RHEVMNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/RHEVMNEWRUN.txt
           else
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
-             rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+             rm -rf $WORKSPACE/RHEVMNEWRUN.txt
           fi
         else
           export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-          rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+          rm -rf $WORKSPACE/RHEVMNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+        properties-file: $WORKSPACE/RHEVMNEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -182,19 +248,20 @@
     - default-virt-who-runtest-publishers
     - default-virt-who-publishers
     - trigger-parameterized-builds:
-      - project: virt-who-remote-libvirt-runtest
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+      - project: virt-who-remote-libvirt-provision
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/RHEVMNEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS
           
 - job-group:
-    name: virt-who-kvm-provision-runtest
+    name: virt-who-remote-libvirt-provision-runtest
     jobs:
+    - virt-who-remote-libvirt-provision
     - virt-who-remote-libvirt-runtest
 - project:
-    name: virt-who-kvm-jobs
-    project: virt-who-kvm
+    name: virt-who-remote-libvirt-jobs
+    project: virt-who-remote-libvirt
     project_defaults: entitlement-ci/config/project_defaults
     topology_path: entitlement-ci/config
     topology: bkr_build_single_provision_no_hvm
@@ -203,5 +270,5 @@
     tests_path: entitlement-ci/tests
     testparams: echo "I am a test parameter"
     jobs:
-    - virt-who-remote-libvirt-runtest
-    polarion_template: virt-who for kvm auto template
+    - virt-who-remote-libvirt-provision-runtest
+    polarion_template: virt-who for remote-libvirt auto template
