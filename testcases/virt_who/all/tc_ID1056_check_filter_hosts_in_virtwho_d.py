@@ -49,6 +49,7 @@ class tc_ID1056_check_filter_hosts_in_virtwho_d(VIRTWHOBase):
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
             self.runcmd_service("stop_virtwho")
+            self.config_option_disable("VIRTWHO_LIBVIRT")
             self.vw_define_guest(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
             host_uuid_sec = "test"
@@ -79,6 +80,7 @@ class tc_ID1056_check_filter_hosts_in_virtwho_d(VIRTWHOBase):
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
         finally:
             self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
