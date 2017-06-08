@@ -40,7 +40,6 @@ class VIRTWHOBase(Base):
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
-        self.cm_update_system(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
@@ -74,6 +73,7 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to add satellite ohsnap tools repo.")
             else:
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
+        self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
