@@ -43,37 +43,39 @@ class VIRTWHOBase(Base):
         server_compose = get_exported_param("SERVER_COMPOSE")
         hypervisor_type = get_exported_param("HYPERVISOR_TYPE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
 #         if server_compose == "ohsnap-satellite":
-        if server_compose == "ohsnap-satellite" and (tool_src is None or "sattool" in tool_src):
-        # check if host registered to cdn server
+        if "release" in rhel_compose:
             if not self.sub_isregistered(targetmachine_ip):
                 self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q")
                 self.sub_auto_subscribe(targetmachine_ip)
-            if self.os_serial == "6":
-                cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
-                    '[sat6-tools]\n'
-                    'name=Satellite 6 Tools\n'
-                    'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
-                    'enabled=1\n'
-                    'gpgcheck=0\n'
-                    'EOF'
-                    )
-            else:
-                cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
-                    '[sat6-tools]\n'
-                    'name=Satellite 6 Tools\n'
-                    'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL7/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL7_Satellite_Tools_x86_64_os/\n'
-                    'enabled=1\n'
-                    'gpgcheck=0\n'
-                    'EOF'
-                    )
-            ret, output = self.runcmd(cmd, "add satellite ohsnap tools repo", targetmachine_ip)
-            if ret == 0:
-                logger.info("Succeeded to add satellite ohsnap tools repo.")
-            else:
-                raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
+            if tool_src is None or "sattool" in tool_src:
+            # check if host registered to cdn server
+                if self.os_serial == "6":
+                    cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                        '[sat6-tools]\n'
+                        'name=Satellite 6 Tools\n'
+                        'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
+                        'enabled=1\n'
+                        'gpgcheck=0\n'
+                        'EOF'
+                        )
+                else:
+                    cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                        '[sat6-tools]\n'
+                        'name=Satellite 6 Tools\n'
+                        'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL7/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL7_Satellite_Tools_x86_64_os/\n'
+                        'enabled=1\n'
+                        'gpgcheck=0\n'
+                        'EOF'
+                        )
+                ret, output = self.runcmd(cmd, "add satellite ohsnap tools repo", targetmachine_ip)
+                if ret == 0:
+                    logger.info("Succeeded to add satellite ohsnap tools repo.")
+                else:
+                    raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
         if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
             self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
