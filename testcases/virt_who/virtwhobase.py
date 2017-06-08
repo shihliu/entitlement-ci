@@ -41,6 +41,7 @@ class VIRTWHOBase(Base):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
         server_compose = get_exported_param("SERVER_COMPOSE")
+        hypervisor_type = get_exported_param("HYPERVISOR_TYPE")
         tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
@@ -73,7 +74,8 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to add satellite ohsnap tools repo.")
             else:
                 raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
-        self.cm_update_system(targetmachine_ip)
+        if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
+            self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
