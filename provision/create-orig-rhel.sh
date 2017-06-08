@@ -53,7 +53,7 @@ else
    docker rmi registry.access.redhat.com/$IMAGE_NAME
    docker run --privileged -itd --name $IMAGE_NAME $IMAGE_NAME bash
    docker exec -i $IMAGE_NAME subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
-   docker exec -i $IMAGE_NAME yum install -y openssh-server net-tools passwd hostname
+   docker exec -i $IMAGE_NAME yum install -y openssh-server openssh-clients net-tools passwd hostname
    docker commit $IMAGE_NAME $IMAGE_NAME
    docker stop $IMAGE_NAME
    docker rm $IMAGE_NAME
