@@ -52,12 +52,12 @@ else
    docker tag registry.access.redhat.com/$IMAGE_NAME $IMAGE_NAME
    docker rmi registry.access.redhat.com/$IMAGE_NAME
    docker run --privileged -itd --name $IMAGE_NAME $IMAGE_NAME bash
-   docker exec -i $IMAGE_NAME subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+   docker exec -i $IMAGE_NAME subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
    docker exec -i $IMAGE_NAME yum install -y openssh-server openssh-clients net-tools passwd hostname
    docker commit $IMAGE_NAME $IMAGE_NAME
    docker stop $IMAGE_NAME
    docker rm $IMAGE_NAME
-   #docker run -it $IMAGE_NAME subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+   #docker run -it $IMAGE_NAME subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
    #CONATIMER_ID=`docker ps -a |grep $IMAGE_NAME|awk '{print $1}'`
    #echo "after register ,container id is " $CONATIMER_ID
    #docker commit $CONATIMER_ID $IMAGE_NAME

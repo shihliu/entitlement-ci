@@ -196,7 +196,7 @@ class VDSMBase(VIRTWHOBase):
     def config_vdsm_env_setup(self, rhel_compose, rhevm_version, targetmachine_ip=""):
     # System setup for RHEL+RHEVM testing env
         if not self.sub_isregistered(targetmachine_ip):
-            self.sub_register("qa@redhat.com", "uuV4gQrtG7sfMP3q", targetmachine_ip)
+            self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9", targetmachine_ip)
             self.sub_auto_subscribe(targetmachine_ip)
         self.cm_install_basetool(targetmachine_ip)
         self.set_rhevm_repo_file(rhel_compose, rhevm_version, targetmachine_ip)

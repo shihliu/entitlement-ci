@@ -99,7 +99,7 @@ class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
             # (1) Set hypervisor_id=uuid, and fitler_host_uuids, it will show host/guest uuid mapping info
             self.set_hypervisor_id_filter_host_uuids("hyperv", "uuid", host_uuid)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
-            self.vw_check_message_in_rhsm_log(hyperv_host_name, message_exists=False)
+#             self.vw_check_message_in_rhsm_log(hyperv_host_name, message_exists=False)
             # (2) Set hypervisor_id=hostname, and fitler_host_uuids, it will show host/guest name mapping info
             self.set_hypervisor_id_filter_host_uuids("hyperv", "hostname", hyperv_host_name)
             self.vw_check_mapping_info_in_rhsm_log(hyperv_host_name, guest_uuid)

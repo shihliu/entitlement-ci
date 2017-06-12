@@ -5,7 +5,7 @@ MAINTAINER "shihliu@redhat.com"
 #RUN setenforce 0
 #RUN sed -i -e 's/SELINUX=.*/SELINUX=permissive/g' /etc/sysconfig/selinux
 #RUN systemctl stop firewalld
-RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
 RUN yum install -y wget
 #RUN yum-config-manager --disable rhel-7-server-rt-beta-rpms rhel-7-server-tus-rpms
 RUN rpm -Uvh http://bob.eng.lab.tlv.redhat.com/builds/latest_4.1/rhv-release-latest-4.1.noarch.rpm

@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/rhel6.8:latest
 MAINTAINER "shihliu@redhat.com"
 
 # Register, subscribe and Install packages
-RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
 RUN yum install -y openssh-server net-tools wget hostname sudo
 RUN yum install -y java
 RUN yum install -y python-paramiko python-nose

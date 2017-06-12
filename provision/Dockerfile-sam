@@ -3,7 +3,7 @@ MAINTAINER "shihliu@redhat.com"
 
 #Install sam related package
 RUN subscription-manager clean
-RUN subscription-manager register --username=qa@redhat.com --password=uuV4gQrtG7sfMP3q --auto-attach
+RUN subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
 RUN subscription-manager repos --disable "*"
 RUN subscription-manager repos --enable=rhel-6-server-rpms --enable=rhel-6-server-sam-rpms
 RUN yum install -y katello-headpin-all

@@ -9,6 +9,7 @@ class tc_ID1076_check_log_and_thread_after_unregister_and_re_register(VIRTWHOBas
         try:
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             # (1).Unregister host,check virt-who log and threads
+            self.runcmd_service("restart_virtwho")
             cmd_unreg = "subscription-manager unregister"
             self.vw_check_message_in_rhsm_log("BadStatusLine|Interrupted system call", message_exists=False, checkcmd=cmd_unreg)
             self.check_virtwho_thread(1)
