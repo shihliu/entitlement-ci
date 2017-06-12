@@ -90,9 +90,9 @@
             echo "Pinging Test Resources"
             cat $WORKSPACE/RESOURCES.txt
             # echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/install
-            nosetests satellite62_install.py
-            popd
+            #pushd $WORKSPACE/entitlement-ci/testcases/install
+            #nosetests satellite62_install.py
+            #popd
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt

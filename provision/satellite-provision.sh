@@ -31,48 +31,51 @@ if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then 
 else IMAGE_NAME="sat-cdn";fi
 CONTAINER_NAME=$IMAGE_NAME".redhat.com"
 
-# Make satellite container and get its ip
+# Make satellite-ohsnap container and get its ip
 #(1) Delete existed satellite container to create a new one
-docker ps -a|grep $CONTAINER_NAME
-isRhelExist=$?
-if [ $isRhelExist -eq 0 ]
+if [ "$RHEL_COMPOSE" == "release" ]
 then
-   echo $CONTAINER_NAME "is exist!need to delete to create new one"
-   docker stop $CONTAINER_NAME
-   docker rm $CONTAINER_NAME
-fi
-echo "begin to test container hostname"
-docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
-issuccess=$?
-if [ $issuccess -eq 0 ]
-then
-   echo $CONTAINER_NAME "success to create!"
+  docker ps -a|grep $CONTAINER_NAME
+  isRhelExist=$?
+  if [ $isRhelExist -eq 0 ]
+  then
+     echo $CONTAINER_NAME "is exist!need to delete to create new one"
+     docker stop $CONTAINER_NAME
+     docker rm $CONTAINER_NAME
+  fi
+  echo "begin to test container hostname"
+  docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+  issuccess=$?
+  if [ $issuccess -eq 0 ]
+  then
+     echo $CONTAINER_NAME "success to create!"
+  else
+     echo "Failed to create" $CONTAINER_NAME
+  fi
+  pipework br0  $CONTAINER_NAME  dhclient
+  docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
+  #SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 else
-   echo "Failed to create" $CONTAINER_NAME
+  #(2) Don't delete existed satellite release container
+  docker ps -a|grep $CONTAINER_NAME
+  isRhelExist=$?
+  if [ $isRhelExist -eq 0 ]
+  then
+     echo $CONTAINER_NAME "is exist!needn't to delete it"
+  else
+     echo "begin to test container hostname"
+     docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+     issuccess=$?
+     if [ $issuccess -eq 0 ]
+     then
+        echo $CONTAINER_NAME "success to create!"
+     else
+        echo "Failed to create" $CONTAINER_NAME
+     fi
+     pipework br0  $CONTAINER_NAME  dhclient
+     docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
+  fi
 fi
-pipework br0  $CONTAINER_NAME  dhclient
-docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
-#SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-
-#(2) Don't delete existed satellite container
-#docker ps -a|grep $CONTAINER_NAME
-#isRhelExist=$?
-#if [ $isRhelExist -eq 0 ]
-#then
-#   echo $CONTAINER_NAME "is exist!needn't to delete it"
-#else
-#   echo "begin to test container hostname"
-#   docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
-#   issuccess=$?
-#   if [ $issuccess -eq 0 ]
-#   then
-#      echo $CONTAINER_NAME "success to create!"
-#   else
-#      echo "Failed to create" $CONTAINER_NAME
-#   fi
-#   pipework br0  $CONTAINER_NAME  dhclient
-#   docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
-#fi
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
