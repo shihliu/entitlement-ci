@@ -268,7 +268,7 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("---------- succeed to restore environment ----------")
 

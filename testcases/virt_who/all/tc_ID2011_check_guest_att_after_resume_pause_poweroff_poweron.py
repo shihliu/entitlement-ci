@@ -372,7 +372,7 @@ class tc_ID2011_check_guest_att_after_resume_pause_poweroff_poweron(VIRTWHOBase)
             self.xen_start_guest(guest_name, xen_host_ip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("---------- succeed to restore environment ----------")
 
     def test_run(self):

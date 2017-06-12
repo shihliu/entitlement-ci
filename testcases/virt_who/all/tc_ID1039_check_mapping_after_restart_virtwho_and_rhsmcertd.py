@@ -120,7 +120,7 @@ class tc_ID1039_check_mapping_after_restart_virtwho_and_rhsmcertd(VIRTWHOBase):
             # (3) Check host/guest mapping info is exist after restart virt-who 
             self.hypervisor_check_uuid(hostuuid, guestuuid)
         finally:
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("---------- succeed to restore environment ----------")
 
     def test_run(self):

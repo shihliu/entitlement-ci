@@ -295,7 +295,7 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
             self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
         finally:
             self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("---------- succeed to restore environment ----------")

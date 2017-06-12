@@ -54,12 +54,12 @@
             export SERVER_TYPE="SAM"
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision RHEL6.8 base img
-            $WORKSPACE/entitlement-ci/provision/create-sam-baseimg.sh
+            #$WORKSPACE/entitlement-ci/provision/create-sam-baseimg.sh
             # ***********Auto provision SAM Test Resources(Need it when auto create SAM)******
             #$WORKSPACE/entitlement-ci/provision/sam-provision.sh
             # *****************************************************       
             # Manual provision SAM Test Resources    
-            export SERVER_IP=10.66.128.61
+            export SERVER_IP=10.66.128.55
             export SERVER_HOSTNAME=samserv.redhat.com
             export SERVER_COMPOSE=Check CDN Repo
             echo SERVER_IP=$SERVER_IP>>RESOURCES.txt
@@ -132,7 +132,7 @@
              condition: 'SUCCESS'
              property-file: $WORKSPACE/SERVER.txt
              fail-on-missing: true
-           - project: 'virt-who-remote-libvirt-runtest'
+           - project: 'virt-who-remote-libvirt-provision'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/SERVER.txt

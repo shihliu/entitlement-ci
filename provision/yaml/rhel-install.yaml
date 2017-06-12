@@ -144,7 +144,7 @@
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
           current-parameters: false
-        - project: virt-who-remote-libvirt-runtest
+        - project: virt-who-remote-libvirt-provision
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
           current-parameters: false        

@@ -289,7 +289,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             self.server_remove_system(host_uuid, SERVER_IP)
         finally:
             self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             self.unset_all_virtwho_d_conf()
             self.set_xen_conf()
             self.runcmd_service("restart_virtwho")

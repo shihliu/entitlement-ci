@@ -142,8 +142,10 @@
             cat $WORKSPACE/RESOURCES.txt
             # Provision Test Resources
             echo "********************************runtime env********************************"
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            #env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            #env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+            env | grep -E '(SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
@@ -199,33 +201,33 @@
         then 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
-          #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
+          #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWNEWRUN.txt
           #  export VIRTWHO_SRC=rhel6.8-sattool
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           #then
              export VIRTWHO_SRC=rhel7.3-sattool
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/RHEVMNEWRUN.txt
+             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
           elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
           then
              export VIRTWHO_SRC=rhel6.9-original
-             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/RHEVMNEWRUN.txt         
+             echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt         
           elif [ "$VIRTWHO_SRC"x = "rhel6.9-original"x ]
           then
           #   export VIRTWHO_SRC=rhel6.8-original
-          #   echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/RHEVMNEWRUN.txt   
+          #   echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt   
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
           #then
              export VIRTWHO_SRC=rhel7.3-original
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/RHEVMNEWRUN.txt 
+             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
-             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/RHEVMNEWRUN.txt
+             echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
           else
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
-             rm -rf $WORKSPACE/RHEVMNEWRUN.txt
+             rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
           fi
         else
           export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
-          rm -rf $WORKSPACE/RHEVMNEWRUN.txt
+          rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
@@ -240,7 +242,7 @@
     - inject:
         properties-file: $WORKSPACE/RESOURCES.txt
     - inject:
-        properties-file: $WORKSPACE/RHEVMNEWRUN.txt
+        properties-file: $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
     publishers:
     - archive:
         artifacts: '**/**'
@@ -249,7 +251,7 @@
     - default-virt-who-publishers
     - trigger-parameterized-builds:
       - project: virt-who-remote-libvirt-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/RHEVMNEWRUN.txt
+        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         fail-on-missing: true
         current-parameters: false
         #condition: ALWAYS

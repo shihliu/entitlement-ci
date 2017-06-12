@@ -122,7 +122,7 @@
              condition: 'SUCCESS'
              property-file: $WORKSPACE/SERVER.txt
              fail-on-missing: true
-           - project: 'virt-who-remote-libvirt-runtest'
+           - project: 'virt-who-remote-libvirt-provision'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/SERVER.txt

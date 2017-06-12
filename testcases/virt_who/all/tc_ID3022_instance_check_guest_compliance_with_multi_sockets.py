@@ -436,7 +436,7 @@ class tc_ID3022_instance_check_guest_compliance_with_multi_sockets(VIRTWHOBase):
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("---------- succeed to restore environment ----------")
 
     def test_run(self):

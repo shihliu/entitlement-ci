@@ -348,7 +348,7 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             # unsubscribe all subscriptions on  hypervisor
             self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("---------- succeed to restore environment ----------")

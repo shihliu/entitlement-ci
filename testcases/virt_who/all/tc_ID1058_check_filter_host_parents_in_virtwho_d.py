@@ -134,7 +134,7 @@ class tc_ID1058_check_filter_host_parents_in_virtwho_d(VIRTWHOBase):
         finally:
             self.unset_all_virtwho_d_conf()
             self.set_xen_conf()
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 

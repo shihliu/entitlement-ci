@@ -211,7 +211,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("---------- succeed to restore environment ----------")
 
     def test_run(self):

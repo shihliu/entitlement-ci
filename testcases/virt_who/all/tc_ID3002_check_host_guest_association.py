@@ -106,7 +106,7 @@ class tc_ID3002_check_host_guest_association(VIRTWHOBase):
             # (3) Check host/guest mappping info
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
         finally:
-            self.xen_stop_guest(guest_name, xen_host_ip)
+#             self.xen_stop_guest(guest_name, xen_host_ip)
             logger.info("---------- succeed to restore environment ----------")
 
     def test_run(self):
