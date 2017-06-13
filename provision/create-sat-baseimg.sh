@@ -44,6 +44,7 @@ else
    docker tag $IMAGE_NAME $IMAGE_NAME'-slave'
 fi
 
+:<<eof
 # Make satellite62 or satellite62-ohsnap base img
 if [ "$RHEL_COMPOSE" == "release" ]
 then
@@ -102,3 +103,4 @@ else
 fi
 
 popd
+eof
