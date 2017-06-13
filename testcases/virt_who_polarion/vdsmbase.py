@@ -188,7 +188,8 @@ class VDSMBase(VIRTWHOBase):
         rhevm_version = self.cm_get_rpm_version("rhevm", targetmachine_ip)
         if "rhevm-4" in rhevm_version:
             logger.info("It is rhevm4.X build, need to use 'list vms'")
-            return "list vms %s --show-all" % vm_name
+            #return "list vms %s --show-all" % vm_name
+            return "list vms --query name=%s --show-all" % vm_name
         else:
             logger.info("It is rhevm3.X build, need to use 'show vm'")
             return "show vm %s" % vm_name
