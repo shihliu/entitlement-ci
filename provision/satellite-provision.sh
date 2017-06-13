@@ -33,6 +33,7 @@ CONTAINER_NAME=$IMAGE_NAME".redhat.com"
 
 # Make satellite-ohsnap container and get its ip
 #(1) Delete existed satellite container to create a new one
+:<<eof
 if [ "$RHEL_COMPOSE" == "release" ]
 then
   docker ps -a|grep $CONTAINER_NAME
@@ -56,6 +57,7 @@ then
   docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
   #SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 else
+eof
   #(2) Don't delete existed satellite release container
   docker ps -a|grep $CONTAINER_NAME
   isRhelExist=$?

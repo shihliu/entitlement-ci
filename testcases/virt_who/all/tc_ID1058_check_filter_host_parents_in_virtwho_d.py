@@ -23,8 +23,21 @@ class tc_ID1058_check_filter_host_parents_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            self.runcmd_service("stop_virtwho")
+            self.vw_define_guest(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+
+            # (1) Set Filter_hosts_parents, it will show error info,it will filter host/guest mapping info
+            self.set_filter_host_parents("libvirt", "host_parents")
+            self.vw_check_message_in_rhsm_log("filter_host_parents is not supported in libvirt mode, ignoring it", message_exists=True)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):
