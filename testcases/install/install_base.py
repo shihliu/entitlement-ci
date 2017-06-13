@@ -72,7 +72,7 @@ class Install_Base(Base):
 #         self.__add_satellite_ohsnap_repo(compose, targetmachine_ip)
 #         self.__install_satellite62(targetmachine_ip)
         self.__deploy_satellite62(targetmachine_ip)
-        self.__import_manifest_satellite(targetmachine_ip)
+        #self.__import_manifest_satellite(targetmachine_ip)
 
     def install_rhevm35(self, compose, targetmachine_ip=""):
         self.cm_install_wget(targetmachine_ip)
