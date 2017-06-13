@@ -29,7 +29,7 @@ done
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then IMAGE_NAME="satellite62-ohsnap"; \
 else IMAGE_NAME="sat-cdn";fi
-CONTAINER_NAME=$IMAGE_NAME".newredhat.com"
+CONTAINER_NAME=$IMAGE_NAME".redhat.com"
 
 # Make satellite-ohsnap container and get its ip
 #(1) Delete existed satellite container to create a new one
