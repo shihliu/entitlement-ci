@@ -2796,7 +2796,10 @@ class VIRTWHOBase(Base):
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
         self.vw_start_guests(guest_name, targetmachine_ip)
         guestip = self.kvm_get_guest_ip(guest_name, targetmachine_ip)
-        self.cm_change_hostname(guestip)
+        if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE"):
+            self.cm_change_static_guestname(guestip) 
+        else:    
+            self.cm_change_hostname(guestip)
         self.vw_stop_guests(guest_name, targetmachine_ip)
 
     # ========================================================
@@ -3935,7 +3938,8 @@ class VIRTWHOBase(Base):
         while True:
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, targetmachine_ip)
             try:
-                self.cm_change_hostname(guestip)
+#                 self.cm_change_hostname(guestip)
+                self.cm_change_static_guestname(guestip)
                 logger.info("Succeeded to change rhevm guest hostname")
                 break
             except Exception, e:

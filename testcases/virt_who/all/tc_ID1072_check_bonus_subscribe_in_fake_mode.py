@@ -53,8 +53,54 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            VIRTWHO_OWNER = self.get_vw_cons("server_owner")
+            VIRTWHO_ENV = self.get_vw_cons("server_env")
+            fake_file = "/tmp/fake_file"
+            fake_config_file = "/etc/virt-who.d/fake.conf"
+            self.config_option_disable("VIRTWHO_LIBVIRT")
+
+            test_sku = self.get_vw_cons("productid_unlimited_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_name = self.get_vw_cons("productname_unlimited_guest")
+
+            # start guest
+            self.vw_start_guests(guest_name, remote_ip_1)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
+    
+            # stop virt-who service
+            self.runcmd_service("stop_virtwho")
+
+            # (1) generate fake file
+            self.generate_fake_file("kvm", fake_file)
+
+            # (2) configure fake mode on host1
+            self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
+
+            # (3) restart virt-who service and make virt-who run at fake mode
+            self.runcmd_service("restart_virtwho")
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+            # (4) Subscribe hypervisor
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            # (5) subscribe the registered guest to the corresponding bonus pool
+            self.sub_subscribe_to_bonus_pool(test_sku, guestip)
+            # (6) list consumed subscriptions on guest
+            self.sub_listconsumed(sku_name, guestip)
         finally:
+            self.sub_unregister(guestip)
+            self.vw_stop_guests(guest_name, remote_ip_1)
+            self.unset_virtwho_d_conf(fake_file)
+            self.unset_virtwho_d_conf(fake_config_file)
+            self.config_option_enable("VIRTWHO_LIBVIRT")
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

@@ -14,8 +14,12 @@ class tc_ID2004_no_guest_on_hypervisor(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            self.vw_undefine_all_guests(remote_ip_1)
+            # (1)check if the uuid is correctly monitored by virt-who.
+            self.vw_check_uuid("", uuidexists=True)
         finally:
+            self.vw_define_all_guests(remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

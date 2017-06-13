@@ -28,8 +28,28 @@ class tc_ID1060_check_filter_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            self.runcmd_service("stop_virtwho")
+            self.vw_define_guest(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            host_uuid_sec = "test"
+            self.config_option_disable("VIRTWHO_LIBVIRT")
+
+            # (1) Set filter_host_uuid=host_uuid and exclude_host_uuid=host_uuid_sec, it will show host_uuid not host_uuid_sec
+            self.set_filter_exclude_host_uuids("libvirt", host_uuid, host_uuid_sec)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, uuid_exist=False)
+            # (2) Set filter_host_uuid=host_uuid_sec and exclude_host_uuid=host_uuid_sec, it will not show host_uuid and host_uuid_sec
+            self.set_filter_exclude_host_uuids("libvirt", host_uuid_sec, host_uuid)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, uuid_exist=False)
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
+            self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

@@ -45,6 +45,7 @@ class tc_ID1065_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
             guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
             host_name = self.get_hostname(remote_ip_1)
+            self.config_option_disable("VIRTWHO_LIBVIRT")
 
             # (1) Set hypervisor_id=uuid, it will show uuid 
             self.set_hypervisor_id("libvirt", "uuid")
@@ -57,6 +58,7 @@ class tc_ID1065_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
             self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in libvirt backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
         finally:
             self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
             self.runcmd_service("restart_virtwho")
             self.sub_unregister()
             if not self.sub_isregistered():

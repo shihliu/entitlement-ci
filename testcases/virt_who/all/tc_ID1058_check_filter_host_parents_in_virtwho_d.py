@@ -30,6 +30,7 @@ class tc_ID1058_check_filter_host_parents_in_virtwho_d(VIRTWHOBase):
             self.runcmd_service("stop_virtwho")
             self.vw_define_guest(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            self.config_option_disable("VIRTWHO_LIBVIRT")
 
             # (1) Set Filter_hosts_parents, it will show error info,it will filter host/guest mapping info
             self.set_filter_host_parents("libvirt", "host_parents")
@@ -37,6 +38,7 @@ class tc_ID1058_check_filter_host_parents_in_virtwho_d(VIRTWHOBase):
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
         finally:
             self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 

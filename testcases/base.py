@@ -23,6 +23,15 @@ class Base(unittest.TestCase):
             cmd = "sed -i 's/^HOSTNAME=.*/HOSTNAME=%s/g' /etc/sysconfig/network" % new_hostname
         (ret, output) = self.runcmd(cmd, "change hostname as %s" % new_hostname, targetmachine_ip)
 
+    def cm_change_static_guestname(self, targetmachine_ip=""):
+        suffix = time.strftime("%m%H%M%S")
+        new_hostname = "6.8_Server_x86_64" + "-" + suffix
+        if self.get_os_serials(targetmachine_ip) == 7:
+            cmd = "hostnamectl --static set-hostname %s" % new_hostname
+        else:
+            cmd = "sed -i 's/^HOSTNAME=.*/HOSTNAME=%s/g' /etc/sysconfig/network" % new_hostname
+        (ret, output) = self.runcmd(cmd, "change hostname as %s" % new_hostname, targetmachine_ip)
+
     def cm_get_consumerid(self, targetmachine_ip=""):
         # get consumer id: system identity
         cmd = "subscription-manager identity | grep identity"

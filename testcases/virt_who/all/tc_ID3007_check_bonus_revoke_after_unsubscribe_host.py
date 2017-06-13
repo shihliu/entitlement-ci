@@ -43,8 +43,41 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+
+            test_sku = self.get_vw_cons("productid_unlimited_guest")
+            bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
+            sku_name = self.get_vw_cons("productname_unlimited_guest")
+
+            self.vw_start_guests(guest_name, remote_ip_1)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
+            self.runcmd_service("restart_virtwho")
+
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+            # (1) Validate guest consumed bonus pool will revoke after remove consumed sku on host
+            # Subscribe hypervisor
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            # subscribe the registered guest to the corresponding bonus pool
+            self.sub_subscribe_to_bonus_pool(test_sku, guestip)
+            # list consumed subscriptions on guest
+            self.sub_listconsumed(sku_name, guestip)
+            # unsubscribe all consumed sku on hosts
+            self.sub_unsubscribe()
+            # list consumed subscriptions on guest
+            self.sub_refresh(guestip)
+            self.sub_listconsumed(sku_name, guestip, productexists=False)
         finally:
+            self.sub_unregister(guestip)
+            # register host
+            self.sub_register(SERVER_USER, SERVER_PASS)
+            self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

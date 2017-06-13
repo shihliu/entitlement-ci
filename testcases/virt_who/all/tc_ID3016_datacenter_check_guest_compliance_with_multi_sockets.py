@@ -62,8 +62,63 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+
+            host_test_sku = self.get_vw_cons("datacenter_sku_id")
+            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
+            bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
+            sku_name = self.get_vw_cons("datacenter_name")
+
+            self.vw_start_guests(guest_name, remote_ip_1)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
+            self.runcmd_service("restart_virtwho")
+
+            # register guest to SAM
+            if not self.sub_isregistered(guestip):
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
+                self.sub_register(SERVER_USER, SERVER_PASS, guestip)
+            # host subscribe datacenter pool
+            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+
+            # Set up guest facts
+            self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
+
+            # (1).subscribe guest to unspecify datacenter pool
+            gpoolid = self.get_pool_by_SKU(guest_bonus_sku, guestip)
+            self.sub_subscribetopool(gpoolid, guestip)
+            # check consumed subscriptions' quality, should be 1 on guest 
+            consumed_quantity_key = "QuantityUsed"
+            consumed_quantity_value = "1"
+            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, guestip)
+            # check consumed subscription with Status Details: 'Subscription is current'
+            self.check_consumed_status(guest_bonus_sku, "StatusDetails", "Subscription is current", guestip)
+            # .check the Status of installed product, should be 'Subscribed' status
+            installed_status_key = "Status"
+            installed_status_value = "Subscribed"
+            self.check_installed_status(installed_status_key, installed_status_value, guestip)
+
+            # (2).subscribe the registered guest to 1 bonus pool
+            self.sub_unsubscribe(guestip)
+            self.sub_limited_subscribetopool(gpoolid, "1", guestip)
+            # check consumed subscriptions' quality, should be 1 on guest 
+            consumed_quantity_key = "QuantityUsed"
+            consumed_quantity_value = "1"
+            self.check_consumed_status(guest_bonus_sku, consumed_quantity_key, consumed_quantity_value, guestip)
+            # .check the Status of installed product, should be 'Subscribed' status
+            installed_status_key = "Status"
+            installed_status_value = "Subscribed"
+            self.check_installed_status(installed_status_key, installed_status_value, guestip)
         finally:
+            self.restore_facts(guestip)
+            if guestip != None and guestip != "":
+                self.sub_unregister(guestip)
+            # unsubscribe host
+            self.sub_unsubscribe()
+            self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):

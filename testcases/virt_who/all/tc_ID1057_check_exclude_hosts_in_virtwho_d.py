@@ -56,6 +56,7 @@ class tc_ID1057_check_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             self.vw_define_guest(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
             host_uuid_sec = "test"
+            self.config_option_disable("VIRTWHO_LIBVIRT")
 
             # (1) Exclude_host_uuid=host_uuid, check host_uuid will not send.
             self.set_exclude_host_uuids("libvirt", host_uuid)
@@ -87,6 +88,7 @@ class tc_ID1057_check_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             self.vw_check_mapping_info_in_rhsm_log(host_uuid_sec, "", uuid_exist=False)
         finally:
             self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 

@@ -36,8 +36,36 @@ class tc_ID1068_check_hypervisor_id_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            self.skipTest("test case skiped, not fit for vdsm ...")
+            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+
+            guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
+            remote_ip_1 = get_exported_param("REMOTE_IP_1")
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
+
+            self.runcmd_service("stop_virtwho")
+            self.vw_define_guest(guest_name, remote_ip_1)
+            host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
+            host_name_sec = "test"
+            self.config_option_disable("VIRTWHO_LIBVIRT")
+
+            # (1) Set hypervisor_id=uuid, and exclude_host_uuids, it will not show host/guest uuid mapping info
+            self.set_hypervisor_id_exclude_host_uuids("libvirt", "uuid", host_uuid)
+            self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid, uuid_exist=False)
+            # (2) Set hypervisor_id=hostname, and exclude_host_uuids, it will not show host/guest name mapping info
+            self.set_hypervisor_id_exclude_host_uuids("libvirt", "hostname", host_name)
+            self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid, uuid_exist=False)
+            # (3) Set hypervisor_id=hostname, and exclude_host_uuids is not exist, it will show host/guest name mapping info
+            self.set_hypervisor_id_exclude_host_uuids("libvirt", "hostname", host_name_sec)
+            self.vw_check_mapping_info_in_rhsm_log(host_name, guest_uuid)
         finally:
+            self.unset_all_virtwho_d_conf()
+            self.config_option_enable("VIRTWHO_LIBVIRT")
+            self.runcmd_service("restart_virtwho")
+            self.sub_unregister()
+            if not self.sub_isregistered():
+                self.configure_server(SERVER_IP, SERVER_HOSTNAME)
+                self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("---------- succeed to restore environment ----------")
 
     def run_vdsm(self):
