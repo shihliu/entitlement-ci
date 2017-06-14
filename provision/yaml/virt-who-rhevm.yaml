@@ -284,6 +284,7 @@
         export REMOTE_IP=hp-z220-15.qe.lab.eng.nay.redhat.com
         export REMOTE_IP_2=hp-z220-16.qe.lab.eng.nay.redhat.com
         export HYPERVISOR_TYPE=rhevm
+        export RHEL_COMPOSE=RHEVH
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
         #export RHEL_COMPOSE=
