@@ -141,6 +141,11 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
+        - inject:
+            properties-file: $WORKSPACE/RHEVHTRIGGER.txt
+        - inject:
+            properties-file: $WORKSPACE/NOTRHEVHTRIGGER.txt
+
     publishers:
        - archive:
           artifacts: '**/**'
@@ -148,14 +153,16 @@
        - trigger-parameterized-builds:
            - project: 'virt-who-rhev-provision'
              current-parameters: false
-             condition: 'SUCCESS'
-             property-file: $WORKSPACE/RESOURCES.txt
+             #condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
+             current-parameters: false
            - project: 'virt-who-rhevh-runtest'
              current-parameters: false
-             condition: 'SUCCESS'
-             property-file: $WORKSPACE/RESOURCES.txt
+             #condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt, $WORKSPACE/RHEVHTRIGGER.txt
              fail-on-missing: true
+             current-parameters: false
 
 - job-group:
     name: rhevm-install-provision-runtest
@@ -163,6 +170,7 @@
       - 'rhevm-install-provision'
       - 'rhevm-install-runtest'
       - 'rhevm-install-runtest-start'
+      - 'virt-who-rhevh-runtest'
       
 - project:
     name: rhevm-install-jobs

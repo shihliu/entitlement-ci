@@ -292,34 +292,13 @@
         #export SERVER_TYPE=
         #export SERVER_HOSTNAME=
         echo "*********************************setup env*********************************"
-        if [ "$RHEL_COMPOSE" == "release" ]
-        then
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion//
+        nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        popd
 
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/satellite/rhevm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
-        elif [ "$RHEL_COMPOSE" == "RHEVH" ]
-        then
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who_polarion//
-            nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
-
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/satellite/rhevm/
-            nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
-        else
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/
-              nosetests virtwho_rhel_rhevm_setup.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd
-
-            pushd $WORKSPACE/entitlement-ci/testcases/virt_who/all/
-              export HYPERVISOR_TYPE=rhevm
-              nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
-            popd 
-        fi
+        pushd $WORKSPACE/entitlement-ci/testcases/virt_who/satellite/rhevm/
+        nosetests *.py --with-xunit --xunit-file=$WORKSPACE/nosetests.xml
+        popd
         echo "************************check trigger condition of another rhevm*****************" 
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         if [ "$RHEL_COMPOSE" == "release" ]

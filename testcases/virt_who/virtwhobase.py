@@ -2968,6 +2968,35 @@ class VIRTWHOBase(Base):
         # change target guest host name, or else satellite testing will fail due to same name
         self.rhevm_change_guest_name(guest_name, rhevm_ip)
 
+#     def rhevh_rhevm_sys_setup(self, targetmachine_ip=""):
+#         self.sys_setup(targetmachine_ip)
+#         rhevm_ip = get_exported_param("RHEVM_IP") 
+#         rhel_rhevm_guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
+#         guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
+#         rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+#         nfs_ip = get_exported_param("REMOTE_IP")
+#         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
+#         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
+#         rhel_compose = get_exported_param("RHEL_COMPOSE")
+#         # self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+#         self.install_vdsm_package(rhel_compose)
+#         self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
+#         self.conf_rhevm_shellrc(rhevm_ip)
+#         self.conf_cluster_cpu("Default", "Intel Conroe Family", rhevm_ip)
+#         self.rhevm_add_host(rhevm_host1_name, get_exported_param("REMOTE_IP"), rhevm_ip)
+#         self.rhevm_add_host(rhevm_host2_name, get_exported_param("REMOTE_IP_2"), rhevm_ip)
+#         self.add_storagedomain_to_rhevm("data_storage", rhevm_host1_name, "data", "v3", nfs_ip, nfs_dir_for_storage, rhevm_ip)
+#         self.add_storagedomain_to_rhevm("export_storage", rhevm_host1_name, "export", "v1", nfs_ip, nfs_dir_for_export, rhevm_ip)
+#         self.add_vm_to_rhevm(rhel_rhevm_guest_name, guest_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
+#         self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
+#         self.update_vm_name(rhel_rhevm_guest_name, guest_name, rhevm_ip)
+#         if "rhevm-3.5" not in self.rhevm_version:
+#             if self.vdsm_check_vm_nw(guest_name, "eth0", rhevm_ip) is True:
+#                 self.vdsm_rm_vm_nw(guest_name, "eth0", rhevm_ip)
+#                 self.vdsm_add_vm_nw(guest_name, rhevm_ip)
+#         # change target guest host name, or else satellite testing will fail due to same name
+#         self.rhevm_change_guest_name(guest_name, rhevm_ip)
+
     def rhel_rhevm_static_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEVM_HOST1_IP = get_exported_param("RHEVM_HOST1_IP")
@@ -3146,13 +3175,14 @@ class VIRTWHOBase(Base):
         self.stop_firewall(targetmachine_ip)
 
     def install_vdsm_package(self, rhel_compose, targetmachine_ip=""):
-        cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
-        ret, output = self.runcmd(cmd, "install virtualization related packages", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            logger.info("Succeeded to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
-        else:
-            raise FailException("Test Failed - Failed to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
-        self.set_rhevm_repo_file(rhel_compose, targetmachine_ip)
+        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
+            cmd = "yum install -y @virtualization-client @virtualization-hypervisor @virtualization-platform @virtualization-tools @virtualization nmap net-tools bridge-utils rpcbind qemu-kvm-tools"
+            ret, output = self.runcmd(cmd, "install virtualization related packages", targetmachine_ip, showlogger=False)
+            if ret == 0:
+                logger.info("Succeeded to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
+            else:
+                raise FailException("Test Failed - Failed to install virtualization related packages in %s" % self.get_hg_info(targetmachine_ip))
+            self.set_rhevm_repo_file(rhel_compose, targetmachine_ip)
         cmd = "yum install -y vdsm"
         ret, output = self.runcmd(cmd, "install vdsm and related packages", targetmachine_ip, showlogger=False)
         if ret == 0:
