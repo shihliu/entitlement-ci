@@ -35,7 +35,7 @@
 
 - job-template:
     name: 'sam-install-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
     node: docker-server
     builders:
         - shell: |
@@ -85,7 +85,7 @@
             fail-on-missing: true
 - job-template:
     name: 'sam-install-runtest'
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
         - copyartifact:

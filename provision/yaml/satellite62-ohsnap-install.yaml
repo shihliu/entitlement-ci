@@ -35,7 +35,7 @@
 
 - job-template:
     name: 'satellite62-ohsnap-install-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
     node: docker-server
     builders:
         - shell: |
@@ -80,7 +80,7 @@
 
 - job-template:
     name: 'satellite62-ohsnap-install-runtest'
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
         - copyartifact:

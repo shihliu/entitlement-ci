@@ -99,7 +99,7 @@
 
 - job-template:
     name: 'virt-who-rhev-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
     node: docker-rhel7
     builders:
         - shell: |
@@ -161,7 +161,7 @@
 
 - job-template:
     name: virt-who-rhev-runtest
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     - copyartifact:
@@ -269,7 +269,7 @@
 
 - job-template:
     name: virt-who-rhevh-runtest
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     #- copyartifact:
@@ -345,12 +345,12 @@
         allow-empty: 'true'
     - default-virt-who-runtest-publishers
     - default-virt-who-publishers
-    - trigger-parameterized-builds:
-      - project: virt-who-rhev-provision
-        property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/RHEVMNEWRUN.txt
-        fail-on-missing: true
-        current-parameters: false
-        #condition: ALWAYS
+#     - trigger-parameterized-builds:
+#       - project: virt-who-rhev-provision
+#         property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/RHEVMNEWRUN.txt
+#         fail-on-missing: true
+#         current-parameters: false
+#         #condition: ALWAYS
 
           
 - job-group:
@@ -358,6 +358,7 @@
     jobs:
     - virt-who-rhev-provision
     - virt-who-rhev-runtest
+    - virt-who-rhevh-runtest
 - project:
     name: virt-who-rhevm-jobs
     project: virt-who-rhevm

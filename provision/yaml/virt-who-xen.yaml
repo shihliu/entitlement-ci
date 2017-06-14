@@ -96,7 +96,7 @@
 
 - job-template:
     name: 'virt-who-xen-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
     node: docker-rhel7
     builders:
         - shell: |
@@ -158,7 +158,7 @@
 
 - job-template:
     name: virt-who-xen-runtest
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     - copyartifact:

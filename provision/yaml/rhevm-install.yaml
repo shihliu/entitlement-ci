@@ -35,7 +35,7 @@
 
 - job-template:
     name: 'rhevm-install-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
 #    node: docker-rhel7-3
     node: docker-rhel7
     builders:
@@ -67,7 +67,7 @@
 
 - job-template:
     name: 'rhevm-install-runtest'
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
 #    node: docker-rhel7-3
     node: docker-rhel7
     builders:
@@ -97,11 +97,11 @@
           artifacts: '**/**'
           allow-empty: 'true'
        - trigger-parameterized-builds:
-           - project: 'virt-who-rhev-provision'
-             current-parameters: false
-             condition: 'SUCCESS'
-             property-file: $WORKSPACE/RESOURCES.txt
-             fail-on-missing: true
+#            - project: 'virt-who-rhev-provision'
+#              current-parameters: false
+#              condition: 'SUCCESS'
+#              property-file: $WORKSPACE/RESOURCES.txt
+#              fail-on-missing: true
            - project: 'rhevm-install-runtest-start'
              current-parameters: false
              condition: 'SUCCESS'
@@ -110,7 +110,7 @@
 
 - job-template:
     name: 'rhevm-install-runtest-start'
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
         - copyartifact:
@@ -145,7 +145,6 @@
             properties-file: $WORKSPACE/RHEVHTRIGGER.txt
         - inject:
             properties-file: $WORKSPACE/NOTRHEVHTRIGGER.txt
-
     publishers:
        - archive:
           artifacts: '**/**'
@@ -153,16 +152,14 @@
        - trigger-parameterized-builds:
            - project: 'virt-who-rhev-provision'
              current-parameters: false
-             #condition: 'SUCCESS'
+             condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
-             current-parameters: false
            - project: 'virt-who-rhevh-runtest'
              current-parameters: false
              #condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt, $WORKSPACE/RHEVHTRIGGER.txt
              fail-on-missing: true
-             current-parameters: false
 
 - job-group:
     name: rhevm-install-provision-runtest

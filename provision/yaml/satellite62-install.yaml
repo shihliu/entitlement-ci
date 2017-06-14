@@ -35,7 +35,7 @@
 
 - job-template:
     name: 'satellite62-install-provision'
-    defaults: virt-who-provision
+    #defaults: virt-who-provision
     node: docker-server
     builders:
         - shell: |
@@ -76,7 +76,7 @@
 
 - job-template:
     name: 'satellite62-install-runtest'
-    defaults: virt-who-runtest
+    #defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
         - copyartifact:
@@ -93,6 +93,12 @@
             #pushd $WORKSPACE/entitlement-ci/testcases/install
             #nosetests satellite62_install.py
             #popd
+            if [ "$RHEL_COMPOSE"x = "RHEVH"x ]
+            then
+              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
+            else
+              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
+            fi
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt
             echo SERVER_HOSTNAME=$REMOTE_HOSTNAME >> $WORKSPACE/SERVER.txt
@@ -102,6 +108,10 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/SERVER.txt
+        - inject:
+            properties-file: $WORKSPACE/RHEVHTRIGGER.txt
+        - inject:
+            properties-file: $WORKSPACE/NOTRHEVHTRIGGER.txt
     publishers:
        - archive:
           artifacts: '**/**'
@@ -110,28 +120,29 @@
            - project: 'virt-who-esx-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/SERVER.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
            - project: 'virt-who-hyperv-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/SERVER.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
            - project: 'virt-who-xen-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/SERVER.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
            - project: 'virt-who-remote-libvirt-provision'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/SERVER.txt
+             property-file: $WORKSPACE/SERVER.txt, $WORKSPACE/NOTRHEVHTRIGGER.txt
              fail-on-missing: true
            - project: 'rhevm-install-runtest'
              current-parameters: false
-             condition: 'SUCCESS'
+             #condition: 'SUCCESS'
              property-file: $WORKSPACE/SERVER.txt
              fail-on-missing: true
+             current-parameters: false
 
 - job-group:
     name: satellite62-install-provision-runtest
