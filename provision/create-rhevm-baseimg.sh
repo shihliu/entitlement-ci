@@ -78,7 +78,7 @@ then
 else
    echo $RHEVMIMG_NAME "is not exist, start to create a new one"
    mv Dockerfile Dockerfile-bk
-   if [ "$RHEVMIMG_NAME" == "rhevm4" ]
+   if [ "$RHEVMIMG_NAME" == "rhevm4" ] ||  [ "$RHEVMIMG_NAME" == "rhevm4-rhevh" ]
    then
      mv Dockerfile-rhevm4 Dockerfile
      docker build -t $RHEVMIMG_NAME .
