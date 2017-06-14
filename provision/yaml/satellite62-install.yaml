@@ -1,41 +1,41 @@
-#- defaults:
-#    name: virt-who-provision
-#    description: |
-#        Managed by Jenkins Job Builder. Do not edit via web.
-#    concurrent: true
-#    scm:
-#        - git:
-#            url: 'https://github.com/shihliu/entitlement-ci'
-#            branches:
-#                - origin/master
-#            basedir: entitlement-ci
-#    wrappers:
-#        - default-virt-who-wrappers
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
 
-#- defaults:
-#    name: virt-who-runtest
-#    description: |
-#        Managed by Jenkins Job Builder. Do not edit via web.
-#    concurrent: true
-#    scm:
-#        - git:
-#            url: 'https://github.com/shihliu/entitlement-ci'
-#            branches:
-#                - origin/master
-#            basedir: entitlement-ci
-#    wrappers:
-#        - default-virt-who-wrappers
+- defaults:
+    name: virt-who-runtest
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
 
-#- wrapper:
-#    name: default-virt-who-wrappers
-#    wrappers:
-#        - ansicolor
-#        - workspace-cleanup
-#        - timestamps
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
 
 - job-template:
     name: 'satellite62-install-provision'
-    #defaults: virt-who-provision
+    defaults: virt-who-provision
     node: docker-server
     builders:
         - shell: |
@@ -76,7 +76,7 @@
 
 - job-template:
     name: 'satellite62-install-runtest'
-    #defaults: virt-who-runtest
+    defaults: virt-who-runtest
     node: 'satellite-slave'
     builders:
         - copyartifact:

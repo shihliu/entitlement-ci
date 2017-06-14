@@ -52,6 +52,7 @@ isSatExist=$?
 if [ $isSatExist -eq 0 ]
 then
    if [[ "$RHEL_COMPOSE" == "release" ]] || [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+   then
      echo $RHEVMIMG_NAME "is exist, we needn't to delete the old one then create new one"
    else
      #Delete all containers related to rhevm image

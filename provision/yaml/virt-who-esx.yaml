@@ -1,37 +1,37 @@
-# - defaults:
-#     name: virt-who-provision
-#     description: |
-#         Managed by Jenkins Job Builder. Do not edit via web.
-#     concurrent: true
-#     scm:
-#         - git:
-#             url: 'https://github.com/shihliu/entitlement-ci'
-#             branches:
-#                 - origin/master
-#             basedir: entitlement-ci
-#     wrappers:
-#         - default-virt-who-wrappers
-# 
-# - defaults:
-#     name: virt-who-runtest
-#     description: |
-#         Managed by Jenkins Job Builder. Do not edit via web.
-#     concurrent: true
-#     scm:
-#         - git:
-#             url: 'https://github.com/shihliu/entitlement-ci'
-#             branches:
-#                 - origin/master
-#             basedir: entitlement-ci
-#     wrappers:
-#         - default-virt-who-wrappers
-# 
-# - wrapper:
-#     name: default-virt-who-wrappers
-#     wrappers:
-#         - ansicolor
-#         - workspace-cleanup
-#         - timestamps
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+ 
+- defaults:
+    name: virt-who-runtest
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+ 
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
 
 - publisher:
     name: default-virt-who-runtest-publishers
@@ -96,7 +96,7 @@
 
 - job-template:
     name: 'virt-who-esx-provision'
-    #defaults: virt-who-provision
+    defaults: virt-who-provision
     node: docker-rhel7
     builders:
         - shell: |
@@ -165,7 +165,7 @@
 
 - job-template:
     name: virt-who-esx-runtest
-    #defaults: virt-who-runtest
+    defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
     - copyartifact:
