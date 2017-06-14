@@ -39,6 +39,9 @@ then
 	    #    RHEVMIMG_NAME="rhevm36"
 	    #fi
 	    RHEVMIMG_NAME="rhevm4"
+    elif [[ "$RHEL_COMPOSE" =~ "RHEVH" ]]
+    then 
+        RHEVMIMG_NAME="rhevm4-rhevh"	
     elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
     then 
         RHEVMIMG_NAME="rhevm4"
@@ -84,7 +87,7 @@ then
 		else
 			RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
 		fi
-	elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+	elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]] || [[ "$RHEL_COMPOSE" =~ "RHEVH" ]]
 	then 
 		RHEVM_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'` 
 	else 
@@ -113,7 +116,7 @@ else
            pipework br0  $CONTAINER_NAME  dhclient
            RHEVM_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`        
 	   fi
-   elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+   elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]] || [[ "$RHEL_COMPOSE" =~ "RHEVH" ]]
    then 
        docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME /usr/sbin/init
        pipework br0  $CONTAINER_NAME  dhclient

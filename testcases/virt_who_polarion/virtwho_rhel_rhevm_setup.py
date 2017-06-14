@@ -7,11 +7,9 @@ class virtwho_rhel_rhevm_setup(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-#             self.rhel_rhevm_sys_setup()
-#             self.rhel_rhevm_static_sys_setup(get_exported_param("RHEVM_HOST1_IP"))
-            self.rhel_rhevm_static_sys_setup()
+            self.rhel_rhevm_sys_setup()
             self.rhel_rhevm_setup()
-#             self.generate_ssh_key()
+            self.generate_ssh_key()
 #             self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:

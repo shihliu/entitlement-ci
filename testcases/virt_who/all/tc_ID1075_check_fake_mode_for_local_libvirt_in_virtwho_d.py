@@ -56,7 +56,7 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
             self.runcmd_service("stop_virtwho")
 
             # (1) generate fake file
-            self.generate_fake_file("kvm", fake_file)
+            self.generate_fake_file("libvirt", fake_file)
 
             # (2) configure fake mode on host1
             self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)

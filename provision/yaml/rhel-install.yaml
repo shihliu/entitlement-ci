@@ -1,23 +1,23 @@
-- defaults:
-    name: virt-who-provision
-    description: |
-        Managed by Jenkins Job Builder. Do not edit via web.
-    concurrent: true
-    scm:
-        - git:
-            url: 'https://github.com/shihliu/entitlement-ci'
-            branches:
-                - origin/master
-            basedir: entitlement-ci
-    wrappers:
-        - default-virt-who-wrappers
+#- defaults:
+#    name: virt-who-provision
+#    description: |
+#        Managed by Jenkins Job Builder. Do not edit via web.
+#    concurrent: true
+#    scm:
+#        - git:
+#            url: 'https://github.com/shihliu/entitlement-ci'
+#            branches:
+#                - origin/master
+#            basedir: entitlement-ci
+#    wrappers:
+#        - default-virt-who-wrappers
 
-- wrapper:
-    name: default-virt-who-wrappers
-    wrappers:
-        - ansicolor
-        - workspace-cleanup
-        - timestamps
+#- wrapper:
+#    name: default-virt-who-wrappers
+#    wrappers:
+#        - ansicolor
+#        - workspace-cleanup
+#        - timestamps
 
 - job-template:
     name: 'rhel-release-install-provision'

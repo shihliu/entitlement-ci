@@ -30,7 +30,7 @@ class tc_ID1063_check_exclude_hosts_and_filter_host_parents_in_virtwho_d(VIRTWHO
 
             self.runcmd_service("stop_virtwho")
             self.vw_define_guest(guest_name, remote_ip_1)
-            guest_uuid = self.vw_get_uuid(guest_name)
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
             self.config_option_disable("VIRTWHO_LIBVIRT")
 

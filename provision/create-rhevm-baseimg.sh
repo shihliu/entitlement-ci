@@ -32,13 +32,10 @@ if [ "$RHEVMIMG_NAME" == "" ]
 then
     if [[ "$RHEL_COMPOSE" == "release" ]]
     then
-	    #if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
-	    #then
-	    #    RHEVMIMG_NAME="rhevm4"
-	    #else
-	    #    RHEVMIMG_NAME="rhevm36"
-	    #fi
 	    RHEVMIMG_NAME="rhevm4"
+    elif [[ "$RHEL_COMPOSE" =~ "RHEVH" ]]
+    then 
+        RHEVMIMG_NAME="rhevm4-rhevh"	
     elif [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
     then 
         RHEVMIMG_NAME="rhevm4"
@@ -54,13 +51,29 @@ docker images|grep $RHEVMIMG_NAME
 isSatExist=$? 
 if [ $isSatExist -eq 0 ]
 then
-   echo $RHEVMIMG_NAME "is exist, we needn't to delete the old one then create new one"
-   #Delete all containers related to rhevm image
-   #docker ps -a | grep $RHEVMIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
-   #Delete all <none> images
-   #docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
-   #Delete satellite images
-   #docker rmi $RHEVMIMG_NAME
+   if [[ "$RHEL_COMPOSE" == "release" ]] || [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
+     echo $RHEVMIMG_NAME "is exist, we needn't to delete the old one then create new one"
+   else
+     #Delete all containers related to rhevm image
+     docker ps -a | grep $RHEVMIMG_NAME | awk '{print $1}' | xargs docker stop | xargs docker rm
+     #Delete all <none> images
+     docker images | grep '<none>' | awk '{print $2}' | xargs docker rmi
+     #Delete satellite images
+     docker rmi $RHEVMIMG_NAME
+     #Create new satellite imgs
+     echo "Start to create new "$RHEVMIMG_NAME " image"
+     mv Dockerfile Dockerfile-bk
+     if [[ "$RHEVMIMG_NAME" == "rhevm4" ]] || [[ "$RHEVMIMG_NAME" == "rhevm4-rhevh" ]]
+     then
+       mv Dockerfile-rhevm4 Dockerfile
+       docker build -t $RHEVMIMG_NAME .
+       mv Dockerfile Dockerfile-rhevm4
+     else
+       mv Dockerfile-rhevm36 Dockerfile
+       docker build -t $RHEVMIMG_NAME .
+       mv Dockerfile Dockerfile-rhevm36
+     fi
+   fi
 else
    echo $RHEVMIMG_NAME "is not exist, start to create a new one"
    mv Dockerfile Dockerfile-bk

@@ -26,6 +26,7 @@ class tc_ID1076_check_log_and_thread_after_unregister_and_re_register(VIRTWHOBas
             self.assert_(False, case_name)
         finally:
             self.sub_register(SERVER_USER, SERVER_PASS)
+            self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

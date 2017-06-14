@@ -52,6 +52,8 @@ class VIRTWHOBase(Base):
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")
                 self.sub_auto_subscribe(targetmachine_ip)
             if tool_src is None or "sattool" in tool_src:
+                logger.info("$$$$$$$$$$$$$$$$$tool_src is %s" %tool_src)
+                logger.info("$$$$$$$$$$$$$$$$$$$os_srial is %s" %self.os_serial)
             # check if host registered to cdn server
                 if self.os_serial == "6":
                     cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'

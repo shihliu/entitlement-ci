@@ -21,3 +21,5 @@ class tc_ID17200_ESX_check_debug_function_by_cli(ESXBase):
 
 if __name__ == "__main__":
     unittest.main()
+        
+        

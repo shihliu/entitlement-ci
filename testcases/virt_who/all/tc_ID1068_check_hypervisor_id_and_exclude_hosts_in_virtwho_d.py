@@ -45,7 +45,7 @@ class tc_ID1068_check_hypervisor_id_and_exclude_hosts_in_virtwho_d(VIRTWHOBase):
             self.runcmd_service("stop_virtwho")
             self.vw_define_guest(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
-            host_name = self.get_hostname(get_exported_param("REMOTE_IP"))
+            host_name = self.get_hostname(get_exported_param("REMOTE_IP_1"))
             host_name_sec = "test"
             self.config_option_disable("VIRTWHO_LIBVIRT")
 

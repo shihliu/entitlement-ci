@@ -1,42 +1,43 @@
-- defaults:
-    name: virt-who-provision
-    description: |
-        Managed by Jenkins Job Builder. Do not edit via web.
-    concurrent: true
-    scm:
-        - git:
-            url: 'https://github.com/shihliu/entitlement-ci'
-            branches:
-                - origin/master
-            basedir: entitlement-ci
-    wrappers:
-        - default-virt-who-wrappers
+#- defaults:
+#    name: virt-who-provision
+#    description: |
+#        Managed by Jenkins Job Builder. Do not edit via web.
+#    concurrent: true
+#    scm:
+#        - git:
+#            url: 'https://github.com/shihliu/entitlement-ci'
+#            branches:
+#                - origin/master
+#            basedir: entitlement-ci
+#    wrappers:
+#        - default-virt-who-wrappers
 
-- defaults:
-    name: virt-who-runtest
-    description: |
-        Managed by Jenkins Job Builder. Do not edit via web.
-    concurrent: true
-    scm:
-        - git:
-            url: 'https://github.com/shihliu/entitlement-ci'
-            branches:
-                - origin/master
-            basedir: entitlement-ci
-    wrappers:
-        - default-virt-who-wrappers
+#- defaults:
+#    name: virt-who-runtest
+#    description: |
+#        Managed by Jenkins Job Builder. Do not edit via web.
+#    concurrent: true
+#    scm:
+#        - git:
+#            url: 'https://github.com/shihliu/entitlement-ci'
+#            branches:
+#                - origin/master
+#            basedir: entitlement-ci
+#    wrappers:
+#        - default-virt-who-wrappers
 
-- wrapper:
-    name: default-virt-who-wrappers
-    wrappers:
-        - ansicolor
-        - workspace-cleanup
-        - timestamps
+#- wrapper:
+#    name: default-virt-who-wrappers
+#    wrappers:
+#        - ansicolor
+#        - workspace-cleanup
+#        - timestamps
 
 - job-template:
     name: 'rhevm-install-provision'
     defaults: virt-who-provision
-    node: docker-rhel7-3
+#    node: docker-rhel7-3
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -67,7 +68,8 @@
 - job-template:
     name: 'rhevm-install-runtest'
     defaults: virt-who-runtest
-    node: docker-rhel7-3
+#    node: docker-rhel7-3
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -126,6 +128,12 @@
             pushd $WORKSPACE/entitlement-ci/testcases/install
             nosetests rhevm41_install.py
             popd
+            if [ "$RHEL_COMPOSE"x = "RHEVH"x ]
+            then
+              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
+            else
+              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
+            fi
             echo "********************************runtime env********************************"
             echo "********************************runtime env********************************"
             env | grep -E '(RHEL_COMPOSE|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|SERVER_IP|SERVER_HOSTNAME|RHEVM_IP|RHEVM_HOSTNAME)' | sort | xargs -i -d "\n" echo "export" {}
@@ -139,6 +147,11 @@
           allow-empty: 'true'
        - trigger-parameterized-builds:
            - project: 'virt-who-rhev-provision'
+             current-parameters: false
+             condition: 'SUCCESS'
+             property-file: $WORKSPACE/RESOURCES.txt
+             fail-on-missing: true
+           - project: 'virt-who-rhevh-runtest'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt

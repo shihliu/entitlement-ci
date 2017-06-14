@@ -84,7 +84,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             self.vw_stop_virtwho()
 
             # (1) generate fake file
-            self.generate_fake_file("kvm", fake_file)
+            self.generate_fake_file("libvirt", fake_file)
 
             # (2) configure fake mode on host1
             self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)

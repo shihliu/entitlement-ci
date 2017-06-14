@@ -77,10 +77,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             self.runcmd_service("stop_virtwho")
 
             # (1) generate fake file
-            self.generate_fake_file("kvm", fake_file)
+            self.generate_fake_file("libvirt", fake_file)
 
             # (2) configure fake mode on host1
-            self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
+            self.set_fake_mode_conf(fake_file, "True", VIRTWHO_OWNER, VIRTWHO_ENV)
 
             # (3) restart virt-who service and make virt-who run at fake mode
             self.runcmd_service("restart_virtwho")
@@ -96,7 +96,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             self.sub_listconsumed(sku_name, guestip)
         finally:
             self.sub_unregister(guestip)
-            self.vw_stop_guests(guest_name, remote_ip_1)
+#             self.vw_stop_guests(guest_name, remote_ip_1)
             self.unset_virtwho_d_conf(fake_file)
             self.unset_virtwho_d_conf(fake_config_file)
             self.config_option_enable("VIRTWHO_LIBVIRT")
