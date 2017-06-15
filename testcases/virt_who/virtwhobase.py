@@ -2947,7 +2947,8 @@ class VIRTWHOBase(Base):
         vm_name =  "rhevh_" + rhel_rhevm_guest_name
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-        rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+#         rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        rhevm_host1_name = self.get_hostname()
         if "RHEVH" not in rhel_compose:
             self.sys_setup(targetmachine_ip)
             self.install_vdsm_package(rhel_compose)
@@ -3585,6 +3586,13 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to destroy autotest_pool")
             else:
                 raise FailException("Failed to destroy autotest_pool")
+        if "RHEVH" in get_exported_param("RHEL_COMPOSE"):
+            cmd = "sed -i 's/home/root/g'  `grep 'home' -rl /tmp/autotest_pool.xml`"
+            ret, output = self.runcmd(cmd, "update /home/ to /root", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to update /home/ to /root")
+            else:
+                raise FailException("Failed to update /home/ to /root")
         cmd = "virsh pool-create /tmp/autotest_pool.xml"
         ret, output = self.runcmd(cmd, "import vm to rhevm", targetmachine_ip)
         if ret == 0 and "autotest_pool created" in output:
@@ -3685,7 +3693,8 @@ class VIRTWHOBase(Base):
                     else:
                         self.rhevm_define_guest(rhevm_vm_name, nfsserver_ip)
                         self.create_storage_pool(nfsserver_ip)
-                        self.install_virtV2V(nfsserver_ip)
+                        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"): 
+                            self.install_virtV2V(nfsserver_ip)
                         self.convert_guest_to_nfs(nfsserver_ip, nfsserver_ip, nfs_dir_for_export, rhevm_vm_name, nfsserver_ip)
                         self.rhevm_undefine_guest(rhevm_vm_name, nfsserver_ip)
                         self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)

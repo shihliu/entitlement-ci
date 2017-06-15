@@ -74,6 +74,7 @@ else
     fi
     pipework br0  $CONTAINER_NAME  dhclient
     docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
+  fi
 fi
 
 SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
