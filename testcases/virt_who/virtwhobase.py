@@ -2940,62 +2940,33 @@ class VIRTWHOBase(Base):
     #       VDSM Functions
     # ========================================================
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
-        self.sys_setup(targetmachine_ip)
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
         rhevm_ip = get_exported_param("RHEVM_IP") 
-        rhel_rhevm_guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
-        guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
-        rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
         nfs_ip = get_exported_param("REMOTE_IP")
+        rhel_rhevm_guest_name = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME") 
+        vm_name =  "rhevh_" + rhel_rhevm_guest_name
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+        if "RHEVH" not in rhel_compose:
+            self.sys_setup(targetmachine_ip)
+            self.install_vdsm_package(rhel_compose)
+            self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-        self.install_vdsm_package(rhel_compose)
-        self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
         self.conf_rhevm_shellrc(rhevm_ip)
         self.conf_cluster_cpu("Default", "Intel Conroe Family", rhevm_ip)
         self.rhevm_add_host(rhevm_host1_name, get_exported_param("REMOTE_IP"), rhevm_ip)
-        self.rhevm_add_host(rhevm_host2_name, get_exported_param("REMOTE_IP_2"), rhevm_ip)
+#         self.rhevm_add_host(rhevm_host2_name, get_exported_param("REMOTE_IP_2"), rhevm_ip)
         self.add_storagedomain_to_rhevm("data_storage", rhevm_host1_name, "data", "v3", nfs_ip, nfs_dir_for_storage, rhevm_ip)
         self.add_storagedomain_to_rhevm("export_storage", rhevm_host1_name, "export", "v1", nfs_ip, nfs_dir_for_export, rhevm_ip)
-        self.add_vm_to_rhevm(rhel_rhevm_guest_name, guest_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
+        self.add_vm_to_rhevm(rhel_rhevm_guest_name, vm_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
         self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
-        self.update_vm_name(rhel_rhevm_guest_name, guest_name, rhevm_ip)
         if "rhevm-3.5" not in self.rhevm_version:
-            if self.vdsm_check_vm_nw(guest_name, "eth0", rhevm_ip) is True:
-                self.vdsm_rm_vm_nw(guest_name, "eth0", rhevm_ip)
-                self.vdsm_add_vm_nw(guest_name, rhevm_ip)
+            if self.vdsm_check_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip) is True:
+                self.vdsm_rm_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip)
+                self.vdsm_add_vm_nw(rhel_rhevm_guest_name, rhevm_ip)
         # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name(guest_name, rhevm_ip)
-
-#     def rhevh_rhevm_sys_setup(self, targetmachine_ip=""):
-#         self.sys_setup(targetmachine_ip)
-#         rhevm_ip = get_exported_param("RHEVM_IP") 
-#         rhel_rhevm_guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
-#         guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
-#         rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
-#         nfs_ip = get_exported_param("REMOTE_IP")
-#         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
-#         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-#         rhel_compose = get_exported_param("RHEL_COMPOSE")
-#         # self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
-#         self.install_vdsm_package(rhel_compose)
-#         self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
-#         self.conf_rhevm_shellrc(rhevm_ip)
-#         self.conf_cluster_cpu("Default", "Intel Conroe Family", rhevm_ip)
-#         self.rhevm_add_host(rhevm_host1_name, get_exported_param("REMOTE_IP"), rhevm_ip)
-#         self.rhevm_add_host(rhevm_host2_name, get_exported_param("REMOTE_IP_2"), rhevm_ip)
-#         self.add_storagedomain_to_rhevm("data_storage", rhevm_host1_name, "data", "v3", nfs_ip, nfs_dir_for_storage, rhevm_ip)
-#         self.add_storagedomain_to_rhevm("export_storage", rhevm_host1_name, "export", "v1", nfs_ip, nfs_dir_for_export, rhevm_ip)
-#         self.add_vm_to_rhevm(rhel_rhevm_guest_name, guest_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
-#         self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
-#         self.update_vm_name(rhel_rhevm_guest_name, guest_name, rhevm_ip)
-#         if "rhevm-3.5" not in self.rhevm_version:
-#             if self.vdsm_check_vm_nw(guest_name, "eth0", rhevm_ip) is True:
-#                 self.vdsm_rm_vm_nw(guest_name, "eth0", rhevm_ip)
-#                 self.vdsm_add_vm_nw(guest_name, rhevm_ip)
-#         # change target guest host name, or else satellite testing will fail due to same name
-#         self.rhevm_change_guest_name(guest_name, rhevm_ip)
+        self.rhevm_change_guest_name(rhel_rhevm_guest_name, rhevm_ip)
 
     def rhel_rhevm_static_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = get_exported_param("RHEVM_IP")
@@ -3516,39 +3487,74 @@ class VIRTWHOBase(Base):
 
     def rhevm_define_guest(self, vm_name, targetmachine_ip=""):
         # define guest
-        ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
-        cmd = "test -d /home/rhevm_guest/ && echo presence || echo absence"
-        ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
-        if "presence" in output:
-            logger.info("guest has already exist")
+        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
+            ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
+            cmd = "test -d /home/rhevm_guest/ && echo presence || echo absence"
+            ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
+            if "presence" in output:
+                logger.info("guest has already exist")
+            else:
+                self.cm_set_cp_image("vdsm")
+            cmd = "chmod -R 777 /home/rhevm_guest/"
+            if ret == 0:
+                logger.info("Success to add excute to /home/rhevm_guest")
+            else:
+                logger.info("Failed to add excute to /home/rhevm_guest")
+            # cmd = "wget -P /tmp/rhevm_guest/xml/ http://%s/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"% self.get_vw_cons("data_server")
+            cmd = "wget -P /home/rhevm_guest/xml/ %s/%s.xml" % (self.get_vw_cons("data_folder"), vm_name)
+            ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to wget xml img file")
+            else:
+                raise FailException("Failed to wget xml img file")
+            cmd = "sed -i 's/^.*auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
+            (ret, output) = self.runcmd(cmd, "Disable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to Disable auth_unix_rw")
+            else:
+                raise FailException("Failed to Disable auth_unix_rw")
+            self.vw_restart_libvirtd_vdsm()
+            # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+            cmd = "virsh define /home/rhevm_guest/xml/%s.xml" % vm_name
+            ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to define kvm guest")
+            else:
+                raise FailException("Failed to define kvm guest")
         else:
-            self.cm_set_cp_image("vdsm", targetmachine_ip)
-        cmd = "chmod -R 777 /home/rhevm_guest/"
-        if ret == 0:
-            logger.info("Success to add excute to /home/rhevm_guest")
-        else:
-            logger.info("Failed to add excute to /home/rhevm_guest")
-        # cmd = "wget -P /tmp/rhevm_guest/xml/ http://%s/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"% self.get_vw_cons("data_server")
-        cmd = "wget -P /home/rhevm_guest/xml/ %s/%s.xml" % (self.get_vw_cons("data_folder"), vm_name)
-        ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to wget xml img file")
-        else:
-            raise FailException("Failed to wget xml img file")
-        cmd = "sed -i 's/^.*auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
-        (ret, output) = self.runcmd(cmd, "Disable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to Disable auth_unix_rw")
-        else:
-            raise FailException("Failed to Disable auth_unix_rw")
-        self.vw_restart_libvirtd_vdsm(targetmachine_ip)
-        # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
-        cmd = "virsh define /home/rhevm_guest/xml/%s.xml" % vm_name
-        ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
-        if ret == 0:
-            logger.info("Succeeded to define kvm guest")
-        else:
-            raise FailException("Failed to define kvm guest")
+            ''' wget kvm img and xml file, define it in execute machine for converting to rhevm '''
+            cmd = "test -d /root/rhevm_guest/ && echo presence || echo absence"
+            ret, output = self.runcmd(cmd, "check whether guest exist", targetmachine_ip)
+            if "presence" in output:
+                logger.info("guest has already exist")
+            else:
+                self.cm_set_cp_image("vdsm")
+            cmd = "chmod -R 777 /root/rhevm_guest/"
+            if ret == 0:
+                logger.info("Success to add excute to /root/rhevm_guest/")
+            else:
+                logger.info("Failed to add excute to /root/rhevm_guest/")
+            # cmd = "wget -P /tmp/rhevm_guest/xml/ http://%s/projects/sam-virtwho/rhevm_guest/xml/6.4_Server_x86_64.xml"% self.get_vw_cons("data_server")
+            cmd = "wget -P /root/rhevm_guest/xml/ %s/%s.xml" % (self.get_vw_cons("data_folder"), vm_name)
+            ret, output = self.runcmd(cmd, "wget kvm xml file", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to wget xml img file")
+            else:
+                raise FailException("Failed to wget xml img file")
+            cmd = "sed -i 's/^.*auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
+            (ret, output) = self.runcmd(cmd, "Disable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to Disable auth_unix_rw")
+            else:
+                raise FailException("Failed to Disable auth_unix_rw")
+            self.vw_restart_libvirtd_vdsm()
+            # cmd = "virsh define /tmp/rhevm_guest/xml/6.4_Server_x86_64.xml"
+            cmd = "virsh define /root/rhevm_guest/xml/%s.xml" % vm_name
+            ret, output = self.runcmd(cmd, "define kvm guest", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to define kvm guest")
+            else:
+                raise FailException("Failed to define kvm guest")
 
     def rhevm_undefine_guest(self, vm_name, targetmachine_ip=""):
         # undefine guest

@@ -137,9 +137,10 @@ class Base(unittest.TestCase):
             image_server = self.get_vw_cons("beaker_image_server")
         if "kvm" in mode:
             image_nfs_path = self.get_vw_cons("nfs_image_path")
-        else:
+        elif "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
             image_nfs_path = '/home/rhevm_guest/'
-
+        else:
+            image_nfs_path = '/root/rhevm_guest/'
         image_mount_path = self.get_vw_cons("local_mount_point")
         cmd = "mkdir %s" % image_mount_path
         self.runcmd(cmd, "create local images mount point", targetmachine_ip)

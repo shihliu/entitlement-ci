@@ -7,7 +7,7 @@ class virtwho_rhel_rhevm_setup(VIRTWHOBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             if "RHEVH" in get_exported_param("RHEL_COMPOSE"):  
-                self.rhevh_rhevm_sys_setup()
+                self.rhel_rhevm_sys_setup()
             else:
                 self.sys_setup()
                 self.rhel_rhevm_static_sys_setup()

@@ -5,21 +5,27 @@ from utils.exception.failexception import FailException
 class VDSMBase(VIRTWHOBase):
     def rhel_rhevm_sys_setup(self, targetmachine_ip=""):
         # System setup for virt-who on two hosts
-        self.sys_setup(targetmachine_ip)
+        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
+            self.sys_setup(targetmachine_ip)
         RHEVM_IP = get_exported_param("RHEVM_IP")
         RHEL_RHEVM_GUEST_NAME = self.get_vw_cons("RHEL_RHEVM_GUEST_NAME")
         RHEVM_HOST1_NAME, RHEVM_HOST2_NAME = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
         NFSserver_ip = get_exported_param("REMOTE_IP")
-        nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
-        nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
+        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
+            nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
+            nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
+        else:
+            nfs_dir_for_storage = self.get_vw_cons("RHEVH_NFS_DIR_FOR_storage")
+            nfs_dir_for_export = self.get_vw_cons("RHEVH_NFS_DIR_FOR_export")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
         rhevm_version = self.cm_get_rpm_version("rhevm", RHEVM_IP)
 
         # System setup for RHEL+RHEVM(VDSM/RHEVM) testing env on two hosts
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version)
-        self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
-        self.install_vdsm_package(rhel_compose)
-        self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
+        if "RHEVH" not in get_exported_param("RHEL_COMPOSE"):
+            self.config_vdsm_env_setup(rhel_compose, rhevm_version)
+            self.config_vdsm_env_setup(rhel_compose, rhevm_version, get_exported_param("REMOTE_IP_2"))
+            self.install_vdsm_package(rhel_compose)
+            self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
         # Configure env on rhevm(add two host,storage,guest)
         self.conf_rhevm_shellrc(RHEVM_IP)
         self.update_cluster_cpu("Default", "Intel Conroe Family", RHEVM_IP)

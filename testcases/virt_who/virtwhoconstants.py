@@ -25,6 +25,8 @@ class VIRTWHOConstants(object):
     "RHEL_RHEVM_GUEST_NAME":                "6.8_Server_x86_64",
     "NFS_DIR_FOR_storage":                  "/root/data",
     "NFS_DIR_FOR_export":                   "/root/export",
+#     "RHEVH_NFS_DIR_FOR_storage":            "/tmp/data",
+#     "RHEVH_NFS_DIR_FOR_export":             "/tmp/export",
     "VIRTWHO_RHEVM_USERNAME":               "admin@internal",
     "VIRTWHO_RHEVM_PASSWORD":               "redhat",
     "VIRTWHO_LIBVIRT_USERNAME":             "root",

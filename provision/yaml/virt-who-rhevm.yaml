@@ -272,10 +272,10 @@
     defaults: virt-who-runtest
     node: 'rhel-slave'
     builders:
-    #- copyartifact:
-    #    project: virt-who-rhev-provision
-    #    filter: '*.txt, *.json'
-    #    target: $WORKSPACE
+    - copyartifact:
+        project: rhevm-install-runtest-start
+        filter: '*.txt, *.json'
+        target: $WORKSPACE
     - shell: |
         #!/bin/bash
         echo "Jenkins machine info we are running on"

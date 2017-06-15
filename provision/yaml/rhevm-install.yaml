@@ -167,7 +167,6 @@
       - 'rhevm-install-provision'
       - 'rhevm-install-runtest'
       - 'rhevm-install-runtest-start'
-      - 'virt-who-rhevh-runtest'
       
 - project:
     name: rhevm-install-jobs
