@@ -102,7 +102,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             # (6) list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # (7) unregister hosts
-            self.sub_unregister()
+            self.server_remove_system(host_uuid, SERVER_IP)
             self.sub_refresh(guestip)
             # (8) list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)

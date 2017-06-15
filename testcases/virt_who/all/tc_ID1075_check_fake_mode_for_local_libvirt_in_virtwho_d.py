@@ -59,14 +59,14 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
             self.generate_fake_file("libvirt", fake_file)
 
             # (2) configure fake mode on host1
-            self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
+            self.set_fake_mode_conf(fake_file, "True", VIRTWHO_OWNER, VIRTWHO_ENV)
 
             # (3) check if guest uuid is correctly monitored by virt-who.
             self.vw_check_uuid(guest_uuid, uuidexists=True)
             self.unset_virtwho_d_conf(fake_config_file)
 
             # (4) configure fake mode on host1
-            self.set_fake_mode_conf(fake_file, "True", VIRTWHO_OWNER, VIRTWHO_ENV)
+            self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
             # (5) check if error message will show on log file 
             self.vw_check_message_in_rhsm_log("is not properly formed: 'uuid'")
         finally:

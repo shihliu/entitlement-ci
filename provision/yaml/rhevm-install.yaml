@@ -36,8 +36,7 @@
 - job-template:
     name: 'rhevm-install-provision'
     defaults: virt-who-provision
-#    node: docker-rhel7-3
-    node: docker-rhel7
+    node: docker-rhel7-3
     builders:
         - shell: |
             #!/bin/bash
@@ -68,8 +67,7 @@
 - job-template:
     name: 'rhevm-install-runtest'
     defaults: virt-who-runtest
-#    node: docker-rhel7-3
-    node: docker-rhel7
+    node: docker-rhel7-3
     builders:
         - shell: |
             #!/bin/bash
@@ -97,16 +95,16 @@
           artifacts: '**/**'
           allow-empty: 'true'
        - trigger-parameterized-builds:
-#            - project: 'virt-who-rhev-provision'
-#              current-parameters: false
-#              condition: 'SUCCESS'
-#              property-file: $WORKSPACE/RESOURCES.txt
-#              fail-on-missing: true
            - project: 'rhevm-install-runtest-start'
              current-parameters: false
              condition: 'SUCCESS'
              property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ISEXISTRHEVM.txt
              fail-on-missing: true
+            - project: 'virt-who-rhev-provision'
+              current-parameters: false
+              condition: 'SUCCESS'
+              property-file: $WORKSPACE/RESOURCES.txt
+              fail-on-missing: true
 
 - job-template:
     name: 'rhevm-install-runtest-start'
@@ -130,9 +128,9 @@
             popd
             if [ "$RHEL_COMPOSE"x = "RHEVH"x ]
             then
-              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
+              echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
             else
-              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
+              echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
             fi
             echo "********************************runtime env********************************"
             echo "********************************runtime env********************************"
@@ -141,10 +139,6 @@
             echo "********************************runtime env********************************"
         - inject:
             properties-file: $WORKSPACE/RESOURCES.txt
-        - inject:
-            properties-file: $WORKSPACE/RHEVHTRIGGER.txt
-        - inject:
-            properties-file: $WORKSPACE/NOTRHEVHTRIGGER.txt
     publishers:
        - archive:
           artifacts: '**/**'

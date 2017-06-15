@@ -95,9 +95,9 @@
             #popd
             if [ "$RHEL_COMPOSE"x = "RHEVH"x ]
             then
-              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
+              echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
             else
-              echo RHEL_COMPSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
+              echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt
             fi
             echo SERVER_TYPE=SATELLITE > $WORKSPACE/SERVER.txt
             echo SERVER_IP=$REMOTE_IP >> $WORKSPACE/SERVER.txt

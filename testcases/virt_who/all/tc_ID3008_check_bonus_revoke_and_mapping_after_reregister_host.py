@@ -51,7 +51,7 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
             SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
-            guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
+            guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
@@ -74,7 +74,7 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unregister hosts
-            self.sub_unregister()
+            self.server_remove_system(host_uuid, SERVER_IP)
 #             time.sleep(60)
             self.sub_refresh(guestip)
             # list consumed subscriptions on guest
@@ -82,7 +82,7 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
 
             # (2). Check guest uuid after re-register
             self.sub_register(SERVER_USER, SERVER_PASS)
-            self.vw_check_uuid(guestuuid, uuidexists=True)
+            self.vw_check_uuid(guest_uuid, uuidexists=True)
         finally:
             self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name, remote_ip_1)
