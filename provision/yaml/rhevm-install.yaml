@@ -98,13 +98,8 @@
            - project: 'rhevm-install-runtest-start'
              current-parameters: false
              condition: 'SUCCESS'
-             property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/ISEXISTRHEVM.txt
+             property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
-            - project: 'virt-who-rhev-provision'
-              current-parameters: false
-              condition: 'SUCCESS'
-              property-file: $WORKSPACE/RESOURCES.txt
-              fail-on-missing: true
 
 - job-template:
     name: 'rhevm-install-runtest-start'
@@ -123,11 +118,11 @@
             echo "SERVER.TXT is as the following"
             cat $WORKSPACE/SERVER.txt
             # echo "*********************************setup env*********************************"
-            pushd $WORKSPACE/entitlement-ci/testcases/install
-            nosetests rhevm41_install.py
-            popd
             if [ "$RHEL_COMPOSE"x = "RHEVH"x ]
             then
+              pushd $WORKSPACE/entitlement-ci/testcases/install
+              nosetests rhevm41_install.py
+              popd
               echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/RHEVHTRIGGER.txt
             else
               echo RHEL_COMPOSE=$RHEL_COMPOSE>>$WORKSPACE/NOTRHEVHTRIGGER.txt

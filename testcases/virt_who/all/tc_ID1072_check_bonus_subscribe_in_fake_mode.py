@@ -77,6 +77,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             self.runcmd_service("stop_virtwho")
 
             # (1) generate fake file
+            self.config_option_disable("VIRTWHO_LIBVIRT")
             self.generate_fake_file("libvirt", fake_file)
 
             # (2) configure fake mode on host1
