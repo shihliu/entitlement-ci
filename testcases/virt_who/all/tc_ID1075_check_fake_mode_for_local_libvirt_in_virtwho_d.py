@@ -68,7 +68,7 @@ class tc_ID1075_check_fake_mode_for_local_libvirt_in_virtwho_d(VIRTWHOBase):
             # (4) configure fake mode on host1
             self.set_fake_mode_conf(fake_file, "False", VIRTWHO_OWNER, VIRTWHO_ENV)
             # (5) check if error message will show on log file 
-            self.vw_check_message_in_rhsm_log("is not properly formed: 'uuid'")
+            self.vw_check_message_in_rhsm_log("is not properly formed: 'uuid'|try to check is_hypervisor value")
         finally:
             self.vw_define_all_guests(remote_ip_1)
             self.unset_virtwho_d_conf(fake_file)

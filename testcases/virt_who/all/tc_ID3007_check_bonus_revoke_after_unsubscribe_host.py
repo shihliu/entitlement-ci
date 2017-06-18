@@ -69,7 +69,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unsubscribe all consumed sku on hosts
-            self.sub_unsubscribe()
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # list consumed subscriptions on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)

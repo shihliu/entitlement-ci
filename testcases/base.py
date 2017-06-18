@@ -25,7 +25,10 @@ class Base(unittest.TestCase):
 
     def cm_change_static_guestname(self, targetmachine_ip=""):
         suffix = time.strftime("%m%H%M%S")
-        new_hostname = "6.8_Server_x86_64" + "-" + suffix
+        if "remote_libvirt" in get_exported_param("HYPERVISOR_TYPE") and "SATELLITE" in get_exported_param("SERVER_TYPE"):
+             new_hostname = "remotelibvirt.satellite.redhat.com"
+        else:
+            new_hostname = "6.8_Server_x86_64" + "_" + suffix
         if self.get_os_serials(targetmachine_ip) == 7:
             cmd = "hostnamectl --static set-hostname %s" % new_hostname
         else:
