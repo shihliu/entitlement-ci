@@ -34,6 +34,7 @@ then
   then
     SATIMG_NAME="satellite62-ohsnap"
   elif [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
+  then
     SATIMG_NAME="satellite63-ohsnap"
   else 
     SATIMG_NAME="sat-cdn"

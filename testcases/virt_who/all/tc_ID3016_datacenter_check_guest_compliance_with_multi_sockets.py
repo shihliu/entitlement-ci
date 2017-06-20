@@ -113,11 +113,11 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
             installed_status_value = "Subscribed"
             self.check_installed_status(installed_status_key, installed_status_value, guestip)
         finally:
+            # unsubscribe host
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            # unsubscribe host
-            self.sub_unsubscribe()
             self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")
 

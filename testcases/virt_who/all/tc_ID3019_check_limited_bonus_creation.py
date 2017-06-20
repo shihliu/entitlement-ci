@@ -66,7 +66,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             self.sub_unsubscribe(guestip)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
         finally:
-            self.sub_unsubscribe()
+            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name, remote_ip_1)
