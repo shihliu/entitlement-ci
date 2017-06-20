@@ -33,6 +33,7 @@ then
   then
     IMAGE_NAME="satellite62-ohsnap"
   elif [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
+  then
     IMAGE_NAME="satellite63-ohsnap"
   else 
     IMAGE_NAME="sat-cdn"

@@ -140,6 +140,54 @@
         fail-on-missing: true
 
 - job-template:
+    name: qe-satellite-63-ohsnap-trigger
+    node: master
+    triggers:
+    - pollurl:
+        cron: H/9 * * * *
+        urls:
+        - url: http://satellite6.lab.eng.rdu2.redhat.com/composes/latest-Satellite-6.2-RHEL-7/COMPOSE_ID
+          check-content:
+          - simple: true
+    builders:
+    - shell: |
+        #!/bin/bash
+        # switch, run virt-who satellite test on rhel 6 or rhel 7
+        echo "*********************************setup env*********************************"
+        #setup environment here to run alone, change back when finished
+        export SERVER_COMPOSE=ohsnap-satellite63
+        export RHEL_COMPOSE=release
+        export VIRTWHO_SRC=default
+        #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or default, when it is null,it will create all images
+        echo "*********************************setup env*********************************"
+        echo "********************************runtime env********************************"
+        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        echo "********************************runtime env********************************"
+        #reset all jobs after trigger
+        #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
+    - inject:
+        properties-file: $WORKSPACE/BUILD.txt
+    publishers:
+    - archive:
+        artifacts: '*.txt, *.json'
+        allow-empty: 'true'
+    - trigger-parameterized-builds:
+      - project: satellite63-ohsnap-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+      #- project: rhel-release-install-provision
+      #  current-parameters: false
+      #  condition: SUCCESS
+      #  property-file: $WORKSPACE/BUILD.txt
+      #- project: 'rhevm-install-provision'
+      #  current-parameters: false
+      #  condition: 'SUCCESS'
+      #  property-file: $WORKSPACE/SERVER.txt
+      #  fail-on-missing: true
+
+- job-template:
     name: qe-rhevh-trigger
     node: master
     triggers:
@@ -186,6 +234,7 @@
     - qe-rhel-6-trigger
     - qe-rhel-7-trigger
     - qe-satellite-62-ohsnap-trigger
+    - qe-satellite-63-ohsnap-trigger
     - qe-rhevh-trigger
 
 - project:

@@ -30,10 +30,11 @@ if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
 if [ "$SATIMG_NAME" == "" ]
 then
-  if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
+  if [[ "$SERVER_COMPOSE" == "ohsnap-satellite" ]]
   then
     SATIMG_NAME="satellite62-ohsnap"
-  elif [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
+  elif [[ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]]
+  then
     SATIMG_NAME="satellite63-ohsnap"
   else 
     SATIMG_NAME="sat-cdn"
