@@ -42,7 +42,7 @@ then
 fi
 
 # Make rhel73 base img
-#pushd $WORKSPACE/entitlement-ci/provision
+pushd $WORKSPACE/entitlement-ci/provision
 
 #docker images|grep $IMAGE_NAME
 #isRhelExist=$?

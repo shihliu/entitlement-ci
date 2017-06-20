@@ -49,7 +49,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_guest")
 
             self.vw_start_guests(guest_name, remote_ip_1)
-            guestip = self.kvm_get_guest_ip(guest_name)
+            guestip = self.kvm_get_guest_ip(guest_name, remote_ip_1)
             self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
