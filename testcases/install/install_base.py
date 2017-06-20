@@ -60,7 +60,7 @@ class Install_Base(Base):
         self.__deploy_satellite62(targetmachine_ip)
         self.__import_manifest_satellite(targetmachine_ip)
 
-    def install_satellite_ohsnap(self, compose, targetmachine_ip=""):
+    def install_satellite_ohsnap(self, targetmachine_ip=""):
         self.__set_selinux(targetmachine_ip)
         self.__set_hostname(targetmachine_ip)
         self.__set_hosts_file(targetmachine_ip)

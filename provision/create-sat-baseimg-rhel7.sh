@@ -27,7 +27,7 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
-if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel68"; fi
+if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME="rhel73"; fi
 if [ "$SATIMG_NAME" == "" ]
 then
   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
@@ -40,24 +40,24 @@ then
   fi
 fi
 
-# Make rhel68 base img
-pushd $WORKSPACE/entitlement-ci/provision
+# Make rhel73 base img
+#pushd $WORKSPACE/entitlement-ci/provision
 
-docker images|grep $IMAGE_NAME
-isRhelExist=$?
-if [ $isRhelExist -eq 0 ]
-then
-   echo $IMAGE_NAME"is exist"
-else
-   docker build -t $IMAGE_NAME .
-   docker tag $IMAGE_NAME $IMAGE_NAME'-slave'
-fi
+#docker images|grep $IMAGE_NAME
+#isRhelExist=$?
+#if [ $isRhelExist -eq 0 ]
+#then
+#   echo $IMAGE_NAME"is exist"
+#else
+#   docker build -t $IMAGE_NAME .
+#   docker tag $IMAGE_NAME $IMAGE_NAME'-slave'
+#fi
 
 
-# Make satellite62 or satellite62-ohsnap base img
+# Make satellite63 or satellite63-ohsnap base img
 if [ "$RHEL_COMPOSE" == "release" ]
 then
-# Make satellite62-ohsnap base img
+# Make satellite63-ohsnap base img
 # Delete existed img to create a new one
   docker images|grep $SATIMG_NAME
   isSatExist=$? 
@@ -73,21 +73,20 @@ then
   else
      echo $SATIMG_NAME "is not exist, start to create a new one"
   fi
-
   mv Dockerfile Dockerfile-bk
   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
   then
     mv Dockerfile-sat-ohsnap Dockerfile
     docker build -t $SATIMG_NAME .
     mv Dockerfile Dockerfile-sat-ohsnap
-  else
-    mv Dockerfile-sat Dockerfile
+  else [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
+    mv Dockerfile-sat63-ohsnap Dockerfile
     docker build -t $SATIMG_NAME .
-    mv Dockerfile Dockerfile-sat
+    mv Dockerfile Dockerfile-sat63-ohsnap
   fi
   mv Dockerfile-bk Dockerfile
 else
-  # Make satellite62 base img
+  # Make satellite62 released base img
   # Keep the existed satellite62 base img if it is exist
   docker images|grep $SATIMG_NAME
   isSatExist=$? 
@@ -97,16 +96,9 @@ else
   else
     echo $SATIMG_NAME "is not exist, start to create a new one"
     mv Dockerfile Dockerfile-bk
-    if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
-    then
-      mv Dockerfile-sat-ohsnap Dockerfile
-      docker build -t $SATIMG_NAME .
-      mv Dockerfile Dockerfile-sat-ohsnap
-    else
-      mv Dockerfile-sat Dockerfile
-      docker build -t $SATIMG_NAME .
-      mv Dockerfile Dockerfile-sat
-    fi
+    mv Dockerfile-sat Dockerfile
+    docker build -t $SATIMG_NAME .
+    mv Dockerfile Dockerfile-sat
     mv Dockerfile-bk Dockerfile
   fi
 fi

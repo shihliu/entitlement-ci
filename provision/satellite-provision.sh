@@ -27,8 +27,18 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
-if [ "$IMAGE_NAME" == "" ] && [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]; then IMAGE_NAME="satellite62-ohsnap"; \
-else IMAGE_NAME="sat-cdn";fi
+if [ "$IMAGE_NAME" == "" ]
+then
+  if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
+  then
+    IMAGE_NAME="satellite62-ohsnap"
+  elif [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
+    IMAGE_NAME="satellite63-ohsnap"
+  else 
+    IMAGE_NAME="sat-cdn"
+  fi
+fi
+
 CONTAINER_NAME=$IMAGE_NAME".redhat.com"
 
 # Make satellite-ohsnap container and get its ip
@@ -52,8 +62,12 @@ else
 fi
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
-SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-
+SATELLITE_INSTALLED_COMPSE=`docker exec -it esx-rhel7.3-original.redhat.com cat /etc/redhat-release`
+if [[ $SATELLITE_INSTALLED_COMPSE =~ "release 7" ]]
+then
+  SATELLITE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
+else
+  SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 echo SATELLITE_IP=$SATELLITE_IP>>RESOURCES.txt
 echo SATELLITE_HOSTNAME=$CONTAINER_NAME>>RESOURCES.txt
 echo REMOTE_IP=$SATELLITE_IP>>RESOURCES.txt
