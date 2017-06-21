@@ -80,7 +80,7 @@ then
      echo $SATIMG_NAME "is not exist, start to create a new one"
   fi
   mv Dockerfile Dockerfile-bk
-  if [ "$SERVER_PLATFORM" == "rhel73" ]
+  if [ "$SERVER_PLATFORM" == "rhel7" ]
   then
     if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
     then
