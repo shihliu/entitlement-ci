@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/rhel6.8:latest
+FROM registry.access.redhat.com/rhel6.9:latest
 MAINTAINER "shihliu@redhat.com"
 
 #Instll satellite package
