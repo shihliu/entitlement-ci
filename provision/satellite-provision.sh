@@ -62,6 +62,7 @@ else
    echo "Failed to create" $CONTAINER_NAME
 fi
 pipework br0  $CONTAINER_NAME  dhclient
+docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
 SATELLITE_INSTALLED_COMPSE=`docker exec -i $CONTAINER_NAME cat /etc/redhat-release`
 echo "SATELLITE_INSTALLED_COMPSE is "$SATELLITE_INSTALLED_COMPSE
 if [[ $SATELLITE_INSTALLED_COMPSE =~ "release 7" ]]
@@ -70,7 +71,6 @@ then
   SATELLITE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
 else
   echo "Satellite will installed on RHEL6"
-  docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
   SATELLITE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
 fi
 echo "SATELLITE_IP is" $SATELLITE_IP
