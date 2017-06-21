@@ -52,27 +52,49 @@ class VIRTWHOBase(Base):
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")
                 self.sub_auto_subscribe(targetmachine_ip)
             if tool_src is None or "sattool" in tool_src:
-                logger.info("$$$$$$$$$$$$$$$$$tool_src is %s" %tool_src)
-                logger.info("$$$$$$$$$$$$$$$$$$$os_srial is %s" %self.os_serial)
+                logger.info("*****tool_src is %s" %tool_src)
+                logger.info("*****os_srial is %s" %self.os_serial)
             # check if host registered to cdn server
                 if self.os_serial == "6":
-                    cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
-                        '[sat6-tools]\n'
-                        'name=Satellite 6 Tools\n'
-                        'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
-                        'enabled=1\n'
-                        'gpgcheck=0\n'
-                        'EOF'
-                        )
+                    logger.info("%s will installed on rhel6.8" %server_compose)
+                    if "satellite63" in server_compose:
+                        cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                            '[sat6-tools]\n'
+                            'name=Satellite 6.3 Tools\n'
+                            'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_6_3_RHEL6/custom/Satellite_Tools_6_3_Composes/Satellite_Tools_6_3_RHEL6_x86_64/\n'
+                            'enabled=1\n'
+                            'gpgcheck=0\n'
+                            'EOF'
+                            )  
+                    else:
+                        cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                            '[sat6-tools]\n'
+                            'name=Satellite 6 Tools\n'
+                            'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL6/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL6_Satellite_Tools_x86_64_os/\n'
+                            'enabled=1\n'
+                            'gpgcheck=0\n'
+                            'EOF'
+                            )
                 else:
-                    cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
-                        '[sat6-tools]\n'
-                        'name=Satellite 6 Tools\n'
-                        'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL7/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL7_Satellite_Tools_x86_64_os/\n'
-                        'enabled=1\n'
-                        'gpgcheck=0\n'
-                        'EOF'
-                        )
+                    logger.info("%s will installed on rhel7.3" %server_compose)
+                    if "satellite63" in server_compose:
+                        cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                            '[sat6-tools]\n'
+                            'name=Satellite 6.3 Tools\n'
+                            'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_6_3_RHEL7/custom/Satellite_Tools_6_3_Composes/Satellite_Tools_x86_64/\n'
+                            'enabled=1\n'
+                            'gpgcheck=0\n'
+                            'EOF'
+                            )
+                    else:
+                        cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
+                            '[sat6-tools]\n'
+                            'name=Satellite 6 Tools\n'
+                            'baseurl=http://sat-r220-02.lab.eng.rdu2.redhat.com/pulp/repos/Sat6-CI/QA/Tools_RHEL7/custom/Red_Hat_Satellite_Tools_6_2_Composes/RHEL7_Satellite_Tools_x86_64_os/\n'
+                            'enabled=1\n'
+                            'gpgcheck=0\n'
+                            'EOF'
+                            )      
                 ret, output = self.runcmd(cmd, "add satellite ohsnap tools repo", targetmachine_ip)
                 if ret == 0:
                     logger.info("Succeeded to add satellite ohsnap tools repo.")

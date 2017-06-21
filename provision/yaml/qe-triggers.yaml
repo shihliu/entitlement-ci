@@ -155,14 +155,20 @@
         # switch, run virt-who satellite test on rhel 6 or rhel 7
         echo "*********************************setup env*********************************"
         #setup environment here to run alone, change back when finished
+        #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default. when it is null,it will create all images
+        #export SERVER_PLATFORM=rhel7 or SERVER_PLATFORM not exist. when SERVER_PLATFORM not exist, trigger install on rhel6
+        export SERVER_PLATFORM=rhel7
         export SERVER_COMPOSE=ohsnap-satellite63
         export RHEL_COMPOSE=release
         export VIRTWHO_SRC=default
-        #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or default, when it is null,it will create all images
         echo "*********************************setup env*********************************"
+        if [ "$SERVER_PLATFORM"x = "rhel7"x ]
+        then
+           echo SERVER_PLATFORM=rhel7>>$WORKSPACE/INSTALLONRHEL7.txt
+        fi
         echo "********************************runtime env********************************"
-        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
+        env | grep -E '(SERVER_COMPOSE|SERVER_PLATFORM|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(SERVER_COMPOSE|SERVER_PLATFORM|VIRTWHO_SRC|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
         echo "********************************runtime env********************************"
         #reset all jobs after trigger
         #jenkins-jobs --ignore --conf /root/sgao-ci/entitlement-ci/jobs/config update /root/sgao-ci/entitlement-ci/jobs
@@ -177,6 +183,10 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
+      - project: satellite63-ohsnap-install-provision-rhel7
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt,$WORKSPACE/INSTALLONRHEL7.txt
       #- project: rhel-release-install-provision
       #  current-parameters: false
       #  condition: SUCCESS

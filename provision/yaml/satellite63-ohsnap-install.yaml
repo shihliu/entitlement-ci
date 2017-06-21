@@ -129,12 +129,49 @@
              property-file: $WORKSPACE/RESOURCES.txt
              fail-on-missing: true
 
+- job-template:
+    name: 'satellite63-ohsnap-install-provision-rhel7'
+    defaults: virt-who-provision
+    node: docker-rhel7-3
+    builders:
+        - shell: |
+            #!/bin/bash
+            export SERVER_COMPOSE="ohsnap-satellite63"
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            echo "*********************************setup env*********************************"
+            #convert switch for testing against satellite
+            export SERVER_TYPE="SATELLITE"
+            kinit -k -t $KEYTAB $PRINCIPAL
+            #Provision base img
+            $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
+            # Provision Test Resources
+            $WORKSPACE/entitlement-ci/provision/satellite-provision.sh
+            echo "********************************runtime env********************************"
+            env | grep -E '(RHEL_COMPOSE|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(RHEL_COMPOSE|SERVER_COMPOSE|SERVER_TYPE|VIRTWHO_SRC)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+    publishers:
+      - archive:
+          artifacts: '*.txt, *.json'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
+          - project: 'satellite63-ohsnap-install-runtest'
+            current-parameters: true
+            condition: 'SUCCESS'
+            property-file: $WORKSPACE/RESOURCES.txt
+            fail-on-missing: true
+
+
 - job-group:
     name: satellite63-ohsnap-install-provision-runtest
     jobs:
       - 'satellite63-ohsnap-install-provision'
       - 'satellite63-ohsnap-install-runtest'
-
+      - 'satellite63-ohsnap-install-provision-rhel7'
+      
 - project:
     name: satellite63-ohsnap-install-jobs
     project: satellite63-ohsnap-install

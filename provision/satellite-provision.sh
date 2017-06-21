@@ -31,12 +31,12 @@ if [ "$IMAGE_NAME" == "" ]
 then
   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
   then
-    IMAGE_NAME="satellite62-ohsnap"
+    IMAGE_NAME="satellite62-ohsnap-"$SERVER_PLATFORM
   elif [ "$SERVER_COMPOSE" == "ohsnap-satellite63" ]
   then
-    IMAGE_NAME="satellite63-ohsnap"
+    IMAGE_NAME="satellite63-ohsnap-"$SERVER_PLATFORM
   else 
-    IMAGE_NAME="sat-cdn"
+    IMAGE_NAME="sat-cdn-"$SERVER_PLATFORM
   fi
 fi
 
@@ -53,8 +53,12 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo "begin to test container hostname"
-#docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
-docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $IMAGE_NAME /usr/sbin/init
+if [[ $SERVER_PLATFORM == "rhel7" ]]
+then
+  docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $IMAGE_NAME /usr/sbin/init
+else
+  docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+fi
 issuccess=$?
 if [ $issuccess -eq 0 ]
 then
