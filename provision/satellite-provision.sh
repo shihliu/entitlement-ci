@@ -63,6 +63,7 @@ else
 fi
 pipework br0  $CONTAINER_NAME  dhclient
 SATELLITE_INSTALLED_COMPSE=`docker exec -it $CONTAINER_NAME cat /etc/redhat-release`
+echo "SATELLITE_INSTALLED_COMPSE is "$SATELLITE_INSTALLED_COMPSE
 if [[ $SATELLITE_INSTALLED_COMPSE =~ "release 7" ]]
 then
   echo "Satellite will installed on RHEL7"
