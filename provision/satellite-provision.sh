@@ -53,7 +53,8 @@ then
    docker rm $CONTAINER_NAME
 fi
 echo "begin to test container hostname"
-docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+#docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME -v /dev/log:/dev/log --net=none $IMAGE_NAME bash
+docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $IMAGE_NAME /usr/sbin/init
 issuccess=$?
 if [ $issuccess -eq 0 ]
 then
