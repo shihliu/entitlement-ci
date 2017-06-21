@@ -36,7 +36,7 @@ then
   then
     IMAGE_NAME="satellite63-ohsnap-"$SERVER_PLATFORM
   else 
-    IMAGE_NAME="sat-cdn-"$SERVER_PLATFORM
+    IMAGE_NAME="sat-cdn"
   fi
 fi
 

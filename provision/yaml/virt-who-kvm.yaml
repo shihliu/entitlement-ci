@@ -98,7 +98,7 @@
 - job-template:
     name: 'virt-who-remote-libvirt-provision'
     defaults: virt-who-provision
-    node: docker-rhel7
+    node: docker-rhel7-2
     builders:
         - shell: |
             #!/bin/bash
