@@ -48,7 +48,7 @@
             export SERVER_TYPE="SATELLITE"
             kinit -k -t $KEYTAB $PRINCIPAL
             #Provision base img
-            $WORKSPACE/entitlement-ci/provision/create-sat-baseimg-rhel7.sh
+            $WORKSPACE/entitlement-ci/provision/create-sat-baseimg.sh
             # Provision Test Resources
             $WORKSPACE/entitlement-ci/provision/satellite-provision.sh
             echo "********************************runtime env********************************"

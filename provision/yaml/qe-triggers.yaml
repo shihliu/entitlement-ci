@@ -1,3 +1,23 @@
+- defaults:
+    name: virt-who-provision
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+    concurrent: true
+    scm:
+        - git:
+            url: 'https://github.com/shihliu/entitlement-ci'
+            branches:
+                - origin/master
+            basedir: entitlement-ci
+    wrappers:
+        - default-virt-who-wrappers
+- wrapper:
+    name: default-virt-who-wrappers
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
+
 - job-template:
     name: qe-rhel-6-trigger
     node: master
@@ -141,6 +161,7 @@
 
 - job-template:
     name: qe-satellite-63-ohsnap-trigger
+    defaults: virt-who-provision
     node: master
     triggers:
     - pollurl:
@@ -165,7 +186,12 @@
         if [ "$SERVER_PLATFORM"x = "rhel7"x ]
         then
            echo SERVER_PLATFORM=rhel7>>$WORKSPACE/INSTALLONRHEL7.txt
+           cat $WORKSPACE/INSTALLONRHEL7.txt
+        else
+           echo SERVER_PLATFORM=rhel6>>$WORKSPACE/INSTALLONRHEL6.txt
+           cat $WORKSPACE/INSTALLONRHEL6.txt
         fi
+        echo "SERVER_PLATFORM is "$SERVER_PLATFORM
         echo "********************************runtime env********************************"
         env | grep -E '(SERVER_COMPOSE|SERVER_PLATFORM|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {{}}
         env | grep -E '(SERVER_COMPOSE|SERVER_PLATFORM|VIRTWHO_SRC|RHEL_COMPOSE)' > $WORKSPACE/BUILD.txt
@@ -177,16 +203,18 @@
     publishers:
     - archive:
         artifacts: '*.txt, *.json'
-        allow-empty: 'true'
+        allow-empty: 'true'   
     - trigger-parameterized-builds:
-      - project: satellite63-ohsnap-install-provision
-        current-parameters: false
-        condition: SUCCESS
-        property-file: $WORKSPACE/BUILD.txt
       - project: satellite63-ohsnap-install-provision-rhel7
         current-parameters: false
-        condition: SUCCESS
-        property-file: $WORKSPACE/BUILD.txt,$WORKSPACE/INSTALLONRHEL7.txt
+        condition: 'SUCCESS'
+        property-file: $WORKSPACE/BUILD.txt, $WORKSPACE/INSTALLONRHEL7.txt
+        fail-on-missing: true
+      - project: satellite63-ohsnap-install-provision
+        current-parameters: false
+        #condition: 'SUCCESS'
+        property-file: $WORKSPACE/BUILD.txt, $WORKSPACE/INSTALLONRHEL6.txt
+        fail-on-missing: true  
       #- project: rhel-release-install-provision
       #  current-parameters: false
       #  condition: SUCCESS
@@ -194,7 +222,7 @@
       #- project: 'rhevm-install-provision'
       #  current-parameters: false
       #  condition: 'SUCCESS'
-      #  property-file: $WORKSPACE/SERVER.txt
+      #  property-file: $WORKSPACE/BUILD.txt
       #  fail-on-missing: true
 
 - job-template:

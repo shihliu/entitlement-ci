@@ -1,10 +1,10 @@
-FROM registry.access.redhat.com/rhel7.3:latest
+FROM registry.access.redhat.com/rhel6.8:latest
 MAINTAINER "shihliu@redhat.com"
 
 #Instll satellite package
 RUN subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
 RUN subscription-manager repos --disable "*"
-RUN subscription-manager repos --enable rhel-7-server-rpms --enable rhel-server-rhscl-7-rpms
+RUN subscription-manager repos --enable rhel-6-server-rpms --enable rhel-server-rhscl-6-rpms
 RUN yum install -y wget
 RUN wget http://10.66.144.9/home/shihliu/repo/satellite63-ohsnap.repo
 RUN mv satellite63-ohsnap.repo /etc/yum.repos.d/
