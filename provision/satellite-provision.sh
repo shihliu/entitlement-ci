@@ -62,7 +62,7 @@ else
    echo "Failed to create" $CONTAINER_NAME
 fi
 pipework br0  $CONTAINER_NAME  dhclient
-SATELLITE_INSTALLED_COMPSE=`docker exec -it $CONTAINER_NAME cat /etc/redhat-release`
+SATELLITE_INSTALLED_COMPSE=`docker exec -i $CONTAINER_NAME cat /etc/redhat-release`
 echo "SATELLITE_INSTALLED_COMPSE is "$SATELLITE_INSTALLED_COMPSE
 if [[ $SATELLITE_INSTALLED_COMPSE =~ "release 7" ]]
 then
