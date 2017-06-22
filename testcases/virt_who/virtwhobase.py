@@ -37,6 +37,14 @@ class VIRTWHOBase(Base):
         else:
             logger.info("virt-who package is not install, need to install.")
 
+    def start_dbus_daemon(self, targetmachine_ip=""):
+        cmd = "dbus-daemon --system"
+        ret, output = self.runcmd(cmd, "start dbus-daemon", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to start dbus-daemon.")
+        else:
+            logger.info("Failed to start dbus-daemon.")
+
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
@@ -47,6 +55,7 @@ class VIRTWHOBase(Base):
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
 #         if server_compose == "ohsnap-satellite":
+        self.start_dbus_daemon(targetmachine_ip)
         if "release" in rhel_compose:
             if not self.sub_isregistered(targetmachine_ip):
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")

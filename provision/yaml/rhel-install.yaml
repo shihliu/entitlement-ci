@@ -58,6 +58,44 @@
             properties-file: $WORKSPACE/RESOURCES.txt
 
 - job-template:
+    name: 'rhel-release-install-provision-2'
+    #defaults: virt-who-provision
+    node: docker-rhel7-2
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SERVER_COMPOSE=ohsnap-satellite
+            #export RHEL_COMPOSE=release
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3 or default, when it is null,it will create all images
+            echo "*********************************setup env*********************************"
+            #convert switch for testing against satellite
+            if [ "$VIRTWHO_SRC"x = "default"x ]
+            then
+                #Provision rhel6.8 released img
+                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel6.8
+            
+                #Provision rhel6.9 released img
+                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel6.9
+
+                #Provision rhel7.3 released img
+                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.3
+            elif [ "$VIRTWHO_SRC"x = $VIRTWHO_SRC ]
+            then
+                #Provision rhel6.8 released img
+                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=$VIRTWHO_SRC
+            else
+                echo "nothing to do"
+            fi
+            echo "********************************runtime env********************************"
+            env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|VIRTWHO_SRC|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+
+- job-template:
     name: 'rhel6-install-provision'
     defaults: virt-who-provision
     node: docker-rhel
@@ -144,6 +182,53 @@
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
           current-parameters: false
+
+- job-template:
+    name: 'rhel7-install-provision-2'
+    defaults: virt-who-provision
+    node: docker-rhel7-2
+    builders:
+        - shell: |
+            #!/bin/bash
+            echo "*********************************setup env*********************************"
+            #setup environment here to run alone, change back when finished
+            #export SERVER_COMPOSE=
+            #export RHEL_COMPOSE=
+            echo "*********************************setup env*********************************"
+            echo "***********************provision $RHEL_COMPOSE img*************************"
+            echo "RHEL_COMPOSE" is $RHEL_COMPOSE
+            RHEL_IMAGE_NAME=$(echo $RHEL_COMPOSE | tr '[A-Z]' '[a-z]')
+            
+            docker images|grep $RHEL_IMAGE_NAME
+            isRhelExist=$?
+            if [ $isRhelExist -eq 0 ]
+            then
+               docker rmi -f $RHEL_IMAGE_NAME
+            fi
+            $WORKSPACE/entitlement-ci/provision/rhel-base-new.sh
+            if [ "$SERVER_TYPE"x = "DEFAULT"x ]
+            then
+                export SERVER_TYPE="STAGE"
+                echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
+            fi
+            #if [ "$SERVER_TYPE"x = "STAGE"x ]
+            #then 
+            #    echo STAGE_TRIGGER=True>>$WORKSPACE/STAGE_TRIGGER.txt
+            #fi
+            echo "***********************provision $RHEL_COMPOSE img*************************"
+            echo "********************************runtime env********************************"
+            env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' | sort | xargs -i -d "\n" echo "export" {}
+            env | grep -E '(SERVER_COMPOSE|SERVER_TYPE|RHEL_COMPOSE)' >> $WORKSPACE/RESOURCES.txt
+            echo "********************************runtime env********************************"
+        - inject:
+            properties-file: $WORKSPACE/RESOURCES.txt
+        - inject:
+            properties-file: $WORKSPACE/STAGE_TRIGGER.txt
+    publishers:
+      - archive:
+          artifacts: '**/**'
+          allow-empty: 'true'
+      - trigger-parameterized-builds:
         - project: virt-who-remote-libvirt-provision
           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
           fail-on-missing: true
@@ -159,6 +244,8 @@
       - 'rhel6-install-provision'
       - 'rhel7-install-provision'
       - 'rhel-release-install-provision'
+      - 'rhel7-install-provision-2'
+      - 'rhel-release-install-provision-2'
 
 - project:
     name: rhel-install-jobs
