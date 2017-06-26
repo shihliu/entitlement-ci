@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
@@ -60,7 +60,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             host_uuid = self.get_host_uuid(remote_ip_1)
@@ -119,7 +119,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
@@ -175,7 +175,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
@@ -224,7 +224,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
@@ -276,7 +276,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
@@ -338,7 +338,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")

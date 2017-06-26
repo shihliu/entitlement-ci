@@ -94,7 +94,7 @@ class VDSMBase(VIRTWHOBase):
         self.rhevm_change_guest_name(GUEST_NAME, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         RHEVM_IP = get_exported_param("RHEVM_IP")
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
@@ -106,7 +106,7 @@ class VDSMBase(VIRTWHOBase):
         self.service_command("restart_virtwho")
 
     def rhel_vdsm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)

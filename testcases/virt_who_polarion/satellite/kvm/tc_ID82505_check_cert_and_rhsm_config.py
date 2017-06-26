@@ -7,7 +7,7 @@ class tc_ID82505_check_cert_and_rhsm_config(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
             # (1) Register host to Server 

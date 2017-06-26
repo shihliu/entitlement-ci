@@ -7,7 +7,7 @@ class tc_ID82622_XEN_check_mapping_with_proxy(XENBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             xen_host_ip = self.get_vw_cons("XEN_HOST")

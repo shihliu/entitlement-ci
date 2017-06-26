@@ -8,7 +8,7 @@ class tc_ID17235_check_rhsm_username_passwd_in_virtwho_d(KVMBase):
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.update_config_to_default(remote_ip_2)
             self.update_vw_configure(targetmachine_ip=remote_ip_2)
             self.runcmd_service("stop_virtwho", remote_ip_2)

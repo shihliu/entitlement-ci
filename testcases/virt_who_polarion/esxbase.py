@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class ESXBase(VIRTWHOBase):
 
     def esx_setup(self):
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)

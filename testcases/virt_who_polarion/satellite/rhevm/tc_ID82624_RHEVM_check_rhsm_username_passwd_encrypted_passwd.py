@@ -7,7 +7,7 @@ class tc_ID82624_RHEVM_check_rhsm_username_passwd_encrypted_passwd(VDSMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
             # (1) Check "rhsm_username+rhsm_passwd"

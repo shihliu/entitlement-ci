@@ -7,7 +7,7 @@ class tc_ID17275_XEN_validate_compliance_unregister_host_check_mapping_when_re_r
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             xen_host_ip = self.get_vw_cons("XEN_HOST")
 
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")

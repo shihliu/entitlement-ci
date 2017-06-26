@@ -7,7 +7,7 @@ class tc_ID17264_validate_compliance_check_uuid_when_migrate_guest_to_subscribe_
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)

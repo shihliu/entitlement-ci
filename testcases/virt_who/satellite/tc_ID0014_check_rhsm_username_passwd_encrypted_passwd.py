@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0014_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
     def run_kvm(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_ip = get_exported_param("REMOTE_IP")
             self.runcmd_service("stop_virtwho")
@@ -52,7 +52,7 @@ class tc_ID0014_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             # (1) Check "rhsm_username+rhsm_passwd"
             self.config_option_disable("VIRTWHO_RHEVM")
@@ -82,7 +82,7 @@ class tc_ID0014_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             # (1) Check "rhsm_username+rhsm_passwd"
             self.config_option_disable("VIRTWHO_HYPERV")
@@ -112,7 +112,7 @@ class tc_ID0014_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             # (1) Check "rhsm_username+rhsm_passwd"
             self.config_option_disable("VIRTWHO_ESX")
@@ -142,7 +142,7 @@ class tc_ID0014_check_rhsm_username_passwd_encrypted_passwd(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             # (1) Check "rhsm_username+rhsm_passwd"
             self.config_option_disable("VIRTWHO_XEN")

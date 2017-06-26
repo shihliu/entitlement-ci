@@ -185,7 +185,7 @@ class XENBase(VIRTWHOBase):
     #       XEN - test env set up function
     # ========================================================
     def xen_setup(self):
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         self.set_xen_conf()
         self.runcmd_service("restart_virtwho")
         self.sub_unregister()

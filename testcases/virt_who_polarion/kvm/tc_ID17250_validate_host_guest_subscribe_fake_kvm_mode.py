@@ -8,7 +8,7 @@ class tc_ID17250_validate_host_guest_subscribe_fake_kvm_mode(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)

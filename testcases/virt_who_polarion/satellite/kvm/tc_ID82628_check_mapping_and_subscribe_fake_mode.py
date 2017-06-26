@@ -7,7 +7,7 @@ class tc_ID82628_check_mapping_and_subscribe_fake_mode(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_ip = get_exported_param("REMOTE_IP")
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")

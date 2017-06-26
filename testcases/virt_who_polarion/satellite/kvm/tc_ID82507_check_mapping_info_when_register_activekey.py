@@ -7,7 +7,7 @@ class tc_ID82507_KVM_check_mapping_info_when_register_activekey(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             kvm_owner, kvm_env, kvm_username, kvm_password = self.get_libvirt_info()
             key_name = "define_key"
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")

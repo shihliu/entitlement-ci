@@ -7,7 +7,7 @@ class tc_ID82636_HYPERV_validate_dc_host_vdc_guest_multi_sockets(HYPERVBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             host_test_sku = self.get_vw_cons("datacenter_sku_id")

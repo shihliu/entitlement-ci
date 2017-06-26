@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0003_check_register_host_guest_with_active_key(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             kvm_owner, kvm_env, kvm_username, kvm_password = self.get_libvirt_info()
             key_name = "define_key"
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
@@ -41,7 +41,7 @@ class tc_ID0003_check_register_host_guest_with_active_key(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             rhevm_owner, rhevm_env, rhevm_username, rhevm_password = self.get_rhevm_info()
             key_name = "define_key"
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
@@ -70,7 +70,7 @@ class tc_ID0003_check_register_host_guest_with_active_key(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             key_name="define_key"
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
@@ -98,7 +98,7 @@ class tc_ID0003_check_register_host_guest_with_active_key(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
             key_name="define_key"
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
@@ -127,7 +127,7 @@ class tc_ID0003_check_register_host_guest_with_active_key(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             xen_owner, xen_env, xen_server, xen_username, xen_password = self.get_xen_info()
             key_name="define_key"
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")

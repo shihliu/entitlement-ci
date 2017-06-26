@@ -7,7 +7,7 @@ class tc_ID17269_XEN_check_host_guest_association(XENBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)

@@ -7,7 +7,7 @@ class tc_ID17235_HYPERV_check_rhsm_username_passwd_in_virtwho_d(HYPERVBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
             # (1) Disable hyperv mode in /etc/sysconfig/virt-who

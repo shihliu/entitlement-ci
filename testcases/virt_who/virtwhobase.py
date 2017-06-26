@@ -1664,7 +1664,7 @@ class VIRTWHOBase(Base):
     #       ESX Functions
     # ========================================================
     def esx_setup(self):
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
@@ -2068,7 +2068,7 @@ class VIRTWHOBase(Base):
     # Set hyperv test env. including:
     # 1. Configure virt-who run at hyperv mode
     # 2. Register system to server 
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         hyperv_host = self.get_vw_cons("HYPERV_HOST")
         self.set_hyperv_conf()
         self.runcmd_service("restart_virtwho")
@@ -2281,7 +2281,7 @@ class VIRTWHOBase(Base):
     #       Xen Functions
     # ========================================================
     def xen_setup(self):
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         self.set_xen_conf()
         self.runcmd_service("restart_virtwho")
         self.sub_unregister()
@@ -2839,7 +2839,7 @@ class VIRTWHOBase(Base):
     #       KVM - test env set up function
     # ========================================================
     def remote_libvirt_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         remote_host_1 = get_exported_param("REMOTE_IP_1")
         remote_host_2 = get_exported_param("REMOTE_IP_2")
         guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
@@ -2859,7 +2859,7 @@ class VIRTWHOBase(Base):
 
 
     def kvm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
@@ -2933,7 +2933,7 @@ class VIRTWHOBase(Base):
         self.stop_firewall(targetmachine_ip)
 
     def kvm_setup_arch(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
@@ -3047,7 +3047,7 @@ class VIRTWHOBase(Base):
         self.rhevm_change_guest_name(GUEST_NAME, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         RHEVM_IP = get_exported_param("RHEVM_IP")
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
@@ -3059,7 +3059,7 @@ class VIRTWHOBase(Base):
         self.service_command("restart_virtwho")
 
     def rhel_vdsm_setup(self):
-        SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+        SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)

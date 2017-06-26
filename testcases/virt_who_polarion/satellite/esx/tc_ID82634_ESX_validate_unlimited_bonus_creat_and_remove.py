@@ -7,7 +7,7 @@ class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(ESXBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)

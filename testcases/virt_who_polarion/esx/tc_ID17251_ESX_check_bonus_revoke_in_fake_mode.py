@@ -9,7 +9,7 @@ class tc_ID17251_ESX_check_bonus_revoke_in_fake_mode(ESXBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")

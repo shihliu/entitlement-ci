@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
@@ -43,7 +43,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
@@ -82,7 +82,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
@@ -132,7 +132,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             host_uuid = self.esx_get_host_uuid(esx_host_ip)

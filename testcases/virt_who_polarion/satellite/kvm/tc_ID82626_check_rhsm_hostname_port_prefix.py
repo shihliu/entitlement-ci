@@ -7,7 +7,7 @@ class tc_ID82626_check_rhsm_hostname_port_prefix(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             server_port = "443"
             server_prefix = "/rhsm"

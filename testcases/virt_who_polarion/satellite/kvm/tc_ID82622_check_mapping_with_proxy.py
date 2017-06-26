@@ -7,7 +7,7 @@ class tc_ID82622_check_mapping_with_proxy(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             guest_uuid = self.vw_get_uuid(guest_name)

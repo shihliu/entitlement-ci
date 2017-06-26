@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0016_check_hypervisor_id_in_virtwho_d(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_KVM")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")

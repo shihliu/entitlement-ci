@@ -7,7 +7,7 @@ class tc_ID82505_XEN_check_cert_and_rhsm_config(XENBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)

@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0011_check_http_https_proxy(VIRTWHOBase):
     def run_kvm(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             guest_uuid = self.vw_get_uuid(guest_name)
@@ -40,7 +40,7 @@ class tc_ID0011_check_http_https_proxy(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             http_proxy = self.get_vw_cons("http_proxy")
@@ -62,7 +62,7 @@ class tc_ID0011_check_http_https_proxy(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
@@ -84,7 +84,7 @@ class tc_ID0011_check_http_https_proxy(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
@@ -105,7 +105,7 @@ class tc_ID0011_check_http_https_proxy(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             http_proxy = self.get_vw_cons("http_proxy")
             xen_host_ip = self.get_vw_cons("XEN_HOST")

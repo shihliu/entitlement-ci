@@ -212,7 +212,7 @@ class HYPERVBase(VIRTWHOBase):
     # Set hyperv test env. including:
     # 1. Configure virt-who run at hyperv mode
     # 2. Register system to server 
-        server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+        server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         hyperv_host = self.get_vw_cons("HYPERV_HOST")
         self.set_hyperv_conf()
         self.runcmd_service("restart_virtwho")

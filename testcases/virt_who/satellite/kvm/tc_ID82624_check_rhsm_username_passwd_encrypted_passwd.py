@@ -8,7 +8,7 @@ class tc_ID82624_check_rhsm_username_passwd_encrypted_passwd(KVMBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_ip = get_exported_param("REMOTE_IP")
             self.runcmd_service("stop_virtwho")

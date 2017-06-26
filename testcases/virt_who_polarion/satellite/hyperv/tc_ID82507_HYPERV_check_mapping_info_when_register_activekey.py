@@ -7,7 +7,7 @@ class tc_ID82507_HYPERV_check_mapping_info_when_register_activekey(HYPERVBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             hyperv_owner, hyperv_env, hyperv_server, hyperv_username, hyperv_password = self.get_hyperv_info()
             key_name="define_key"
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")

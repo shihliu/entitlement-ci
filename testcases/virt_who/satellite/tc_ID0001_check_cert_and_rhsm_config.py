@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0001_check_cert_and_rhsm_config(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
             # (1) Register host to Server 
@@ -41,7 +41,7 @@ class tc_ID0001_check_cert_and_rhsm_config(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             
@@ -70,7 +70,7 @@ class tc_ID0001_check_cert_and_rhsm_config(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
 
             # (1) Register host to Server 
@@ -98,7 +98,7 @@ class tc_ID0001_check_cert_and_rhsm_config(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
 
@@ -127,7 +127,7 @@ class tc_ID0001_check_cert_and_rhsm_config(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)

@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0002_check_register_host_guest_with_cli(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
             # (1) Unregister host and configure kvm
@@ -31,7 +31,7 @@ class tc_ID0002_check_register_host_guest_with_cli(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             guestuuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
@@ -50,7 +50,7 @@ class tc_ID0002_check_register_host_guest_with_cli(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             guestuuid = self.hyperv_get_guest_guid(guest_name)
             hostuuid = self.hyperv_get_host_uuid()
@@ -68,7 +68,7 @@ class tc_ID0002_check_register_host_guest_with_cli(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
             guestuuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
@@ -88,7 +88,7 @@ class tc_ID0002_check_register_host_guest_with_cli(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             xen_host_ip = self.get_vw_cons("XEN_HOST")
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)

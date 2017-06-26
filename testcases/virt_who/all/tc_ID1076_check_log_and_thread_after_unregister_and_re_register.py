@@ -7,7 +7,7 @@ class tc_ID1076_check_log_and_thread_after_unregister_and_re_register(VIRTWHOBas
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             # (1).Unregister host,check virt-who log and threads
             self.runcmd_service("restart_virtwho")
             cmd_unreg = "subscription-manager unregister"

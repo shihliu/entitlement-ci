@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.runcmd_service("stop_virtwho")
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
@@ -32,7 +32,7 @@ class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
@@ -67,7 +67,7 @@ class tc_ID1067_check_hypervisor_id_and_filter_hosts_in_virtwho_d(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")

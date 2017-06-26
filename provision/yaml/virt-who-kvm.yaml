@@ -60,10 +60,10 @@
         recipients: shihliu@redhat.com
         reply-to: shihliu@redhat.com
         content-type: default
-        subject: '[Entitlement-CI]($SERVER_TYPE) $PROJECT_NAME on $VIRTWHO_ORIGINAL_SRC -
+        subject: '[Entitlement-CI]($SERVER_TYPE_ORIGINAL) $PROJECT_NAME on $VIRTWHO_ORIGINAL_SRC -
           $BUILD_STATUS!'
         body: |-
-          [$SERVER_TYPE] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_ORIGINAL_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
+          [$SERVER_TYPE_ORIGINAL] $PROJECT_NAME on $RHEL_COMPOSE $REMOTE_HOSTNAME $VIRTWHO_ORIGINAL_SRC- Build # $BUILD_NUMBER - $BUILD_STATUS:
 
           Runtime Info As Follows:
 
@@ -78,7 +78,7 @@
           export VIRTWHO_SRC=$VIRTWHO_ORIGINAL_SRC
           export RHEL_HOST1_IP=$REMOTE_HOST_1
           export RHEL_HOST2_IP=$REMOTE_HOST_2
-          export SERVER_TYPE=$SERVER_TYPE
+          export SERVER_TYPE=$SERVER_TYPE_ORIGINAL
           export SERVER_IP=$SERVER_IP
           export SERVER_HOSTNAME=$SERVER_HOSTNAME
           export SERVER_COMPOSE=$SERVER_COMPOSE
@@ -197,7 +197,8 @@
         echo "************************check trigger condition of another remote-libvirt*****************" 
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         if [ "$RHEL_COMPOSE" == "release" ]
-        then 
+        then
+          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
           #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWNEWRUN.txt
@@ -224,9 +225,26 @@
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
              rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
           fi
+        else if [ "$SERVER_TYPE" == "SATELLITE" ]
+        then
+          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
+          export SERVER_IP=10.66.129.0
+          export SERVER_HOSTNAME=samserv.redhat.com
+          export SERVER_COMPOSE=Check CDN Repo
+          export SERVER_TYPE=SAM
+          echo TRIGGER_SAM=YES>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+        else if [ "$SERVER_TYPE" == "SAM" ]
+        then
+          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
+          export SERVER_TYPE=STAGE
+          echo TRIGGER_STAGE=YES>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         else
-          export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
           rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
+        # Old logic when satellite/sam/stage in the same round
+        #else
+        #  export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+        #  rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC

@@ -259,8 +259,8 @@ class Base(unittest.TestCase):
         return platform
 
     def get_server_info(self):
-        # usage: server_ip, server_hostname, server_user, server_pass = self.get_server_info()
-        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), self.get_vw_cons("username"), self.get_vw_cons("password")
+        # usage: server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
+        return get_exported_param("SERVER_IP"), get_exported_param("SERVER_HOSTNAME"), get_exported_param("SERVER_TYPE"),self.get_vw_cons("username"), self.get_vw_cons("password")
 
     def get_esx_info(self):
         # usage: esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()

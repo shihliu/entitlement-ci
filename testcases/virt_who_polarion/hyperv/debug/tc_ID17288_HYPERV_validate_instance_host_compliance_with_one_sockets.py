@@ -7,7 +7,7 @@ class tc_ID17288_HYPERV_validate_instance_host_compliance_with_one_sockets(HYPER
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             test_sku = self.get_vw_cons("instancebase_sku_id")
             sku_name = self.get_vw_cons("instancebase_name")

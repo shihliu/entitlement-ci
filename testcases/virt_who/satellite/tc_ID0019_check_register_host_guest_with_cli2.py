@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID0019_check_mapping_and_subscribe_fake_mode(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
             remote_ip = get_exported_param("REMOTE_IP")
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
@@ -74,7 +74,7 @@ class tc_ID0019_check_mapping_and_subscribe_fake_mode(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
@@ -122,7 +122,7 @@ class tc_ID0019_check_mapping_and_subscribe_fake_mode(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
@@ -169,7 +169,7 @@ class tc_ID0019_check_mapping_and_subscribe_fake_mode(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_ESX")
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
@@ -218,7 +218,7 @@ class tc_ID0019_check_mapping_and_subscribe_fake_mode(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_XEN")
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")

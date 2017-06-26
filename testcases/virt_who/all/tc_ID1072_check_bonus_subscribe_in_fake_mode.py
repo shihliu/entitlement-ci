@@ -5,7 +5,7 @@ from utils.exception.failexception import FailException
 class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
     def run_kvm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
             guestuuid = self.vw_get_uuid(guest_name)
@@ -53,10 +53,11 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_remote_libvirt(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
             guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
@@ -90,7 +91,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (4) Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "stage" in SERVER_TYPE:
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)  
             # (5) subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # (6) list consumed subscriptions on guest
@@ -106,7 +110,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_vdsm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
@@ -155,7 +159,7 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_RHEVM")
@@ -167,13 +171,17 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
+            host1_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister rhevm hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "STAGE" in SERVER_TYPE:
+                self.server_remove_system(host1_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register rhevm hypervisor with fake mode
             self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("rhevm")
@@ -184,7 +192,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (4) Subscribe fake rhevm host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            if "stage" in SERVER_TYPE:
+                self.server_subscribe_system(host1_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)  
             # (5) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
@@ -202,12 +213,13 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.runcmd_service("stop_virtwho")
             self.config_option_disable("VIRTWHO_HYPERV")
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -218,7 +230,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister hyperv hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "STAGE" in SERVER_TYPE:
+                self.server_remove_system(hyperv_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register hyperv hypervisor with fake mode
             fake_file = self.generate_fake_file("hyperv")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -230,8 +245,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (4) Subscribe fake hyperv host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
-            # (5) List available pools of guest, check related bonus pool generated.
+            if "stage" in SERVER_TYPE:
+                self.server_subscribe_system(hyperv_host_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)            # (5) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
             self.sub_listconsumed(sku_name, guestip)
@@ -250,11 +267,12 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
         try:
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
+            esx_host_name = self.esx_get_hostname(esx_host_ip)
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
 
@@ -263,7 +281,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             sku_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
 
             # (1) Unregister esx hypervisor in server 
-            self.server_remove_system(host_uuid, server_ip)
+            if "STAGE" in server_type:
+                self.server_remove_system(esx_host_name, server_ip)
+            else:
+                self.server_remove_system(host_uuid, server_ip)
             # (2) Register hyperv hypervisor with fake mode
             fake_file = self.generate_fake_file("esx")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -279,7 +300,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
             # subscribe esx host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
+            if "STAGE" in server_type:
+                self.server_subscribe_system(esx_host_name, self.get_poolid_by_SKU(sku_id), server_ip)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
             # list available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, sku_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
@@ -297,11 +321,12 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            SERVER_IP, SERVER_HOSTNAME, SERVER_USER, SERVER_PASS = self.get_server_info()
+            SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             self.config_option_disable("VIRTWHO_XEN")
             guest_name = self.get_vw_guest_name("XEN_GUEST_NAME")
             xen_host_ip = self.get_vw_cons("XEN_HOST")
+            xen_host_name = self.xen_get_hostname(xen_host_ip)
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)
             host_uuid = self.xen_get_host_uuid(xen_host_ip)
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -315,7 +340,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Unregister xen hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "STAGE" in SERVER_TYPE:
+                self.server_remove_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             # (2) Register xen hypervisor with fake mode
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -326,7 +354,10 @@ class tc_ID1072_check_bonus_subscribe_in_fake_mode(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (4) Subscribe fake xen host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            if "STAGE" in SERVER_TYPE:
+                self.server_subscribe_system(xen_host_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
             # (5) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
