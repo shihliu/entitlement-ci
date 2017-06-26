@@ -6,7 +6,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
     def run_kvm(self):
         try:
             remote_ip_2 = get_exported_param("REMOTE_IP_2")
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.update_config_to_default(remote_ip_2)
             self.update_vw_configure(targetmachine_ip=remote_ip_2)
             self.runcmd_service("stop_virtwho", remote_ip_2)
@@ -27,7 +27,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
 #             self.update_config_to_default()
             self.config_option_disable("VIRTWHO_LIBVIRT")
             self.update_vw_configure()
@@ -53,7 +53,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
     def run_rhevm(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
             # (1) Disable rhevm mode in /etc/sysconfig/virt-who
@@ -72,7 +72,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
     def run_hyperv(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
             # (1) Disable hyperv mode in /etc/sysconfig/virt-who
@@ -90,7 +90,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
     def run_esx(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
             self.unset_esx_conf()
             self.set_rhsm_user_pass("esx", server_user, server_pass)
@@ -104,7 +104,7 @@ class tc_ID1051_check_rhsm_username_passwd_in_virtwho_d(VIRTWHOBase):
 
     def run_xen(self):
         try:
-            server_ip, server_hostname, server_user, server_pass = self.get_server_info()
+            server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             self.runcmd_service("stop_virtwho")
 
             # (1) Disable xen mode in /etc/sysconfig/virt-who
