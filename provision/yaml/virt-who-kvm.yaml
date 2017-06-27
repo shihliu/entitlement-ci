@@ -98,7 +98,7 @@
 - job-template:
     name: 'virt-who-remote-libvirt-provision'
     defaults: virt-who-provision
-    node: docker-rhel7-2
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -198,7 +198,7 @@
         #if [ "$RHEL_COMPOSE_EXIST"x = ""x ]
         if [ "$RHEL_COMPOSE" == "release" ]
         then
-          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE 
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE 
           if [ "$VIRTWHO_SRC"x = "default"x ] 
           then
           #  echo VIRTWHO_SRC=rhel6.8-sattool>>$WORKSPACE/REMOTE_LIBVIRT_NEWNEWRUN.txt
@@ -225,21 +225,21 @@
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
              rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
           fi
-        else if [ "$SERVER_TYPE" == "SATELLITE" ]
+        elif [ "$SERVER_TYPE" == "SATELLITE" ]
         then
-          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
           export SERVER_IP=10.66.129.0
           export SERVER_HOSTNAME=samserv.redhat.com
           export SERVER_COMPOSE=Check CDN Repo
           export SERVER_TYPE=SAM
           echo TRIGGER_SAM=YES>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
-        else if [ "$SERVER_TYPE" == "SAM" ]
+        elif [ "$SERVER_TYPE" == "SAM" ]
         then
-          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
           export SERVER_TYPE=STAGE
           echo TRIGGER_STAGE=YES>>$WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         else
-          export SERVER_TYPE_ORIGINAL = $SERVER_TYPE
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
           rm -rf $WORKSPACE/REMOTE_LIBVIRT_NEWRUN.txt
         # Old logic when satellite/sam/stage in the same round
         #else
@@ -249,10 +249,12 @@
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
+        echo "SERVER_TYPE_ORIGINAL is " $SERVER_TYPE_ORIGINAL
+        echo "SERVER_TYPE is " $SERVER_TYPE
         echo "********************************runtime env********************************"
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
-        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_TYPE_ORIGINAL|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_TYPE_ORIGINAL|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
+        env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_TYPE_ORIGINAL|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|REMOTE_IP_1|REMOTE_IP_2|RHEL_COMPOSE_EXIST)' >> $WORKSPACE/RESOURCES.txt
         echo "********************************runtime env********************************"
     - inject:
         properties-file: $WORKSPACE/RUNTIME_INFO.txt

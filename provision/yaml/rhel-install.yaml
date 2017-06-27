@@ -244,8 +244,8 @@
       - 'rhel6-install-provision'
       - 'rhel7-install-provision'
       - 'rhel-release-install-provision'
-      - 'rhel7-install-provision-2'
-      - 'rhel-release-install-provision-2'
+      #- 'rhel7-install-provision-2'
+      #- 'rhel-release-install-provision-2'
 
 - project:
     name: rhel-install-jobs

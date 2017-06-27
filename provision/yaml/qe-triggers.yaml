@@ -105,15 +105,15 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/SERVER.txt
-      - project: rhel7-install-provision-2
-        current-parameters: false
-        condition: SUCCESS
-        property-file: $WORKSPACE/SERVER.txt
       - project: 'rhevm-install-provision'
         current-parameters: false
         condition: 'SUCCESS'
         property-file: $WORKSPACE/SERVER.txt
         fail-on-missing: true
+#       - project: rhel7-install-provision-2
+#         current-parameters: false
+#         condition: SUCCESS
+#         property-file: $WORKSPACE/SERVER.txt
 
 - job-template:
     name: qe-satellite-62-ohsnap-trigger
@@ -157,15 +157,15 @@
         current-parameters: false
         condition: SUCCESS
         property-file: $WORKSPACE/BUILD.txt
-      - project: rhel-release-install-provision-2
-        current-parameters: false
-        condition: SUCCESS
-        property-file: $WORKSPACE/BUILD.txt
       - project: 'rhevm-install-provision'
         current-parameters: false
         condition: 'SUCCESS'
         property-file: $WORKSPACE/SERVER.txt
         fail-on-missing: true
+#       - project: rhel-release-install-provision-2
+#         current-parameters: false
+#         condition: SUCCESS
+#         property-file: $WORKSPACE/BUILD.txt
 
 - job-template:
     name: qe-satellite-63-ohsnap-trigger

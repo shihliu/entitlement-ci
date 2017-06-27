@@ -100,7 +100,7 @@
 - job-template:
     name: 'virt-who-rhev-provision'
     defaults: virt-who-provision
-    node: docker-rhel7-2
+    node: docker-rhel7
     builders:
         - shell: |
             #!/bin/bash
@@ -236,13 +236,32 @@
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
              rm -rf $WORKSPACE/RHEVMNEWRUN.txt
           fi
+        elif [ "$SERVER_TYPE" == "SATELLITE" ]
+        then
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
+          export SERVER_IP=10.66.129.0
+          export SERVER_HOSTNAME=samserv.redhat.com
+          export SERVER_COMPOSE=Check CDN Repo
+          export SERVER_TYPE=SAM
+          echo TRIGGER_SAM=YES>>$WORKSPACE/RHEVMNEWRUN.txt
+        elif [ "$SERVER_TYPE" == "SAM" ]
+        then
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
+          export SERVER_TYPE=STAGE
+          echo TRIGGER_STAGE=YES>>$WORKSPACE/RHEVMNEWRUN.txt
         else
-          export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
           rm -rf $WORKSPACE/RHEVMNEWRUN.txt
+        # Old logic when satellite/sam/stage in the same round
+        #else
+        #  export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+        #  rm -rf $WORKSPACE/RHEVMNEWRUN.txt
         fi 
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
+        echo "SERVER_TYPE_ORIGINAL is " $SERVER_TYPE_ORIGINAL
+        echo "SERVER_TYPE is " $SERVER_TYPE
         echo "********************************runtime env********************************"
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
@@ -322,13 +341,32 @@
              export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
              rm -rf $WORKSPACE/RHEVMNEWRUN.txt
           fi
+        elif [ "$SERVER_TYPE" == "SATELLITE" ]
+        then
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
+          export SERVER_IP=10.66.129.0
+          export SERVER_HOSTNAME=samserv.redhat.com
+          export SERVER_COMPOSE=Check CDN Repo
+          export SERVER_TYPE=SAM
+          echo TRIGGER_SAM=YES>>$WORKSPACE/RHEVMNEWRUN.txt
+        elif [ "$SERVER_TYPE" == "SAM" ]
+        then
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
+          export SERVER_TYPE=STAGE
+          echo TRIGGER_STAGE=YES>>$WORKSPACE/RHEVMNEWRUN.txt
         else
-          export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+          export SERVER_TYPE_ORIGINAL=$SERVER_TYPE
           rm -rf $WORKSPACE/RHEVMNEWRUN.txt
-        fi 
+        # Old logic when satellite/sam/stage in the same round
+        #else
+        #  export VIRTWHO_ORIGINAL_SRC=$VIRTWHO_SRC
+        #  rm -rf $WORKSPACE/RHEVMNEWRUN.txt
+        fi
         echo "VIRTWHO_SRC is"$VIRTWHO_SRC
         echo "VIRTWHO_ORIGINAL_SRC is "$VIRTWHO_ORIGINAL_SRC
         echo "RHEL_COMPOSE_EXIST is "$RHEL_COMPOSE_EXIST
+        echo "SERVER_TYPE_ORIGINAL is " $SERVER_TYPE_ORIGINAL
+        echo "SERVER_TYPE is " $SERVER_TYPE
         echo "********************************runtime env********************************"
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo {{}} | tee -a $WORKSPACE/RUNTIME_INFO.txt
         env | grep -E '(REMOTE_IP|REMOTE_HOSTNAME|SERVER_TYPE|SERVER_COMPOSE|VIRTWHO_SRC|VIRTWHO_ORIGINAL_SRC|SERVER_IP|SERVER_HOSTNAME|RHEL_COMPOSE|RHEVM_HOST1_IP|RHEVM_HOST2_IP|REMOTE_IP|RHEL_COMPOSE_EXIST)' | sort | xargs -i -d "\n" echo "export" {{}}
