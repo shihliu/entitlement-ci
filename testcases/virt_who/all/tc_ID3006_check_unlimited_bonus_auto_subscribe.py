@@ -149,9 +149,9 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             # (5) list consumed subscriptions on the guest, should be listed
             self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
         finally:
-            if guestip != None and guestip != "":
-                self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             if guestip != None and guestip != "":
+#                 self.sub_unregister(guestip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("---------- succeed to restore environment ----------")
 

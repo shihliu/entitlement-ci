@@ -8,11 +8,12 @@ class virtwho_rhel_rhevm_setup(VIRTWHOBase):
         try:
             if "RHEVH" in get_exported_param("RHEL_COMPOSE"):  
                 self.rhel_rhevm_sys_setup()
+                self.generate_ssh_key()
             else:
                 self.sys_setup()
                 self.rhel_rhevm_static_sys_setup()
             self.rhel_rhevm_setup()
-            self.generate_ssh_key()
+#             self.generate_ssh_key()
             # self.cm_install_desktop()
             self.assert_(True, case_name)
         except Exception, e:
