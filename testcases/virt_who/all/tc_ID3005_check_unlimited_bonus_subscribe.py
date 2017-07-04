@@ -59,7 +59,7 @@ class tc_ID3005_check_unlimited_bonus_subscribe(VIRTWHOBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Validate guest subscribe unlimited bonus pool by sku id.
             # subscribe the hypervisor to the physical pool which can generate bonus pool
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             else:
                 self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
@@ -72,7 +72,7 @@ class tc_ID3005_check_unlimited_bonus_subscribe(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # register hypervisor
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_unsubscribe_all_system(host_name, SERVER_IP)
             else:
                 self.server_unsubscribe_all_system(host_uuid, SERVER_IP)

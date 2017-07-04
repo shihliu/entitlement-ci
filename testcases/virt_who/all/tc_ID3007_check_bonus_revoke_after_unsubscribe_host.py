@@ -64,7 +64,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Validate guest consumed bonus pool will revoke after remove consumed sku on host
             # Subscribe hypervisor
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             else:
                 self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
@@ -73,7 +73,7 @@ class tc_ID3007_check_bonus_revoke_after_unsubscribe_host(VIRTWHOBase):
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unsubscribe all consumed sku on hosts
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_unsubscribe_all_system(host_name, SERVER_IP)
             else:
                 self.server_unsubscribe_all_system(host_uuid, SERVER_IP)

@@ -58,7 +58,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Subscribe hypervisor
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             else:
                 self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
@@ -70,7 +70,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             self.sub_unsubscribe(guestip)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
         finally:
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE:
                 self.server_unsubscribe_all_system(host_name, SERVER_IP)
             else:
                 self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
