@@ -46,6 +46,7 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
             SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             test_sku = self.get_vw_cons("datacenter_sku_id")
@@ -62,7 +63,10 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # subscribe the hypervisor to the physical pool which can generate bonus pool
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # (1). guest auto subscribe bonus pool
             self.sub_unsubscribe(guestip)
             self.sub_auto_subscribe(guestip)
@@ -77,7 +81,10 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             # register hypervisor
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.runcmd_service("restart_virtwho")
             self.vw_stop_guests(guest_name, remote_ip_1)
             logger.info("---------- succeed to restore environment ----------")

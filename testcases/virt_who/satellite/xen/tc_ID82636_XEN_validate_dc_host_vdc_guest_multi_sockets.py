@@ -19,6 +19,7 @@ class tc_ID82636_XEN_validate_dc_host_vdc_guest_multi_sockets(XENBase):
             self.xen_start_guest(guest_name, xen_host_ip)
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
+            xen_host_name = self.xen_get_hostname(xen_host_ip)
             self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
@@ -26,7 +27,10 @@ class tc_ID82636_XEN_validate_dc_host_vdc_guest_multi_sockets(XENBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # host subscribe datacenter pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(xen_host_name, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "8", guestip)
 
@@ -66,7 +70,10 @@ class tc_ID82636_XEN_validate_dc_host_vdc_guest_multi_sockets(XENBase):
                 self.sub_unregister(guestip)
 #             self.xen_stop_guest(guest_name, xen_host_ip)
             # unsubscribe all subscriptions on  hypervisor
-            self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

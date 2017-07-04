@@ -54,7 +54,6 @@ class VIRTWHOBase(Base):
         rhel_compose = get_exported_param("RHEL_COMPOSE")
         logger.info("tool_src is %s, server_compose is %s" % (tool_src, server_compose))
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
-#         if server_compose == "ohsnap-satellite":
         self.start_dbus_daemon(targetmachine_ip)
         if "release" in rhel_compose:
             if not self.sub_isregistered(targetmachine_ip):
@@ -2978,13 +2977,13 @@ class VIRTWHOBase(Base):
         vm_name =  "rhevh_" + rhel_rhevm_guest_name
         nfs_dir_for_storage = self.get_vw_cons("NFS_DIR_FOR_storage")
         nfs_dir_for_export = self.get_vw_cons("NFS_DIR_FOR_export")
-#         rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
-        rhevm_host1_name = self.get_hostname()
+        rhevm_host1_name, rhevm_host2_name = self.get_hostname(), self.get_hostname(get_exported_param("REMOTE_IP_2"))
+#         rhevm_host1_name = self.get_hostname()
         if "RHEVH" not in rhel_compose:
             self.sys_setup(targetmachine_ip)
             self.install_vdsm_package(rhel_compose)
             self.install_vdsm_package(rhel_compose, get_exported_param("REMOTE_IP_2"))
-        # self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
+        self.rhevm_version = self.cm_get_rpm_version("rhevm", rhevm_ip)
         self.conf_rhevm_shellrc(rhevm_ip)
         self.conf_cluster_cpu("Default", "Intel Conroe Family", rhevm_ip)
         self.rhevm_add_host(rhevm_host1_name, get_exported_param("REMOTE_IP"), rhevm_ip)
@@ -2992,13 +2991,19 @@ class VIRTWHOBase(Base):
         self.add_storagedomain_to_rhevm("data_storage", rhevm_host1_name, "data", "v3", nfs_ip, nfs_dir_for_storage, rhevm_ip)
         self.add_storagedomain_to_rhevm("export_storage", rhevm_host1_name, "export", "v1", nfs_ip, nfs_dir_for_export, rhevm_ip)
         self.add_vm_to_rhevm(rhel_rhevm_guest_name, vm_name, rhevm_host1_name, nfs_ip, nfs_dir_for_export, rhevm_ip)
-        self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
+        #self.update_vm_to_host(rhel_rhevm_guest_name, rhevm_host1_name, rhevm_ip)
         if "rhevm-3.5" not in self.rhevm_version:
-            if self.vdsm_check_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip) is True:
-                self.vdsm_rm_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip)
-                self.vdsm_add_vm_nw(rhel_rhevm_guest_name, rhevm_ip)
+            if "RHEVH" not in rhel_compose:
+                if self.vdsm_check_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip) is True:
+                    self.vdsm_rm_vm_nw(rhel_rhevm_guest_name, "eth0", rhevm_ip)
+                    self.vdsm_add_vm_nw(rhel_rhevm_guest_name, rhevm_ip)
         # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name(rhel_rhevm_guest_name, rhevm_ip)
+                self.rhevm_change_guest_name(rhel_rhevm_guest_name, rhevm_ip)
+            else:
+                if self.vdsm_check_vm_nw(vm_name, "eth0", rhevm_ip) is True:
+                    self.vdsm_rm_vm_nw(vm_name, "eth0", rhevm_ip)
+                    self.vdsm_add_vm_nw(vm_name, rhevm_ip)
+                self.rhevm_change_guest_name(vm_name, rhevm_ip)
 
     def rhel_rhevm_static_sys_setup(self, targetmachine_ip=""):
         RHEVM_IP = get_exported_param("RHEVM_IP")
@@ -3573,6 +3578,12 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to wget xml img file")
             else:
                 raise FailException("Failed to wget xml img file")
+            cmd = "sed -i 's/home/root/g' /root/rhevm_guest/xml/%s.xml" % vm_name
+            ret, output = self.runcmd(cmd, "update /root folder to /home", targetmachine_ip)
+            if ret == 0:
+                logger.info("Succeeded to update /root folder to /home")
+            else:
+                raise FailException("Failed to update /root folder to /home")
             cmd = "sed -i 's/^.*auth_unix_rw/#auth_unix_rw/' /etc/libvirt/libvirtd.conf"
             (ret, output) = self.runcmd(cmd, "Disable auth_unix_rw firstly in libvirtd config file", targetmachine_ip)
             if ret == 0:
@@ -3710,7 +3721,6 @@ class VIRTWHOBase(Base):
         ret, output = self.runcmd(cmd, "check vm exist or not before import vm", targetmachine_ip, showlogger=True)
 #         if ret == 0 :
         if vm_name in output:
-            logger.info("-----------output is %s===========" %output)
             logger.info("Succeeded to list vm %s ,it has been imported" % vm_name)
 #             break
         else:        
@@ -3731,7 +3741,7 @@ class VIRTWHOBase(Base):
                         self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
             self.update_vm_to_host(rhevm_vm_name, host_name, targetmachine_ip)
             self.update_vm_name(rhevm_vm_name, vm_name, targetmachine_ip)
-            self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
+#             self.import_vm_to_rhevm(rhevm_vm_name, data_storage_id, export_storage_id, targetmachine_ip)
 #         else:
 #             raise FailException("Failed to list vm in rhevm")
 

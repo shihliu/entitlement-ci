@@ -38,6 +38,7 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
             SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
@@ -54,8 +55,10 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
-
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # (2). list available pools on guest, check unlimited bonus pool generated.
             self.check_bonus_exist(test_sku, bonus_quantity, guestip)
         finally:
@@ -63,7 +66,10 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name, remote_ip_1)
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.runcmd_service("restart_virtwho")
             logger.info("---------- succeed to restore environment ----------")
 
@@ -103,6 +109,7 @@ class tc_ID3004_check_unlimited_bonus_creation(VIRTWHOBase):
             server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
+            host_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")

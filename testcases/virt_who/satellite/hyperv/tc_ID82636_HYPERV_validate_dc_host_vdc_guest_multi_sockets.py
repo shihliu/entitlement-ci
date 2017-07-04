@@ -20,13 +20,18 @@ class tc_ID82636_HYPERV_validate_dc_host_vdc_guest_multi_sockets(HYPERVBase):
             self.hyperv_start_guest(guest_name)
             guestip = self.hyperv_get_guest_ip(guest_name)
             hostuuid = self.hyperv_get_host_uuid()
+            hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # host subscribe datacenter pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(hyperv_host_name, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "8", guestip)
 
@@ -66,7 +71,10 @@ class tc_ID82636_HYPERV_validate_dc_host_vdc_guest_multi_sockets(HYPERVBase):
                 self.sub_unregister(guestip)
             self.hyperv_stop_guest(guest_name)
             # unsubscribe all subscriptions on  hypervisor
-            self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(hyperv_host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

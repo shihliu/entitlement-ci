@@ -16,6 +16,7 @@ class tc_ID82628_XEN_check_mapping_and_subscribe_fake_mode(XENBase):
             xen_host_ip = self.get_vw_cons("XEN_HOST")
             guest_uuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)
             host_uuid = self.xen_get_host_uuid(xen_host_ip)
+            xen_host_name = self.xen_get_hostname(xen_host_ip)
             virtwho_owner = self.get_vw_cons("server_owner")
             virtwho_env = self.get_vw_cons("server_env")
 
@@ -25,7 +26,10 @@ class tc_ID82628_XEN_check_mapping_and_subscribe_fake_mode(XENBase):
 
             # (1) Check mapping info in fake mode
             # (1.1) Unregister xen hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             # (1.2) Set xen fake mode, it will show host/guest mapping info
             fake_file = self.generate_fake_file("xen")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -39,7 +43,10 @@ class tc_ID82628_XEN_check_mapping_and_subscribe_fake_mode(XENBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (2.2) Subscribe fake xen host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(xen_host_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
             # (2.3) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
@@ -47,7 +54,10 @@ class tc_ID82628_XEN_check_mapping_and_subscribe_fake_mode(XENBase):
 
             # (3) Check bonus pool will revoke in fake mode
             # (3.1) Unsubscribe sku on xenisor
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # (3.2) Check consumed bonus pool revoke on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -61,7 +71,10 @@ class tc_ID82628_XEN_check_mapping_and_subscribe_fake_mode(XENBase):
                 self.sub_unregister(guestip)
             self.unset_all_virtwho_d_conf()
             self.set_xen_conf()
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             self.runcmd_service("restart_virtwho")
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

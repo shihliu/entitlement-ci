@@ -10,6 +10,8 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(HYPERVBase):
             server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             host_uuid = self.hyperv_get_host_uuid()
+            hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
@@ -26,14 +28,20 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(HYPERVBase):
                 self.configure_server(server_ip, server_hostname, guestip)
                 self.sub_register(server_user, server_pass, guestip)
             # (1.3) Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(hyperv_host_name, self.get_poolid_by_SKU(sku_id), server_ip)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), server_ip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
             # (1.4) List available pools of guest, check related bonus pool generated.
             self.sub_listconsumed(sku_name, guestip)
 
             # (2) Check unlimited bonus pool will revoke after unsubscribe pool on hypervisor
             # (2.1) Unsubscribe sku on hypervisor
-            self.server_unsubscribe_all_system(host_uuid, server_ip)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(hyperv_host_name, server_ip)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, server_ip)
             # (2.2) Check consumed bonus pool revoke on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -46,7 +54,10 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(HYPERVBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.hyperv_stop_guest(guest_name)
-            self.server_unsubscribe_all_system(host_uuid, server_ip)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(hyperv_host_name, server_ip)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

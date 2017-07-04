@@ -64,6 +64,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
             guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
 
             VIRTWHO_OWNER = self.get_vw_cons("server_owner")
@@ -96,13 +97,19 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (4) Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # (5) subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # (6) list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # (7) unregister hosts
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             self.sub_refresh(guestip)
             # (8) list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip, productexists=False)

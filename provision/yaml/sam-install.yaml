@@ -59,7 +59,7 @@
             #$WORKSPACE/entitlement-ci/provision/sam-provision.sh
             # *****************************************************       
             # Manual provision SAM Test Resources    
-            export SERVER_IP=10.66.129.175
+            export SERVER_IP=10.66.129.0
             export SERVER_HOSTNAME=samserv.redhat.com
             export SERVER_COMPOSE=Check CDN Repo
             echo SERVER_IP=$SERVER_IP>>RESOURCES.txt

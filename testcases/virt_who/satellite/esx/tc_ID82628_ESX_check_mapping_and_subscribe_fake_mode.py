@@ -14,6 +14,7 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
+            esx_host_name = self.esx_get_hostname(esx_host_ip)
             guest_uuid = self.esx_get_guest_uuid(guest_name, esx_host_ip)
             host_uuid = self.esx_get_host_uuid(esx_host_ip)
             virtwho_owner = self.get_vw_cons("server_owner")
@@ -25,7 +26,10 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
 
             # (1) Check mapping info in fake mode
             # (1.1) Unregister esx hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(esx_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP) 
             # (1.2) Set esx fake mode, it will show host/guest mapping info
             fake_file = self.generate_fake_file("esx")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -39,7 +43,10 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (2.2) Subscribe fake esx host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(esx_host_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
             # (2.3) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
@@ -47,7 +54,10 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
 
             # (3) Check bonus pool will revoke in fake mode
             # (3.1) Unsubscribe sku on hypervisor
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(esx_host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # (3.2) Check consumed bonus pool revoke on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -62,7 +72,10 @@ class tc_ID82628_ESX_check_mapping_and_subscribe_fake_mode(ESXBase):
                 self.sub_unregister(guestip)
             self.set_esx_conf()
             self.runcmd_service("restart_virtwho")
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(esx_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

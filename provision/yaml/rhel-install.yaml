@@ -228,15 +228,15 @@
       - archive:
           artifacts: '**/**'
           allow-empty: 'true'
-      - trigger-parameterized-builds:
-        - project: virt-who-remote-libvirt-provision
-          property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
-          fail-on-missing: true
-          current-parameters: false        
-        - project: 'rhevm-install-runtest'
-          property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
-          fail-on-missing: true
-          current-parameters: false
+#       - trigger-parameterized-builds:
+#         - project: virt-who-remote-libvirt-provision
+#           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+#           fail-on-missing: true
+#           current-parameters: false        
+#         - project: 'rhevm-install-runtest'
+#           property-file: $WORKSPACE/RESOURCES.txt,$WORKSPACE/STAGE_TRIGGER.txt
+#           fail-on-missing: true
+#           current-parameters: false
 
 - job-group:
     name: rhel-install-provision-runtest

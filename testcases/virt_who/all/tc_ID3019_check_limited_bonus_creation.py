@@ -43,6 +43,7 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
 
             test_sku = self.get_vw_cons("productid_guest")
             bonus_quantity = self.get_vw_cons("guestlimit")
@@ -57,7 +58,10 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
 
             # (2). List available pools on guest, check related bonus pool generated.
             self.check_bonus_exist(test_sku, bonus_quantity, guestip)
@@ -66,7 +70,10 @@ class tc_ID3019_check_limited_bonus_creation(VIRTWHOBase):
             self.sub_unsubscribe(guestip)
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
         finally:
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
             self.vw_stop_guests(guest_name, remote_ip_1)

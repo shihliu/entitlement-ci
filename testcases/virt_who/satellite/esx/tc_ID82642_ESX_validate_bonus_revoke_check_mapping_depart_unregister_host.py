@@ -11,6 +11,7 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
 
             guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
             esx_host_ip = self.get_vw_cons("ESX_HOST")
+            esx_host_name = self.esx_get_hostname(esx_host_ip)
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")
@@ -34,7 +35,10 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
             # (1) Validate guest consumed bonus pool will revoke after unregister host
             # (1.1)subscribe the host to the physical pool which can generate bonus pool
             # host subscribe datacenter pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(esx_host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
@@ -49,7 +53,10 @@ class tc_ID82642_ESX_validate_bonus_revoke_check_mapping_depart_unregister_host(
                 logger.info("Success to check virt-who log after unregister host")
             else:
                 raise FailException("failed to check virt-who log after unregister host")
-            self.server_remove_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(esx_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(hostuuid, SERVER_IP)
 #             time.sleep(60)
             self.sub_refresh(guestip)
             # (1.3)list consumed subscriptions on guest, bonus pool will revoke

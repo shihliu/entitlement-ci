@@ -67,6 +67,7 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guestuuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
 
             host_test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
@@ -82,8 +83,10 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # host subscribe datacenter pool
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
-
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "4", guestip)
 
@@ -114,7 +117,10 @@ class tc_ID3016_datacenter_check_guest_compliance_with_multi_sockets(VIRTWHOBase
             self.check_installed_status(installed_status_key, installed_status_value, guestip)
         finally:
             # unsubscribe host
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(host_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)

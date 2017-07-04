@@ -53,6 +53,7 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
             remote_ip_1 = get_exported_param("REMOTE_IP_1")
             guest_uuid = self.vw_get_uuid(guest_name, remote_ip_1)
             host_uuid = self.get_host_uuid(remote_ip_1)
+            host_name = self.get_hostname(remote_ip_1)
 
             test_sku = self.get_vw_cons("productid_unlimited_guest")
             bonus_quantity = self.get_vw_cons("guestlimit_unlimited_guest")
@@ -68,13 +69,19 @@ class tc_ID3008_check_bonus_revoke_and_mapping_after_reregister_host(VIRTWHOBase
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (1) Validate guest consumed bonus pool will revoke after unregister host
             # Subscribe hypervisor
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # unregister hosts
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(host_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
 #             time.sleep(60)
             self.sub_refresh(guestip)
             # list consumed subscriptions on guest

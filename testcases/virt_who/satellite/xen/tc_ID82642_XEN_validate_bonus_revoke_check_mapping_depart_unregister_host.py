@@ -19,6 +19,7 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
             guestip = self.xen_get_guest_ip(guest_name, xen_host_ip)
             guestuuid = self.xen_get_guest_uuid(guest_name, xen_host_ip)
             hostuuid = self.xen_get_host_uuid(xen_host_ip)
+            xen_host_name = self.xen_get_hostname(xen_host_ip)
             self.runcmd_service("restart_virtwho")
 
             # register guest to SAM
@@ -29,7 +30,10 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
             # (1) Validate guest consumed bonus pool will revoke after unregister host
             # (1.1)subscribe the host to the physical pool which can generate bonus pool
             # host subscribe datacenter pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(xen_host_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # subscribe the registered guest to the corresponding bonus pool
             self.sub_subscribe_to_bonus_pool(test_sku, guestip)
             # list consumed subscriptions on guest
@@ -44,15 +48,20 @@ class tc_ID82642_XEN_validate_bonus_revoke_check_mapping_depart_unregister_host(
                 logger.info("Success to check virt-who log after unregister host")
             else:
                 raise FailException("failed to check virt-who log after unregister host")
-            self.server_remove_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(xen_host_name, SERVER_IP)
+            else:
+                self.server_remove_system(hostuuid, SERVER_IP)
 #             time.sleep(60)
             self.sub_refresh(guestip)
             # (1.3)list consumed subscriptions on guest, bonus pool will revoke
             self.sub_listconsumed(sku_name, guestip, productexists=False)
             # (1.4) Check guest uuid after re-register
             self.sub_register(SERVER_USER, SERVER_PASS)
-            self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
-
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.hypervisor_check_uuid(xen_host_name, guestuuid, uuidexists=True)
+            else:
+                self.hypervisor_check_uuid(hostuuid, guestuuid, uuidexists=True)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))
