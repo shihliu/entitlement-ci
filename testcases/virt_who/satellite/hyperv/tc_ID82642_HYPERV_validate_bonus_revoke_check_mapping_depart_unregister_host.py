@@ -21,7 +21,7 @@ class tc_ID82642_HYPERV_validate_bonus_revoke_check_mapping_depart_unregister_ho
             guestuuid = self.hyperv_get_guest_guid(guest_name)
             hostuuid = self.hyperv_get_host_uuid()
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
-            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip).lower().replace('_','-')
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):

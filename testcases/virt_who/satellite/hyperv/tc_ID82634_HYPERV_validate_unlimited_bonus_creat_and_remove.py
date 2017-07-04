@@ -11,7 +11,7 @@ class tc_ID82634_HYPERV_validate_unlimited_bonus_creat_and_remove(HYPERVBase):
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             host_uuid = self.hyperv_get_host_uuid()
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
-            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip).lower().replace('_','-')
 
             sku_id = self.get_vw_cons("productid_unlimited_guest")
             sku_name = self.get_vw_cons("productname_unlimited_guest")

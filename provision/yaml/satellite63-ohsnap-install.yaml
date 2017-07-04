@@ -74,7 +74,7 @@
     node: 'satellite-slave'
     builders:
         - copyartifact:
-            project: 'satellite63-ohsnap-install-provision'
+            project: 'satellite63-ohsnap-install-provision-rhel7'
             filter: '*.txt, *.json'
             target: $WORKSPACE
         - shell: |

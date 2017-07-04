@@ -14,7 +14,7 @@ class tc_ID82628_HYPERV_check_mapping_and_subscribe_fake_mode(HYPERVBase):
 
             guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
             hyperv_host_ip = self.get_vw_cons("HYPERV_HOST")
-            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip)
+            hyperv_host_name = self.hyperv_get_hostname(hyperv_host_ip).lower().replace('_','-')
             guest_uuid = self.hyperv_get_guest_guid(guest_name)
             host_uuid = self.hyperv_get_host_uuid()
             virtwho_owner = self.get_vw_cons("server_owner")
