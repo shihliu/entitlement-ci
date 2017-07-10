@@ -117,6 +117,7 @@ class VIRTWHOBase(Base):
             logger.info("Succeeded to setup system for virt-who testing.")
         else:
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+        self.start_dbus_daemon(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
         ''' stop iptables service and setenforce as 0. '''
@@ -1671,6 +1672,7 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
+        self.start_dbus_daemon()
         guest_name = self.get_vw_guest_name("ESX_GUEST_NAME")
         esx_guest_url = "http://%s/projects/sam-virtwho/esx_guest/" % self.get_vw_cons("data_server")
         self.wget_images(esx_guest_url, guest_name, esx_host)
@@ -2074,6 +2076,7 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
+        self.start_dbus_daemon()
         guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
 
     def hyperv_run_cmd(self, cmd, targetmachine_ip=""):
@@ -2286,6 +2289,7 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
+        self.start_dbus_daemon()
 
     def xen_get_hostname(self, targetmachine_ip=""):
         cmd = "hostname"
@@ -2847,6 +2851,7 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
+        self.start_dbus_daemon()
         # update virt-who configure file tp remote_libvirt mode
         self.set_remote_libvirt_conf(remote_host_1)
         # restart virt-who service
@@ -3058,6 +3063,7 @@ class VIRTWHOBase(Base):
         self.sub_unregister()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
+        self.start_dbus_daemon()
         # update virt-who to rhevm mode in /etc/sysconfig/virt-who
         self.update_config_to_default()
         self.set_rhevm_conf()

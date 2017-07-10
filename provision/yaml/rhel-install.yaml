@@ -21,7 +21,7 @@
 
 - job-template:
     name: 'rhel-release-install-provision'
-    #defaults: virt-who-provision
+    defaults: virt-who-provision
     node: docker-rhel7
     builders:
         - shell: |
@@ -59,7 +59,7 @@
 
 - job-template:
     name: 'rhel-release-install-provision-2'
-    #defaults: virt-who-provision
+    defaults: virt-who-provision
     node: docker-rhel7-2
     builders:
         - shell: |

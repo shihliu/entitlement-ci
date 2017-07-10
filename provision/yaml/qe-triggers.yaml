@@ -223,15 +223,19 @@
         #condition: 'SUCCESS'
         property-file: $WORKSPACE/BUILD.txt, $WORKSPACE/INSTALLONRHEL6.txt
         fail-on-missing: true  
-      #- project: rhel-release-install-provision
-      #  current-parameters: false
-      #  condition: SUCCESS
-      #  property-file: $WORKSPACE/BUILD.txt
-      #- project: 'rhevm-install-provision'
-      #  current-parameters: false
-      #  condition: 'SUCCESS'
-      #  property-file: $WORKSPACE/BUILD.txt
-      #  fail-on-missing: true
+      - project: rhel-release-install-provision
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
+      - project: 'rhevm-install-provision'
+        current-parameters: false
+        condition: 'SUCCESS'
+        property-file: $WORKSPACE/BUILD.txt
+        fail-on-missing: true
+      - project: rhel-release-install-provision-2
+        current-parameters: false
+        condition: SUCCESS
+        property-file: $WORKSPACE/BUILD.txt
 
 - job-template:
     name: qe-rhevh-trigger
