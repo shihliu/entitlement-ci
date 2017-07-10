@@ -57,9 +57,9 @@ class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(ESXBase):
                 self.sub_unregister(guestip)
             self.esx_stop_guest(guest_name, esx_host_ip)
             if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
-                self.server_unsubscribe_all_system(host_uuid, server_ip)
+                self.server_unsubscribe_all_system(esx_host_name, server_ip)
             else:
-                self.server_unsubscribe_all_system(esx_host_name, server_ip) 
+                self.server_unsubscribe_all_system(host_uuid, server_ip) 
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

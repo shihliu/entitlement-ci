@@ -106,7 +106,7 @@ class tc_ID1073_check_bonus_revoke_in_fake_mode(VIRTWHOBase):
             # (6) list consumed subscriptions on guest
             self.sub_listconsumed(sku_name, guestip)
             # (7) unregister hosts
-            if "stage" in SERVER_TYPE or "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+            if "stage" in SERVER_TYPE in get_exported_param("SERVER_COMPOSE"):
                 self.server_remove_system(host_name, SERVER_IP)
             else:
                 self.server_remove_system(host_uuid, SERVER_IP)
