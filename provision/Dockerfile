@@ -22,7 +22,7 @@ RUN pip install --upgrade nose
 # Update paramiko to make it with esx6.5
 RUN yum install -y gcc openssl-devel python-devel
 RUN pip install --upgrade pip
-RUN pip install --upgrade paramiko
+#RUN pip install --upgrade paramiko
 
 VOLUME ["/sys/fs"]
 VOLUME ["/run"]
