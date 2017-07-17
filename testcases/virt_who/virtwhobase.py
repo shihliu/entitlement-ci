@@ -46,7 +46,7 @@ class VIRTWHOBase(Base):
             logger.info("Failed to start dbus-daemon.")
 
     def downgrade_libacl(self, targetmachine_ip=""):
-        cmd = "yum downgrade libacl"
+        cmd = "yum downgrade libacl -y"
         ret, output = self.runcmd(cmd, "down-grade libacl", targetmachine_ip)
         if ret == 0:
             logger.info("Succeeded to down-grade libacl.")
@@ -72,8 +72,8 @@ class VIRTWHOBase(Base):
                 logger.info("*****os_srial is %s" %self.os_serial)
             # check if host registered to cdn server
                 if self.os_serial == "6":
-#                     logger.info("Down-grade libacl as failed to install virt-who")
-#                     self.downgrade_libacl(targetmachine_ip)
+                    logger.info("Down-grade libacl as failed to install virt-who")
+                    self.downgrade_libacl(targetmachine_ip)
                     logger.info("%s will installed on rhel6.8" %server_compose)
                     if "satellite63" in server_compose:
                         cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
@@ -118,6 +118,10 @@ class VIRTWHOBase(Base):
                     logger.info("Succeeded to add satellite ohsnap tools repo.")
                 else:
                     raise FailException("Test Failed - Failed to add satellite ohsnap tools repo.")
+            else:
+                if self.os_serial == "6":
+                    logger.info("Down-grade libacl as failed to install virt-who")
+                    self.downgrade_libacl(targetmachine_ip)
         if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
             self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
