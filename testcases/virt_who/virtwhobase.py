@@ -45,6 +45,14 @@ class VIRTWHOBase(Base):
         else:
             logger.info("Failed to start dbus-daemon.")
 
+    def downgrade_libacl(self, targetmachine_ip=""):
+        cmd = "yum downgrade libacl"
+        ret, output = self.runcmd(cmd, "down-grade libacl", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to down-grade libacl.")
+        else:
+            logger.info("Failed to down-grade libacl.")
+
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
@@ -64,6 +72,8 @@ class VIRTWHOBase(Base):
                 logger.info("*****os_srial is %s" %self.os_serial)
             # check if host registered to cdn server
                 if self.os_serial == "6":
+                    logger.info("Down-grade libacl as failed to install virt-who")
+                    self.downgrade_libacl(targetmachine_ip)
                     logger.info("%s will installed on rhel6.8" %server_compose)
                     if "satellite63" in server_compose:
                         cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
