@@ -54,6 +54,10 @@ else
    docker run --privileged -itd --name $IMAGE_NAME $IMAGE_NAME bash
    docker exec -i $IMAGE_NAME subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
    docker exec -i $IMAGE_NAME yum install -y openssh-server openssh-clients net-tools passwd hostname
+   if [[ "$IMAGE_NAME" =~ "rhel6" ]]
+   then
+     docker exec -i $IMAGE_NAME yum downgrade libacl
+   fi
    docker commit $IMAGE_NAME $IMAGE_NAME
    docker stop $IMAGE_NAME
    docker rm $IMAGE_NAME

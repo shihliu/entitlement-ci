@@ -72,8 +72,8 @@ class VIRTWHOBase(Base):
                 logger.info("*****os_srial is %s" %self.os_serial)
             # check if host registered to cdn server
                 if self.os_serial == "6":
-                    logger.info("Down-grade libacl as failed to install virt-who")
-                    self.downgrade_libacl(targetmachine_ip)
+#                     logger.info("Down-grade libacl as failed to install virt-who")
+#                     self.downgrade_libacl(targetmachine_ip)
                     logger.info("%s will installed on rhel6.8" %server_compose)
                     if "satellite63" in server_compose:
                         cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
