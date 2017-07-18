@@ -1682,7 +1682,7 @@ class VIRTWHOBase(Base):
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
@@ -1694,7 +1694,7 @@ class VIRTWHOBase(Base):
         self.esx_start_guest_first(guest_name, esx_host)
         # self.esx_service_restart(ESX_HOST)
         self.esx_stop_guest(guest_name, esx_host)
-        self.vw_restart_virtwho()
+        self.runcmd_service("restart_virtwho")
 
     def unset_esx_conf(self, targetmachine_ip=""):
         cmd = "sed -i -e 's/^VIRTWHO_ESX/#VIRTWHO_ESX/g' -e 's/^VIRTWHO_ESX_OWNER/#VIRTWHO_ESX_OWNER/g' -e 's/^VIRTWHO_ESX_ENV/#VIRTWHO_ESX_ENV/g' -e 's/^VIRTWHO_ESX_SERVER/#VIRTWHO_ESX_SERVER/g' -e 's/^VIRTWHO_ESX_USERNAME/#VIRTWHO_ESX_USERNAME/g' -e 's/^VIRTWHO_ESX_PASSWORD/#VIRTWHO_ESX_PASSWORD/g' /etc/sysconfig/virt-who" 
@@ -2092,6 +2092,7 @@ class VIRTWHOBase(Base):
         self.sub_register(server_user, server_pass)
         self.start_dbus_daemon()
         guest_name = self.get_vw_guest_name("HYPERV_GUEST_NAME")
+        self.runcmd_service("restart_virtwho")
 
     def hyperv_run_cmd(self, cmd, targetmachine_ip=""):
     # Run cmd on hyperv
@@ -2299,11 +2300,11 @@ class VIRTWHOBase(Base):
     def xen_setup(self):
         server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         self.set_xen_conf()
-        self.runcmd_service("restart_virtwho")
         self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         self.start_dbus_daemon()
+        self.runcmd_service("restart_virtwho")
 
     def xen_get_hostname(self, targetmachine_ip=""):
         cmd = "hostname"
