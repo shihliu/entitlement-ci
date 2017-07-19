@@ -27,6 +27,7 @@ esac
 done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
+if [ "$SERVER_PLATFORM" == "" ]; then SERVER_PLATFORM="rhel6"; fi
 if [ "$IMAGE_NAME" == "" ]
 then
   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
