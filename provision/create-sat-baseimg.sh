@@ -28,6 +28,7 @@ done
 
 if [ "$SITE" == "" ]; then SITE=`hostname`; fi
 if [ "$IMAGE_NAME" == "" ]; then IMAGE_NAME=rhel68; fi
+if [ "$SERVER_PLATFORM" == "" ]; then SERVER_PLATFORM=rhel6; fi
 if [ "$SATIMG_NAME" == "" ]
 then
   if [ "$SERVER_COMPOSE" == "ohsnap-satellite" ]
