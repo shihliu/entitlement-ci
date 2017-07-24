@@ -1281,7 +1281,7 @@ class VIRTWHOBase(Base):
         self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
 
     def vw_check_sending_finished(self, tmp_file, targetmachine_ip=""):
-        cmd = "grep -E 'Sending update in hosts-to-guests mapping|Sending update in guests lists|ERROR' %s" % tmp_file
+        cmd = "grep -E 'Host-to-guest mapping|Sending update in hosts-to-guests mapping|Sending update in guests lists|ERROR' %s" % tmp_file
         account = 0
         while account <= 30:
             ret, output = self.runcmd(cmd, "check virt-who sending host-guest mapping finished", showlogger=False, targetmachine_ip=targetmachine_ip)
