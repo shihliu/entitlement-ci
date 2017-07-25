@@ -24,9 +24,11 @@ class tc_ID82627_XEN_check_hypervisor_id_in_virtwho_d(XENBase):
             self.set_hypervisor_id("xen", "hostname")
             self.vw_check_mapping_info_in_rhsm_log(xen_host_name, guest_uuid)
             # (3) Set hypervisor_id=hwuuid, xen is not support hwuuid, it will report error
-#             self.set_hypervisor_id("xen", "hwuuid")
-#             self.vw_check_message_in_rhsm_log(xen_hwuuid, guest_uuid)
-
+            self.set_hypervisor_id("xen", "hwuuid")
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in hyperv backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
+            else:
+                self.vw_check_message_in_rhsm_log(xen_hwuuid, guest_uuid)
             self.assert_(True, case_name)
         except Exception, e:
             logger.error("Test Failed - ERROR Message:" + str(e))

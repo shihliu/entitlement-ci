@@ -23,8 +23,8 @@ class tc_ID82627_HYPERV_check_hypervisor_id_in_virtwho_d(HYPERVBase):
             self.set_hypervisor_id("hyperv", "hostname")
             self.vw_check_mapping_info_in_rhsm_log(hyperv_host_name, guest_uuid)
             # (3) Set hypervisor_id=hwuuid, hyperv is not support hwuuid, it will report error
-#             self.set_hypervisor_id("hyperv", "hwuuid")
-#             self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in hyperv backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
+            self.set_hypervisor_id("hyperv", "hwuuid")
+            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in hyperv backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
 
             self.assert_(True, case_name)
         except Exception, e:
