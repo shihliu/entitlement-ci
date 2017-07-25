@@ -24,8 +24,8 @@ class tc_ID82627_XEN_check_hypervisor_id_in_virtwho_d(XENBase):
             self.set_hypervisor_id("xen", "hostname")
             self.vw_check_mapping_info_in_rhsm_log(xen_host_name, guest_uuid)
             # (3) Set hypervisor_id=hwuuid, xen is not support hwuuid, it will report error
-            self.set_hypervisor_id("xen", "hwuuid")
-            self.vw_check_message_in_rhsm_log(xen_hwuuid, guest_uuid)
+#             self.set_hypervisor_id("xen", "hwuuid")
+#             self.vw_check_message_in_rhsm_log(xen_hwuuid, guest_uuid)
 
             self.assert_(True, case_name)
         except Exception, e:

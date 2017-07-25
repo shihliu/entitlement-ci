@@ -45,7 +45,6 @@ class tc_ID82634_ESX_validate_unlimited_bonus_creat_and_remove(ESXBase):
             else:
                 self.server_unsubscribe_all_system(host_uuid, server_ip)
             # (2.2) Check consumed bonus pool revoke on guest
-            self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
 
             self.assert_(True, case_name)
