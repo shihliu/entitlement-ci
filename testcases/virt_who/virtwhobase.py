@@ -53,6 +53,14 @@ class VIRTWHOBase(Base):
         else:
             logger.info("Failed to down-grade libacl.")
 
+    def install_argparse(self, targetmachine_ip=""):
+        cmd = "yum install -y python-argparse"
+        ret, output = self.runcmd(cmd, "install python-argparse as failed to start virt-who on satellite63", targetmachine_ip)
+        if ret == 0:
+            logger.info("Succeeded to install python-argparse.")
+        else:
+            logger.info("Failed to install python-argparse.")
+
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
@@ -74,6 +82,7 @@ class VIRTWHOBase(Base):
                 if self.os_serial == "6":
                     logger.info("Down-grade libacl as failed to install virt-who")
                     self.downgrade_libacl(targetmachine_ip)
+                    self.install_argparse(targetmachine_ip)
                     logger.info("%s will installed on rhel6.8" %server_compose)
                     if "satellite63" in server_compose:
                         cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
@@ -1097,6 +1106,9 @@ class VIRTWHOBase(Base):
         elif "Associations found: {" in output:
             logger.info("Found: Associations found")
             rex = re.compile(r'(?<=Associations found: ){.*?}\n+(?=201|$)', re.S)
+        elif "Hosts-to-guests mapping" in output:
+            logger.info("Found: Hosts-to-guests mapping")
+            rex = re.compile(r'(?<=Hosts-to-guests mapping ){.*?}\n+(?=201|$)', re.S)
         else:
             raise FailException("Failed to find hosts-to-guests mapping info in output data")
         mapping_info = rex.findall(output)
@@ -1352,7 +1364,7 @@ class VIRTWHOBase(Base):
         self.vw_check_message_number(cmd, message, msg_num, targetmachine_ip)
 
     def vw_check_sending_finished(self, tmp_file, targetmachine_ip=""):
-        cmd = "grep -E 'Host-to-guest mapping|Sending update in hosts-to-guests mapping|Sending update in guests lists|ERROR' %s" % tmp_file
+        cmd = "grep -E 'Host-to-guest mapping|Hosts-to-guests mapping|Sending update in hosts-to-guests mapping|Sending update in guests lists|ERROR' %s" % tmp_file
         account = 0
         while account <= 30:
             ret, output = self.runcmd(cmd, "check virt-who sending host-guest mapping finished", showlogger=False, targetmachine_ip=targetmachine_ip)
