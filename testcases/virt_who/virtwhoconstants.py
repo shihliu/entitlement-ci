@@ -69,7 +69,7 @@ class VIRTWHOConstants(object):
     "wrong_env":                                "xxxxxxx",
     "wrong_passwd":                             "xxxxxxWelcome",
     "vw_interval_check_msg":                    "No data to send, waiting for next interval",
-    "error_msg_with_wrong_passwd":              "Incorrect domain/username/password|incorrect user name or password|Authentication failure",
+    "error_msg_with_wrong_passwd":              "Incorrect domain/username/password|incorrect user name or password|Authentication failure|Unauthorized",
     "vm_default_interval_msg":                  "3600 seconds interval",
 
     "esx_error_msg_without_owner":              "Option --esx-owner (or VIRTWHO_ESX_OWNER environment variable) needs to be set",

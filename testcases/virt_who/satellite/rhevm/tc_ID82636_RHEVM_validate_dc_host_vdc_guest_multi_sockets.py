@@ -22,7 +22,6 @@ class tc_ID82636_RHEVM_validate_dc_host_vdc_guest_multi_sockets(VDSMBase):
 
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, hostuuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
-            hostuuid = self.rhevm_get_host_uuid()
 
             # register guest to SAM
             if not self.sub_isregistered(guestip):
