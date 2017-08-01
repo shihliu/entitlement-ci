@@ -12,6 +12,7 @@ class tc_ID82636_RHEVM_validate_dc_host_vdc_guest_multi_sockets(VDSMBase):
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_host1_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
             host_test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
@@ -28,7 +29,10 @@ class tc_ID82636_RHEVM_validate_dc_host_vdc_guest_multi_sockets(VDSMBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # host subscribe datacenter pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(rhevm_host1_name, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(host_test_sku), SERVER_IP)
             # Set up guest facts
             self.setup_custom_facts("cpu.cpu_socket(s)", "8", guestip)
 
@@ -68,7 +72,10 @@ class tc_ID82636_RHEVM_validate_dc_host_vdc_guest_multi_sockets(VDSMBase):
                 self.sub_unregister(guestip)
 #             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # unsubscribe all subscriptions on  hypervisor
-            self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

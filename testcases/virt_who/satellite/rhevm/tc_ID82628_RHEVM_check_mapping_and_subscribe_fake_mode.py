@@ -15,6 +15,7 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_host1_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
             guest_uuid = self.vdsm_get_vm_uuid(guest_name, rhevm_ip)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
@@ -26,8 +27,11 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
             sku_name = self.get_vw_cons("productname_unlimited_guest")
 
             # (1) Check mapping info in fake mode
-            # (1.1) Unregister rhevm hypervisor in server 
-            self.server_remove_system(host_uuid, SERVER_IP)
+            # (1.1) Unregister rhevm hypervisor in server
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             # (1.2) Set rhevm fake mode, it will show host/guest mapping info
             fake_file = self.generate_fake_file("rhevm")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
@@ -41,7 +45,10 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
                 self.configure_server(SERVER_IP, SERVER_HOSTNAME, guestip)
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             # (2.2) Subscribe fake rhevm host
-            self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(rhevm_host1_name, self.get_poolid_by_SKU(sku_id), SERVER_IP)
+            else:
+                self.server_subscribe_system(host_uuid, self.get_poolid_by_SKU(sku_id), SERVER_IP)
             # (2.3) List available pools of guest, check related bonus pool generated.
             self.check_bonus_exist(sku_id, bonus_quantity, guestip)
             self.sub_subscribe_to_bonus_pool(sku_id, guestip)
@@ -59,7 +66,10 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
             logger.error("Test Failed - ERROR Message:" + str(e))
             self.assert_(False, case_name)
         finally:
-            self.server_remove_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_remove_system(host_uuid, SERVER_IP)
             self.unset_all_virtwho_d_conf()
             self.set_rhevm_conf()
             self.runcmd_service("restart_virtwho")

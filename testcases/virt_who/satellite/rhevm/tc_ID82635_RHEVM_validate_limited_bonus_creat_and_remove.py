@@ -12,6 +12,7 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
 
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
+            rhevm_host1_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
             test_sku = self.get_vw_cons("productid_guest")
             bonus_quantity = self.get_vw_cons("guestlimit")
             sku_name = self.get_vw_cons("productname_guest")
@@ -28,7 +29,10 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
                 self.sub_register(SERVER_USER, SERVER_PASS, guestip)
             self.sub_disable_auto_subscribe(guestip)
             # (1.2) Hypervisor subscribe physical pool which can generate limited bonus pool
-            self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_subscribe_system(rhevm_host1_name, self.get_poolid_by_SKU(test_sku), SERVER_IP)
+            else:
+                self.server_subscribe_system(hostuuid, self.get_poolid_by_SKU(test_sku), SERVER_IP)
             # (1.3) list available pools on guest, check limited bonus pool generated.
             self.check_bonus_exist(test_sku, bonus_quantity, guestip)
             # (1.4)subscribe the registered guest to the corresponding bonus pool
@@ -36,7 +40,10 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
 
             # (2) Check limited bonus pool will revoke after unsubscribe pool on hypervisor
             # (2.1) Unsubscribe sku on hypervisor
-            self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             # (2.2) Check consumed bonus pool revoke on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
@@ -50,7 +57,10 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
 #             self.rhevm_stop_vm(guest_name, rhevm_ip)
-            self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":
