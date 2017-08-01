@@ -128,7 +128,7 @@ class tc_ID82639_RHEVM_validate_instance_guest_with_single_multi_sockets(VDSMBas
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 
 if __name__ == "__main__":

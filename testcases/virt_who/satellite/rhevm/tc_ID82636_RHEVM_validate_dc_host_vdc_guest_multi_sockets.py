@@ -66,7 +66,7 @@ class tc_ID82636_RHEVM_validate_dc_host_vdc_guest_multi_sockets(VDSMBase):
             self.restore_facts(guestip)
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # unsubscribe all subscriptions on  hypervisor
             self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

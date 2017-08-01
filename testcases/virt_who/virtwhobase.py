@@ -641,7 +641,7 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
-
+            time.sleep(5)
             # need to clean local data after unregister
             cmd = "subscription-manager clean"
             ret, output = self.runcmd(cmd, "clean system", targetmachine_ip)
@@ -3081,7 +3081,7 @@ class VIRTWHOBase(Base):
                 self.vdsm_rm_vm_nw(GUEST_NAME, "eth0", RHEVM_IP)
                 self.vdsm_add_vm_nw(GUEST_NAME, RHEVM_IP)
         # change target guest host name, or else satellite testing will fail due to same name
-        self.rhevm_change_guest_name(GUEST_NAME, RHEVM_IP)
+#         self.rhevm_change_guest_name(GUEST_NAME, RHEVM_IP)
 
     def rhel_rhevm_setup(self):
         SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()

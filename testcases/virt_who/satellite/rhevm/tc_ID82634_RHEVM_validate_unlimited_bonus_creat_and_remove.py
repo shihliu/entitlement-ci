@@ -47,7 +47,7 @@ class tc_ID82634_RHEVM_validate_unlimited_bonus_creat_and_remove(VDSMBase):
         finally:
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.server_unsubscribe_all_system(host_uuid, server_ip)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

@@ -61,7 +61,7 @@ class tc_ID82642_RHEVM_validate_bonus_revoke_check_mapping_depart_unregister_hos
             self.assert_(False, case_name)
         finally:
             self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             # register host
             self.sub_register(SERVER_USER, SERVER_PASS)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)

@@ -563,7 +563,7 @@ class VIRTWHOBase(Base):
                 logger.info("Succeeded to unregister %s." % self.get_hg_info(targetmachine_ip))
             else:
                 raise FailException("Failed to unregister %s." % self.get_hg_info(targetmachine_ip))
-
+            time.sleep(5)
             # need to clean local data after unregister
             cmd = "subscription-manager clean"
             ret, output = self.runcmd(cmd, "clean system", targetmachine_ip)

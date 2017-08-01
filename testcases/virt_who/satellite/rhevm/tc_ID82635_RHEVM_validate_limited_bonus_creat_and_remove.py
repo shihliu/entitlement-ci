@@ -49,7 +49,7 @@ class tc_ID82635_RHEVM_validate_limited_bonus_creat_and_remove(VDSMBase):
             # unsubscribe all subscriptions on  hypervisor
             if guestip != None and guestip != "":
                 self.sub_unregister(guestip)
-            self.rhevm_stop_vm(guest_name, rhevm_ip)
+#             self.rhevm_stop_vm(guest_name, rhevm_ip)
             self.server_unsubscribe_all_system(hostuuid, SERVER_IP)
             logger.info("========== End of Running Test Case: %s ==========" % case_name)
 

@@ -6,7 +6,7 @@ class virtwho_rhel_rhevm_setup(VIRTWHOBase):
         case_name = self.__class__.__name__
         logger.info("========== Begin of Running Test Case %s ==========" % case_name)
         try:
-            if "RHEVH" in get_exported_param("RHEL_COMPOSE"):  
+            if "RHEVH" in get_exported_param("RHEL_COMPOSE"):
                 self.rhel_rhevm_sys_setup()
                 self.generate_ssh_key()
             else:
