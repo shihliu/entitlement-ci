@@ -43,6 +43,10 @@
 
                 #Provision rhel7.3 released img
                 $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.3
+
+                #Provision rhel7.4 released img
+                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.4
+
             elif [ "$VIRTWHO_SRC"x = $VIRTWHO_SRC ]
             then
                 #Provision rhel6.8 released img

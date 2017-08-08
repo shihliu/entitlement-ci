@@ -49,7 +49,10 @@ class tc_ID82642_RHEVM_validate_bonus_revoke_check_mapping_depart_unregister_hos
                 logger.info("Success to check virt-who log after unregister host")
             else:
                 raise FailException("failed to check virt-who log after unregister host")
-            self.server_remove_system(hostuuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_remove_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_remove_system(hostuuid, SERVER_IP)
 #             time.sleep(60)
             self.sub_refresh(guestip)
             # (1.3)list consumed subscriptions on guest, bonus pool will revoke

@@ -18,6 +18,7 @@ class tc_ID82627_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             rhevm_host_name = self.get_hostname(rhevm_ip)
             rhevm_host1_name = self.get_hostname(get_exported_param("RHEVM_HOST1_IP"))
+            rhevm_host1_hwuuid = self.get_host_hwuuid_on_rhevm(get_exported_param("RHEVM_HOST1_IP"), rhevm_ip)
 
             # (1) Set hypervisor_id=uuid, it will show uuid 
             self.set_hypervisor_id("rhevm", "uuid")
@@ -27,7 +28,7 @@ class tc_ID82627_RHEVM_check_hypervisor_id_in_virtwho_d(VDSMBase):
             self.vw_check_mapping_info_in_rhsm_log(rhevm_host1_name, guest_uuid)
             # (3) Set hypervisor_id=hwuuid, rhevm is not support hwuuid, it will report error
             self.set_hypervisor_id("rhevm", "hwuuid")
-            self.vw_check_message_in_rhsm_log("Reporting of hypervisor hwuuid is not implemented in rhevm backend|Invalid option hwuuid for hypervisor_id", message_exists=True)
+            self.vw_check_mapping_info_in_rhsm_log(rhevm_host1_hwuuid, guest_uuid)
 
             self.assert_(True, case_name)
         except Exception, e:

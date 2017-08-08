@@ -33,6 +33,7 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
             else:
                 self.server_remove_system(host_uuid, SERVER_IP)
             # (1.2) Set rhevm fake mode, it will show host/guest mapping info
+            self.runcmd_service("stop_virtwho")
             fake_file = self.generate_fake_file("rhevm")
             self.set_fake_mode_conf(fake_file, "True", virtwho_owner, virtwho_env)
             self.vw_check_mapping_info_in_rhsm_log(host_uuid, guest_uuid)
