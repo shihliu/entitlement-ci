@@ -57,7 +57,10 @@ class tc_ID82628_RHEVM_check_mapping_and_subscribe_fake_mode(VDSMBase):
 
             # (3) Check bonus pool will revoke in fake mode
             # (3.1) Unsubscribe sku on hypervisor
-            self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
+            if "ohsnap-satellite63" in get_exported_param("SERVER_COMPOSE"):
+                self.server_unsubscribe_all_system(rhevm_host1_name, SERVER_IP)
+            else:
+                self.server_unsubscribe_all_system(host_uuid, SERVER_IP)
             # (3.2) Check consumed bonus pool revoke on guest
             self.sub_refresh(guestip)
             self.sub_listconsumed(sku_name, guestip, productexists=False)
