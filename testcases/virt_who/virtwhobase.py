@@ -61,6 +61,22 @@ class VIRTWHOBase(Base):
         else:
             logger.info("Failed to install python-argparse.")
 
+    def install_virtwho(self, targetmachine_ip=""):
+        cmd = "yum install -y virt-who"
+        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to setup system for virt-who testing.")
+        else:
+            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+
+    def uninstall_virtwho(self, targetmachine_ip=""):
+        cmd = "yum -e virt-who"
+        ret, output = self.runcmd(cmd, "uninstall virt-who", targetmachine_ip, showlogger=False)
+        if ret == 0:
+            logger.info("Succeeded to uninstall virt-who.")
+        else:
+            raise FailException("Test Failed - Failed to uninstall virt-who.")
+
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
 #             self.cm_install_basetool(targetmachine_ip)
@@ -121,7 +137,7 @@ class VIRTWHOBase(Base):
                             'enabled=1\n'
                             'gpgcheck=0\n'
                             'EOF'
-                            )      
+                            )
                 ret, output = self.runcmd(cmd, "add satellite ohsnap tools repo", targetmachine_ip)
                 if ret == 0:
                     logger.info("Succeeded to add satellite ohsnap tools repo.")
@@ -1693,9 +1709,15 @@ class VIRTWHOBase(Base):
         server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         esx_owner, esx_env, esx_server, esx_username, esx_password = self.get_esx_info()
         esx_host = self.get_vw_cons("ESX_HOST")
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        # uninstall virt-who as it hasn't install virt-who from sattool
+        self.sub_unregister()
+        if "release" in rhel_compose and (tool_src is None or "sattool" in tool_src):
+            self.uninstall_virtwho()
+            self.install_virtwho()
         self.update_esx_vw_configure(esx_owner, esx_env, esx_server, esx_username, esx_password)
         self.runcmd_service("restart_virtwho")
-        self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         self.start_dbus_daemon()
@@ -2097,9 +2119,15 @@ class VIRTWHOBase(Base):
     # 2. Register system to server 
         server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
         hyperv_host = self.get_vw_cons("HYPERV_HOST")
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        # uninstall virt-who as it hasn't install virt-who from sattool
+        self.sub_unregister()
+        if "release" in rhel_compose and (tool_src is None or "sattool" in tool_src):
+            self.uninstall_virtwho()
+            self.install_virtwho()
         self.set_hyperv_conf()
         self.runcmd_service("restart_virtwho")
-        self.sub_unregister()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         self.start_dbus_daemon()
@@ -2311,8 +2339,14 @@ class VIRTWHOBase(Base):
     # ========================================================
     def xen_setup(self):
         server_ip, server_hostname, server_type, server_user, server_pass = self.get_server_info()
-        self.set_xen_conf()
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        # uninstall virt-who as it hasn't install virt-who from sattool
         self.sub_unregister()
+        if "release" in rhel_compose and (tool_src is None or "sattool" in tool_src):
+            self.uninstall_virtwho()
+            self.install_virtwho()
+        self.set_xen_conf()
         self.configure_server(server_ip, server_hostname)
         self.sub_register(server_user, server_pass)
         self.start_dbus_daemon()
@@ -2873,9 +2907,15 @@ class VIRTWHOBase(Base):
         remote_host_1 = get_exported_param("REMOTE_IP_1")
         remote_host_2 = get_exported_param("REMOTE_IP_2")
         guest_name = self.get_vw_guest_name("KVM_GUEST_NAME")
- 
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+
         # if host already registered, unregister it first, then configure and register it
         self.sub_unregister()
+        # uninstall virt-who as it hasn't install virt-who from sattool
+        if "release" in rhel_compose and (tool_src is None or "sattool" in tool_src):
+            self.uninstall_virtwho()
+            self.install_virtwho()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         self.start_dbus_daemon()
@@ -3087,7 +3127,13 @@ class VIRTWHOBase(Base):
         SERVER_IP, SERVER_HOSTNAME, SERVER_TYPE, SERVER_USER, SERVER_PASS = self.get_server_info()
         RHEVM_IP = get_exported_param("RHEVM_IP")
         # if host already registered, unregister it first, then configure and register it
+        tool_src = get_exported_param("VIRTWHO_ORIGINAL_SRC")
+        rhel_compose = get_exported_param("RHEL_COMPOSE")
+        # uninstall virt-who as it hasn't install virt-who from sattool
         self.sub_unregister()
+        if "release" in rhel_compose and (tool_src is None or "sattool" in tool_src):
+            self.uninstall_virtwho()
+            self.install_virtwho()
         self.configure_server(SERVER_IP, SERVER_HOSTNAME)
         self.sub_register(SERVER_USER, SERVER_PASS)
         self.start_dbus_daemon()
