@@ -598,7 +598,7 @@ class Base(unittest.TestCase):
         raise FailException("Failed to get katello id by: %s" % pool_id)
 
     def satellite_system_list(self):
-        return self.get_json("api/v2/hosts/")
+        return self.get_json("api/v2/hosts/?per_page=100")
 
     def satellite_pool_list(self):
         satellite_pool_list = self.get_json("katello/api/organizations/1/subscriptions")
