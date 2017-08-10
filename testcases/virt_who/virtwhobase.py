@@ -70,12 +70,12 @@ class VIRTWHOBase(Base):
             raise FailException("Test Failed - Failed to setup system for virt-who testing.")
 
     def uninstall_virtwho(self, targetmachine_ip=""):
-        cmd = "yum -e virt-who"
+        cmd = "rpm -e virt-who"
         ret, output = self.runcmd(cmd, "uninstall virt-who", targetmachine_ip, showlogger=False)
         if ret == 0:
             logger.info("Succeeded to uninstall virt-who.")
         else:
-            raise FailException("Test Failed - Failed to uninstall virt-who.")
+            logger.info("Test Failed - Failed to uninstall virt-who.")
 
     def sys_setup(self, targetmachine_ip=None):
 #         if "release" not in get_exported_param("RHEL_COMPOSE"):
