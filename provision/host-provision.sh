@@ -66,28 +66,58 @@ then
    docker stop $CONTAINER_NAME
    docker rm $CONTAINER_NAME
 fi
+# New provision process
 echo $CONTAINER_NAME "is not exist"
-if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
-then
-    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
-else
-    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
-fi
-pipework br0 $CONTAINER_NAME dhclient
-isGetIp=$?
-if [ $isGetIp -eq 0 ]
-then
-   echo "success to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
-else
-   echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
-fi
-if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
-then
-    docker exec -i $CONTAINER_NAME ifconfig
-    REMOTE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
-else
-    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
-fi
+time = 0
+# Re-create container three times
+while [ "$REMOTE_IP" == "" ] && [3 -gt $time ]
+do
+    if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
+    then
+        docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
+    else
+        docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
+    fi
+    pipework br0 $CONTAINER_NAME dhclient
+    isGetIp=$?
+    if [ $isGetIp -eq 0 ]
+    then
+       echo "success to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+    else
+       echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+    fi
+    if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
+    then
+        docker exec -i $CONTAINER_NAME ifconfig
+        REMOTE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
+    else
+        REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
+    fi
+    time = time +1
+done
+# Old provision process
+#echo $CONTAINER_NAME "is not exist"
+#if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
+#then
+#    docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME /usr/sbin/init
+#else
+#    docker run --privileged -itd --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEL_IMAGE_NAME bash
+#fi
+#pipework br0 $CONTAINER_NAME dhclient
+#isGetIp=$?
+#if [ $isGetIp -eq 0 ]
+#then
+#   echo "success to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+#else
+#   echo "failed to run pipework on "$CONTAINER_NAME "pipework result is "$isGetIp
+#fi
+#if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
+#then
+#    docker exec -i $CONTAINER_NAME ifconfig
+#    REMOTE_IP=`docker exec -i $CONTAINER_NAME ifconfig eth1 | grep "inet "|awk '{print $2}'`
+#else
+#    REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
+#fi
 echo "REMOTE_IP is "$REMOTE_IP
 #docker exec -i $CONTAINER_NAME hostname $CONTAINER_NAME
 docker exec -i $CONTAINER_NAME hostname
