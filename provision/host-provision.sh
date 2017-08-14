@@ -71,7 +71,7 @@ echo $CONTAINER_NAME "is not exist"
 export time=0
 export max_time=3
 # Re-create container three times
-while [[ "$REMOTE_IP" == "" ] && [$max_time -gt $time ]]
+while [[ "$REMOTE_IP" == "" ]] && [[$max_time -gt $time ]]
 do
     if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
     then
