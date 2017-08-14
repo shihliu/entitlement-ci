@@ -68,8 +68,8 @@ then
 fi
 # New provision process
 echo $CONTAINER_NAME "is not exist"
-time = 0
-max_time = 3
+export time = 0
+export max_time = 3
 # Re-create container three times
 while [[ "$REMOTE_IP" == "" ] && [$max_time -gt $time ]]
 do
