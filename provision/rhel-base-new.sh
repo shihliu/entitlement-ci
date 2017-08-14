@@ -33,7 +33,7 @@ echo RHEL_IMAGE_NAME=$RHEL_IMAGE_NAME
 # Get docker original img
 if [[ "$RHEL_COMPOSE" =~ "RHEL-7" ]]
 then 
-    export ORIGINAL_RHEL="rhel7.3"
+    export ORIGINAL_RHEL="rhel7.4"
     echo "ORIGINAL_RHEL is " $ORIGINAL_RHEL
 else
     export ORIGINAL_RHEL="rhel6.8"

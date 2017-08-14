@@ -107,7 +107,7 @@
             #export SERVER_HOSTNAME=satellite62-ohsnap.redhat.com
             #export SERVER_TYPE=SATELLITE
             #export RHEL_COMPOSE=release
-            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.3/default
+            #export VIRTWHO_SRC=rhel6.9/rhel6.8/rhel7.4/default
             echo "*********************************setup env*********************************"
             echo "before test,RHEL_COMPOSE_EXIST" is $RHEL_COMPOSE_EXIST
             echo "before test,VIRTWHO_SRC is " $VIRTWHO_SRC
@@ -211,9 +211,9 @@
           #  export VIRTWHO_SRC=rhel6.8-sattool
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-sattool"x ]
           #then
-             export VIRTWHO_SRC=rhel7.3-sattool
-             echo VIRTWHO_SRC=rhel7.3-sattool>>$WORKSPACE/XENNEWRUN.txt
-          elif [ "$VIRTWHO_SRC"x = "rhel7.3-sattool"x ]
+             export VIRTWHO_SRC=rhel7.4-sattool
+             echo VIRTWHO_SRC=rhel7.4-sattool>>$WORKSPACE/XENNEWRUN.txt
+          elif [ "$VIRTWHO_SRC"x = "rhel7.4-sattool"x ]
           then
              export VIRTWHO_SRC=rhel6.9-original
              echo VIRTWHO_SRC=rhel6.9-original>>$WORKSPACE/XENNEWRUN.txt         
@@ -223,12 +223,12 @@
           #   echo VIRTWHO_SRC=rhel6.8-original>>$WORKSPACE/XENNEWRUN.txt   
           #elif [ "$VIRTWHO_SRC"x = "rhel6.8-original"x ]
           #then
-             export VIRTWHO_SRC=rhel7.3-original
-             echo VIRTWHO_SRC=rhel7.3-original>>$WORKSPACE/XENNEWRUN.txt 
+             export VIRTWHO_SRC=rhel7.4-original
+             echo VIRTWHO_SRC=rhel7.4-original>>$WORKSPACE/XENNEWRUN.txt 
              export RHEL_COMPOSE_EXIST=True
              echo RHEL_COMPOSE_EXIST=True>>$WORKSPACE/XENNEWRUN.txt
           else
-             export VIRTWHO_ORIGINAL_SRC=rhel7.3-original
+             export VIRTWHO_ORIGINAL_SRC=rhel7.4-original
              rm -rf $WORKSPACE/XENNEWRUN.txt
           fi
         else
