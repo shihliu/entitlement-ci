@@ -94,7 +94,7 @@ do
     else
         REMOTE_IP=`docker exec -i $CONTAINER_NAME /sbin/ifconfig eth1 | grep "inet addr:"| awk '{print $2}' | cut -c 6-`
     fi
-    time = time +1
+    time=time+1
 done
 # Old provision process
 #echo $CONTAINER_NAME "is not exist"
