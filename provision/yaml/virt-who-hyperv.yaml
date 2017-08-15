@@ -22,8 +22,6 @@
             branches:
                 - origin/master
             basedir: entitlement-ci
-            shallow-clone: true
-            depth: 1
     wrappers:
         - default-virt-who-wrappers
  
