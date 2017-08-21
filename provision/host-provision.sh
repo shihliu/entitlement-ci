@@ -97,8 +97,6 @@ do
     fi
     time=time+1
 done
-
-echo $CONTAINER_NAME "is not exist"
 # Old provision process
 # if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
 # then
