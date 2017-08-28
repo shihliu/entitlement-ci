@@ -12,7 +12,7 @@ class VIRTWHOConstants(object):
     "nfs_image_path":                       "/home/images_nfs",
     "local_mount_point":                    "/tmp/images_mnt",
     # esx
-    "ESX_HOST":                             "10.73.131.104",
+    "ESX_HOST":                             "10.73.131.243",
     "ESX_HOST_SECOND":                      "10.73.131.168",
     "ESX_GUEST_NAME":                       "ESX_7.1_Server_x86_64",
     "VMWARE_CMD_IP":                        "10.73.131.126",
