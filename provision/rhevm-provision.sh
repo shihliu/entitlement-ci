@@ -99,7 +99,7 @@ else
    echo EXIST_RHEVM=FALSE>>$WORKSPACE/ISEXISTRHEVM.txt
    if [[ "$RHEL_COMPOSE" == "release" ]]
    then
-       if [[ "$VIRTWHO_SRC" =~ "rhel7" ]]
+       if [[ "$VIRTWHO_SRC" =~ "rhel7" ]] || [[ "$VIRTWHO_SRC" =~ "default" ]]
 	   then
 	       docker run --privileged -itd -v /sys/fs/cgroup:/sys/fs/cgroup --hostname $CONTAINER_NAME --name $CONTAINER_NAME --net=none $RHEVMIMG_NAME /usr/sbin/init
            pipework br0  $CONTAINER_NAME  dhclient
