@@ -577,7 +577,7 @@ class Install_Base(Base):
 
     def __deploy_rhevm41(self, targetmachine_ip=""):
         ''' wget rhevm config file to rhevm '''
-        conf_file = "rhevm_41.conf"
+        conf_file = "rhevm41.conf"
         cmd = "wget -P /root/ %s/%s" % (self.get_vw_cons("data_folder"), conf_file)
         ret, output = self.runcmd(cmd, "wget rhevm repo file and add to rhel host", targetmachine_ip)
         if ret == 0:
