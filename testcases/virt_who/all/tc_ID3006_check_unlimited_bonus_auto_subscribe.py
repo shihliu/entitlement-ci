@@ -12,7 +12,7 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             test_sku = self.get_vw_cons("datacenter_sku_id")
             guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
-            sku_name = self.get_vw_cons("datacenter_bonus_name")
+            sku_id = self.get_vw_cons("datacenter_bonus_sku_id")
 
             self.vw_start_guests(guest_name)
             guestip = self.kvm_get_guest_ip(guest_name)
@@ -28,7 +28,8 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             self.sub_unsubscribe(guestip)
             self.sub_auto_subscribe(guestip)
             # (2). Check consumed subscriptions' name on guest
-            self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
+#             self.check_consumed_status(guest_bonus_sku, "SubscriptionName", sku_name, guestip)
+            self.check_consumed_status(guest_bonus_sku, "SKU", sku_id, guestip)
             # (3). check the Status of installed product, should be 'Subscribed' status
             installed_status_key = "Status"
             installed_status_value = "Subscribed"
