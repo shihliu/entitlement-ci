@@ -11,7 +11,7 @@ class tc_ID82622_RHEVM_check_mapping_with_proxy(VDSMBase):
             guest_name = self.get_vw_guest_name("RHEL_RHEVM_GUEST_NAME")
             rhevm_ip = get_exported_param("RHEVM_IP")
             http_proxy = self.get_vw_cons("http_proxy")
-            guest_uuid = self.rhevm_get_guest_guid(guest_name)
+            guest_uuid = self.vdsm_get_vm_uuid(guest_name)
             self.rhevm_start_vm(guest_name, rhevm_ip)
             (guestip, host_uuid) = self.rhevm_get_guest_ip(guest_name, rhevm_ip)
             mode = "rhevm"
