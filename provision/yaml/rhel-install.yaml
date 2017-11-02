@@ -42,7 +42,7 @@
                 $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel6.9
 
                 #Provision rhel7.3 released img
-                $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.3
+                #$WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.3
 
                 #Provision rhel7.4 released img
                 $WORKSPACE/entitlement-ci/provision/create-orig-rhel.sh --imagename=rhel7.4
