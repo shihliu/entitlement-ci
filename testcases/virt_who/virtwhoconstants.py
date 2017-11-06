@@ -40,7 +40,7 @@ class VIRTWHOConstants(object):
     "VIRTWHO_HYPERV_PASSWORD":              "Welcome1",
     # xen
     "XEN_HOST":                             "10.73.131.203",
-    "XEN_HOST_NAME_LABEL":                  "xenserver-ahssioit",
+    "XEN_HOST_NAME_LABEL":                  "xenserver-guyecxfn",
     "XEN_GUEST_NAME":                       "XEN_6.8_Server_x86_64",
     "VIRTWHO_XEN_SERVER":                   "10.73.131.203",
     "VIRTWHO_XEN_USERNAME":                 "root",
