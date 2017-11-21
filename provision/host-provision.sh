@@ -106,6 +106,7 @@ nameserver 10.73.2.108
 nameserver 10.66.127.10
 EOF
 ) >/etc/resolv.conf
+cat /etc/resolv.conf
 # Old provision process
 # if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
 # then
