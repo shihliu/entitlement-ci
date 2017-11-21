@@ -69,6 +69,16 @@ else
 fi
 pipework br0  $CONTAINER_NAME  dhclient
 docker exec -i $CONTAINER_NAME /usr/sbin/sshd -D &
+# Recreate /etc/resolve as it re-write by dhclient-script
+(
+cat <<EOF
+search rhts.eng.pek2.redhat.com redhat.com
+nameserver 10.73.2.107
+nameserver 10.73.2.108
+nameserver 10.66.127.10
+EOF
+) >/etc/resolv.conf
+cat /etc/resolv.conf
 SATELLITE_INSTALLED_COMPSE=`docker exec -i $CONTAINER_NAME cat /etc/redhat-release`
 echo "SATELLITE_INSTALLED_COMPSE is "$SATELLITE_INSTALLED_COMPSE
 if [[ $SATELLITE_INSTALLED_COMPSE =~ "release 7" ]]

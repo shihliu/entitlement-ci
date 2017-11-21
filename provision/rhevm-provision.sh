@@ -123,6 +123,16 @@ else
    fi
 fi
 
+# Recreate /etc/resolve as it re-write by dhclient-script
+(
+cat <<EOF
+search rhts.eng.pek2.redhat.com redhat.com
+nameserver 10.73.2.107
+nameserver 10.73.2.108
+nameserver 10.66.127.10
+EOF
+) >/etc/resolv.conf
+cat /etc/resolv.conf
 echo "WORKSPACE is" $WORKSPACE
 echo RHEVM_IP=$RHEVM_IP>>$WORKSPACE/RESOURCES.txt
 echo RHEVM_HOSTNAME=$CONTAINER_NAME>>$WORKSPACE/RESOURCES.txt
