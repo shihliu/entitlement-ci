@@ -97,6 +97,15 @@ do
     fi
     time=time+1
 done
+# Recreate /etc/resolve as it re-write by dhclient-script
+(
+cat <<EOF
+search rhts.eng.pek2.redhat.com redhat.com
+nameserver 10.73.2.107
+nameserver 10.73.2.108
+nameserver 10.66.127.10
+EOF
+) >/etc/resolv.conf
 # Old provision process
 # if [[ $CONTAINER_NAME =~ "rhel7" ]] || [[ $CONTAINER_NAME =~ "RHEL-7" ]]
 # then
