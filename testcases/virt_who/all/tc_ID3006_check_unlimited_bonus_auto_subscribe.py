@@ -10,7 +10,7 @@ class tc_ID3006_check_unlimited_bonus_auto_subscribe(VIRTWHOBase):
             guest_name = self.get_vw_cons("KVM_GUEST_NAME")
 
             test_sku = self.get_vw_cons("datacenter_sku_id")
-            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_sku_id")
+            guest_bonus_sku = self.get_vw_cons("datacenter_bonus_name")
             bonus_quantity = self.get_vw_cons("datacenter_bonus_quantity")
             sku_id = self.get_vw_cons("datacenter_bonus_sku_id")
 
