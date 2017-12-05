@@ -2986,7 +2986,8 @@ class VIRTWHOBase(Base):
         self.stop_firewall(targetmachine_ip)
 
     def kvm_static_sys_setup(self, targetmachine_ip=""):
-        self.cm_update_system(targetmachine_ip)
+        # Ignore update rhel host as failed to update it.
+#         self.cm_update_system(targetmachine_ip)
         cmd = "service libvirtd start"
         ret, output = self.runcmd(cmd, "restart libvirtd service", targetmachine_ip)
         if ret == 0:
