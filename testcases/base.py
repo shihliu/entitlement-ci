@@ -874,6 +874,7 @@ class Base(unittest.TestCase):
         self.test_server = get_exported_param("SERVER_TYPE")
         rhel_compose = get_exported_param("RHEL_COMPOSE")
         virtwho_src = get_exported_param("VIRTWHO_SRC")
+        self.mode = get_exported_param("HYPERVISOR_TYPE")
         logger.info("virtwho_src is %s" %virtwho_src )
         if "RHEL-6" in rhel_compose:
             self.os_serial = "6"
@@ -891,6 +892,8 @@ class Base(unittest.TestCase):
             logger.info("os_serial is %s" %self.os_serial)
         else:
             raise FailException("Test Failed - Failed to get RHEL_COMPOSE.")
+        if self.mode != "":
+            self.virtwho_version = self.cm_get_rpm_version("virt-who", showlogger=False)
         # for rhevm testing
         rhevm_ip = get_exported_param("RHEVM_IP")
         if get_exported_param("RHEVM_IP") is not None:

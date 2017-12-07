@@ -54,7 +54,10 @@ class tc_ID82523_XEN_check_config_options(XENBase):
             # (4).Check virt-who thread will not increase after restart it.
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
-                self.check_virtwho_thread(1)
+                if self.virtwho_version[9:13] > 0.20:
+                    self.check_virtwho_thread(2)
+                else:
+                    self.check_virtwho_thread(1)
                 time.sleep(5)
 
             self.assert_(True, case_name)
