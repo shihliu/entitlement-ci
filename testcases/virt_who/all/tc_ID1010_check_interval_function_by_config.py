@@ -57,7 +57,10 @@ class tc_ID1010_check_interval_function_by_config(VIRTWHOBase):
             # (4).Check virt-who thread will not increase after restart it.
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
-                self.check_virtwho_thread(1)
+                if self.virtwho_version[9:13] > 0.20:
+                    self.check_virtwho_thread(2)
+                else:
+                    self.check_virtwho_thread(1)
                 time.sleep(5)
         finally:
             self.config_option_disable("VIRTWHO_INTERVAL")
