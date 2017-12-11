@@ -56,7 +56,7 @@ class tc_ID82523_ESX_check_config_options(ESXBase):
             # (4).Check virt-who thread will not increase after restart it.
             for i in range(5):
                 self.runcmd_service("restart_virtwho")
-                if self.virtwho_version[9:13] > 0.20:
+                if self.virtwho_version[9:13] > "0.20":
                     self.check_virtwho_thread(2)
                 else:
                     self.check_virtwho_thread(1)
