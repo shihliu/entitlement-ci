@@ -550,6 +550,11 @@ class VIRTWHOBase(Base):
         ret, output = self.runcmd(cmd, "register system", targetmachine_ip)
         if ret == 0 or "The system has been registered with id:" in output or "This system is already registered" in output:
             logger.info("Succeeded to register system %s" % self.get_hg_info(targetmachine_ip))
+        # Check bug 1520762
+        elif "Host has already been taken" in output:
+            cmd = "subscription-manager register --username=%s --password=%s --force" % (username, password)
+            ret, output = self.runcmd(cmd, "force to register system", targetmachine_ip)
+            logger.info("the output info is %s" %output)
         else:
             raise FailException("Failed to register system %s" % self.get_hg_info(targetmachine_ip))
 
