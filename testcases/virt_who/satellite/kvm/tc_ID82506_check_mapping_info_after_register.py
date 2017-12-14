@@ -17,6 +17,12 @@ class tc_ID82506_KVM_check_mapping_info_after_register(KVMBase):
             
             # (2) Register host to server and check host/guest mapping info
             register_cmd = "subscription-manager register --username=%s --password=%s" % (SERVER_USER, SERVER_PASS)
+            ret, output = self.runcmd(register_cmd, "register system")
+            # Check bug 1520762
+            if "Host has already been taken" in output:
+                register_cmd = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
+                ret, output = self.runcmd(register_cmd, "re-register system")
+                logger.info("**********the output info is %s" %output)
             self.vw_check_uuid(guestuuid, checkcmd=register_cmd, uuidexists=True)
 
             self.assert_(True, case_name)

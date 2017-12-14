@@ -19,6 +19,12 @@ class tc_ID82506_XEN_check_mapping_info_after_register(XENBase):
             # (2) Register host to server and check host/guest mapping info
             self.xen_start_guest(guest_name, xen_host_ip)
             register_cmd = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
+            ret, output = self.runcmd(register_cmd, "register system")
+            # Check bug 1520762
+            if "Host has already been taken" in output:
+                register_cmd = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
+                ret, output = self.runcmd(register_cmd, "re-register system")
+                logger.info("**********the output info is %s" %output)
             self.hypervisor_check_uuid(host_uuid, guest_uuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
 
             self.assert_(True, case_name)
