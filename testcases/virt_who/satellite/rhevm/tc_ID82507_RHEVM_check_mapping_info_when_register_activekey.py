@@ -30,6 +30,7 @@ class tc_ID82507_RHEVM_check_mapping_info_when_register_activekey(VDSMBase):
                 register_cmd = "subscription-manager register --org=%s --activationkey=%s --force" % (rhevm_env, key_name)
                 ret, output = self.runcmd(register_cmd, "re-register system")
                 logger.info("**********the output info is %s" %output)
+            self.sub_unregister()
             self.hypervisor_check_uuid(hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
             # (4) Unregister host then register with active key
             self.sub_unregister()

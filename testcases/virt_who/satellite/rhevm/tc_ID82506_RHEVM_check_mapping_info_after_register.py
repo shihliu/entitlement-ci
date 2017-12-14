@@ -26,6 +26,7 @@ class tc_ID82506_RHEVM_check_mapping_info_after_register(VDSMBase):
                 register_cmd = "subscription-manager register --username=%s --password=%s" %(SERVER_USER, SERVER_PASS)
                 ret, output = self.runcmd(register_cmd, "re-register system")
                 logger.info("**********the output info is %s" %output)
+            self.sub_unregister()
             self.hypervisor_check_uuid(hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
 
             self.assert_(True, case_name)

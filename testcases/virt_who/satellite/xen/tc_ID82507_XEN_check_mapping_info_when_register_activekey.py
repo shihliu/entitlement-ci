@@ -28,6 +28,7 @@ class tc_ID82507_XEN_check_mapping_info_when_register_activekey(XENBase):
                 register_cmd = "subscription-manager register --org=%s --activationkey=%s --force" % (xen_env, key_name)
                 ret, output = self.runcmd(register_cmd, "re-register system")
                 logger.info("**********the output info is %s" %output)
+            self.sub_unregister()
             self.hypervisor_check_uuid(host_uuid, guest_uuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
             # (4) Unregister host then register with active key
             self.sub_unregister()

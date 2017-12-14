@@ -26,6 +26,7 @@ class tc_ID82507_KVM_check_mapping_info_when_register_activekey(KVMBase):
                 register_cmd = "subscription-manager register --org=%s --activationkey=%s --force" % (kvm_env, key_name)
                 ret, output = self.runcmd(register_cmd, "re-register system")
                 logger.info("**********the output info is %s" %output)
+            self.sub_unregister()
             self.vw_check_uuid(guestuuid, checkcmd=register_cmd, uuidexists=True)
             # (4) Unregister host then register with active key
             self.sub_unregister()
