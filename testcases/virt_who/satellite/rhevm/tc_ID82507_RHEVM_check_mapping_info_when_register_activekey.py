@@ -24,6 +24,12 @@ class tc_ID82507_RHEVM_check_mapping_info_when_register_activekey(VDSMBase):
             self.create_active_key(key_name, rhevm_env, SERVER_IP)
             # (3) Register host to server with active key and check host/guest mapping info
             register_cmd = "subscription-manager register --org=%s --activationkey=%s" % (rhevm_env, key_name)
+            ret, output = self.runcmd(register_cmd, "register system")
+            # Check bug 1520762
+            if "Host has already been taken" in output:
+                register_cmd = "subscription-manager register --org=%s --activationkey=%s --force" % (rhevm_env, key_name)
+                ret, output = self.runcmd(register_cmd, "re-register system")
+                logger.info("**********the output info is %s" %output)
             self.hypervisor_check_uuid(hostuuid, guestuuid, rhsmlogpath='/var/log/rhsm', checkcmd=register_cmd, uuidexists=True)
             # (4) Unregister host then register with active key
             self.sub_unregister()
