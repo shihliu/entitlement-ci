@@ -147,8 +147,8 @@ class VIRTWHOBase(Base):
                 if self.os_serial == "6":
                     logger.info("Down-grade libacl as failed to install virt-who")
                     self.downgrade_libacl(targetmachine_ip)
-        if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
-            self.cm_update_system(targetmachine_ip)
+#         if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
+#             self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
         cmd = "yum install -y virt-who"
         ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
