@@ -150,12 +150,18 @@ class VIRTWHOBase(Base):
 #         if "remote_libvirt" in hypervisor_type or "rhevm" in hypervisor_type:
 #             self.cm_update_system(targetmachine_ip)
         # system setup for virt-who testing
-        cmd = "yum install -y virt-who"
-        ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
-        if ret == 0:
-            logger.info("Succeeded to setup system for virt-who testing.")
+        cmd = "rpm -q virt-who"
+        ret, output = self.runcmd(cmd, "check virt-who installed status", targetmachine_ip, showlogger=False)
+        if "virt-who" in output:
+            logger.info("Succeeded to check virt-who installed.")
         else:
-            raise FailException("Test Failed - Failed to setup system for virt-who testing.")
+            logger.info("Need to install virt-who.")
+            cmd = "yum install -y virt-who"
+            ret, output = self.runcmd(cmd, "install virt-who for virt-who testing", targetmachine_ip, showlogger=False)
+            if ret == 0:
+                logger.info("Succeeded to setup system for virt-who testing.")
+            else:
+                raise FailException("Test Failed - Failed to setup system for virt-who testing.")
         self.start_dbus_daemon(targetmachine_ip)
 
     def stop_firewall(self, targetmachine_ip=""):
