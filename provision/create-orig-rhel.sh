@@ -54,6 +54,7 @@ else
    docker rmi registry.access.redhat.com/$IMAGE_NAME
    docker run --privileged -itd --name $IMAGE_NAME $IMAGE_NAME bash
    docker exec -i $IMAGE_NAME subscription-manager register --username=QualityAssurance --password=VHVFhPS5TEG8dud9 --auto-attach
+   subscription-manager repos --disable=rhel-7-server-rt-beta-rpms
    docker exec -i $IMAGE_NAME yum install -y openssh-server openssh-clients net-tools passwd hostname
    #if [[ "$IMAGE_NAME" =~ "rhel6" ]]
    #then
