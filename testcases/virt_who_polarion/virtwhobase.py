@@ -48,6 +48,8 @@ class VIRTWHOBase(Base):
             if not self.sub_isregistered(targetmachine_ip):
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")
                 self.sub_auto_subscribe(targetmachine_ip)
+                # add proxy as some repo can't download package
+                self.set_yum_proxy(targetmachine_ip)
             if self.os_serial == "6":
                 cmd = ('cat <<EOF > /etc/yum.repos.d/sat6_tools.repo\n'
                     '[sat6-tools]\n'

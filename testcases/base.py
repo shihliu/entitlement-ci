@@ -35,6 +35,10 @@ class Base(unittest.TestCase):
             cmd = "sed -i 's/^HOSTNAME=.*/HOSTNAME=%s/g' /etc/sysconfig/network" % new_hostname
         (ret, output) = self.runcmd(cmd, "change hostname as %s" % new_hostname, targetmachine_ip)
 
+    def set_yum_proxy(self, proxy="https://squid.corp.redhat.com:3128", targetmachine_ip=""):
+        cmd = "sed -i '/^proxy=*/d' /etc/yum.conf; echo 'proxy=%s' >> /etc/yum.conf" % proxy
+        self.runcmd(cmd, "set proxy on /etc/yum.conf", targetmachine_ip)
+
     def cm_get_consumerid(self, targetmachine_ip=""):
         # get consumer id: system identity
         cmd = "subscription-manager identity | grep identity"

@@ -91,6 +91,8 @@ class VIRTWHOBase(Base):
             if not self.sub_isregistered(targetmachine_ip) and "original" in tool_src:
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")
                 self.sub_auto_subscribe(targetmachine_ip)
+                # add proxy as some repo can't download package
+                self.set_yum_proxy(targetmachine_ip)
             if tool_src is None or "sattool" in tool_src:
                 logger.info("*****tool_src is %s" %tool_src)
                 logger.info("*****os_srial is %s" %self.os_serial)
