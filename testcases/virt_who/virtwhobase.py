@@ -88,7 +88,7 @@ class VIRTWHOBase(Base):
         # install virt-who via satellite 6 tools repo when testing ohsnap-satellite
         self.start_dbus_daemon(targetmachine_ip)
         if "release" in rhel_compose:
-            if not self.sub_isregistered(targetmachine_ip):
+            if not self.sub_isregistered(targetmachine_ip) and "original" in tool_src:
                 self.sub_register("QualityAssurance", "VHVFhPS5TEG8dud9")
                 self.sub_auto_subscribe(targetmachine_ip)
             if tool_src is None or "sattool" in tool_src:
